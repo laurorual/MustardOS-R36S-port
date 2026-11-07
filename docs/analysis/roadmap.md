@@ -1211,3 +1211,15 @@ arquivos descartados,11,8GiB físicos recuperados; build41→18GiB. Cinco marcos
 de firmware com exceções concretas, código/docs versionados e builds menores
 por componente. SDKs/provas/backups/refs preservados; ROM e dados privados
 fora do índice Git. Não criar uma rootfs inteira por edição de script.
+
+**C106 FLUXO PELO CALLER INSTALADO APROVADO,07/11/2026:**
+[Integração e recibos](phase4-installed-caller-session.md), boot81 existente.
+Host não envia dez scripts; stage/run C105 e worker instalado confirmados por
+marcador/PID/starttime/cmdline e mapas.17casos novos;43C105+4grupos reutilizados.
+Menu→GB→menu, imagem/input/som/restauração/saída confirmados,1255frames e
+snapshot preservado. RootRO, hardware/preferências/infra/mountinfo restaurados,
+RAM removida, sem imagem/reboot/instalação persistente. Abertura mais lenta
+reportada, ainda sem medição de latência. Próximo: preparar assets/cápsula no
+aparelho, com plano da origem da ROM/dados; autostart/navegador geral separados.
+Cenário de dongle adiado pelo usuário. Mais515MiB físicos recuperados em
+fixtures/pacotes antigos, mantendo relatórios e dependências C104/C105/C106.

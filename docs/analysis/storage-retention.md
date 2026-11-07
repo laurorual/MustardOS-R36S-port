@@ -112,3 +112,23 @@ Não relaxar `c25_ready` porque o SSH voltou: o relatório de falha desse boot
 é preservado. C104 permanece uma prova do boot79. Após a limpeza, o C105 criou um novo
 contexto válido no boot81 e foi instalado, conforme seu relatório próprio.
 A limpeza em si não exigiu reboot, migração ou uso do Steam Deck.
+
+## Revisão adicional com C106 — 07/11/2026
+
+Plano `build/cleanup/retention-20261107T162254Z.json.gz`:1381arquivos e
+539.611.136bytes recuperados (aproximadamente515MiB físicos). Removeu somente
+raízes/payloads reproduzíveis dos18fixtures C72 com checks.json aprovado,
+imagens/árvores32MiB de checks C88 concluídos e core-staging.tar.gz temporários
+nas sessões antigas. Preservou relatórios, scripts de reprodução e os1484
+arquivos necessários, com hashes/metadados e cadeia offline reconferidos.
+
+O rastreador agora inclui a instalação C105 e o contexto C106. O inventário
+de firmware continua nos mesmos cinco marcos; backups e SDKs preservados.
+`build/phase4` está aproximadamente17GiB, SSD com43GiB livres. Ganho físico
+somado às duas limpezas anteriores:13.163.208.704bytes, cerca12,3GiB; total
+406.193arquivos descartados. Os planos consumidos foram comprimidos e relidos
+integralmente. Resumo cumulativo em `build/cleanup/retention-summary.json`.
+
+C106 foi preparado/testado em arquivos pequenos, sem nova rootfs. A limpeza
+não alterou console, cartões ou Steam Deck. O teste nativo separado confirmou
+menu/jogo/retorno pelo entrypoint já instalado, com encerramento e restauração.

@@ -1,5 +1,14 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Atualização C106,07/11/2026 — sessão pelo caller instalado aprovada:**
+[Stage/run e worker instalados](phase4-installed-caller-session.md), boot81
+existente; dez scripts sem upload pelo host,17testes novos. Menu/GB/retorno,
+som/input/restauração/saída confirmados,1255frames, snapshot preservado. RaizRO,
+preferências/infra/mountinfo restaurados, RAM removida. Abertura mais lenta
+reportada, sem medição/causa. Preparo de assets/ROM ainda pelo harness;
+autostart/navegador geral pendentes. Mais515MiB físicos de fixtures/pacotes
+antigos removidos com dependências preservadas; dongle adiado pelo usuário.
+
 **Atualização C105,07/11/2026 — caller manual instalado:**
 [17arquivos/60.276bytes](phase4-manual-caller.md), sem imagem integral ou
 substituições. Boot81 observado com C07 pronto após reboot único do80 com USB

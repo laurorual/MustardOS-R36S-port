@@ -55,6 +55,25 @@ def replicas():
         patterns.extend([area+'/build.*/composition',area+'/build.*/staging'])
     for pattern in patterns:
         yield from WORK.glob(pattern)
+    # C72 control-flow tests left full native-adapter payload copies. Keep the
+    # passed report, per-case scripts/logs, and only discard recreated data.
+    for stage in WORK.glob('provider-upgrade-native/install.*'):
+        report=stage/'checks.json'
+        if report.is_file():
+            r=json.loads(report.read_text())
+            if r.get('passed') is True and r.get('experiment')=='C72_ADAPTER_CONTROL_FLOW_FIXTURES':
+                for case in (stage/'checks').glob('case-[0-9][0-9]'):
+                    for name in ['root','deployment/payload']:
+                        root=case/name
+                        if root.exists():yield root
+    # Completed, reproducible 32 MiB ext4 test images and synthetic trees.
+    for stage in WORK.glob('initial-image/checks.*'):
+        report=stage/'analysis.json'
+        if report.is_file() and json.loads(report.read_text()).get('passed') is True:
+            for child in stage.iterdir():
+                if child.is_dir() or child.suffix=='.ext4':yield child
+    for area in ['frontend-session','init-services','menu']:
+        yield from WORK.glob(area+'/*/core-staging.tar.gz')
 
 
 def leaves(root):
@@ -168,6 +187,7 @@ def apply(plan, report):
 
 
 def main():
+    os.umask(0o077)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--apply', type=Path, metavar='REVIEWED_PLAN')
     args = parser.parse_args()

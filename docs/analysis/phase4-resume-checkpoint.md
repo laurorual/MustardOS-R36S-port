@@ -1,6 +1,65 @@
 # Fase 4 — ponto seguro de retomada
 
-## Estado atual — C105 caller manual instalado; cartão no R35S
+## Estado atual — C106 sessão pelo caller instalado APROVADA; cartão no R35S
+
+**07/11/2026:** [C106](phase4-installed-caller-session.md) concluído no
+**boot81**, IP **192.168.15.8:2222**, C07 pronto/raiz ext4RO0755. Cartão de
+teste128GB no R35S, original32 guardado; Steam Deck fora do fluxo. Nenhum
+launcher/jogo aberto. **Cenário de inserção tardia do dongle adiado pelo usuário**;
+não investigar/testar esse caso neste foco. Não houve reboot neste incremento.
+
+**C106:** `build/phase4/installed-caller-session/load.mdsjxv2d`, latest-load;
+observação `observe.c7dg6jhs`, checks `checks.0rskku83` com17casos novos.
+Reutiliza43casos C105 e4grupos de vínculo por integridade. Guardas160hashes
+(143fundação/layout+17caller), metadados, identidade4 e c25_ready integral.
+Fontes/provas C77/C104/C105 intactas; usa o mesmo boot/UUID C105 observado.
+
+**Integração real aprovada:** dez scripts não são enviados pelo host;
+`/usr/libexec/muos-caller/caller.sh stage` os prepara em RAM e `run observe`
+abre o worker instalado, com supervisor/namespace original. Marker run.once,
+PID/starttime/cmdline do worker e três mapas menu→GB→menu comprovam esse
+caminho. Assets/metadados/ROM privada ainda são preparados pelo harness:
+não é navegador geral ou sessão inteiramente autônoma. Nenhum novo arquivo
+persistente, autostart, imagem completa, serviço ou token instalado.
+
+**Confirmação física:** usuário confirmou imagem/input/som/restauração Fn+L2/
+saída Fn+Start/retorno. Informou abertura da ROM um pouco mais lenta;
+registrado como percepção, sem medição ou causa demonstrada. Não repetir
+o teste por isso sem plano concreto.1255frames, hotkey0/expired0; snapshot
+e metadados idênticos ao C63,2status/1export, nenhum QuickSave. Jogo45s,
+worker210s/supervisor240s preservados; prazo SSH300s inclui guardas prévias.
+
+**Fechamento:** native/OPERATION/CLEANUP/postflight/mount-health/
+caller-execution/cleanup/stopped-screen0. RaizRO0755/PCMclosed/p1p3off/UIoff/
+taint0; mixer/DRM/volume/brilho/WirePlumber/preferências55/70 restaurados.
+Infraestrutura PID/starttime e mountinfo global iguais; RAM removida e página
+final diagnóstica C77 escrita. Analisador C77 congelado:59,9401Hz recente,
+5underruns/1940frames de áudio ausentes agregados; sem inferência de momento
+ou desempenho sustentado. Fechamento offline por recibos autênticos, imagem
+C64/SDK preservados. Prova `dist/phase4/installed-caller-session`, sanitizada.
+
+**Limpeza adicional:**1381 arquivos antigos,539.611.136bytes (**515MiB**)
+físicos recuperados. Plano consumido
+`build/cleanup/retention-20261107T162254Z.json.gz`;1484arquivos protegidos e
+cadeia C104/C105/C106 reconferidos;9testes do limpador passaram. Foram
+descartadas raízes/payloads sintéticos C72,fixtures32MiB C88 aprovados e
+pacotes core-staging temporários antigos. Relatórios/scripts de reprodução,
+SDKs/backups/refs/dist/ROM preservados. build/phase4 agora~17GiB, SSD~43GiB
+livres; total desta rodada e anterior~12,3GiB físicos liberados. Resumo
+`build/cleanup/retention-summary.json`. Cinco marcos de firmware e Git local
+continuam vigentes; não gerar/copiar uma imagem inteira por edição.
+
+**Próximo C107:** preparar os assets/cápsula no aparelho, reduzindo dependência
+do harness. Planejar origem da ROM e acesso ao volume de dados antes de
+alterar C105; sem mover ROM ou montar/gravar p3 por suposição. Pode reutilizar
+boot81 depois de verificar estado real e integridade C105/C106. Não repetir
+C106/C105/rebootC104, nem tocar no Deck por rotina. Manter claims consumidos
+`manual-caller/recovered-reboot.claim` e `install.322dqnrs/dispatch.claim`.
+Autostart/navegador geral/SRAM/novos saves/Power/suspend/boot frio/queda de
+energia/longa duração separados. Não rearmar.once/C94 ou regravar candidata77
+consumida/fábrica C100 sem provisão. C99 não serve após C102; C98 segue rascunho.
+
+## Marco anterior — C105 caller manual instalado; cartão no R35S
 
 **07/11/2026:** limpeza de builds e [C105](phase4-manual-caller.md) concluídos.
 Console **192.168.15.8:2222**, C07/**boot81**, raiz ext4 RO0755. Cartão de teste

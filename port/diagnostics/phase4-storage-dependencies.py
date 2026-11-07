@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Read-only dependency trace for the current C104/C105 offline setup."""
+"""Read-only dependency trace for the current C104/C105/C106 offline setup."""
 import os,sys,json
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -32,6 +32,11 @@ sys.addaudithook(audit)
 import phase4_manual_caller as m
 m.qualified(); m.common();m.public_dependencies()
 ctx,*rest=m.parent.legacy.historical()
+# The installed component and the next runner add receipts and public assets,
+# not another root image. Trace these before pruning any historical scaffolds.
+import phase4_installed_caller_session as current
+_,installed,_,_=current.qualified()
+current.current_common('',0,installed['boot_sequence']);current.rendered_runner()
 # Runtime inputs can be returned as Paths before first open.
 def walk(v):
     if isinstance(v,Path):
