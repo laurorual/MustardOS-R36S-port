@@ -1250,3 +1250,24 @@ Próximo lote: residência dos quatro assets públicos restantes, instalação e
 integração antes do próximo teste físico; manter a ROM como input RAM, sem
 montar/gravar p3 por suposição. Qualificar novo boot com observador próprio se
 necessário, mantendo claims consumidos. Autostart/navegador geral separados.
+
+**C112–C114 APROVADOS,07/11/2026:** [assets](phase4-resident-assets.md),
+[ROM interna](phase4-internal-rom.md) e [preparo automático](phase4-resident-preparation.md).
+Usuário ampliou escopo para ROM interna; cartão128 permanece no console.
+Boot82 observado com identidade estável, sem pedido de reboot.13arquivos/
+1.871.877bytes aditivos em raiz, quatro assets qualificados e helper MIT fsync.
+ROM64KiB importada uma vez na p3, shelf próprio700/arquivos600, com backup lógico
+independente43entradas/88.064bytes e snapshot/preferências anteriores intactos.
+52+21checks locais, instalação/importação/releitura0, rootRO/p3off/RAM removida.
+Preparo residente sem uploads e com leitura da ROMlocal proibida passou;11assets,
+10scripts/identidade/manifestos/CLI/ABI conferidos sem iniciar UI/core/input/áudio.
+Não houve imagem integral, formatação, repartição ou acesso ao Deck.
+
+**C115 PRONTO, FÍSICO PENDENTE:** [integração](phase4-resident-session.md).
+16checks adicionais e observação nativa boot82/191hashes passaram; histórico
+admite ROMp3 por recibo nativo em três pontos, preservando outros bindings.
+Loop de uploads com mapa vazio efetivamente não lê/envia assets/ROM. Usuário
+ausente: não executar rodada gráfica nem publicar confirmação sintética.
+Próximo passo é UMA rodada supervisionada A/Start/direcional/Fn+L2/Fn+Start,
+com análise/fechamento/prova próprios depois. Backup/claims C112/C113 preservados.
+Trace atéC115 e retenção de cinco marcos aprovados, zero novos descartes.

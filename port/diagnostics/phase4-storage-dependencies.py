@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Read-only dependency trace for the current C104-C111 offline setup."""
+"""Read-only dependency trace for the current C104-C115 offline setup."""
 import os,sys,json
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -65,6 +65,22 @@ def walk(v):
     elif isinstance(v,(tuple,list)):
         for x in v:walk(x)
 walk(ctx);walk(rest[:-1])
+# Resident package, independent ROM backup, preparation receipts and future GUI.
+import phase4_resident_session as resident
+_,resident_report,_,_=resident.qualified()
+resident.current_common('',0,resident_report['boot_sequence']);resident.rendered_runner()
+resident_history=resident.historical();walk(resident_history[:-1])
+for area,names in [(resident.assets.AREA,['latest-package','latest-complete']),
+                   (resident.store.AREA,['latest-complete']),
+                   (resident.resident.AREA,['latest-complete']),
+                   (resident.AREA,['latest-checks'])]:
+    for name in names:
+        stage=Path((area/name).read_text().strip())
+        assert stage.resolve().is_relative_to(area)
+        row=json.loads((stage/'analysis.json').read_text());assert row['passed'] is True
+        for source,digest in row.get('source_sha256',{}).items():assert resident.sha(repo/source)==digest
+        for source,digest in row.get('package_files',{}).items():
+            assert resident.sha(stage/'target'/resident.assets.PREFIX/source)==digest
 os.stat=oldstat;os.lstat=oldlstat
 # Failed open probes (including CPython cache and temporary-name probes)
 # are not retained artifacts. Keep only existing inputs for a stable closure.

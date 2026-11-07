@@ -1,6 +1,90 @@
 # Fase 4 — ponto seguro de retomada
 
-## Estado atual — C107–C111 concluídos; C109 com preparo local APROVADO
+## Estado atual — C112–C114 aprovados; ROM interna; C115 aguarda teste físico
+
+**07/11/2026:** R35S **192.168.15.8:2222**, **boot82/C07 pronto**, raiz ext4RO0755,
+PCMclosed/UIoff/taint0/p1p3off. Cartão128GB no console; original32 guardado,
+Deck fora do fluxo. Usuário pediu ROM INTERNA e depois se ausentou: nenhuma UI,
+core de jogo, input/áudio ou reboot foi iniciado nesta rodada. **Aguardar seu
+retorno para teste físico; todo o restante deste lote está preparado.**
+
+**Novo boot:** observado82/UUID real/identidade4 estável, guardas178 preservados,
+sem editar/reutilizar UUID81 ou pedir reboot. C112 `observe.xx0kthce`; C115
+`observe.npmqzojq` já confere191hashes com o pacote instalado. Se houver outro
+boot/IP, reconstruir o contexto novo antes da sessão; não reimportar/reinstalar
+nem relaxar vínculos por rotina. Inserção tardia do dongle continua adiada.
+
+**C112 assets residentes:** [registro](phase4-resident-assets.md), pacote
+`resident-assets/package.2p14ff4n`,13arquivos/1.871.877bytes em
+`/usr/libexec/muos-resident`. Quatro ELFs públicos C109 exatos, scripts/licenças/
+manifestos e novo helper MIT sync-path A35/fsync, compilado pelo SDK em container.
+Frontend/provider/core não recompilados; nenhum arquivo anterior substituído.
+52casos `checks.obt45s39` passaram, incluindo modo real755 dos helpers session,
+0644 das bibliotecas,13folhas/rollback, ROM/aliases/modos/guardas e novo boot.
+Instalação `install.0uvf0x6y` concluída: check/recusa ocupada/fechamento0,
+fingerprint/infra/mountinfo preservados e RAM removida/raizRO. Prova congelada
+`dist/phase4/resident-assets-installed`, sem ELFs/ROM/seed/UUID.
+**Preservar install.0uvf0x6y/dispatch.claim; não repetir apply.**
+
+**C113 ROM INTERNA:** [importação](phase4-internal-rom.md),
+`internal-rom/import.tgknjpow`, latest-complete. Cópia legal fornecida64KiB em
+**p3:`MUOS/port-roms-v1/gb/private.gb`**, arquivo0600, shelf/gb0700, registro e
+marcador600. Não está no pacote raiz/Git/dist/imagem pública. Backup lógico
+privado independente antes da escrita: `before.tar`,88.064bytes/43entradas;
+hashes, tar, preferências55/70 e snapshotC109 completo conferidos no host.
+Recuperações C82/C89 anteriores preservadas; não é backup de bloco do cartão.
+
+21casos `internal-rom/checks.yolw4bqf` passaram. Escrita destaca UMA tentativa;
+fsync arquivos/dirs→rename sem sobrescrita→fsync pai, recusa final/staging já
+existentes. Falha retém o novo staging/final, sem rollback ou retry automático.
+Nativo0, unmount/remountRO e verify separado aprovados; cinco inventários da
+árvore anterior byte-idênticos. Infra/PID/starttime/mountinfo iguais, RAM removida,
+p3 desmontada/raizRO. Sem format/repartição/p2rewrite/reboot/GUI. Prova congelada
+`dist/phase4/internal-rom-imported`, sem ROM/backup/ELF/seed/UUID.
+**Preservar import.tgknjpow/dispatch.claim e backup; não repetir apply/importação.**
+
+**C114 automático sem UI:** [resultado](phase4-resident-preparation.md),
+`resident-preparation/validate.5l2corol`, latest-complete. Zero uploads de inputs;
+audit hook proíbe open da ROM local. Loader residente copia quatro assets,
+lê ROMp3 RO/noload/nosuid/nodev/noexec num namespace privado, desmonta/remove
+mountpoint e só então delega ao C111 no namespace GLOBAL original. C111 prepara
+mais sete bibliotecas locais e stage C105 fornece dez scripts. São
+**11assets RAM +10scripts**, todos hashes/modos/links conferidos; ROM/digest,
+identidade, seis metadados/manifestos e boot/UUID do stage coincidem com C109/C113.
+Run.once ausente: worker/jogo não iniciado. CLI host, quatro eager loads ABI,
+--version/--help passaram. Todos os recibos0; rootRO/p3off/PCMclosed/UIoff,
+infra/mountinfo iguais e RAM removida. Prova `dist/phase4/resident-preparation`.
+Fontes C112/C113/C114 e provas congeladas; não editar para corrigir história.
+
+**C115 implementação pronta:** [fluxo e instruções](phase4-resident-session.md),
+16checks `resident-session/checks.v3fz80ec` aprovados sem rede/GUI/core e com
+ROMlocal proibida. Adaptador em memória troca somente três admissões HOST-ROM
+no histórico C63 por recibo nativo C113, mantendo todos os demais hashes/bindings.
+Loop de upload executado em fixture com mapa vazio: zero leituras/envios de
+assets/ROM. Scripts originais C105 e worker não alterados. Run/analyze/finish/
+package próprios preparados, guardas191/mesmo boot82 e origem C113/C114 exigidos.
+Observação nativa `observe.npmqzojq` aprovada; **nenhuma sessão gráfica executada**
+e `dist/phase4/resident-session` NÃO existe. Não inventar confirmação física.
+
+**Próxima ação quando usuário retornar:** conferir presença/IP/boot real. Se
+82 ainda atual, confirmar integridade e usar UMA rodada com:
+`python3 -B port/scripts/run-phase4-resident-session.py --host 192.168.15.8 --boot 82 --observation build/phase4/resident-session/observe.npmqzojq`.
+Só pedir A/Start/direcional/Fn+L2/Fn+Start depois de confirmar menu ativo; jogo45s,
+sem salvar/Power/volume/brilho. Registrar resposta física vinculada à análise,
+analisar/fechar/publicar C115 somente se todos os recibos e confirmação passarem.
+Se houve reboot, preparar observador novo sem usar UUID82 ou reinstalar/importar.
+
+**Armazenamento/Git:** sem nova imagem integral ou clone de rootfs; artefatos
+novos~16MiB. Inventário mantém cinco marcos de firmware. Trace C104–C115 passou,
+backup/provas/pacotes protegidos; dry-run
+`build/cleanup/retention-20261107T224404Z.json` encontrou zero descartes novos.
+Não aplicar planos vazios/consumidos. ROM original local preservada fora do Git;
+execução atual não a lê. Cinco checkpoints Git nomeados, incluindo este lote.
+Não tocar Deck/original32, investigar dongle, rearmar.once/C94/claims ou regravar
+candidata77/fábrica C100 sem provisão. Autostart/navegador geral/SRAM/novos saves/
+Power/suspend/boot frio/queda de energia/longa duração continuam separados.
+
+## Marco anterior — C107–C111 concluídos; C109 com preparo local APROVADO
 
 **07/11/2026:** R35S **192.168.15.8:2222**, mesmo **boot81**, C07 pronto/
 raiz ext4RO0755. Cartão de teste128GB no console, original32 guardado; Deck

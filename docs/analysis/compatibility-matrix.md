@@ -1,5 +1,16 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Atualização C112–C115,07/11/2026 — ROM e assets internos:**
+[C112](phase4-resident-assets.md) instalado no boot82,13arquivos/1,8MiB aditivos;
+[C113](phase4-internal-rom.md) importa ROM64KiB na p3 com backup independente e
+preservação exata de preferências/snapshot. [C114](phase4-resident-preparation.md)
+qualifica preparo com zero uploads/leitura da ROMlocal proibida,11assets+
+10scripts/identidade/manifestos/CLI/ABI, sem UI/core.52+21checks, raizRO/p3off/
+RAM removida e infra/mountinfo preservados. [C115](phase4-resident-session.md)
+implementado com16checks e observação191hashes aprovados; **teste gráfico físico
+pendente por ausência do usuário**. Nenhuma nova aprovação acústica/input ou
+restauração foi inferida. Sem novas imagens/repartição/Deck.
+
 **Atualização C107–C111,07/11/2026 — preparador local instalado:**
 [Revisão atual](phase4-local-preparation-v3.md),44casos e seis arquivos novos
 na revisão C111; anteriores preservadas como regressão.31.689bytes no total,

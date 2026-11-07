@@ -2,15 +2,30 @@
   "schema": 1,
   "maximum_firmware_versions": 5,
   "firmware_versions": {
-    "C64": ["muxretro-image/image.n_uthilw/images/rootfs.ext4"],
-    "C79": ["initial-image/provision.evbj4tey/factory.ext4", "gambatte-card-image/image.efszbcqw/muos-r35s-panel0-c79-private.img", "gambatte-card-image/image.efszbcqw/partition-readback/rootfs.ext4"],
-    "C89": ["recovery-image/compose.lru8bw5e/recovery.ext4"],
-    "C93": ["initial-migration/compose.h5mhulhi/candidate.ext4"],
-    "C100": ["c79-layout/compose.1yrez0md/output/factory.ext4"]
+    "C64": [
+      "muxretro-image/image.n_uthilw/images/rootfs.ext4"
+    ],
+    "C79": [
+      "initial-image/provision.evbj4tey/factory.ext4",
+      "gambatte-card-image/image.efszbcqw/muos-r35s-panel0-c79-private.img",
+      "gambatte-card-image/image.efszbcqw/partition-readback/rootfs.ext4"
+    ],
+    "C89": [
+      "recovery-image/compose.lru8bw5e/recovery.ext4"
+    ],
+    "C93": [
+      "initial-migration/compose.h5mhulhi/candidate.ext4"
+    ],
+    "C100": [
+      "c79-layout/compose.1yrez0md/output/factory.ext4"
+    ]
   },
   "required_files": {
     "gambatte-image/image.zal39n7u/target/opt/muos/share/conf/rootfs/asound.conf": "C100/C102/C105 pinned 444-byte audio template",
-    "foundation/staging.YRRiUd/core-staging.tar.gz": "Last foundation packaging input"
+    "foundation/staging.YRRiUd/core-staging.tar.gz": "Last foundation packaging input",
+    "internal-rom/import.tgknjpow/before.tar": "Independent C113 pre-import logical data backup; private; 88064 bytes",
+    "internal-rom/import.tgknjpow/dispatch.claim": "Consumed private ROM import attempt; never redispatch",
+    "resident-assets/install.0uvf0x6y/dispatch.claim": "Consumed C112 resident assets installation attempt; never redispatch"
   },
   "exceptions": {
     "private": "Transport credentials and original C20 recovery backup",
@@ -27,7 +42,7 @@
     "kernel-output": "Working kernel output",
     "uboot-sd/probe.3utahq01/source": "Last qualified bootloader working source",
     "uboot-sd/probe.3utahq01/output": "Last qualified bootloader output",
-    "current-dependency-leaves": "Only the files read/returned by the C104-C111 offline dependency trace; no whole historical root retained for this reason",
+    "current-dependency-leaves": "Only the files read/returned by the C104-C115 offline dependency trace; no whole historical root retained for this reason",
     "dist": "Frozen sanitized evidence and license archives; not a set of firmware builds"
   }
 }

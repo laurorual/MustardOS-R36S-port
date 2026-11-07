@@ -147,3 +147,17 @@ não encontrou novos arquivos elegíveis: zero descartes e zero bytes adicionais
 liberados nesta rodada. Não aplicar esse plano vazio nem reutilizar os antigos
 consumidos. Cinco marcos de firmware continuam no inventário; as revisões de
 scripts não acrescentam marcos de imagem. SDKs/backups/refs/provas preservados.
+
+## Rodada C112–C115 — ROM interna,07/11/2026
+
+Sem nova imagem de firmware ou clone de rootfs. Um pacote13folhas/1,8MiB e
+uma ROM64KiB foram instalados no cartão; no host, pacote/fixtures/recibos somam
+cerca de16MiB. Fontes/docs seguem no Git; ELFs, ROM e backup privado fora dele.
+A retenção continua com cinco marcos de firmware e passa a cinco tags locais.
+
+Trace estendido até C115 inclui pacote residente, backup C113, recibos e prova
+de preparo C114/história adaptada. Backup independente `internal-rom/import.tgknjpow/before.tar`
+e claims C112/C113 foram acrescentados ao inventário explícito de dependências;
+não são cópias descartáveis de build. O plano final somente leitura é registrado
+no checkpoint: zero candidatos novos. Nenhuma remoção adicional nesta rodada.
+O teste gráfico C115 está pendente e não há prova física para descartar/refazer.
