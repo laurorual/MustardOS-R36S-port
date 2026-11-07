@@ -1,0 +1,88 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+# Port adapter for the storage paths/bindmap contract in MustardOS
+# internal/script/device/bind.sh (550cc58f9cd3449a17f53ca55efcdc6c473b5a89).
+# Single-card bring-up: no block discovery, filesystem creation, or SD2 probing.
+set -eu
+state=/run/muos/port-storage
+store=/run/muos/storage
+rom=/mnt/mmc
+data=/userdata
+fstype=ext4
+[ ! -r /etc/default/muos-storage ] || . /etc/default/muos-storage
+[ -f /etc/muos-private-foundation ] || { echo 'Not a port foundation rootfs' >&2; exit 1; }
+[ "$(tr '\000' '\n' < /sys/firmware/devicetree/base/model)" = 'R36S-V12 2023-08-18 Panel 0' ] || exit 1
+mkdir -p "$state"
+exec 9>"$state/lock"
+flock -x 9
+for utility in stat findmnt mount umount awk grep tr; do command -v "$utility" >/dev/null || exit 1; done
+mounted() { findmnt -rn -M "$1" >/dev/null; }
+same() {
+    left_id=$(stat -c '%d:%i' "$1") || return 1
+    right_id=$(stat -c '%d:%i' "$2") || return 1
+    [ -n "$left_id" ] && [ -n "$right_id" ] && [ "$left_id" = "$right_id" ]
+}
+stop_storage() {
+    rm -f "$store/mount_ready" "$state/ready"
+    [ -r "$state/mounts" ] || return 0
+    failed=0
+    for dest in $(awk '{a[NR]=$0} END {for(i=NR;i>0;i--) print a[i]}' "$state/mounts"); do
+        if mounted "$dest"; then umount "$dest" || failed=1; fi
+    done
+    [ "$failed" = 0 ] || return 1
+    rm -f "$state/mounts" "$store/bindmap" "$state/map.tmp"
+}
+bind_path() {
+    src=$1 dest=$2
+    [ ! -L "$src" ] && [ ! -L "$dest" ]
+    mkdir -p "$src" "$dest"
+    if mounted "$dest"; then echo "Unowned mount: $dest" >&2; return 1; fi
+    mount --bind "$src" "$dest"
+    # Journal immediately, including if the remount below fails.
+    printf '%s\n' "$dest" >> "$state/mounts"
+    mount -o remount,bind,nosuid,nodev "$dest"
+    same "$src" "$dest"
+}
+status_storage() {
+    [ -f "$state/ready" ] && [ -f "$store/mount_ready" ] || return 3
+    mounted "$rom" && same "$data" "$rom" || return 1
+    while IFS='|' read -r key backend src; do
+        case "$key" in
+            catalogue|name|launch|manifest|collection|history|track|override) dest="$store/info/$key" ;;
+            package) dest="$store/package/catalogue" ;;
+            *) dest="$store/$key" ;;
+        esac
+        mounted "$dest" && same "$src" "$dest" || return 1
+    done < "$store/bindmap"
+    # The map deliberately records only one 'package' entry, as upstream does.
+    mounted "$store/package/config" && same "$rom/MUOS/package/config" "$store/package/config"
+}
+case "${1:-}" in
+ start)
+    if [ -e "$state/ready" ]; then status_storage; exit $?; fi
+    # Interrupted startup is rolled back before attempting a fresh transaction.
+    stop_storage
+    trap 'rc=$?; trap - EXIT; if [ "$rc" != 0 ]; then stop_storage || :; fi; exit "$rc"' EXIT
+    [ ! -L "$data" ] && [ ! -L "$rom" ] && [ ! -L "$store" ]
+    mkdir -p "$data" "$store"
+    [ "$(findmnt -rn -o FSTYPE -T "$data")" = "$fstype" ]
+    findmnt -rn -o OPTIONS -T "$data" | tr ',' '\n' | grep -qx rw
+    : > "$state/mounts"
+    : > "$state/map.tmp"
+    bind_path "$data" "$rom"
+    locations='application bios init info/manifest info/track music pickles save theme wasabi info/catalogue info/name info/launch info/collection info/history info/override network profile screenshot syncthing package/catalogue package/config'
+    for loc in $locations; do
+        bind_path "$rom/MUOS/$loc" "$store/$loc"
+        case "$loc" in info/*) key=${loc#info/} ;; package/*) key=package ;; *) key=$loc ;; esac
+        if ! grep -q "^$key|" "$state/map.tmp"; then
+            printf '%s|ROM|%s\n' "$key" "$rom/MUOS/$loc" >> "$state/map.tmp"
+        fi
+    done
+    mv "$state/map.tmp" "$store/bindmap"
+    touch "$store/mount_ready" "$state/ready"
+    status_storage
+    ;;
+ stop) stop_storage ;;
+ status) status_storage ;;
+ *) echo 'Usage: S90muos-storage start|stop|status' >&2; exit 2 ;;
+esac

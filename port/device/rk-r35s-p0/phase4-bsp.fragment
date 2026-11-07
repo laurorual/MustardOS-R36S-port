@@ -1,0 +1,5 @@
+# Host-only build probe. This is not the recovered installed configuration.
+CONFIG_LOCALVERSION="-muos-r35s-p4"
+# CONFIG_LOCALVERSION_AUTO is not set
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y

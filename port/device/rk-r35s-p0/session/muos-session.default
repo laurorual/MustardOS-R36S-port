@@ -1,0 +1,6 @@
+# Private bring-up service: disabled until the init ownership contract is ready.
+enabled=0
+preferences_enabled=0
+lease_seconds=180
+profile_dir=/usr/share/muos-r35s-profile
+prerequisites=

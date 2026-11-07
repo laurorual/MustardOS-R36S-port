@@ -1,0 +1,16 @@
+{
+  "python.analysis.exclude": [
+    "refs/**",
+    "build/**",
+    "dist/**",
+    "**/.git/**",
+    "**/__pycache__/**",
+    "**/node_modules/**",
+    "**/.venv/**"
+  ],
+  "files.watcherExclude": {
+    "**/refs/**": true,
+    "**/build/**": true,
+    "**/dist/**": true
+  }
+}

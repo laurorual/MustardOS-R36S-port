@@ -1,0 +1,220 @@
+--- a/retro/core/startup.h
++++ b/retro/core/startup.h
+@@ -6,6 +6,7 @@
+ typedef struct startup_options {
+     const char *core_path;
+     const char *content_path;
++    int no_content;
+     int fresh;
+     int restarting;
+     int netplay_host;
+--- a/retro/core/startup.c
++++ b/retro/core/startup.c
+@@ -8,7 +8,7 @@
+ void startup_options_print_usage(FILE *stream, const char *program) {
+     fprintf(
+         stream,
+-        "Usage: %s <core.so> <content> [--fresh] [--restart] [--subsystem=<ident>] [--single-screen] "
++        "Usage: %s <core.so> <content|--no-content> [--fresh] [--restart] [--subsystem=<ident>] [--single-screen] "
+         "[--netplay-host[=port]] "
+         "[--netplay-join=address[:port]]\n",
+         program
+@@ -19,10 +19,12 @@
+     if (!options) return 0;
+     memset(options, 0, sizeof(*options));
+     options->netplay_port = NETPLAY_DEFAULT_PORT;
+-    if (argc < 3 || !argv) return 0;
++    if (argc < 3 || !argv || !argv[1] || !*argv[1] || !argv[2] || !*argv[2]) return 0;
+ 
+     options->core_path = argv[1];
+-    options->content_path = argv[2];
++    options->no_content = strcmp(argv[2], "--no-content") == 0;
++    options->content_path = options->no_content ? NULL : argv[2];
++    if (options->no_content) options->fresh = 1;
+     for (int i = 3; i < argc; i++) {
+         if (strcmp(argv[i], "--fresh") == 0) {
+             options->fresh = 1;
+@@ -57,6 +59,8 @@
+         }
+     }
+ 
++    if (options->no_content && (options->netplay_host || options->netplay_address[0]
++        || options->netplay_invalid || options->subsystem_ident[0] || options->single_screen)) return 0;
+     if (options->netplay_host && options->netplay_address[0]) options->netplay_invalid = 1;
+     return 1;
+ }
+--- a/retro/core/core.h
++++ b/retro/core/core.h
+@@ -10,6 +10,7 @@
+     bool initialised;
+     void *handle;
+ 
++    bool supports_no_game;
+     bool need_fullpath;
+     bool block_extract;
+     const char *valid_extensions;
+@@ -40,6 +41,7 @@
+ };
+ 
+ extern struct core_cbs current_core;
++extern int core_no_content_session;
+ 
+ extern char core_content_path[PATH_MAX];
+ 
+@@ -70,6 +72,7 @@
+ int core_content_save_prefix(const char *core_path_arg, const char *content_path, char *out, size_t out_size);
+ 
+ int core_load_content(const char *content_path);
++int core_load_no_content(void);
+ 
+ int core_cached_system_info(struct retro_system_info *info);
+ 
+--- a/retro/core/environment.c
++++ b/retro/core/environment.c
+@@ -226,6 +226,8 @@
+         }
+ 
+         case RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME:
++            if (!data) return false;
++            current_core.supports_no_game = *(const bool *) data;
+             return true;
+ 
+         case MUX_ENVIRONMENT_SET_SERIALIZATION_QUIRKS_LEGACY:
+--- a/retro/core/core.c
++++ b/retro/core/core.c
+@@ -27,6 +27,7 @@
+ 
+ struct core_cbs current_core = {0};
+ char core_content_path[PATH_MAX] = "";
++int core_no_content_session;
+ char core_content_load_method[32] = "";
+ char core_resolved_content_path[PATH_MAX] = "";
+ char core_active_patches[1024] = "";
+@@ -116,6 +117,7 @@
+     void (*set_input_poll)(retro_input_poll_t) = NULL;
+     void (*set_input_state)(retro_input_state_t) = NULL;
+ 
++    core_no_content_session = 0;
+     memset(&current_core, 0, sizeof(current_core));
+     memset(&information_cache, 0, sizeof(information_cache));
+     current_core.handle = dlopen(corefile, RTLD_LAZY);
+@@ -217,6 +219,7 @@
+ }
+ 
+ int core_content_rel_dir(const char *content_path, char *out, const size_t out_size) {
++    if (core_no_content_session) return str_copy_checked(out, out_size, "");
+     char *content_dir = get_content_path((char *) content_path);
+     char rel_path[PATH_MAX];
+     union_get_relative_path(content_dir, rel_path, sizeof(rel_path));
+@@ -621,7 +624,27 @@
+     return loaded;
+ }
+ 
++int core_load_no_content(void) {
++    if (!current_core.initialised || !current_core.supports_no_game || !current_core.retro_load_game) {
++        LOG_ERROR(mux_module, "Core did not advertise no-content support");
++        return -1;
++    }
++    current_core.game_info_ext = NULL;
++    hw_render_bridge_enter_core_call();
++    const int loaded = current_core.retro_load_game(NULL);
++    hw_render_bridge_exit_core_call();
++    if (!loaded) return -1;
++    core_no_content_session = 1;
++    core_content_path[0] = '\0';
++    core_resolved_content_path[0] = '\0';
++    core_active_patches[0] = '\0';
++    core_active_patch_count = 0;
++    snprintf(core_content_load_method, sizeof(core_content_load_method), "No content");
++    return 0;
++}
++
+ int core_load_content(const char *content_path) {
++    core_no_content_session = 0;
+     if (!str_copy_checked(core_content_path, sizeof(core_content_path), content_path)
+         || !str_copy_checked(core_resolved_content_path, sizeof(core_resolved_content_path), content_path)) {
+         LOG_ERROR(mux_module, "Content path is too long");
+--- a/retro/core/main.c
++++ b/retro/core/main.c
+@@ -708,7 +708,8 @@
+     sigaction(SIGPIPE, &broken_pipe, NULL);
+ 
+     const char *core_path_arg = startup.core_path;
+-    const char *content_path = startup.content_path;
++    /* Logical settings identity only; never opened or passed as content. */
++    const char *content_path = startup.no_content ? "no-content" : startup.content_path;
+     const char *startup_message = startup.restarting ? lang.muxretro.content_restarting : lang.muxretro.content_loading;
+     const uint64_t startup_start = SDL_GetPerformanceCounter();
+     uint64_t startup_stage = startup_start;
+@@ -760,8 +761,9 @@
+     LOG_DEBUG(mux_module, "core_open done");
+     startup_log_stage("frontend and core initialisation", &startup_stage);
+ 
++    core_no_content_session = startup.no_content;
+     state_saves_init(core_path_arg);
+-    patch_manual_init(core_path_arg, content_path);
++    if (!startup.no_content) patch_manual_init(core_path_arg, content_path);
+     perf_init();
+     session_settings_init(core_path_arg, content_path);
+     session_settings_launch_begin();
+@@ -784,7 +786,7 @@
+                      && gamestate_find_most_recent(resume_path, sizeof(resume_path), &load_blocked) == 0;
+     if (show_startup_messages) loading_message_show(has_resume ? lang.muxretro.content_resuming : startup_message);
+ 
+-    precache_content(content_path);
++    if (!startup.no_content) precache_content(content_path);
+ 
+     if (startup.subsystem_ident[0]) {
+         const char *slots[SUBSYSTEM_ROM_MAX];
+@@ -803,7 +805,7 @@
+             );
+     }
+ 
+-    if (core_load_content(content_path) != 0) {
++    if ((startup.no_content ? core_load_no_content() : core_load_content(content_path)) != 0) {
+         LOG_ERROR(mux_module, "Failed to load content: %s", content_path);
+         return abort_startup(1);
+     }
+@@ -812,14 +814,14 @@
+     LOG_DEBUG(mux_module, "core_load_content done");
+     startup_log_stage("content load", &startup_stage);
+ 
+-    advisory_init(content_path);
++    if (!startup.no_content) advisory_init(content_path);
+     pause_menu_playtime_reset();
+ 
+-    if (device.board.has_network) cheevo_init(core_resolved_content_path);
++    if (!startup.no_content && device.board.has_network) cheevo_init(core_resolved_content_path);
+ 
+     persistent_memory_init(core_path_arg, content_path);
+-    cheats_init(core_path_arg, content_path);
+-    manual_init(core_path_arg, content_path);
++    if (!startup.no_content) cheats_init(core_path_arg, content_path);
++    if (!startup.no_content) manual_init(core_path_arg, content_path);
+     overlay_bridge_init(core_path_arg, content_path);
+ 
+     if (!build_macro_dir(core_path_arg, content_path)) {
+@@ -829,12 +831,12 @@
+     macros_init(macro_dir);
+     decks_init(RETRO_DEK_PATH);
+ 
+-    content_hash_request(content_path, core_resolved_content_path);
++    if (!startup.no_content) content_hash_request(content_path, core_resolved_content_path);
+ 
+     options_capture_baseline();
+     LOG_DEBUG(mux_module, "options_capture_baseline done, options_count=%d", options_count);
+ 
+-    if (device.board.has_network && coreinfo_feature_enabled(coreinfo_feature_netplay)
++    if (!startup.no_content && device.board.has_network && coreinfo_feature_enabled(coreinfo_feature_netplay)
+         && netplay_init(core_path_arg, content_path) != 0)
+         LOG_WARN(mux_module, "Network Play secure transport could not be initialised");
+     link_direct_init();
+@@ -1439,7 +1441,7 @@
+ 
+         restart_argv[arg_count++] = argv[0];
+         restart_argv[arg_count++] = core_file_path;
+-        restart_argv[arg_count++] = core_content_path;
++        restart_argv[arg_count++] = startup.no_content ? "--no-content" : core_content_path;
+         restart_argv[arg_count++] = fresh_arg;
+         restart_argv[arg_count++] = restart_arg;
+ 

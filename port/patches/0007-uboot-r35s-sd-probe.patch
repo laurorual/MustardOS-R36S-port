@@ -1,0 +1,197 @@
+--- a/board/rockchip/odroidgoa/Makefile
++++ b/board/rockchip/odroidgoa/Makefile
+@@ -4,4 +4,4 @@
+ # SPDX-License-Identifier:     GPL-2.0+
+ #
+ 
+-obj-y	+= odroidgoa.o odroidgoa_power.o odroidgoa_recovery.o odroidgoa_status.o
++obj-y	+= muos-r35s-probe.o
+--- a/arch/arm/mach-rockchip/board.c
++++ b/arch/arm/mach-rockchip/board.c
+@@ -38,7 +38,9 @@
+ #include <asm/arch/rk_atags.h>
+ #include <asm/arch/vendor.h>
+ #include <odroidgoa_status.h>
+-extern int recovery_check_mandatory_files(void);
++#include <configs/muos-r35s-memory.h>
++extern int muos_reserve_control_fdt(void);
++extern void muos_reserve_bootm_fdt(struct lmb *lmb);
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -173,9 +175,7 @@
+ 	charge_display();
+ #endif
+ #endif
+-#ifdef CONFIG_DRM_ROCKCHIP
+-	rockchip_show_logo();
+-#endif
++/* No automatic logo/resource lookup in the SD monitor probe. */
+ 	soc_clk_dump();
+ 
+ 	return rk_board_late_init();
+@@ -303,113 +303,40 @@
+ 	return i < 4 ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
+ }
+ 
+-void board_check_hwrev(void)
+-{
+-	run_command("hwrev", 0);
+-}
+-
+-void board_set_spilayout(void)
+-{
+-	char *hwrev = env_get("hwrev");
+-
+-	/* adjust only offsets, size values are same */
+-	if (strcmp(hwrev, "rg351mp") == 0)
+-	{
+-		/* RG351MP */
+-		env_set_hex("st_dtb", 0x3068);
+-
+-		env_set_hex("st_logo_hardkernel", 0x3130);
+-		env_set_hex("st_logo_lowbatt", 0x32C0);
+-		env_set_hex("st_logo_recovery", 0x3450);
+-		env_set_hex("st_logo_err", 0x35E0);
+-		env_set_hex("st_logo_nosdcard", 0x3770);
+-
+-		env_set_hex("st_battery_0", 0x3900);
+-		env_set_hex("st_battery_1", 0x3A90);
+-		env_set_hex("st_battery_2", 0x3C20);
+-		env_set_hex("st_battery_3", 0x3DB0);
+-		env_set_hex("st_battery_fail", 0x3F40);
+-	} else {
+-		/* RG351P / RG351V */
+-		env_set_hex("st_dtb", 0x2000);
+-
+-		env_set_hex("st_logo_hardkernel", 0x20C8);
+-		env_set_hex("st_logo_lowbatt", 0x2258);
+-		env_set_hex("st_logo_recovery", 0x23E8);
+-		env_set_hex("st_logo_err", 0x2578);
+-		env_set_hex("st_logo_nosdcard", 0x2708);
+-
+-		env_set_hex("st_battery_0", 0x2898);
+-		env_set_hex("st_battery_1", 0x2A28);
+-		env_set_hex("st_battery_2", 0x2BB8);
+-		env_set_hex("st_battery_3", 0x2D48);
+-		env_set_hex("st_battery_fail", 0x2ED8);
+-	}
+-}
+-
++/* This build targets one explicitly selected R35S Panel 0. No ADC lookup,
++ * SPI/resource fallback or persistent environment is used for its display DTB.
++ */
+ int init_kernel_dtb(void)
+ {
+-	ulong fdt_addr;
+-	int ret;
+-
+-	/* check hw revision */
+-	board_check_hwrev();
+-
+-	/* adjust offsets of spi flash layout */
+-	board_set_spilayout();
+-
+-	fdt_addr = env_get_ulong("fdt_addr_r", 16, 0);
+-	if (!fdt_addr) {
+-		printf("No Found FDT Load Address.\n");
+-		return -1;
+-	}
+-////
+-	//SD
+-	ret = run_command("fatload mmc 1:1 ${fdt_addr_r} ${dtb_uboot}", 0);
+-	if (ret == CMD_RET_SUCCESS) {
+-		ret = check_fdt_header(fdt_addr);
+-	} 
+-	
+-	//SPI
+-	if (ret != CMD_RET_SUCCESS) {
+-		if (recovery_check_mandatory_files()) {
+-			printf("dtb in fat fs fail, try dtb in spi flash\n");
+-			run_command("rksfc scan", 0);
+-			run_command("rksfc dev 1", 0);
+-			ret = run_command("rksfc read ${fdt_addr_r} ${st_dtb} ${sz_dtb}", 0);
+-			if (ret == CMD_RET_SUCCESS)
+-				ret = check_fdt_header(fdt_addr);
+-		}		
+-	}
+-	//Resource
+-	if (ret != CMD_RET_SUCCESS) {
+-		ret = rockchip_read_dtb_file((void *)fdt_addr);
+-		if (ret < 0) {
+-			printf("%s dtb in resource read fail\n", __func__);
+-			odroid_drop_errorlog("dtb load fail", 13);
+-			odroid_alert_leds();
+-			return 0;		
+-		}
+-	}
+-	
+-////	
+-	/*
+-	 * There is a phandle miss match between U-Boot and kernel dtb node,
+-	 * the typical is cru phandle, we fixup it in U-Boot live dt nodes.
+-	 */
+-	phandles_fixup((void *)fdt_addr);
+-
+-	of_live_build((void *)fdt_addr, (struct device_node **)&gd->of_root);
+-	dm_scan_fdt((void *)fdt_addr, false);
+-	gd->fdt_blob = (void *)fdt_addr;
+-
+-	/* Reserve 'reserved-memory' */
+-	ret = boot_fdt_add_sysmem_rsv_regions((void *)gd->fdt_blob);
+-	if (ret)
+-		return ret;
+-
+-	return 0;	
+-}
++    const ulong address = MUOS_CONTROL_FDT_BASE;
++    ulong loaded;
++    void *blob = (void *)address;
++    int ret;
++
++    ret = muos_reserve_control_fdt();
++    if (ret)
++        return ret;
++    env_set("hwrev", "rg351mp");
++    ret = run_command("fatload mmc 1:1 0x01e00000 rk3326-muos-r35s-panel0-uboot.dtb 0x00040000", 0);
++    if (ret != CMD_RET_SUCCESS)
++        return -ENOENT;
++    loaded = env_get_ulong("filesize", 16, 0);
++    if (loaded < sizeof(struct fdt_header) || fdt_check_header(blob) ||
++        fdt_totalsize(blob) > loaded || fdt_totalsize(blob) > MUOS_CONTROL_FDT_SIZE)
++        return -EINVAL;
++    ret = phandles_fixup(blob);
++    if (ret)
++        return ret;
++    ret = of_live_build(blob, (struct device_node **)&gd->of_root);
++    if (ret)
++        return ret;
++    ret = dm_scan_fdt(blob, false);
++    if (ret)
++        return ret;
++    gd->fdt_blob = blob;
++    return boot_fdt_add_sysmem_rsv_regions(blob);
++}
++
+ #endif
+ 
+ void board_env_fixup(void)
+@@ -486,7 +413,8 @@
+ 	board_debug_uart_init();
+ 
+ #ifdef CONFIG_USING_KERNEL_DTB
+-	init_kernel_dtb();
++	if (init_kernel_dtb())
++		panic("muOS SD probe: Panel 0 display DTB unavailable or invalid\n");
+ #endif
+ 	early_download_init();
+ 
+@@ -613,6 +541,8 @@
+ 	u64 start, size;
+ 	int i;
+ 
++	muos_reserve_bootm_fdt(lmb);
++
+ 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+ 		if (!gd->bd->bi_dram[i].size)
+ 			break;

@@ -1,0 +1,7 @@
+config BR2_PACKAGE_MUOS_R35S_BOOT
+	bool "R35S Panel 0 explicit boot coordinator"
+	depends on BR2_PACKAGE_MUOS_R35S_SESSION
+	help
+	  Opt-in coordinator and inactive inittab template. Requires the
+	  guarded C07 infrastructure in the candidate. No persistent settings,
+	  generic rcS, boot activation or power permission is enabled by this.

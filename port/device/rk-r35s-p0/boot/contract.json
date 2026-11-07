@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "status": "one-shot boot qualified on Panel0; durable power preflight candidate, real power unqualified",
+  "power_preflight": {
+    "requires": "owned C12 boot with completed, archived diagnostic; no retry after failed transaction",
+    "archive_before_stopping_network": "PBEGIN.TXT",
+    "archive_before_pid1_request": "PREADY.TXT with all six stop results; sync, readback, unmount, final sealed check",
+    "abort_report": "PFAIL.TXT when archive remains available",
+    "proof_limit": "PREADY records preflight and intent only; it cannot prove PID1 accepted the request or hardware powered off",
+    "default_allowed": false
+  },
+  "owner": "one coordinator; generic rcS/rcK must not start the same services",
+  "session_owns": [
+    "dbus",
+    "storage",
+    "core",
+    "input-ready",
+    "ui"
+  ],
+  "coordinator_owns": [
+    "entropy",
+    "udev",
+    "usb-mode",
+    "network",
+    "root-seal"
+  ],
+  "shutdown_before_pid1_request": [
+    "session.stop",
+    "session.quiescent",
+    "network.stop",
+    "udev.stop",
+    "root.sync",
+    "root.seal"
+  ],
+  "no_global_umount_before_session_quiescent": true,
+  "saved_seed_loads_per_boot_maximum": 1,
+  "network_failure_policy": "offline UI after clean partial-network stop; keep diagnostic infrastructure on UI failure",
+  "limits_seconds": {
+    "entropy.start": 90,
+    "entropy.stop": 30,
+    "udev.start": 45,
+    "udev.stop": 20,
+    "usb.switch": 120,
+    "network.start": 120,
+    "network.stop": 20,
+    "root.seal": 10,
+    "root.sync": 10,
+    "session.start": 120,
+    "session.stop": 110,
+    "session.status": 5,
+    "session.quiescent": 5,
+    "recovery.ready": 5,
+    "usb.wait-remove": 95,
+    "usb.wait-add": 120,
+    "network.recover": 120,
+    "network.status": 5
+  },
+  "persistence": {
+    "implemented_mode": "volatile",
+    "persistent_mode_enabled": false,
+    "proposed_user_data": [
+      "user-editable global settings",
+      "per-output volume"
+    ],
+    "runtime_only": [
+      "muvarctl cache",
+      "input identities",
+      "SDL mapping",
+      "ready/pid/socket files",
+      "audio readiness"
+    ],
+    "immutable_template": [
+      "board capabilities",
+      "reviewed audio route/gain",
+      "theme source assets"
+    ],
+    "private_device_only": [
+      "saved RNG seed",
+      "Wi-Fi credentials",
+      "SSH host private key"
+    ],
+    "unverified_requirements": [
+      "writable user-data mount while global root is read-only",
+      "seed defaults once, never overwrite existing preferences on each start",
+      "replace bring-up boot-volume policy3 only after saved-volume tests",
+      "brightness and volume survive controlled stop/restart/reboot",
+      "bounded log retention",
+      "storage-loss rollback without formatting"
+    ]
+  },
+  "physical_recovery": "opt-in, once per boot, current RNG only, owned daemons, separate immutable outcome"
+}

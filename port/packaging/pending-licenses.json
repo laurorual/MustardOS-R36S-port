@@ -1,0 +1,45 @@
+{
+  "policy": "private use only until explicit publication review",
+  "user_decision_date": "2026-10-25",
+  "final_report": "docs/licenses-to-resolve.md",
+  "final_report_when": "at project completion, as requested by the user",
+  "individual_support_requests": "deferred; do not send automatically",
+  "private_use_authorization": "device owner authorized private development; applicable vendor terms remain unverified",
+  "items": [
+    {
+      "id": "hardkernel-mali-r13p0-rk3326",
+      "component": "Mali-G31 r13p0 AArch64 userspace",
+      "source": "https://dn.odroid.com/RK3326/ODROID-GO-Advance/rk3326_r13p0_gbm_with_vulkan_and_cl.zip",
+      "archive_sha256": "ef1a18fabf270d0a6029917d6b0e6237d328613c2f8be4d420ea23e022288dd9",
+      "binary_sha256": "2a067ea38256c3de139b2a5396d3101f7c7777b1e19d59017b2c02172500d0ea",
+      "status": "terms not supplied in archive; private candidate only",
+      "questions": [
+        "Applicable EULA",
+        "Redistribution on non-Hardkernel RK3326 devices",
+        "Required notices",
+        "SONAME/strip modifications"
+      ],
+      "reference": "docs/analysis/hardkernel-r13-license-request.md"
+    },
+    {
+      "id": "boot-chain-payloads",
+      "component": "Selected RK3326 DDR 333MHz v1.10, miniloader v1.12, BL31 v1.14 and BL32 v1.10",
+      "status": "exact payload bytes pinned; vendor license terms still require per-file matching; private use only",
+      "reference": "docs/analysis/phase4-uboot-sd.md",
+      "source_revision": "5606e804ffe8f9e5427d55c8da04c638f01a9391",
+      "payload_sha256": {
+        "tools/rk_tools/bin/rk33/rk3326_ddr_333MHz_v1.10.bin": "d1f4dacf707d6737876788e02483a4db10c02b6ce9973ad07dd7bc6a80db369b",
+        "tools/rk_tools/bin/rk33/rk3326_miniloader_v1.12.bin": "e1f5b69a63a80af2d795f2f12bbe65d83712deb54e5dbfcf5b98958adec824af",
+        "tools/rk_tools/bin/rk33/rk3326_bl31_v1.14.elf": "2ea5c13f0f253cbf0d388802fe57c82217c5ec5d0b9ef4cae6867d710d073d07",
+        "tools/rk_tools/bin/rk33/rk3326_bl32_v1.10.bin": "8ca2812707e3b08c765fe2a569c5b672b9d2c0417f1209e5156e1e3938bcba51"
+      },
+      "host_packers": "mkimage, loaderimage and trust_merger built from pinned U-Boot GPL-2.0+ sources; vendor prebuilt packers not executed"
+    },
+    {
+      "id": "complete-firmware-distribution",
+      "component": "Final firmware distribution with GPLv3 frontend and proprietary components",
+      "status": "review final included components and obligations before publication",
+      "reference": "docs/analysis/roadmap.md"
+    }
+  ]
+}

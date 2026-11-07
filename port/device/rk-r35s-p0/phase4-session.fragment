@@ -1,0 +1,3 @@
+# Requires runtime-profile preparation and C11 session preparation.
+# Service config enabled=0; do not enable unreviewed rcS ownership.
+BR2_PACKAGE_MUOS_R35S_SESSION=y

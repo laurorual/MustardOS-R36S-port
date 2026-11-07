@@ -1,0 +1,19 @@
+config BR2_PACKAGE_MUOS_CORE
+	bool "muOS R35S core bring-up"
+	depends on BR2_aarch64
+	depends on BR2_INIT_BUSYBOX
+	depends on BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on BR2_USE_WCHAR
+	depends on BR2_PACKAGE_BUSYBOX_SHOW_OTHERS
+	select BR2_PACKAGE_JQ
+	select BR2_PACKAGE_PROCPS_NG
+	depends on BR2_PACKAGE_DBUS
+	depends on BR2_PACKAGE_ALSA_UTILS_ALSACTL
+	depends on BR2_PACKAGE_ALSA_UTILS_AMIXER
+	depends on BR2_PACKAGE_ALSA_UTILS_APLAY
+	depends on BR2_PACKAGE_PIPEWIRE
+	depends on BR2_PACKAGE_WIREPLUMBER
+	help
+	  Rebuild muvarctl/mulog/muinput/fnv1a against this firmware sysroot.
+	  Install a limited core/audio bootstrap, not the full muOS sysinit.

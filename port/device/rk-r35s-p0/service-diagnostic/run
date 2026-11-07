@@ -1,0 +1,99 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+export PATH=/opt/muos/frontend:/opt/muos/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export HOME=/root XDG_RUNTIME_DIR=/run DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+[ "$(cat /etc/muos-services-diagnostic 2>/dev/null)" = MUOS-R35S-INIT-P4-C01 ] || exit 64
+[ "$(readlink /proc/1/exe)" = /bin/busybox ] || exit 64
+state=/run/muos/c01
+c01_state=$state
+. /usr/libexec/muos-c01-chain
+c01_exec() { /usr/libexec/muos-run-bounded 45 "$@"; }
+c01_udev_ready() {
+    pidof udevd >/dev/null && [ -d /sys/module/gpio_keys ] &&
+        grep -q 'Name="odroidgo3-keys"' /proc/bus/input/devices
+}
+if [ "${1:-}" = stop ]; then c01_stop_chain /etc/init.d; exit $?; fi
+mkdir -p "$state"
+screen() { printf '\033[37;40m\033[2J\033[H%s\n' "$1" > /dev/tty0; }
+park() { while :; do sleep 3600; done; }
+fail() { screen "muOS C01: STOPPED
+$1
+Record this message before powering off."; park; }
+[ "$(readlink /proc/1/exe)" = /bin/busybox ] || fail 'PID 1 is not BusyBox'
+tr '\000' ' ' < /proc/1/cmdline > "$state/pid1-cmdline"
+printf '3 4 1 7\n' > /proc/sys/kernel/printk
+screen 'muOS - R35S / Panel 0
+C01: BusyBox PID 1 reached
+Checking coldplug, D-Bus and normalized input...'
+status=0
+c01_start_chain /etc/init.d > "$state/services.log" 2>&1 || status=1
+if [ "$status" = 0 ]; then
+    /usr/libexec/muos-run-bounded 5 dbus-send --system --print-reply --dest=org.freedesktop.DBus / org.freedesktop.DBus.ListNames > "$state/dbus-names.txt" 2>&1 || status=1
+    [ -f /run/muos/input-ready/ready ] && [ -S /run/dbus/system_bus_socket ] || status=1
+    [ -r /run/muos/input-ready/mapping ] && cp /run/muos/input-ready/mapping "$state/mapping" || status=1
+    ! pidof muxfrontend muhotkey pipewire wireplumber >/dev/null || status=1
+fi
+{
+    echo 'MUOS-R35S-INIT-P4-C01'; uname -a
+    echo 'PID1'; readlink /proc/1/exe; cat "$state/pid1-cmdline"; echo
+    echo 'ACTIVE STATUS'; echo "$status"
+    echo 'ACTIVE INPUT'; cat /proc/bus/input/devices
+    echo 'ACTIVE MODULES'; cat /proc/modules
+    echo 'ACTIVE PROCESSES'; ps
+    echo 'MAPPING'; cat "$state/mapping" 2>/dev/null
+} > "$state/report.txt"
+c01_stop_chain /etc/init.d >> "$state/services.log" 2>&1 || status=1
+# An invocation timeout may leave a daemon that used setsid; the native stop
+# scripts are tried first, then this diagnostic cleans up only these names.
+for name in muinput dbus-daemon udevd; do
+    count=0
+    while pidof "$name" >/dev/null && [ "$count" -lt 30 ]; do
+        sleep 0.1
+        count=$((count + 1))
+    done
+    if pidof "$name" >/dev/null; then
+        status=1
+        killall -TERM "$name" 2>/dev/null || :
+        sleep 1
+        killall -KILL "$name" 2>/dev/null || :
+    fi
+done
+sleep 1
+for name in muinput dbus-daemon udevd muxfrontend muhotkey pipewire wireplumber; do
+    pidof "$name" >/dev/null && status=1
+done
+grep -q 'Name="muOS-Keys"' /proc/bus/input/devices && status=1
+{
+    echo 'FINAL STATUS'; echo "$status"
+    echo 'SERVICE LOG'; cat "$state/services.log"
+    echo 'DBUS'; cat "$state/dbus-names.txt" 2>/dev/null
+    echo 'FINAL PROCESSES'; ps
+    echo 'FINAL INPUT'; cat /proc/bus/input/devices
+    echo 'TAINT'; cat /proc/sys/kernel/tainted
+    echo 'UPTIME'; cat /proc/uptime
+} >> "$state/report.txt"
+sync
+mount -o remount,ro / || fail 'Root remount ro failed'
+findmnt -rn -o OPTIONS / | tr ',' '\n' | grep -qx ro || fail 'Root ro check failed'
+echo 'FINAL MOUNTS' >> "$state/report.txt"; cat /proc/mounts >> "$state/report.txt"
+dmesg > "$state/dmesg.txt"
+. /usr/libexec/muos-diag-card-guard
+boot=$(diag_card /sys) || fail 'Media identity changed'
+mount -t vfat -o ro,nosuid,nodev,noexec "$boot" /boot || fail 'Log FAT mount failed'
+[ "$(cat /boot/DIAG.ID)" = MUOS-R35S-EXT4-P4-B01 ] || fail 'Wrong base media marker'
+mount -o remount,rw,nosuid,nodev,noexec /boot || fail 'Cannot enable log writes'
+mkdir -p /boot/DIAG03 || fail 'Cannot create DIAG03'
+cp "$state/report.txt" /boot/DIAG03/REPORT.TXT || fail 'Cannot save report'
+cp "$state/dmesg.txt" /boot/DIAG03/DMESG.TXT || fail 'Cannot save kernel log'
+printf 'C01_DIAGNOSTIC_STATUS=%s\n' "$status" > /boot/DIAG03/RESULT.TXT
+sync
+umount /boot || fail 'Log FAT unmount failed'
+[ "$status" = 0 ] || fail 'Services check failed; DIAG03 saved, root ro'
+screen 'muOS - R35S / Panel 0
+C01: BUSYBOX_INIT / COLDPLUG / INPUT OK
+Services stopped. Root read-only.
+Logs saved: DIAG03 (FAT unmounted)
+No frontend, audio or network started.
+Hold Power to turn off before changing cards.'
+# Return from sysinit. BusyBox remains PID 1, with no getty or respawn job.
+exit 0

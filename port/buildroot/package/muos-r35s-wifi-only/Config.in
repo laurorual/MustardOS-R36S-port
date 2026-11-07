@@ -1,0 +1,9 @@
+config BR2_PACKAGE_MUOS_R35S_WIFI_ONLY
+	bool "R35S Panel 0 Wi-Fi-only USB policy"
+	depends on BR2_aarch64
+	help
+	  Opt-in policy reviewed with the 0bda:c820 composite dongle on Panel 0.
+	  Block btusb alias autoload so autonomous HCI setup does not interfere
+	  with Wi-Fi at boot. Applies to all btusb adapters in this image.
+	  Bluetooth is not supported by this policy. No module, kernel, boot
+	  selector or private network settings are replaced.

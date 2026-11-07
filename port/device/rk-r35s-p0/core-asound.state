@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: MIT
+# Conservative initial speaker route. Tests replace this private copy with
+# the observed mixer snapshot; no control is reset to 100% by this profile.
+state.rockchiprk817co {
+  control.1 {
+    iface MIXER
+    name 'Playback Path'
+    value SPK
+  }
+  control.3 {
+    iface MIXER
+    name 'Playback Volume'
+    value.0 95
+    value.1 95
+  }
+}

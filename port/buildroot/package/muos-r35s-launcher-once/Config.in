@@ -1,0 +1,7 @@
+config BR2_PACKAGE_MUOS_R35S_LAUNCHER_ONCE
+	bool "R35S guarded one-shot launcher (C25)"
+	depends on BR2_PACKAGE_MUOS_R35S_SESSION
+	help
+	  Install the C25 selection/session helpers without activating init.
+	  A reviewed image hook must install the dispatcher and foundation hashes.
+	  UI defaults remain off. Only a boot-specific durable token permits UI.

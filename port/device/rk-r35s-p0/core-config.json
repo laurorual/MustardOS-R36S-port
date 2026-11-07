@@ -1,0 +1,25 @@
+{
+  "device": {
+    "board/name": "rk-r35s-p0",
+    "board/hdmi": "0",
+    "board/stick": "2",
+    "audio/pf_internal": "alsa_output.platform-rk817-sound.playback.0.0",
+    "audio/pf_external": "",
+    "audio/path": "SPK",
+    "audio/control": "",
+    "audio/min": "0",
+    "audio/max": "100",
+    "audio/ready": "0"
+  },
+  "global": {
+    "boot/device_mode": "0",
+    "settings/general/volume": "35",
+    "settings/general/audiosink": "0",
+    "settings/advanced/volume": "2",
+    "settings/advanced/overdrive": "0",
+    "settings/advanced/audio_ready": "1",
+    "settings/advanced/audio_suspend": "0",
+    "settings/advanced/verbose": "0"
+  },
+  "system": {"debug_mode": "1"}
+}

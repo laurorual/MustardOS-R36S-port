@@ -1,0 +1,6 @@
+# Linux BSP d8402159c04b1044106b4f27b7ed7c22ed09228f, fixed GitHub archive.
+# COPYING independently matches build/phase4/linux-base at the same commit.
+# This 4.4 COPYING includes the full GPLv2 text and the normal-syscall note;
+# it differs from the short SPDX-based COPYING in newer upstream kernels.
+sha256  0647d3804fafeb4647af9c16a1182c98e9e45193fea377421517f795269f777e  d8402159c04b1044106b4f27b7ed7c22ed09228f.tar.gz
+sha256  af8067302947c01fd9eee72befa54c7e3ef8a48fecde7fd71277f2290b2bf0f7  COPYING

@@ -1,0 +1,16 @@
+{
+  "url": "https://github.com/christianhaitian/RG351MP-u-boot.git",
+  "revision": "5606e804ffe8f9e5427d55c8da04c638f01a9391",
+  "source_directory": "build/phase4/uboot-base",
+  "container_image_id": "sha256:3cd1cfa51f9ac90aa5ce793a2274d982b62c240c2897808e582e11fcc7737f49",
+  "panel_reference_sha256": "e65ccee748de35597c3f7f5e3032ed33e8312abba886bd3dba1aa0dbf662d102",
+  "recipe_payload_sha256": {
+    "tools/rk_tools/bin/rk33/rk3326_ddr_333MHz_v1.10.bin": "d1f4dacf707d6737876788e02483a4db10c02b6ce9973ad07dd7bc6a80db369b",
+    "tools/rk_tools/bin/rk33/rk3326_miniloader_v1.12.bin": "e1f5b69a63a80af2d795f2f12bbe65d83712deb54e5dbfcf5b98958adec824af",
+    "tools/rk_tools/bin/rk33/rk3326_bl31_v1.14.elf": "2ea5c13f0f253cbf0d388802fe57c82217c5ec5d0b9ef4cae6867d710d073d07",
+    "tools/rk_tools/bin/rk33/rk3326_bl32_v1.10.bin": "8ca2812707e3b08c765fe2a569c5b672b9d2c0417f1209e5156e1e3938bcba51"
+  },
+  "scope": "source and recipe payload identification; installed dirty delta unknown; payloads not executed or repackaged",
+  "payload_licenses": "unresolved per-file matching; tracked as boot-chain-payloads in pending-licenses.json",
+  "boot_gate": "Remove automatic SPI recovery/card erase, saved environment reliance and ADC-based panel selection before preparing a boot candidate"
+}

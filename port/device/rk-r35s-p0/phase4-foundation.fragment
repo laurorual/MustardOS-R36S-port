@@ -1,0 +1,6 @@
+# Local private candidate: no publication or installed-device update.
+BR2_PACKAGE_OVERRIDE_FILE="/port/packaging/phase4-private-provider.mk"
+BR2_ROOTFS_OVERLAY="/work/foundation/overlay"
+BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="/port/device/rk-r35s-p0/phase4-foundation.busybox"
+BR2_PACKAGE_HOST_KMOD=y
+BR2_PACKAGE_KMOD_TOOLS=y

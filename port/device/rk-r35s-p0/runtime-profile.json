@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "name": "rk-r35s-p0-private-bringup-v3",
+  "model": "R36S-V12 2023-08-18 Panel 0",
+  "board": "rk-r35s-p0",
+  "scope": "private bring-up defaults; UI disabled; no Power/suspend policy",
+  "audio": {
+    "route": "SPK_HP",
+    "codec_gain": 215,
+    "pipewire_quantum": 1024,
+    "software_volume": 100,
+    "boot_policy": 3,
+    "overdrive": 0
+  },
+  "display": {
+    "brightness": 80,
+    "maximum": 160,
+    "increment": 5
+  },
+  "volume_increment": 5,
+  "device": {
+    "audio/path": "SPK_HP",
+    "audio/min": "0",
+    "audio/max": "100",
+    "screen/bright": "160"
+  },
+  "global": {
+    "settings/general/volume": "100",
+    "settings/general/brightness": "80",
+    "settings/general/sound": "2",
+    "settings/advanced/volume": "3",
+    "settings/advanced/overdrive": "0",
+    "settings/advanced/incvolume": "5",
+    "settings/advanced/incbright": "5",
+    "settings/power/idle_display": "0",
+    "settings/power/idle_sleep": "0"
+  },
+  "upstream_internal_revision": "550cc58f9cd3449a17f53ca55efcdc6c473b5a89",
+  "sounds": {
+    "original_navigation_sha256": "7b2c53f02bed004fe757302b1838d5c0a4511a479643bf80bff0cddc3eb540d7",
+    "confirmation_sha256": "1d8e4cc72ebba11a7d3804d8ffc9f0893d90a15e63dcc3377d9314c64b946ba3",
+    "adjusted_navigation_sha256": "adac78795e6810ce5d17effa5593e9de87051d3ef36231ba9d530921951bb3ee",
+    "navigation_peak_cap": 30000,
+    "help": "original confirmation WAV for open/close, as tested in C06/C09"
+  },
+  "limitations": [
+    "speaker UI maximum100 at codec215 clean and adequate in supervised test; absolute SPL/headphones/music uncalibrated",
+    "brightness scale perception open",
+    "Wi-Fi warm boot needs physical reconnect",
+    "no general panel support"
+  ],
+  "system": {
+    "debug_mode": "2"
+  },
+  "speaker_calibration_sha256": "79ce1d7db69e92e444ef3247e47037225966d45f5a10c37101a0abadea8f5d16"
+}

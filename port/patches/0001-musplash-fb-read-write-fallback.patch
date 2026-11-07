@@ -1,0 +1,36 @@
+--- a/module/musplash.c
++++ b/module/musplash.c
+@@ -724,6 +724,19 @@
+     }
+ 
+     fb->buffered = strncmp(fb->fix.id, "rockchip", 8) == 0;
++    if (!fb->buffered) {
++        fb->mem = mmap(NULL, fb->mem_size, PROT_READ | PROT_WRITE, MAP_SHARED, fb->fd, 0);
++        if (fb->mem == MAP_FAILED) {
++            if (errno == EINVAL || errno == ENODEV || errno == ENOSYS) {
++                fb->buffered = 1;
++            } else {
++                snprintf(fb_error, sizeof(fb_error), "mmap: %s", strerror(errno));
++                close(fb->fd);
++                fb->fd = -1;
++                return -1;
++            }
++        }
++    }
+     if (fb->buffered) {
+         fb->mem = calloc(1, fb->mem_size);
+         if (!fb->mem) {
+@@ -743,10 +756,9 @@
+             if (read_size < 0 && errno == EINTR) continue;
+             break;
+         }
+-    } else {
+-        fb->mem = mmap(NULL, fb->mem_size, PROT_READ | PROT_WRITE, MAP_SHARED, fb->fd, 0);
+-        if (fb->mem == MAP_FAILED) {
+-            snprintf(fb_error, sizeof(fb_error), "mmap: %s", strerror(errno));
++        if (offset != fb->mem_size) {
++            snprintf(fb_error, sizeof(fb_error), "incomplete framebuffer read");
++            free(fb->mem);
+             close(fb->fd);
+             fb->fd = -1;
+             return -1;

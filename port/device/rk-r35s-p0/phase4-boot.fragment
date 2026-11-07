@@ -1,0 +1,3 @@
+# Package only. The inittab is an inactive template; enabled=0/allow_power=0.
+# Requires reviewed C07 infrastructure and C11 package preparation.
+BR2_PACKAGE_MUOS_R35S_BOOT=y

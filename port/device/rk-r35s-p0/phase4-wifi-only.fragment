@@ -1,0 +1,2 @@
+# Opt-in: known Panel 0 + 0bda:c820 Wi-Fi recovery; USB Bluetooth disabled.
+BR2_PACKAGE_MUOS_R35S_WIFI_ONLY=y

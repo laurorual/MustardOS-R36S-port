@@ -1,0 +1,8 @@
+--- a/retro/video/frame_pacer.c
++++ b/retro/video/frame_pacer.c
+@@ -1,4 +1,5 @@
+ #include <fcntl.h>
++#include <stdint.h>
+ #include <string.h>
+ #include <time.h>
+ #include <unistd.h>

@@ -1,0 +1,6 @@
+config BR2_PACKAGE_MUOS_R35S_PROFILE
+	bool "R35S Panel 0 reviewed private runtime profile"
+	depends on BR2_PACKAGE_MUOS_CORE
+	help
+	  Package the reviewed data profile. Apply it after rootfs overlays using
+	  the explicit phase4 runtime post-build hook. UI remains disabled.

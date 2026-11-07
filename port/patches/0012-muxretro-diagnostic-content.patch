@@ -1,0 +1,66 @@
+--- a/retro/core/startup.h
++++ b/retro/core/startup.h
+@@ -8,6 +8,7 @@
+     const char *content_path;
+     int no_content;
+     unsigned diagnostic_seconds;
++    int diagnostic_content;
+     int fresh;
+     int restarting;
+     int netplay_host;
+--- a/retro/core/startup.c
++++ b/retro/core/startup.c
+@@ -8,7 +8,7 @@
+ void startup_options_print_usage(FILE *stream, const char *program) {
+     fprintf(
+         stream,
+-        "Usage: %s <core.so> <content|--no-content> [--diagnostic-seconds=1..60] [--fresh] [--restart] [--subsystem=<ident>] [--single-screen] "
++        "Usage: %s <core.so> <content|--no-content> [--diagnostic-seconds=1..60] [--diagnostic-content] [--fresh] [--restart] [--subsystem=<ident>] [--single-screen] "
+         "[--netplay-host[=port]] "
+         "[--netplay-join=address[:port]]\n",
+         program
+@@ -26,7 +26,9 @@
+     options->content_path = options->no_content ? NULL : argv[2];
+     if (options->no_content) options->fresh = 1;
+     for (int i = 3; i < argc; i++) {
+-        if (strncmp(argv[i], "--diagnostic-seconds=", 21) == 0) {
++        if (strcmp(argv[i], "--diagnostic-content") == 0) {
++            options->diagnostic_content = 1;
++        } else if (strncmp(argv[i], "--diagnostic-seconds=", 21) == 0) {
+             char *end = NULL;
+             const char *value = argv[i] + 21;
+             const unsigned long seconds = strtoul(value, &end, 10);
+@@ -65,7 +67,12 @@
+         }
+     }
+ 
+-    if (options->diagnostic_seconds && !options->no_content) return 0;
++    if (options->diagnostic_content) {
++        if (options->no_content || !options->diagnostic_seconds || options->restarting ||
++            options->netplay_host || options->netplay_address[0] || options->netplay_invalid ||
++            options->subsystem_ident[0] || options->single_screen) return 0;
++        options->fresh = 1;
++    } else if (options->diagnostic_seconds && !options->no_content) return 0;
+     if (options->no_content && (options->netplay_host || options->netplay_address[0]
+         || options->netplay_invalid || options->subsystem_ident[0] || options->single_screen)) return 0;
+     if (options->netplay_host && options->netplay_address[0]) options->netplay_invalid = 1;
+--- a/retro/core/main.c
++++ b/retro/core/main.c
+@@ -817,7 +817,7 @@
+     if (!startup.no_content) advisory_init(content_path);
+     pause_menu_playtime_reset();
+ 
+-    if (!startup.no_content && device.board.has_network) cheevo_init(core_resolved_content_path);
++    if (!startup.no_content && !startup.diagnostic_content && device.board.has_network) cheevo_init(core_resolved_content_path);
+ 
+     persistent_memory_init(core_path_arg, content_path);
+     if (!startup.no_content) cheats_init(core_path_arg, content_path);
+@@ -836,7 +836,7 @@
+     options_capture_baseline();
+     LOG_DEBUG(mux_module, "options_capture_baseline done, options_count=%d", options_count);
+ 
+-    if (!startup.no_content && device.board.has_network && coreinfo_feature_enabled(coreinfo_feature_netplay)
++    if (!startup.no_content && !startup.diagnostic_content && device.board.has_network && coreinfo_feature_enabled(coreinfo_feature_netplay)
+         && netplay_init(core_path_arg, content_path) != 0)
+         LOG_WARN(mux_module, "Network Play secure transport could not be initialised");
+     link_direct_init();

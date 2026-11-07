@@ -1,0 +1,94 @@
+--- a/retro/core/startup.h
++++ b/retro/core/startup.h
+@@ -7,6 +7,7 @@
+     const char *core_path;
+     const char *content_path;
+     int no_content;
++    unsigned diagnostic_seconds;
+     int fresh;
+     int restarting;
+     int netplay_host;
+--- a/retro/core/startup.c
++++ b/retro/core/startup.c
+@@ -8,7 +8,7 @@
+ void startup_options_print_usage(FILE *stream, const char *program) {
+     fprintf(
+         stream,
+-        "Usage: %s <core.so> <content|--no-content> [--fresh] [--restart] [--subsystem=<ident>] [--single-screen] "
++        "Usage: %s <core.so> <content|--no-content> [--diagnostic-seconds=1..60] [--fresh] [--restart] [--subsystem=<ident>] [--single-screen] "
+         "[--netplay-host[=port]] "
+         "[--netplay-join=address[:port]]\n",
+         program
+@@ -26,7 +26,13 @@
+     options->content_path = options->no_content ? NULL : argv[2];
+     if (options->no_content) options->fresh = 1;
+     for (int i = 3; i < argc; i++) {
+-        if (strcmp(argv[i], "--fresh") == 0) {
++        if (strncmp(argv[i], "--diagnostic-seconds=", 21) == 0) {
++            char *end = NULL;
++            const char *value = argv[i] + 21;
++            const unsigned long seconds = strtoul(value, &end, 10);
++            if (*value < '1' || *value > '9' || !end || *end || !seconds || seconds > 60) return 0;
++            options->diagnostic_seconds = (unsigned) seconds;
++        } else if (strcmp(argv[i], "--fresh") == 0) {
+             options->fresh = 1;
+         } else if (strcmp(argv[i], "--restart") == 0) {
+             options->fresh = 1;
+@@ -59,6 +65,7 @@
+         }
+     }
+ 
++    if (options->diagnostic_seconds && !options->no_content) return 0;
+     if (options->no_content && (options->netplay_host || options->netplay_address[0]
+         || options->netplay_invalid || options->subsystem_ident[0] || options->single_screen)) return 0;
+     if (options->netplay_host && options->netplay_address[0]) options->netplay_invalid = 1;
+--- a/retro/core/main.c
++++ b/retro/core/main.c
+@@ -995,6 +995,9 @@
+     LOG_SUCCESS(mux_module, "Running content at %.2f fps / %.0f Hz audio", target_fps, av_info.timing.sample_rate);
+     LOG_INFO(mux_module, "Startup: ready in %.2f ms total", startup_elapsed_ms(startup_start));
+ 
++    uint32_t diagnostic_deadline = SDL_GetTicks() + startup.diagnostic_seconds * 1000;
++    unsigned long diagnostic_frames = 0;
++    int diagnostic_expired = 0;
+     int quit = 0;
+     const uint32_t content_started_at = SDL_GetTicks();
+     int peeking = 0;
+@@ -1369,6 +1372,14 @@
+         }
+         perf_end(perf_stage_present, present_start);
+         if (core_ran) perf_note_present();
++        if (startup.diagnostic_seconds && core_ran) {
++            if (!diagnostic_frames) {
++                printf("C44_FIRST_PRESENT seconds=%u serial=%llu\n", startup.diagnostic_seconds,
++                       (unsigned long long) display_present_serial());
++                fflush(stdout);
++            }
++            diagnostic_frames += core_frames;
++        }
+ 
+         if (core_ran) frame_pacer_after_present();
+         if (cheevo_needs_present_tick()) cheevo_present_tick();
+@@ -1380,6 +1391,10 @@
+ 
+         if (core_ran) pace_core_output(frame_start, core_frames, speed_multiplier);
+         perf_frame_complete(core_ran);
++        if (startup.diagnostic_seconds && SDL_TICKS_PASSED(SDL_GetTicks(), diagnostic_deadline)) {
++            diagnostic_expired = 1;
++            quit = 1;
++        }
+     }
+ 
+     core_async_finish();
+@@ -1427,6 +1442,11 @@
+     sdl_cleanup();
+ 
+     remove(IDLE_GAME_INHIBIT);
++    if (startup.diagnostic_seconds) {
++        printf("C44_NORMAL_EXIT expired=%d frames=%lu\n", diagnostic_expired, diagnostic_frames);
++        fflush(stdout);
++        if (!diagnostic_expired || !diagnostic_frames) return EXIT_FAILURE;
++    }
+ 
+     if (core_restart_requested) {
+         char subsystem_arg[80] = "";

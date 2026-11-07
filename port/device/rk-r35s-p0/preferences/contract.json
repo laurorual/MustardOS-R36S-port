@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "status": "C24r1 directed installation and direct C07 boot47 passed; counter owns mode600; permanent session disabled; C21 preferences55/70 retained",
+  "persistent_mode_enabled": false,
+  "real_data_preparation": {
+    "test128_p3_partition_entry_created": true,
+    "p3_filesystem_created": true,
+    "expected_partuuid": "4d554432-03",
+    "expected_filesystem_uuid": "6d756f73-c020-4000-8000-000000000001",
+    "diagnostic_guard_and_initializer_prepared": true,
+    "real_data_guard_native_tested": true,
+    "root_mode_0755_required_before_native_test": true,
+    "root_mode_correction_qualified_on_private_copy_only": true,
+    "runtime_and_boot_integration_enabled": false,
+    "root_mode_correction_executed_on_card": true,
+    "fresh_block_alias_readback_verified": true,
+    "native_store_pair": {
+      "volume": 55,
+      "brightness": 70
+    },
+    "native_unmount_remount_passed": true,
+    "controlled_reboot_41_to_42_retained_pair": true,
+    "hardware_settings_applied": true,
+    "C20_initial_native_store_pair": {
+      "volume": 60,
+      "brightness": 75
+    }
+  },
+  "qualified_storage_lab": {
+    "scope": "16MiB regular tmpfs image, owned loop and private mount namespace only",
+    "native_unmount_remount_60_75": true,
+    "absent_wrong_backing_readonly_refused": true,
+    "SIGTERM_cleanup_and_global_root_ro": true,
+    "card_or_reboot_persistence": false,
+    "production_partition_adapter_available": false
+  },
+  "record": "MUOS-PREFS-1 LF, VOLUME=<0..100> LF, BRIGHTNESS=<40..160> LF",
+  "scope": "initial SPK_HP software volume and Panel0 diagnostic brightness range only",
+  "directory": {
+    "must_preexist": true,
+    "owner_group_mode": "0:0:700",
+    "marker": ".muos-preferences-v1",
+    "marker_contents": "MUOS-R35S-PREFS-V1\n",
+    "files_owner_group_mode_links": "0:0:600:1",
+    "no_symlink_path_components": true,
+    "block_device_and_mount_identity_guard": "required from future platform adapter; not implemented in the generic store"
+  },
+  "defaults": {
+    "volume": 100,
+    "brightness": 80
+  },
+  "defaults_policy": "init only when preferences is absent; never overwrite an existing or invalid record",
+  "commit": "exclusive nonblocking flock, exclusive staging file, fsync file, rename, fsync directory",
+  "failure_policy": {
+    "before_rename": "preserve previous record; remove only own staging file",
+    "after_rename_directory_sync_failure": "return74, new record may be visible but durability is unknown; never roll back automatically",
+    "unknown_or_corrupt_data": "refuse unchanged; future adapter may fall back to volatile settings without formatting or overwriting",
+    "stale_staging_file": "refuse write and preserve for diagnosis"
+  },
+  "never_persist": [
+    "ready, PID and socket state",
+    "muvarctl cache or SDL mapping",
+    "audio boot-policy flags, route or codec gain",
+    "entropy seed, Wi-Fi credentials or SSH keys"
+  ],
+  "runtime_integration_prerequisites": [
+    "prove an owned ext4 data mount rw while global root remains ro",
+    "seed saved settings into private runtime after approved profile validation",
+    "use saved-volume policy0 and reconcile LOAD_SINK_VOLUME with the approved speaker slot",
+    "audit ALSA configuration restores and remaining writes before removing private root remount-rw",
+    "checkpoint whitelisted values after a clean session without persisting shutdown ramps or transient blanking",
+    "native60-volume and75-brightness survive stop/start, unmount/remount and later controlled reboot"
+  ],
+  "runtime_opt_in": {
+    "available": true,
+    "default_enabled": false,
+    "private_and_global_root_ro": true,
+    "pair_loaded_applied_checkpointed": [
+      55,
+      70
+    ],
+    "profile_21_validated_before_dynamic_overrides": true,
+    "source_profile_path_on_test_image": "/usr/libexec/muos-session/profile",
+    "changed_UI_values_retained": true,
+    "runtime_reload_after_reboot_tested": true,
+    "permanent_or_C12_enabled": false,
+    "physical_edit_qualification": {
+      "initial_pair": [
+        60,
+        75
+      ],
+      "edited_pair": [
+        55,
+        70
+      ],
+      "user_confirmed_buttons": true,
+      "synthetic_input_injected": false,
+      "boot42_generations": [
+        "run-0004",
+        "run-0005"
+      ],
+      "boot43_generation": "run-0001",
+      "normal_reboot": [
+        42,
+        43
+      ],
+      "atomic_record_inode_changed": true,
+      "root_ro_and_originals_restored": true,
+      "permanent_or_C12_enabled": false
+    },
+    "initial_native_boot_sequence": 42,
+    "initial_native_start_stop_generations": [
+      "run-0002",
+      "run-0003"
+    ],
+    "package_independent_of_boot_coordinator": true,
+    "opt_in_payload_manifest_required": true,
+    "C22_qualification": {
+      "boot_sequence": 43,
+      "generation": "run-0002",
+      "boot_package_hidden_from_worker": true,
+      "real_pair_applied": [
+        55,
+        70
+      ],
+      "clean_stop_and_originals_restored": true,
+      "card_guard_supplied_by_caller_package": true,
+      "payload_manifest_entries": 15,
+      "Kconfig_session_can_enable_without_boot_package": true,
+      "installed_card_components_changed": false,
+      "boot_selector_or_token_changed": false
+    },
+    "C23_composition": {
+      "private_only": true,
+      "factory_rootfs_bytes": 536870912,
+      "rootfs_static_host_passed": true,
+      "foundation_manifest_files": 89,
+      "runtime_manifest_files": 15,
+      "profile_files": 21,
+      "candidate_boot_tested": false,
+      "device_written": false,
+      "automatic_session": false,
+      "preferences_default_enabled": false,
+      "factory_boot_counter": 0,
+      "live_preferences_unchanged": [
+        55,
+        70
+      ]
+    },
+    "C24_installed": {
+      "direct_C07_boot": 47,
+      "foundation_files": 89,
+      "payload_files": 15,
+      "first_boot46_counter_mode_repaired": true,
+      "C07_owns_umask077_and_chmod600": true,
+      "boot47_without_post_boot_repair": true,
+      "private_state_and_p3_preserved": true,
+      "selective_files_initial": 56,
+      "selective_files_revision1": 2,
+      "full_image_flashed": false,
+      "permanent_or_C12_enabled": false
+    }
+  }
+}

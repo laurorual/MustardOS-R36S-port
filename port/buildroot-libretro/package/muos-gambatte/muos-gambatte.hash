@@ -1,0 +1,8 @@
+# Same source archive as qualified C49; retain per-file license evidence.
+sha256  45e63bc79390093b78de025172ea289ded139f4ecf1e8072242f34d7dd540338  77f2567d718b8973d02caa2daa8dce4953faf811.tar.gz
+sha256  ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6  COPYING
+sha256  9a2d67e42f674d4cdd896fe183f70e4e4e2585fc51cd5bed0f65f538e6513f95  libgambatte/libretro/cc_resampler.c
+sha256  f0ff28b448704a06d30f624fd25f7534a42b0f8baf55e2c34c31879b6babeda9  libgambatte/libretro/cc_resampler.h
+sha256  6924cd1affc8b6d3119389551141fe2c47600b8bfc5ab09bbec7e4d6dfae2634  libgambatte/libretro/blipper.c
+sha256  3e05e66cdfa2ddb8e9ac4eee6bb38ff4d735ed82e8563ef116b710089c732512  libgambatte/libretro-common/include/libretro.h
+sha256  9bb3ad7ab44aea1ba1c0d44a87f47144390ca8cef89c704c86cc83a7bdfbf417  libgambatte/libretro-common/streams/file_stream.c

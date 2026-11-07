@@ -1,0 +1,19 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+set -eu
+[ "$(cat /etc/muos-services-diagnostic)" = MUOS-R35S-INIT-P4-C02 ] || exit 1
+[ "$(findmnt -rn -o FSTYPE -T /var/lib)" = ext4 ] || exit 1
+[ "$(findmnt -rn -o MAJ:MIN -T /var/lib)" = "$(findmnt -rn -o MAJ:MIN /)" ] || exit 1
+seed_dir=/var/lib/muos-seedrng
+entropy_state=/run/muos/entropy
+seed_uid=0
+seed_gid=0
+rng_probe=/usr/libexec/muos-rng-ready
+native_seedrng=/etc/init.d/S01seedrng
+. /usr/libexec/muos-entropy-functions
+case "${1:-}" in
+    start) entropy_start ;;
+    stop) entropy_stop ;;
+    status) entropy_status ;;
+    *) exit 2 ;;
+esac

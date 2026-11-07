@@ -1,0 +1,9 @@
+# Candidate for configuration inspection only; no graphics runtime approval.
+# rockchip-mali is a different blob from the installed dArkOSen library.
+BR2_PACKAGE_MUOS_CORE=y
+BR2_PACKAGE_ROCKCHIP_MALI=y
+BR2_PACKAGE_SDL2=y
+BR2_PACKAGE_SDL2_KMSDRM=y
+BR2_PACKAGE_SDL2_OPENGLES=y
+# The controller gates this SDL version-floor patch on an actual GBM API link.
+BR2_GLOBAL_PATCH_DIR="/port/patches/phase4-graphics"

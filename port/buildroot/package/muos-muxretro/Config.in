@@ -1,0 +1,37 @@
+config BR2_MUOS_PRIVATE_FRONTEND_SDK
+	bool "Prepared private muOS frontend link SDK"
+	depends on BR2_aarch64
+	default n
+	help
+	  Use the separately prepared and hash-pinned Phase 4 frontend libraries.
+	  This is a private SDK prerequisite, not a Buildroot library provider.
+	  Missing or changed SDK files cause the host package build to fail.
+
+config BR2_PACKAGE_MUOS_MUXRETRO
+	bool "muOS muxretro native host (manual caller only)"
+	depends on BR2_MUOS_PRIVATE_FRONTEND_SDK
+	depends on BR2_INSTALL_LIBSTDCPP
+	depends on BR2_USE_WCHAR
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on BR2_TOOLCHAIN_HAS_SYNC_4
+	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_4_9
+	depends on !BR2_STATIC_LIBS
+	depends on BR2_PACKAGE_HAS_LIBEGL
+	depends on BR2_PACKAGE_HAS_LIBGLES
+	default n
+	select BR2_PACKAGE_SDL2
+	select BR2_PACKAGE_SDL2_IMAGE
+	select BR2_PACKAGE_SDL2_MIXER
+	select BR2_PACKAGE_SDL2_TTF
+	select BR2_PACKAGE_HARFBUZZ
+	select BR2_PACKAGE_FREETYPE
+	select BR2_PACKAGE_LIBPNG
+	select BR2_PACKAGE_LIBCURL
+	select BR2_PACKAGE_LIBARCHIVE
+	select BR2_PACKAGE_OPENSSL
+	select BR2_PACKAGE_ZLIB
+	help
+	  Build the pinned C50 source from scratch with its rcheevos dependency.
+	  Installs no core, ROM, save, runtime service or automatic launcher.
+	  Native callers must supply the reviewed private runtime and storage.
+	  Full frontend-library provider integration remains separate work.

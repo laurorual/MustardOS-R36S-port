@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "purpose": "host-only BSP build probe; not a bootable firmware or an exact dArkOSen reproduction",
+  "linux": {
+    "url": "https://github.com/christianhaitian/linux.git",
+    "revision": "d8402159c04b1044106b4f27b7ed7c22ed09228f",
+    "observed_branch": "rg351",
+    "defconfig": "rg351p_tweaked_defconfig",
+    "probe_dtb": "rockchip/rk3326-r35s-linux.dtb",
+    "panel0_port_dtb": "rockchip/rk3326-muos-r35s-panel0.dtb",
+    "panel0_port_source": "port/device/rk-r35s-p0/rk3326-muos-r35s-panel0.dts",
+    "license": "GPL-2.0 with per-file exceptions; see COPYING and source headers",
+    "installed_kernel_commit_known": false,
+    "darkosen_cpu_overclock_patches_applied": false
+  },
+  "exfat": {
+    "url": "https://github.com/christianhaitian/exfat-linux.git",
+    "revision": "68072a2dc3bf9d73e8bda9b82fa3f93a7e9ff0a5",
+    "path": "fs/exfat"
+  },
+  "kernel_compiler": {
+    "url": "https://github.com/rockchip-toybrick/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu.git",
+    "revision": "46d00ad5a58edae59b2bc16f4694510b93d51889",
+    "version": "6.3.1 20170404 (Linaro GCC 6.3-2017.05)",
+    "prefix": "aarch64-linux-gnu-",
+    "role": "kernel only; not the firmware userspace toolchain"
+  },
+  "container_parent": {
+    "tag": "localhost/muos-r35s-phase3-toolchain:20261023",
+    "image_id": "sha256:2aade094d2706d5462adb4779d8a0ae9b8e2a81620c108ed1b6c482c1957cdb6"
+  },
+  "rootfs_configuration": {
+    "url": "https://github.com/buildroot/buildroot.git",
+    "revision": "4f924fd52841608d68ac3dcb83fccee8b8c90316",
+    "tag": "2025.02.19",
+    "configuration": "port/device/rk-r35s-p0/phase4-rootfs.defconfig",
+    "headers_archive_url": "https://github.com/christianhaitian/linux/archive/d8402159c04b1044106b4f27b7ed7c22ed09228f.tar.gz",
+    "headers_archive_sha256": "0647d3804fafeb4647af9c16a1182c98e9e45193fea377421517f795269f777e",
+    "scope": "headless standalone Buildroot basis; graphics and muOS init are excluded; see phase4-rootfs.md for build status"
+  },
+  "graphics_provenance": {
+    "url": "https://github.com/christianhaitian/rk3326_core_builds.git",
+    "revision": "5b00a35296321c32900b91191498d7036448e967",
+    "mali_path": "mali/aarch64/libmali-bifrost-g31-rxp0-gbm.so",
+    "mali_blob_oid": "2083f5386c201abc8f2e697e8004a14e59524a86",
+    "mali_installed_blob_matches": true,
+    "mali_redistribution_license_verified": false,
+    "sdl_recipe": "scripts/sdl2.sh",
+    "sdl_source_revision": "5d249570393f7a37e037abf22cd6012a4cc56a71",
+    "sdl_installed_binary_reproduced": false
+  },
+  "running_reference": {
+    "image_sha256": "31bdb671d640863448b59f79801277fe486fa6c78c326bd4ebb51a54559b0577",
+    "hidden_rootfs_config_sha256": "f2f05dedb85831b47ae8bd1c3e86819f6e1a640a81e27f088b4fb3cec6326361",
+    "hidden_rootfs_config_location": "rootfs:/boot/config-4.4.189 (under the mounted boot FAT)",
+    "hidden_config_cryptographically_linked_to_image": false,
+    "linux_dtb_sha256": "455208cb8eabd397f7ea61bfcc9f12cf86fbb1e3b4e225ab2ea3908c954d6203",
+    "uboot_dtb_sha256": "e65ccee748de35597c3f7f5e3032ed33e8312abba886bd3dba1aa0dbf662d102",
+    "libmali_sha256": "2a067ea38256c3de139b2a5396d3101f7c7777b1e19d59017b2c02172500d0ea",
+    "sdl_sha256": "ae22e9a309f838172aa2e4b08b0195d2084436195ff5672969c58af4eb270e33"
+  },
+  "release_gates_open": [
+    "Installed kernel commit is unknown; recovered rootfs config is not embedded in Image",
+    "Port Panel 0 Linux DTB is untested; U-Boot DTB source is not reconstructed",
+    "Bootloader, DDR/BL31 sources, versions and media offsets are not pinned",
+    "libmali redistribution license and compatibility with the future rootfs are unresolved",
+    "Custom SDL recipe is located but its installed binary has not been reproduced",
+    "Complete firmware rootfs and muOS init are not integrated; headless sysroot/rootfs status is in phase4-rootfs.md",
+    "Prior framebuffer mmap and MMC faults are not explained"
+  ]
+}

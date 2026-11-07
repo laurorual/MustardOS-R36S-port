@@ -1,0 +1,8 @@
+config BR2_PACKAGE_MUOS_GAMBATTE
+	bool "muOS Gambatte Game Boy core (private experiment)"
+	depends on BR2_aarch64
+	depends on BR2_INSTALL_LIBSTDCPP
+	help
+	  Pinned RGB565, network-disabled core. No ROM, caller, boot hook or
+	  save policy is installed. Combined source-license review remains
+	  pending; redistribution is disabled for this experimental package.

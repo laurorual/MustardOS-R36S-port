@@ -1,0 +1,11 @@
+config BR2_PACKAGE_MUOS_SAVE_STORE
+	bool "muOS bounded snapshot store (manual caller only)"
+	depends on BR2_aarch64
+	default n
+	select BR2_PACKAGE_ZLIB
+	help
+	  Root-only snapshot CLI with explicit identity, atomic publication and
+	  previous-generation recovery. Installs no service, boot hook, store
+	  directory, mount policy or automatic writer. The platform caller must
+	  validate the card and private mount before invoking the utility.
+	  No ROM, emulator core or user save data is included.

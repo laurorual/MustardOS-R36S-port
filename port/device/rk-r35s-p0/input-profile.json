@@ -1,0 +1,43 @@
+{
+  "board_id": "rk-r35s-p0",
+  "scope": "R35S genuine RK3326, R36S-V12 2023-08-18 Panel 0, dArkOSen kernel 4.4.189",
+  "source_name": "GO-Super Gamepad",
+  "auxiliary_name": "odroidgo3-keys",
+  "power_name": "rk8xx_pwrkey",
+  "virtual": {
+    "name": "muOS-Keys",
+    "bus": "0x0006",
+    "vendor": "0x756d",
+    "product": "0x3504",
+    "version": "0x736f",
+    "rumble": false
+  },
+  "key_map": {
+    "A": ["BTN_EAST", "BTN_EAST"],
+    "B": ["BTN_SOUTH", "BTN_SOUTH"],
+    "X": ["BTN_NORTH", "BTN_NORTH"],
+    "Y": ["BTN_WEST", "BTN_WEST"],
+    "L1": ["BTN_TL", "BTN_TL"],
+    "R1": ["BTN_TR", "BTN_TR"],
+    "L2": ["BTN_TL2", "BTN_TL2"],
+    "R2": ["BTN_TR2", "BTN_TR2"],
+    "Select": ["BTN_TRIGGER_HAPPY1", "BTN_SELECT"],
+    "Start": ["BTN_TRIGGER_HAPPY2", "BTN_START"],
+    "Fn": ["BTN_TRIGGER_HAPPY5", "BTN_MODE"],
+    "L3": ["BTN_TRIGGER_HAPPY3", "BTN_THUMBL"],
+    "R3": ["BTN_TRIGGER_HAPPY4", "BTN_THUMBR"],
+    "VolumeDown": ["KEY_VOLUMEDOWN", "KEY_VOLUMEDOWN"],
+    "VolumeUp": ["KEY_VOLUMEUP", "KEY_VOLUMEUP"]
+  },
+  "dpad": "BTN_DPAD_UP/DOWN/LEFT/RIGHT -> ABS_HAT0X/Y, -1/0/+1",
+  "axes": {
+    "left_x": {"source": "ABS_X", "output": "ABS_X", "invert": false},
+    "left_y": {"source": "ABS_Y", "output": "ABS_Y", "invert": false},
+    "right_x": {"source": "ABS_RX", "output": "ABS_RX", "invert": false},
+    "right_y": {"source": "ABS_RY", "output": "ABS_RY", "invert": false}
+  },
+  "axis_range_advertised": [-1800, 1800],
+  "axis_rest_observed": 0,
+  "power": "KEY_POWER on separate physical node; not forwarded into the virtual gamepad",
+  "selection": "Canonical board name in firmware or explicit --device rk-r35s-p0 for diagnostics; no R35S autodetection added"
+}

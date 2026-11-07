@@ -1,0 +1,22 @@
+SDL2: use the legacy GBM cursor/write allocation contract
+
+SPDX-License-Identifier: Zlib
+Local alteration for the pinned GBM 10.4 provider, whose header declares
+CURSOR and WRITE but no LINEAR flag. Its gbm.h documents that gbm_bo_write
+is guaranteed for CURSOR buffers. Do not invent a flag the provider does
+not expose. Actual cursor allocation/scanout still requires native testing;
+compilation and the headless contract probe cannot approve it.
+
+--- a/src/video/kmsdrm/SDL_kmsdrmmouse.c
++++ b/src/video/kmsdrm/SDL_kmsdrmmouse.c
+@@ -107,7 +107,9 @@
+ 
+     dispdata->cursor_bo = KMSDRM_gbm_bo_create(viddata->gbm_dev,
+                                                dispdata->cursor_w, dispdata->cursor_h,
+-                                               GBM_FORMAT_ARGB8888, GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE | GBM_BO_USE_LINEAR);
++                                               /* Local legacy-provider path: CURSOR
++                                                * guarantees gbm_bo_write support. */
++                                               GBM_FORMAT_ARGB8888, GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE);
+ 
+     if (!dispdata->cursor_bo) {
+         SDL_SetError("Could not create GBM cursor BO");

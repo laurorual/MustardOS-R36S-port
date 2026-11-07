@@ -1,0 +1,83 @@
+--- a/module/muxapp.c
++++ b/module/muxapp.c
+@@ -1,4 +1,5 @@
+ #include "muxshare.h"
++#include "port_app_selection.h"
+ 
+ #define THIRD_PARTY_DIR CONF_CONFIG_PATH "third_party"
+ #include <common/ui/empty_state.h>
+@@ -102,6 +103,8 @@
+ }
+ 
+ static int app_is_bundled(const char *app_name) {
++    /* This one source-pinned port diagnostic is bundled by the RAM harness. */
++    if (port_app_diagnostic && !strcmp(app_name, "R35S-Diagnostic")) return 1;
+     if (get_mux_app(app_name)) return 1;
+ 
+     char base[MAX_BUFFER_SIZE];
+@@ -222,6 +225,10 @@
+     app_paths[0] = OPT_SHARE_PATH "application";
+     app_paths[1] = device.storage.sdcard.mount;
+     app_paths[2] = device.storage.rom.mount;
++    if (port_app_diagnostic) {
++        app_paths[0] = CONF_CONFIG_PATH "port-apps";
++        app_paths[1] = app_paths[2] = NULL;
++    }
+ 
+     for (size_t ap = 0; ap < 3; ap++) {
+         if (!app_paths[ap] || app_paths[ap][0] == '\0') continue;
+@@ -238,6 +245,7 @@
+ 
+         while ((entry = readdir(app_dir))) {
+             if (entry->d_type != DT_DIR && entry->d_type != DT_UNKNOWN) continue;
++            if (port_app_diagnostic && strcmp(entry->d_name, "R35S-Diagnostic")) continue;
+             if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+ 
+             char launch_script[MAX_BUFFER_SIZE];
+@@ -255,7 +263,7 @@
+         closedir(app_dir);
+     }
+ 
+-    for (size_t i = 0; i < A_SIZE(app); i++) {
++    for (size_t i = 0; !port_app_diagnostic && i < A_SIZE(app); i++) {
+         if (append_mux_app(&dir_names, &dir_count, &dir_cap, app[i].name) < 0) {
+             LOG_ERROR(mux_module, "%s", lang.system.fail_allocate_mem);
+             goto clean_up;
+@@ -432,6 +440,8 @@
+ }
+ 
+ static void handle_a(void) {
++    if (port_app_diagnostic && (ui_count_static != 1 ||
++        strcmp(items[current_item_index].extra_data, CONF_CONFIG_PATH "port-apps/R35S-Diagnostic"))) return;
+     if (msgbox_active || hold_call) return;
+ 
+     if (ui_count_static > 0) {
+@@ -571,6 +581,7 @@
+ }
+ 
+ int muxapp_main(void) {
++    if (port_app_configure(getenv("MUOS_PORT_APP_DIAGNOSTIC")) < 0) {safe_quit(64);return 64;}
+     init_module(__func__);
+     init_theme(1, 1);
+ 
+@@ -638,8 +649,18 @@
+     };
+ 
+     list_nav_set_callbacks(list_nav_prev, list_nav_next);
+-    init_input(&input_opts, 1);
+-    orientation_introduce(mux_module, lang.muxapp.title, lang.muxapp.overview);
++    if (port_app_diagnostic) {
++        input_opts.press_handler[mux_input_b]=port_app_cancel;
++        input_opts.press_handler[mux_input_x]=NULL;
++        input_opts.press_handler[mux_input_l1]=NULL;
++        input_opts.press_handler[mux_input_r1]=NULL;
++        input_opts.hold_handler[mux_input_l1]=NULL;
++        input_opts.hold_handler[mux_input_r1]=NULL;
++        input_opts.release_handler[mux_input_menu]=NULL;
++        input_opts.idle_handler=port_app_idle;
++    }
++    init_input(&input_opts, port_app_diagnostic ? 0 : 1);
++    if (!port_app_diagnostic) orientation_introduce(mux_module, lang.muxapp.title, lang.muxapp.overview);
+ 
+     mux_input_task(&input_opts);
+ 

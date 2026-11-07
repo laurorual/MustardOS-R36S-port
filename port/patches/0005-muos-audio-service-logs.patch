@@ -1,0 +1,20 @@
+--- a/script/init/S80pipewire.sh
++++ b/script/init/S80pipewire.sh
+@@ -351,7 +351,7 @@
+ 		LOG_INFO "$0" 0 "PIPEWIRE" "$(printf "Starting PipeWire (runtime: %s)" "$PIPEWIRE_RUNTIME_DIR")"
+ 		PIPEWIRE_RUNTIME_DIR="$PIPEWIRE_RUNTIME_DIR" \
+ 			XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
+-			chrt -f 88 pipewire -c "$MUOS_SHARE_DIR/conf/pipewire.conf" >/dev/null 2>&1 &
++			chrt -f 88 pipewire -c "$MUOS_SHARE_DIR/conf/pipewire.conf" >"${MUOS_AUDIO_LOG_DIR:-/run/muos}/pipewire.log" 2>&1 &
+ 	fi
+ 
+ 	if PROC_RUNNING wireplumber; then
+@@ -361,7 +361,7 @@
+ 		PIPEWIRE_RUNTIME_DIR="$PIPEWIRE_RUNTIME_DIR" \
+ 			XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
+ 			DBUS_SESSION_BUS_ADDRESS="unix:path=/run/dbus/system_bus_socket" \
+-			wireplumber >/dev/null 2>&1 &
++			wireplumber >"${MUOS_AUDIO_LOG_DIR:-/run/muos}/wireplumber.log" 2>&1 &
+ 	fi
+ 
+ 	return 0

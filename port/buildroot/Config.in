@@ -1,0 +1,8 @@
+source "$BR2_EXTERNAL_MUOS_R35S_PATH/package/muos-core/Config.in"
+source "$BR2_EXTERNAL_MUOS_R35S_PATH/package/muos-r35s-profile/Config.in"
+source "$BR2_EXTERNAL_MUOS_R35S_PATH/package/muos-r35s-session/Config.in"
+source "$BR2_EXTERNAL_MUOS_R35S_PATH/package/muos-r35s-boot/Config.in"
+source "$BR2_EXTERNAL_MUOS_R35S_PATH/package/muos-r35s-wifi-only/Config.in"
+source "$BR2_EXTERNAL_MUOS_R35S_PATH/package/muos-r35s-launcher-once/Config.in"
+source "$BR2_EXTERNAL_MUOS_R35S_PATH/package/muos-save-store/Config.in"
+source "$BR2_EXTERNAL_MUOS_R35S_PATH/package/muos-muxretro/Config.in"

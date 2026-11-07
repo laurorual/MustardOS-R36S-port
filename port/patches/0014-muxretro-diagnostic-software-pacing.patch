@@ -1,0 +1,46 @@
+--- a/retro/core/main.c
++++ b/retro/core/main.c
+@@ -700,6 +700,8 @@
+         return EXIT_FAILURE;
+     }
+ 
++    /* C48: bounded content diagnosis isolates KMS swap pacing. */
++    video_bridge_set_diagnostic_software_pacing(startup.diagnostic_content);
+     setenv("DISABLE_HW_OVERLAY", "1", 1);
+     if (!instance_lock_acquire()) return EXIT_FAILURE;
+ 
+--- a/retro/core/muxretro.h
++++ b/retro/core/muxretro.h
+@@ -69,6 +69,8 @@
+ 
+ void video_bridge_apply_fps_limit(void);
+ 
++void video_bridge_set_diagnostic_software_pacing(int active);
++
+ int video_bridge_get_swap_interval(void);
+ 
+ int video_bridge_vsync_active(void);
+--- a/retro/video/video.c
++++ b/retro/video/video.c
+@@ -835,6 +835,12 @@
+     recompute_dest_rect();
+ }
+ 
++static int diagnostic_software_pacing;
++
++void video_bridge_set_diagnostic_software_pacing(const int active) {
++    diagnostic_software_pacing = !!active;
++}
++
+ void video_bridge_apply_fps_limit(void) {
+     SDL_Renderer *renderer = display_get_renderer();
+     if (!renderer) return;
+@@ -842,7 +848,7 @@
+     frame_pacer_reset_vsync_probe();
+ 
+     const int software_paced = session_settings.fps_limit == fps_limit_50 || core_content_needs_pacing();
+-    const int want_vsync = session_settings.fps_limit == fps_limit_auto && !software_paced;
++    const int want_vsync = session_settings.fps_limit == fps_limit_auto && !software_paced && !diagnostic_software_pacing;
+ 
+     if (SDL_RenderSetVSync(renderer, want_vsync) != 0) {
+         LOG_ERROR(mux_module, "SDL_RenderSetVSync(%d) failed: %s", want_vsync, SDL_GetError());

@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "package": "muos-save-store",
+  "license": "MIT",
+  "activation": "manual privileged caller only; no service, default config, mount or boot hook",
+  "platform_guard_required": "caller must pin media identity, filesystem and mount namespace before use; this CLI does not discover or format media",
+  "directory": "preexisting root:root0700 ext4/tmpfs directory, no symlink components, marker .muos-saves-v1 containing MUOS-R35S-SAVES-V1 LF, regular files root:root0600/nlink1",
+  "bootstrap": "caller creates marker and directories exclusively, fsyncs marker and parents; init never resets an existing or invalid HEAD",
+  "identity": "64 lowercase hex characters derived by caller from a versioned domain and exact content/core identity; never default to another identity",
+  "CLI": "muos-save-store init|status|recover STORE ID; muos-save-store commit|export STORE ID RAM_DIRECTORY",
+  "snapshot": "MUOSSAV1 v1 immutable bundle with lengths, identity and CRC32; quicksave.state PKSTv1, states.ini with quicksave group and PNG signature for quicksave.png",
+  "limits_bytes": {"quicksave.state": 8388608, "states.ini": 16384, "quicksave.png": 2097152},
+  "input_export": "root-owned0700 tmpfs directory; export requires an empty directory; caller must stop/flush native writer and perform semantic validation before commit",
+  "publication": "exclusive nonblocking flock; exclusive generation file, file fsync, directory fsync, exclusive .head.new, file fsync, rename HEAD, directory fsync",
+  "recovery": "explicit recover validates PREVIOUS, publishes it as CURRENT, preserves NEXT and all generation files; no automatic fallback, defaults or orphan adoption",
+  "max_generations": 32,
+  "garbage_collection": false,
+  "failures": "unknown/corrupt/stale data refused unchanged; before HEAD rename old HEAD retained and orphan may remain; sync failure after rename returns74 with durability unknown and no automatic rollback",
+  "exit_codes": {"0": "success", "3": "absent record/generation/previous; never implies permission to reset", "64": "invalid input or guard", "73": "generation limit", "74": "I/O/publication failure", "75": "lock busy"},
+  "not_packaged": ["ROM", "emulator core", "user save", "identity", "credentials", "platform adapter", "automatic writer"]
+}

@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "status": "C52 library and synthetic native ext4 laboratory passed; real card audit read-only",
+  "real_card_saves_enabled": false,
+  "installation_or_automatic_boot_enabled": false,
+  "proposed_platform_directory": "MUOS/port-saves-v1/gb/<private-content-and-core-identity>",
+  "platform_guard_required": "C20/C22 pinned test128 card, UUID, ext4 mount identity, private namespace, lifetime lock, global root ro; preserve preferences",
+  "directory": {
+    "preexisting": true,
+    "no_symlink_components": true,
+    "owner_group_mode": "0:0:700",
+    "filesystem": ["ext4", "tmpfs"],
+    "marker": ".muos-saves-v1",
+    "marker_contents": "MUOS-R35S-SAVES-V1\n",
+    "file_owner_group_mode_links": "0:0:600:1",
+    "marker_initialization_and_sync": "caller must initialize exclusively and fsync marker and parent directories before first durable use"
+  },
+  "identity": "64 lowercase hex characters, caller derives from a versioned domain plus exact private ROM and core SHA256; do not publish commercial identity",
+  "snapshot_files": {
+    "quicksave.state": {"max_bytes": 8388608, "validation": "PKST v1, flags0, no achievements, exact length and core CRC32"},
+    "states.ini": {"max_bytes": 16384, "validation": "nonempty text, no NUL, quicksave group; C51 inspector additionally validates required fields"},
+    "quicksave.png": {"max_bytes": 2097152, "validation": "PNG signature only, not complete image decoding"}
+  },
+  "sources_and_exports": "preexisting root-owned 0700 tmpfs directories; export must be empty; no metadata or raw state sent to host",
+  "bundle": "MUOSSAV1, 128-byte header, version1, three little-endian lengths and CRC32 values, identity, reserved zero bytes, exact three payloads",
+  "head": "canonical MUOS-SAVE-HEAD-1 text with IDENTITY, CURRENT, PREVIOUS and NEXT; publication by exclusive staging, file fsync, rename and directory fsync",
+  "commit": "exclusive nonblocking flock; immutable exclusive generation file, file fsync, store-directory fsync, then publish HEAD",
+  "max_generations": 32,
+  "garbage_collection": false,
+  "recovery": "explicit recover validates PREVIOUS before publishing it as CURRENT, clears PREVIOUS and preserves NEXT and all generation files",
+  "failure_policy": {
+    "invalid_current": "refuse unchanged; no automatic fallback or defaults",
+    "before_head_rename": "old HEAD retained; completed orphan generation may remain and blocks same NEXT; never adopt or delete automatically",
+    "after_head_rename_directory_sync_failure": "return74, new HEAD may be visible, durability unknown; no automatic rollback",
+    "unknown_staging_or_generation": "refuse writes, preserve for inspection",
+    "generation_limit": "return73 without overwriting current or previous generations",
+    "export_failure": "remove only exclusively created files from this invocation; successful export is still RAM-only"
+  },
+  "exit_codes": {"0": "success", "3": "absent head, generation or previous snapshot; never interpret as authorization to reset", "64": "invalid guard, arguments or data", "73": "generation limit", "74": "I/O or publication failure", "75": "lock busy"},
+  "never_include": ["SRAM", "autosave", "timeline", "history", "resume index", "core options", "performance CSV", "logs", "network credentials", "entropy", "SSH keys", "preferences"],
+  "remaining": ["real-card directory initialization and backup", "native game checkpoint across separate sessions", "controlled reboot persistence", "power-loss durability", "garbage collection", "long-run qualification"]
+}

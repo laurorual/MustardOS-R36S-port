@@ -1,0 +1,19 @@
+{
+  "devices": ["rk-r35s-p0"],
+  "VOL_DOWN": {
+    "inputs": ["VOL_DOWN"], "negate": ["MENU"],
+    "run_command": "/opt/muos/script/device/audio.sh D"
+  },
+  "VOL_UP": {
+    "inputs": ["VOL_UP"], "negate": ["MENU"],
+    "run_command": "/opt/muos/script/device/audio.sh U"
+  },
+  "BRIGHT_DOWN": {
+    "inputs": ["MENU", "VOL_DOWN"], "is_handheld_mode": true, "is_normal_mode": true,
+    "run_command": "/opt/muos/script/device/bright.sh D"
+  },
+  "BRIGHT_UP": {
+    "inputs": ["MENU", "VOL_UP"], "is_handheld_mode": true, "is_normal_mode": true,
+    "run_command": "/opt/muos/script/device/bright.sh U"
+  }
+}

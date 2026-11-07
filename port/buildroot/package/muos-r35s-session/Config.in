@@ -1,0 +1,11 @@
+config BR2_PACKAGE_MUOS_R35S_SESSION
+	bool "R35S Panel 0 controlled bring-up session"
+	depends on BR2_PACKAGE_MUOS_R35S_PROFILE
+	depends on BR2_PACKAGE_LIBDRM
+	depends on BR2_PACKAGE_UTIL_LINUX_BINARIES
+	depends on BR2_PACKAGE_UTIL_LINUX_MOUNT
+	help
+	  Disabled-by-default start/status/stop service with bounded lease,
+	  private configuration namespace and rollback. Optional typed preferences
+	  use a package-local card guard and require the payload manifest.
+	  No boot coordinator dependency or activation. Not full muOS rcS.

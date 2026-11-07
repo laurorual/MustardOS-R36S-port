@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+"""C44 RAM-only session with native rollback rehearsals before graphics."""
+from pathlib import Path
+import argparse,io,json,ipaddress,re,subprocess,tarfile,tempfile
+from phase4_candidate import sha,sums
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--host',required=True,type=ipaddress.IPv4Address);p.add_argument('--mode',required=True,choices=['prepare-failure','signal-test','graphics']);args=p.parse_args()
+repo=Path(__file__).resolve().parents[2];work=repo/'build/phase4';area=work/'retro-session'
+baseline=repo/'dist/phase4/muxretro-native-cpu'
+for n,h in sums(baseline/'SHA256SUMS').items():assert sha(baseline/n)==h
+common,infra=(baseline/'preflight.sh').read_text().split('for name in udevd',1);infra='for name in udevd'+infra
+build=Path((area/'latest').read_text().strip());br=json.loads((build/'analysis.json').read_text());assert br['passed']
+audit=Path((area/'latest-audit').read_text().strip());ar=json.loads((audit/'analysis.json').read_text());assert ar['passed'] and ar['build_stage']==str(build)
+runner=Path((area/'latest-runner').read_text().strip());rr=json.loads((runner/'analysis.json').read_text());assert rr['passed']
+worker=repo/'port/device/rk-r35s-p0/retro-session/worker.sh'
+for key in ['runner','worker']:
+ c=Path((area/('latest-'+key+'-checks')).read_text().strip());r=json.loads((c/'analysis.json').read_text());assert r['passed']
+ for n,h in r['source_sha256'].items():assert sha(repo/n)==h
+if args.mode=='graphics':
+ for mode in ['prepare-failure','signal-test']:
+  old=Path((area/('latest-'+mode)).read_text().strip());r=json.loads((old/'analysis.json').read_text())
+  assert r['passed'] and r['worker_sha256']==sha(worker) and r['runner_sha256']==sha(runner/'muos-retro-runner')
+smoke=Path((work/'libretro-smoke/latest').read_text().strip());sr=json.loads((smoke/'analysis.json').read_text());assert sr['passed']
+files={'muxretro':build/'source/bin/muxretro','runner':runner/'muos-retro-runner','core.so':smoke/'r35s_smoke_libretro.so'}
+expected={'muxretro':br['binary_sha256'],'runner':rr['native_sha256'],'core.so':sr['binary_sha256']['r35s_smoke_libretro.so']}
+for n,f in files.items():assert sha(f)==expected[n]
+stage=Path(tempfile.mkdtemp(prefix=args.mode+'.',dir=area));(area/'latest-session-attempt').write_text(str(stage)+'\n')
+ssh=['ssh','-p','2222','-i',str(work/'private/c07-client'),'-oIdentitiesOnly=yes','-oStrictHostKeyChecking=yes','-oHostKeyAlias=[192.168.15.17]:2222','-oUserKnownHostsFile='+str(work/'private/c07-known_hosts'),'-oBatchMode=yes','-oConnectTimeout=6','root@'+str(args.host)]
+def remote(label,code,timeout=35,required=True):
+ (stage/(label+'.sh')).write_text(code)
+ r=subprocess.run(ssh+['sh -s'],input=code,capture_output=True,text=True,timeout=timeout)
+ for e,v in [('stdout',r.stdout),('stderr',r.stderr),('exit',str(r.returncode)+'\n')]: (stage/(label+'.'+e)).write_text(v)
+ if required:assert r.returncode==0,(stage,label,r.stdout[-2000:],r.stderr)
+ return r
+before=remote('preflight',common+infra).stdout
+directory=remote('allocate',common+'mktemp -d /run/muos-prefs-data.XXXXXX\n').stdout.strip()
+assert re.fullmatch('/run/muos-prefs-data[.][a-zA-Z0-9]{6}',directory)
+(stage/'intent.json').write_text(json.dumps({'mode':args.mode,'boot_sequence':65,'directory':directory,'binary_sha256':expected,'worker_sha256':sha(worker),'reboot':False,'rootfs_write':False},indent=2)+'\n')
+for n,f in files.items():
+ r=subprocess.run(ssh+['cat > '+directory+'/'+n],input=f.read_bytes(),capture_output=True,timeout=30);assert r.returncode==0
+code=common+f"cat > {directory}/worker.sh <<'C44_WORKER'\n"+worker.read_text()+'C44_WORKER\n'+f'mkdir -m 700 {directory}/state {directory}/owner {directory}/watchdog\n'
+for n,f in {**files,'worker.sh':worker}.items():code+=f"chmod 700 {directory}/{n}\nprintf '%s  %s\\n' {sha(f)} {directory}/{n} | sha256sum -c -\n"
+remote('prepare',code)
+(stage/'dispatch.json').write_text(json.dumps({'dispatched':True,'mode':args.mode,'directory':directory})+'\n')
+r=remote('native',common+f'cat /proc/1/mountinfo > {directory}/global-before.txt\n{directory}/runner 180 {directory}/watchdog /usr/libexec/muos-session/mount-namespace /bin/sh {directory}/worker.sh {directory} {args.mode}\n',timeout=195,required=False)
+health=remote('postflight',common+infra,required=False)
+assert health.returncode==0,('Inspect owned session; do not redispatch',stage,health.stderr)
+assert health.stdout==before
+remote('mount-health',common+f'cmp /proc/1/mountinfo {directory}/global-before.txt\necho C44_GLOBAL_MOUNTS_IDENTICAL\n')
+names=['result.txt','done','manager','core.log','prepare.log','start.log','stop.log','restore.log','preferences-loaded.txt','preferences-active.txt','mixer-before.txt','mixer-after.txt','drm-before.txt','drm-after.txt','brightness-before.txt','brightness-after.txt','volume-before.sha256','volume-after.sha256','wireplumber-before.sha256','wireplumber-after.sha256']
+code=common+f'cd {directory}/state\nset --;for n in '+' '.join(names)+';do [ ! -f "$n" ] || set -- "$@" "$n";done\ntar -cf - "$@"\n'
+raw=subprocess.run(ssh+['sh -s'],input=code.encode(),capture_output=True,timeout=35);assert raw.returncode==0
+out=stage/'collected';out.mkdir()
+with tarfile.open(fileobj=io.BytesIO(raw.stdout)) as archive:
+ for m in archive.getmembers():
+  assert m.isfile() and m.name in names and m.size<1048576
+  (out/m.name).write_bytes(archive.extractfile(m).read())
+result=dict(line.split('=',1) for line in (out/'result.txt').read_text().splitlines())
+assert result['CLEANUP']=='0',result
+want={'prepare-failure':42,'signal-test':143,'graphics':0}[args.mode]
+passed=r.returncode==want and result['OPERATION']==str(want)
+for stem,suffix in [('mixer','.txt'),('drm','.txt'),('volume','.sha256'),('wireplumber','.sha256')]:
+ a=out/(stem+'-before'+suffix);b=out/(stem+'-after'+suffix)
+ if a.exists():assert b.exists() and a.read_bytes()==b.read_bytes(),stem
+cleanup=common+f'''for info in /proc/[0-9]*/mountinfo;do
+ [ -r "$info" ] || continue
+ if awk -v prefix={directory}/ '$5 ~ "^"prefix {{f=1}} END{{exit !f}}' "$info" 2>/dev/null;then exit 64;fi
+done
+[ ! -L {directory} ];[ "$(stat -c '%u:%g:%a' {directory})" = 0:0:700 ]
+rm -rf {directory}
+c25_ready
+echo C44_RAM_REMOVED_ROOT_RO_FOUNDATION97_NETWORK_OK
+'''
+remote('cleanup',cleanup)
+report={'passed':passed,'mode':args.mode,'boot_sequence':65,'native_exit':r.returncode,'worker_sha256':sha(worker),'runner_sha256':sha(runner/'muos-retro-runner'),'cleanup_passed':True,'global_mountinfo_unchanged':True,'preferences_persisted':False,'root_ro':True,'RAM_removed':True,'source_sha256':{str(f.relative_to(repo)):sha(f) for f in [Path(__file__),worker]}}
+(stage/'analysis.json').write_text(json.dumps(report,indent=2)+'\n')
+assert passed,(stage,result,r.stderr)
+(area/('latest-'+args.mode)).write_text(str(stage)+'\n');print('C44 native session collected:',args.mode,stage)
+

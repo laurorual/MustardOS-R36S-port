@@ -1,0 +1,108 @@
+--- a/input/common/uinput.h
++++ b/input/common/uinput.h
+@@ -31,6 +31,7 @@
+     muos_product_rk_g350_v = 0x3501,
+     muos_product_rk_pixel_2 = 0x3502,
+     muos_product_rg_vita_pro = 0x3503,
++    muos_product_rk_r35s_p0 = 0x3504,
+ };
+ 
+ struct gamepad_abs_desc {
+--- a/input/devices/evdev/portable.c
++++ b/input/devices/evdev/portable.c
+@@ -32,9 +32,11 @@
+     layout_pixel2,
+     layout_zero28,
+     layout_vita,
++    layout_r35s,
+ };
+ 
+ enum portable_rumble_id {
++    rumble_none,
+     rumble_axp,
+     rumble_rk_pwm,
+     rumble_vita_pwm,
+@@ -130,9 +132,19 @@
+ static const struct gamepad_desc rg_vita_pro_gamepad =
+     PORTABLE_DESC(muos_product_rg_vita_pro, portable_axes_sticks, vita_keys);
+ 
++static const struct gamepad_desc rk_r35s_p0_gamepad = {
++    .name = MUOS_GAMEPAD_NAME,
++    .id = {BUS_VIRTUAL, muos_input_vendor, muos_product_rk_r35s_p0, muos_input_version},
++    .keys = portable_keys,
++    .key_count = sizeof(portable_keys) / sizeof(portable_keys[0]),
++    .axes = portable_axes_sticks,
++    .axis_count = sizeof(portable_axes_sticks) / sizeof(portable_axes_sticks[0]),
++};
++
+ #undef PORTABLE_DESC
+ 
+ static const struct portable_profile portable_profiles[] = {
++    {"rk-r35s-p0", "GO-Super Gamepad", "odroidgo3-keys", &rk_r35s_p0_gamepad, layout_r35s, rumble_none, 1, 1, 0},
+     {"gcs-h36s", "adc_gamepad", NULL, &gcs_h36s_gamepad, layout_standard, rumble_axp, 1, 1, 0},
+     {"mgx-zero28", "magicx-input", NULL, &mgx_zero28_gamepad, layout_zero28, rumble_axp, 1, 1, 0},
+     {"rk-g350-v", "g350_joypad", NULL, &rk_g350_v_gamepad, layout_g350, rumble_rk_pwm, 1, 1, 0},
+@@ -309,6 +321,15 @@
+ }
+ 
+ static unsigned short map_key(const struct portable_profile *profile, unsigned short code) {
++    if (profile->layout == layout_r35s) {
++        switch (code) {
++            case BTN_TRIGGER_HAPPY1: return BTN_SELECT;
++            case BTN_TRIGGER_HAPPY2: return BTN_START;
++            case BTN_TRIGGER_HAPPY3: return BTN_THUMBL;
++            case BTN_TRIGGER_HAPPY4: return BTN_THUMBR;
++            case BTN_TRIGGER_HAPPY5: return BTN_MODE;
++        }
++    }
+     if (profile->layout == layout_vita) {
+         if (code == KEY_F10) return BTN_MODE;
+         if (code == KEY_VOLUMEDOWN || code == BTN_TRIGGER_HAPPY1) return BTN_TRIGGER_HAPPY4;
+@@ -490,6 +511,7 @@
+ }
+ 
+ static int initialise_rumble(struct portable_state *state, const struct device_options *options) {
++    if (state->profile->rumble == rumble_none) return 0;
+     if (state->profile->layout == layout_g350) {
+         const struct rumble_sysfs_config config = {"/sys/class/gpio/gpio15/value", "1", "0"};
+         return device_rumble_initialise(&state->rumble, rumble_sysfs_driver(), &config, options->rumble_strength);
+@@ -601,7 +623,11 @@
+ 
+     for (int i = 0; i < result; ++i) {
+         const struct input_event *event = &events[i];
+-        if (event->type == EV_KEY && event->code == KEY_BACK) {
++        if (state->profile->layout == layout_r35s && event->type == EV_KEY
++            && (event->code == KEY_VOLUMEUP || event->code == KEY_VOLUMEDOWN)) {
++            gamepad_emit_key(state->gamepad, event->code, event->value);
++            dirty = 1;
++        } else if (event->type == EV_KEY && event->code == KEY_BACK) {
+             gamepad_emit_key(state->gamepad, BTN_TRIGGER_HAPPY3, event->value);
+             dirty = 1;
+         } else if (event->type == EV_SYN && event->code == SYN_REPORT && dirty) {
+@@ -671,4 +697,6 @@
+ PORTABLE_BACKEND(rk_pixel_2_profile, "rk-pixel-2", "GKD PIXEL 2", rk_pixel_2_gamepad, 0);
+ PORTABLE_BACKEND(rg_vita_pro_profile, "rg-vita-pro", "ANBERNIC RG VITA PRO", rg_vita_pro_gamepad, 0);
+ 
++PORTABLE_BACKEND(rk_r35s_p0_profile, "rk-r35s-p0", "R35S R36S-V12 Panel 0", rk_r35s_p0_gamepad, 1);
++
+ #undef PORTABLE_BACKEND
+--- a/input/devices/evdev/portable.h
++++ b/input/devices/evdev/portable.h
+@@ -5,5 +5,6 @@
+ extern const struct device_backend gcs_h36s_profile;
+ extern const struct device_backend mgx_zero28_profile;
+ extern const struct device_backend rk_g350_v_profile;
++extern const struct device_backend rk_r35s_p0_profile;
+ extern const struct device_backend rk_pixel_2_profile;
+ extern const struct device_backend rg_vita_pro_profile;
+--- a/input/devices/registry.c
++++ b/input/devices/registry.c
+@@ -16,7 +16,7 @@
+     &rg28xx_h_profile,    &rg34xx_h_profile,   &rg34xx_sp_profile,     &rg35xx_2024_profile, &rg35xx_h_profile,
+     &rg35xx_plus_profile, &rg35xx_pro_profile, &rg35xx_sp_profile,     &rg40xx_h_profile,    &rg40xx_v_profile,
+     &rgcubexx_h_profile,  &gcs_h36s_profile,   &mgx_zero28_profile,    &rk_g350_v_profile,   &rk_pixel_2_profile,
+-    &rg_vita_pro_profile,
++    &rg_vita_pro_profile, &rk_r35s_p0_profile,
+ };
+ 
+ static const char board_name_path[] = "/opt/muos/device/config/board/name";

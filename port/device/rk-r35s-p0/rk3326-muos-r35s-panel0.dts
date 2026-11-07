@@ -1,0 +1,52 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/* Only for R36S-V12 2023-08-18 Panel 0. Not yet boot-tested.
+ * Includes the pinned GPL-2.0+/MIT Hardkernel-derived R35S description.
+ * Panel/input/battery values were compared with the installed DTB.
+ * Keep the base CPU/GPU OPPs and voltage limits; no dArkOSen overclock.
+ */
+#include "rk3326-r35s-linux.dts"
+
+/ {
+    model = "R36S-V12 2023-08-18 Panel 0";
+};
+
+&timing0 {
+    clock-frequency = <29000000>;
+    hfront-porch = <46>;
+    hsync-len = <2>;
+    hback-porch = <44>;
+    vfront-porch = <165>;
+    vsync-len = <2>;
+    vback-porch = <14>;
+};
+
+&dsi {
+    panel@0 {
+        display-timings {
+            /delete-node/ 50Hz;
+            /delete-node/ 75Hz;
+        };
+    };
+};
+
+&joypad {
+    button-adc-deadzone = <384>;
+};
+
+&rk817 {
+    battery {
+        /* These describe the reference DTB, not a measured cell capacity. */
+        ocv_table = <3400 3442 3494 3537 3574 3604 3633
+                     3666 3697 3726 3760 3790 3812 3842
+                     3886 3928 3955 3990 4036 4105 4177>;
+        design_capacity = <3140>;
+        design_qmax = <3454>;
+    };
+    charger {
+        /delete-property/ bat_low_gpio;
+    };
+};
+
+&leds {
+    status = "disabled";
+};

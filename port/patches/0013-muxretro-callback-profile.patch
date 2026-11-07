@@ -1,0 +1,36 @@
+--- a/retro/core/core.c
++++ b/retro/core/core.c
+@@ -25,6 +25,8 @@
+ #include "../cheevo/cheevo.h"
+ #include "../video/hw_render.h"
+ 
++#include "phase4-core-callback-profile.h"
++
+ struct core_cbs current_core = {0};
+ char core_content_path[PATH_MAX] = "";
+ int core_no_content_session;
+@@ -163,11 +165,11 @@
+     }
+ 
+     set_environment(mux_retro_environment_cb);
+-    set_video_refresh(mux_retro_video_refresh_cb);
+-    if (set_audio_sample) set_audio_sample(mux_retro_audio_sample_cb);
+-    set_audio_sample_batch(mux_retro_audio_sample_batch_cb);
+-    set_input_poll(mux_retro_input_poll_cb);
+-    set_input_state(mux_retro_input_state_cb);
++    set_video_refresh(c48_enabled() ? c48_video : mux_retro_video_refresh_cb);
++    if (set_audio_sample) set_audio_sample(c48_enabled() ? c48_sample : mux_retro_audio_sample_cb);
++    set_audio_sample_batch(c48_enabled() ? c48_batch : mux_retro_audio_sample_batch_cb);
++    set_input_poll(c48_enabled() ? c48_poll : mux_retro_input_poll_cb);
++    set_input_state(c48_enabled() ? c48_input : mux_retro_input_state_cb);
+ 
+     current_core.retro_init();
+     current_core.initialised = true;
+@@ -943,6 +945,7 @@
+ }
+ 
+ void core_unload(void) {
++    c48_report();
+     if (!current_core.initialised) return;
+ 
+     if (current_core.retro_deinit) current_core.retro_deinit();

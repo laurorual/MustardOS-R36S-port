@@ -1,0 +1,76 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Wait for the normalized controller; publish the mapping atomically.
+set -eu
+export HOME=/root XDG_RUNTIME_DIR=/run PIPEWIRE_RUNTIME_DIR=/run
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+export PATH=/opt/muos/frontend:/opt/muos/bin:/usr/sbin:/usr/bin:/sbin:/bin
+state=/run/muos/input-ready
+core=/run/muos/core
+vars=/opt/muos/frontend/muvarctl
+attempts=60
+[ ! -r /etc/default/muos-ui ] || . /etc/default/muos-ui
+case "$attempts" in ''|*[!0-9]*) exit 2 ;; esac
+[ "$attempts" -ge 1 ] && [ "$attempts" -le 100 ] || exit 2
+mkdir -p "$state"
+exec 9>"$state/lock"
+flock -x 9
+identity() {
+    pid=$(cat "$core/input.pid") || return 1
+    case "$pid" in ''|*[!0-9]*) return 1 ;; esac
+    [ "$(readlink "/proc/$pid/exe")" = /opt/muos/frontend/muinput ] || return 1
+    start=$(awk '{print $22}' "/proc/$pid/stat") || return 1
+    [ -n "$start" ] && kill -0 "$pid" || return 1
+    printf '%s %s\n' "$pid" "$start"
+}
+ready() {
+    [ -e "$state/ready" ] && [ -e "$core/ready" ] || return 3
+    [ "$(identity)" = "$(cat "$state/input.identity")" ] || return 1
+    [ "$("$vars" get device board/sdl_map)" = "$(cat "$state/mapping")" ] || return 1
+}
+clear_ready() {
+    rm -f "$state/ready"
+    if [ -r "$state/mapping" ] && [ "$("$vars" get device board/sdl_map)" = "$(cat "$state/mapping")" ]; then
+        "$vars" set device board/sdl_map ''
+    fi
+    rm -f "$state/mapping" "$state/input.identity" "$state/mapping.tmp"
+}
+case "${1:-}" in
+ start)
+    if [ -e "$state/ready" ]; then ready; exit $?; fi
+    /etc/init.d/S95muos-core status
+    "$vars" set device board/sdl_map ''
+    trap 'rc=$?; trap - EXIT; if [ "$rc" != 0 ]; then clear_ready || :; fi; exit "$rc"' EXIT
+    deadline=$(( $(awk '{print int($1)}' /proc/uptime) + 12 ))
+    owner=''
+    while [ "$(awk '{print int($1)}' /proc/uptime)" -lt "$deadline" ]; do
+        if owner=$(identity 2>/dev/null); then break; fi
+        sleep 0.1
+    done
+    [ -n "$owner" ] || exit 1
+    count=0
+    while [ "$count" -lt "$attempts" ]; do
+        count=$((count + 1))
+        printf '%s\n' "$count" > "$state/attempts"
+        [ "$(awk '{print int($1)}' /proc/uptime)" -lt "$deadline" ] || exit 1
+        [ "$(identity)" = "$owner" ] || exit 1
+        if /opt/muos/frontend/muos-sdl-map > "$state/mapping.tmp" 2> "$state/mapper-error.log"; then
+            map=$(cat "$state/mapping.tmp")
+            printf '%s\n' "$map" | grep -Eq '^[0-9a-f]{32},muOS-Keys,.*platform:Linux,$' || exit 1
+            "$vars" set device board/sdl_map "$map"
+            [ "$("$vars" get device board/sdl_map)" = "$map" ] || exit 1
+            mv "$state/mapping.tmp" "$state/mapping"
+            printf '%s\n' "$owner" > "$state/input.identity"
+            touch "$state/ready"
+            ready
+            exit $?
+        fi
+        sleep 0.1
+    done
+    echo 'muOS input-ready: normalized controller not ready before deadline' >&2
+    exit 1
+    ;;
+ stop) clear_ready ;;
+ status) ready ;;
+ *) echo 'Usage: S96muos-input-ready start|stop|status' >&2; exit 2 ;;
+esac

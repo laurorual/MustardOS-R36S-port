@@ -1,0 +1,34 @@
+SDL2: detect an unversioned GBM loader provided by rockchip-mali
+
+SPDX-License-Identifier: Zlib
+Local alteration for the R35S candidate. Buildroot installs libgbm.so as a
+symlink to its monolithic Mali provider, without libgbm.so.N. SDL must use
+its existing dynamic-symbol path so absent optional modifier/plane entry
+points stay NULL and select its existing drmModeAddFB fallback. Mandatory
+symbols still use SDL's required-symbol checks. Do not invent declarations
+or link optional functions that the provider does not export.
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -2426,6 +2426,9 @@
+             kmsdrm_shared=no
+             drm_lib=[`find_lib "libdrm.so.*" "$LIBDRM_LIBS"`]
+             gbm_lib=[`find_lib "libgbm.so.*" "$LIBGBM_LIBS"`]
++            if test x$gbm_lib = x; then
++                gbm_lib=[`find_lib "libgbm.so" "$LIBGBM_LIBS"`]
++            fi
+             if test x$have_loadso != xyes && \
+                test x$enable_kmsdrm_shared = xyes; then
+                 AC_MSG_WARN([You must have SDL_LoadObject() support for dynamic kmsdrm loading])
+--- a/configure
++++ b/configure
+@@ -25753,6 +25753,9 @@
+             kmsdrm_shared=no
+             drm_lib=`find_lib "libdrm.so.*" "$LIBDRM_LIBS"`
+             gbm_lib=`find_lib "libgbm.so.*" "$LIBGBM_LIBS"`
++            if test x$gbm_lib = x; then
++                gbm_lib=`find_lib "libgbm.so" "$LIBGBM_LIBS"`
++            fi
+             if test x$have_loadso != xyes && \
+                test x$enable_kmsdrm_shared = xyes; then
+                 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: You must have SDL_LoadObject() support for dynamic kmsdrm loading" >&5

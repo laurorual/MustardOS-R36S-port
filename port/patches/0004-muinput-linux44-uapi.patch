@@ -1,0 +1,65 @@
+--- a/input/common/uinput.c
++++ b/input/common/uinput.c
+@@ -100,6 +100,10 @@
+ }
+ 
+ static int set_abs(const int fd, const struct gamepad_abs_desc *axis, const int supports_setup_ioctl) {
++    if (!set_ioctl_bit(fd, UI_SET_ABSBIT, axis->code, "UI_SET_ABSBIT")) {
++        return 0;
++    }
++#if defined(UI_ABS_SETUP) && defined(UI_DEV_SETUP)
+     struct uinput_abs_setup abs = {
+         .code = axis->code,
+         .absinfo = {
+@@ -110,9 +114,6 @@
+             .resolution = axis->resolution,
+         },
+     };
+-    if (!set_ioctl_bit(fd, UI_SET_ABSBIT, axis->code, "UI_SET_ABSBIT")) {
+-        return 0;
+-    }
+     if (!supports_setup_ioctl) {
+         return 1;
+     }
+@@ -120,6 +121,9 @@
+         perror("UI_ABS_SETUP");
+         return 0;
+     }
++#else
++    (void) supports_setup_ioctl;
++#endif
+     return 1;
+ }
+ 
+@@ -167,8 +171,12 @@
+         return NULL;
+     }
+ 
++#if defined(UI_ABS_SETUP) && defined(UI_DEV_SETUP)
+     int uinput_version = 0;
+     const int supports_setup_ioctl = ioctl(fd, UI_GET_VERSION, &uinput_version) == 0 && uinput_version >= 5;
++#else
++    const int supports_setup_ioctl = 0;
++#endif
+ 
+     if (desc->key_count > 0) {
+         if (!set_ioctl_bit(fd, UI_SET_EVBIT, EV_KEY, "UI_SET_EVBIT EV_KEY")) {
+@@ -229,6 +237,7 @@
+         }
+     }
+ 
++#if defined(UI_ABS_SETUP) && defined(UI_DEV_SETUP)
+     if (supports_setup_ioctl) {
+         struct uinput_setup setup = {0};
+         setup.id = desc->id;
+@@ -240,7 +249,9 @@
+             close(fd);
+             return NULL;
+         }
+-    } else if (!write_legacy_setup(fd, desc)) {
++    } else
++#endif
++    if (!write_legacy_setup(fd, desc)) {
+         close(fd);
+         return NULL;
+     }

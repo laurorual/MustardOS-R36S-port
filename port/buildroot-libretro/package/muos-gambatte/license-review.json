@@ -1,0 +1,18 @@
+{
+  "upstream": "https://github.com/libretro/gambatte-libretro",
+  "revision": "77f2567d718b8973d02caa2daa8dce4953faf811",
+  "source_archive_sha256": "45e63bc79390093b78de025172ea289ded139f4ecf1e8072242f34d7dd540338",
+  "status": "combined-license-review-pending",
+  "private_experiment_only": true,
+  "redistribution_approved": false,
+  "evidence": {
+    "COPYING": "GPL version 2 text",
+    "libgambatte/src/cpu.cpp": "GPL version 2 notice, no later-version clause in this notice",
+    "libgambatte/libretro/cc_resampler.c": "compiled source explicitly says GPLv3",
+    "libgambatte/libretro/cc_resampler.h": "GPLv3 notice",
+    "libgambatte/libretro/blipper.c": "MIT notice",
+    "libgambatte/libretro-common/include/libretro.h": "MIT notice",
+    "libgambatte/libretro-common/streams/file_stream.c": "MIT notice"
+  },
+  "note": "Do not generalize the top-level GPLv2 label to the combined binary; keep source and notices while review is pending. No ROM is part of this package."
+}

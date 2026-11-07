@@ -1,0 +1,6 @@
+# Bring-up coordinator: opt-in, volatile settings, bounded C11 session.
+enabled=0
+allow_power=0
+recover_network=0
+session_package=/usr/libexec/muos-session
+session_config=/etc/default/muos-session

@@ -1,0 +1,53 @@
+--- a/module/muxlaunch.c
++++ b/module/muxlaunch.c
+@@ -1,6 +1,7 @@
+ #include "muxshare.h"
+ #include <common/ui/orientation.h>
+ #include "ui/ui_muxlaunch.h"
++#include "port_launcher_cycle.h"
+ 
+ static mux_dialogue confirm_dlg;
+ 
+@@ -520,6 +521,9 @@
+ }
+ 
+ int muxlaunch_main(void) {
++    const int port_cycle = port_cycle_configure(getenv("MUOS_PORT_DIAGNOSTIC_CYCLE"),
++                                               getenv("MUOS_PORT_DIAGNOSTIC_WAIT"));
++    if (port_cycle < 0) { safe_quit(64); return 64; }
+     init_module(__func__);
+     init_theme(1, 1);
+ 
+@@ -582,9 +586,17 @@
+         }
+     };
+ 
+-    init_input(&input_opts, 1);
+-
+-    append_combo(
++    if (port_cycle) {
++        input_opts.press_handler[mux_input_a] = NULL;
++        input_opts.press_handler[mux_input_b] = NULL;
++        input_opts.press_handler[mux_input_x] = NULL;
++        input_opts.hold_handler[mux_input_x] = NULL;
++        input_opts.release_handler[mux_input_menu] = NULL;
++        input_opts.idle_handler = port_cycle_tick;
++    }
++    init_input(&input_opts, port_cycle ? 0 : 1);
++
++    if (!port_cycle) append_combo(
+         &input_opts, (mux_input_combo) {
+                          .type_mask = BIT(mux_input_start) | BIT(mux_input_x),
+                          .press_handler = handle_arc_press,
+@@ -593,9 +605,9 @@
+                      }
+     );
+ 
+-    if (orientation_pending())
++    if (!port_cycle && orientation_pending())
+         show_tour_offer();
+-    else
++    else if (!port_cycle)
+         orientation_introduce(mux_module, lang.muxlaunch.title, lang.muxlaunch.overview);
+ 
+     mux_input_task(&input_opts);

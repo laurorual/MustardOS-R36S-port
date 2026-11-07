@@ -1,0 +1,3 @@
+# Opt-in: requires prepare-phase4-runtime-profile.py; no UI autostart.
+BR2_PACKAGE_MUOS_R35S_PROFILE=y
+BR2_ROOTFS_POST_BUILD_SCRIPT="/port/scripts/phase4-runtime-post-build.sh"

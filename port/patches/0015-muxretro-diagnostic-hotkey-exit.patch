@@ -1,0 +1,164 @@
+--- a/retro/core/startup.h
++++ b/retro/core/startup.h
+@@ -9,6 +9,7 @@
+     int no_content;
+     unsigned diagnostic_seconds;
+     int diagnostic_content;
++    int diagnostic_hotkey_exit;
+     int fresh;
+     int restarting;
+     int netplay_host;
+--- a/retro/core/startup.c
++++ b/retro/core/startup.c
+@@ -8,7 +8,7 @@
+ void startup_options_print_usage(FILE *stream, const char *program) {
+     fprintf(
+         stream,
+-        "Usage: %s <core.so> <content|--no-content> [--diagnostic-seconds=1..60] [--diagnostic-content] [--fresh] [--restart] [--subsystem=<ident>] [--single-screen] "
++        "Usage: %s <core.so> <content|--no-content> [--diagnostic-seconds=1..60] [--diagnostic-content] [--diagnostic-hotkey-exit] [--fresh] [--restart] [--subsystem=<ident>] [--single-screen] "
+         "[--netplay-host[=port]] "
+         "[--netplay-join=address[:port]]\n",
+         program
+@@ -26,7 +26,9 @@
+     options->content_path = options->no_content ? NULL : argv[2];
+     if (options->no_content) options->fresh = 1;
+     for (int i = 3; i < argc; i++) {
+-        if (strcmp(argv[i], "--diagnostic-content") == 0) {
++        if (strcmp(argv[i], "--diagnostic-hotkey-exit") == 0) {
++            options->diagnostic_hotkey_exit = 1;
++        } else if (strcmp(argv[i], "--diagnostic-content") == 0) {
+             options->diagnostic_content = 1;
+         } else if (strncmp(argv[i], "--diagnostic-seconds=", 21) == 0) {
+             char *end = NULL;
+@@ -67,6 +69,7 @@
+         }
+     }
+ 
++    if (options->diagnostic_hotkey_exit && !options->diagnostic_content) return 0;
+     if (options->diagnostic_content) {
+         if (options->no_content || !options->diagnostic_seconds || options->restarting ||
+             options->netplay_host || options->netplay_address[0] || options->netplay_invalid ||
+--- a/retro/core/main.c
++++ b/retro/core/main.c
+@@ -46,6 +46,7 @@
+ #include "governor_boost.h"
+ #include "runahead.h"
+ #include "startup.h"
++#include "phase4-diagnostic-exit.h"
+ #include "../video/hw_render.h"
+ #include "../video/image_writer.h"
+ #include "../video/colour.h"
+@@ -766,6 +767,12 @@
+     if (!startup.no_content) patch_manual_init(core_path_arg, content_path);
+     perf_init();
+     session_settings_init(core_path_arg, content_path);
++    hotkeys_set_diagnostic_quit(startup.diagnostic_hotkey_exit);
++    if (startup.diagnostic_hotkey_exit) {
++        session_settings.auto_save = auto_save_off;
++        session_settings.timeline_interval = 0;
++        session_settings.sram_flush_seconds = 0;
++    }
+     session_settings_launch_begin();
+     input_bridge_apply_analogue_ports_before_load();
+     if (!coreinfo_feature_enabled(coreinfo_feature_run_ahead)) session_settings.run_ahead = 0;
+@@ -992,12 +999,20 @@
+     if (session_settings_launch_recovered())
+         pause_menu_show_toast_timed(lang.muxretro.settings_screen.launch_recovered, tst_wait_s);
+ 
++    if (startup.diagnostic_hotkey_exit) {
++        if (!session_settings.hotkey_quit_enabled || session_settings.hotkey_quit_button != mux_input_start)
++            return abort_startup(1);
++        printf("C50_HOTKEY_READY seconds=%u modifier=menu button=start auto_save=%d timeline=%d sram_flush=%d\n",
++               startup.diagnostic_seconds,session_settings.auto_save,session_settings.timeline_interval,session_settings.sram_flush_seconds);
++        fflush(stdout);
++    }
+     LOG_SUCCESS(mux_module, "Running content at %.2f fps / %.0f Hz audio", target_fps, av_info.timing.sample_rate);
+     LOG_INFO(mux_module, "Startup: ready in %.2f ms total", startup_elapsed_ms(startup_start));
+ 
+     uint32_t diagnostic_deadline = SDL_GetTicks() + startup.diagnostic_seconds * 1000;
+     unsigned long diagnostic_frames = 0;
+     int diagnostic_expired = 0;
++    int diagnostic_hotkey = 0;
+     int quit = 0;
+     const uint32_t content_started_at = SDL_GetTicks();
+     int peeking = 0;
+@@ -1185,6 +1200,7 @@
+                 if (pause_menu_tick()) quit = 1;
+             }
+             if (hotkeys_is_quit_requested()) {
++                diagnostic_hotkey = startup.diagnostic_hotkey_exit && hotkeys_is_diagnostic_quit();
+                 if (!video_bridge_power_off()) fade_out_screen_forced();
+                 quit = 1;
+             }
+@@ -1207,6 +1223,7 @@
+             pause_menu_toggle();
+             manual_menu_open();
+         } else if (hotkeys_is_quit_requested()) {
++            diagnostic_hotkey = startup.diagnostic_hotkey_exit && hotkeys_is_diagnostic_quit();
+             audio_bridge_set_paused(1);
+             if (!video_bridge_power_off()) fade_out_screen_forced();
+             quit = 1;
+@@ -1445,7 +1462,13 @@
+     if (startup.diagnostic_seconds) {
+         printf("C44_NORMAL_EXIT expired=%d frames=%lu\n", diagnostic_expired, diagnostic_frames);
+         fflush(stdout);
+-        if (!diagnostic_expired || !diagnostic_frames) return EXIT_FAILURE;
++        const enum port_diagnostic_exit_reason reason = port_diagnostic_exit_classify(
++            startup.diagnostic_hotkey_exit, diagnostic_expired, diagnostic_hotkey, diagnostic_frames);
++        if (startup.diagnostic_hotkey_exit) {
++            printf("C50_EXIT reason=%s frames=%lu\n",port_diagnostic_exit_name(reason),diagnostic_frames);
++            fflush(stdout);
++        }
++        if (reason == port_diagnostic_exit_failure) return EXIT_FAILURE;
+     }
+ 
+     if (core_restart_requested) {
+--- a/retro/input/hotkeys.h
++++ b/retro/input/hotkeys.h
+@@ -25,3 +25,6 @@
+ void hotkeys_refresh_indicator(void);
+ 
+ int hotkeys_remote_command(const char *command, int value);
++
++void hotkeys_set_diagnostic_quit(int allowed);
++int hotkeys_is_diagnostic_quit(void);
+--- a/retro/input/hotkeys.c
++++ b/retro/input/hotkeys.c
+@@ -13,6 +13,7 @@
+ #include "../link/link.h"
+ #include "../netplay/netplay.h"
+ #include "hotkeys.h"
++#include "../core/phase4-diagnostic-exit.h"
+ #include "../core/muxretro.h"
+ #include "nav_repeat.h"
+ #include "../settings/settings.h"
+@@ -30,6 +31,13 @@
+ static int slow_motion_active = 0;
+ static int content_paused = 0;
+ static int quit_requested = 0;
++static port_diagnostic_quit_source diagnostic_quit_source;
++void hotkeys_set_diagnostic_quit(const int allowed) {
++    port_diagnostic_quit_configure(&diagnostic_quit_source,allowed);
++}
++int hotkeys_is_diagnostic_quit(void) {
++    return diagnostic_quit_source.enabled && diagnostic_quit_source.native_hotkey;
++}
+ static int manual_requested = 0;
+ static int held_speed = 0;
+ static double speed_current = 1.0;
+@@ -89,6 +97,7 @@
+ }
+ 
+ void hotkeys_request_quit(void) {
++    port_diagnostic_quit_note(&diagnostic_quit_source,"internal");
+     quit_requested = 1;
+ }
+ 
+@@ -220,6 +229,7 @@
+ }
+ 
+ static void request_quit(const char *source) {
++    port_diagnostic_quit_note(&diagnostic_quit_source,source);
+     if (state_saves_allowed() && session_settings_auto_save_on_quit()) gamestate_autosave_save();
+     LOG_INFO(mux_module, "Quit (%s)", source);
+     quit_requested = 1;

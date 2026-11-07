@@ -1,0 +1,104 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Limited bootstrap: Buildroot owns udev/DBus. Full muOS sysinit stays absent.
+set -eu
+audio=1
+input=0
+audio_quantum=0
+[ ! -r /etc/default/muos-core ] || . /etc/default/muos-core
+state=/run/muos/core
+vars=/opt/muos/frontend/muvarctl
+audio_service=/opt/muos/script/init/S80pipewire.sh
+audio_ready() {
+    "$audio_service" status >/dev/null || return 1
+    pidof wireplumber >/dev/null || return 1
+    target=$("$vars" get device audio/pf_internal)
+    current=$(wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null |
+        sed -n 's/.*node\.name = "\([^"]*\)".*/\1/p' | head -1)
+    [ -n "$target" ] && [ "$current" = "$target" ]
+}
+audio_failure() {
+    pw-dump > "$state/pw-dump-failure.json" 2>/dev/null || :
+    wpctl status > "$state/wpctl-failure.txt" 2>&1 || :
+    "$audio_service" stop || :
+}
+audio_set_quantum() {
+    case "$audio_quantum" in 0) return 0 ;; 1024) ;; *) return 64 ;; esac
+    # Set before SDL connects. This is daemon-local metadata, not a saved seed
+    # or a rootfs writer; stopping the audio daemon removes the override.
+    pw-metadata -n settings 0 clock.force-quantum "$audio_quantum" > "$state/quantum-set.log" || return 1
+    pw-metadata -n settings 0 clock.force-quantum > "$state/quantum.txt" || return 1
+    grep -Fq "key:'clock.force-quantum' value:'$audio_quantum'" "$state/quantum.txt"
+}
+audio_prime_pcm() {
+    # Panel0/BSP startup workaround: complete one direct zero-only PCM cycle
+    # before PipeWire opens the device. The C22 caller bounds the entire start
+    # process tree to 45 seconds; aplay itself is limited to 44100 frames.
+    [ "$audio_quantum" = 1024 ] || return 0
+    [ "$(cat /proc/asound/card0/pcm0p/sub0/status)" = closed ] || return 64
+    /usr/bin/aplay -q -D hw:0,0 -M -t raw -f S32_LE -c 2 -r 44100 \
+        --period-size=1024 --buffer-size=4096 -d 1 /dev/zero \
+        > "$state/pcm-prime.log" 2>&1 || return 1
+    [ "$(cat /proc/asound/card0/pcm0p/sub0/status)" = closed ] || return 1
+    echo DIRECT_ZERO_PCM_COMPLETED > "$state/pcm-prime.txt"
+}
+check_model() {
+    model=$(tr '\000' '\n' < /sys/firmware/devicetree/base/model)
+    [ "$model" = 'R36S-V12 2023-08-18 Panel 0' ] || {
+        echo 'muOS core: unexpected hardware model' >&2; return 1;
+    }
+}
+case "${1:-}" in
+    start)
+        case "$audio_quantum" in 0|1024) ;; *) exit 64 ;; esac
+        check_model
+        [ ! -e "$state/ready" ] || exit 0
+        mkdir -p "$state" /run/muos/storage /opt/muos/log
+        "$vars" build
+        if [ "$audio" = 1 ]; then
+            export MUOS_AUDIO_LOG_DIR="$state"
+            [ -S /run/dbus/system_bus_socket ] || { echo 'muOS core: DBus missing' >&2; exit 1; }
+            # Never start a second audio stack in this runtime.
+            [ ! -S /run/pipewire-0 ] || { echo 'muOS core: foreign audio stack' >&2; exit 1; }
+            if ! audio_prime_pcm; then
+                exit 1
+            fi
+            if ! "$audio_service" start; then
+                audio_failure
+                exit 1
+            fi
+            # Upstream audio/ready is also set on some failure paths; inspect
+            # the actual target node rather than trusting this flag alone.
+            if ! audio_ready; then
+                audio_failure
+                exit 1
+            fi
+            if ! audio_set_quantum; then
+                audio_failure
+                exit 1
+            fi
+            touch "$state/audio"
+        fi
+        if [ "$input" = 1 ]; then
+            start-stop-daemon -S -b -m -p "$state/input.pid" \
+                -x /opt/muos/frontend/muinput -- --device rk-r35s-p0 --foreground --rumble-strength 0
+        fi
+        touch "$state/ready"
+        ;;
+    stop)
+        if [ -r "$state/input.pid" ]; then
+            start-stop-daemon -K -p "$state/input.pid" -x /opt/muos/frontend/muinput || :
+            rm -f "$state/input.pid"
+        fi
+        if [ -e "$state/audio" ]; then
+            "$audio_service" stop
+            rm -f "$state/audio"
+        fi
+        rm -f "$state/ready"
+        ;;
+    status)
+        [ -e "$state/ready" ] || exit 3
+        [ ! -e "$state/audio" ] || audio_ready
+        ;;
+    *) echo 'Usage: S95muos-core start|stop|status' >&2; exit 2 ;;
+esac

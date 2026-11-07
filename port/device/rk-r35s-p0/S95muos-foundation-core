@@ -1,0 +1,10 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Enforce ordering even though Buildroot rcS continues after failed services.
+export HOME=/root XDG_RUNTIME_DIR=/run PIPEWIRE_RUNTIME_DIR=/run
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+export PATH=/opt/muos/frontend:/opt/muos/bin:/usr/sbin:/usr/bin:/sbin:/bin
+case "${1:-}" in
+ start|status) /etc/init.d/S90muos-storage status || exit $? ;;
+esac
+exec /usr/libexec/muos-core-lifecycle "$@"

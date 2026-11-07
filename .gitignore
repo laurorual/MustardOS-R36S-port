@@ -1,0 +1,14 @@
+/refs/
+/build/
+/dist/
+*.img
+*.img.gz
+*.log
+
+# Private user-supplied game images; never release inputs.
+/port/roms/
+
+# Rebuildable Python/editor caches.
+__pycache__/
+*.py[cod]
+.pytest_cache/

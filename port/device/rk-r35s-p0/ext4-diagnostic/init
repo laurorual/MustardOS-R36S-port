@@ -1,0 +1,79 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+[ "$$" = 1 ] || { echo 'Diagnostic init requires PID 1' >&2; exit 64; }
+trap '' HUP INT TERM
+park() { while :; do sleep 3600; done; }
+screen() { printf '\033[0m\033[37;40m\033[2J\033[H%s\n' "$1" > /dev/tty0; }
+fail() { screen "muOS ext4 diagnostic: STOPPED
+$1
+Record this message before powering off."; park; }
+mount -t proc proc /proc || park
+mount -t sysfs sysfs /sys || park
+mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /run || park
+mount -t tmpfs -o mode=1777,nosuid,nodev tmpfs /tmp || park
+printf '3 4 1 7\n' > /proc/sys/kernel/printk
+screen 'muOS - R35S / Panel 0
+Ext4 diagnostic: ROOT REACHED
+Checking identity, storage and gpio_keys...'
+[ "$(uname -r)" = 4.4.189-muos-r35s-p4 ] || fail 'Wrong kernel'
+[ "$(cat /etc/muos-ext4-diagnostic)" = MUOS-R35S-EXT4-P4-B01 ] || fail 'Wrong root marker'
+[ "$(tr -d '\000' < /sys/firmware/devicetree/base/model)" = 'R36S-V12 2023-08-18 Panel 0' ] || fail 'Wrong model'
+. /usr/libexec/muos-diag-card-guard
+diag_boot=$(diag_card /sys) || fail 'Test card missing or protected card present'
+diag_root=${diag_boot%p1}p2
+[ "$(findmnt -rn -o MAJ:MIN /)" = "$(cat /sys/class/block/${diag_root##*/}/dev)" ] || fail 'Root device mismatch'
+[ "$(findmnt -n -o FSTYPE /)" = ext4 ] || fail 'Root is not ext4'
+findmnt -n -o OPTIONS / | tr ',' '\n' | grep -qx ro || fail 'Root did not start read-only'
+mount -t vfat -o ro,nosuid,nodev,noexec "$diag_boot" /boot || fail 'Boot FAT mount failed'
+[ "$(cat /boot/DIAG.ID)" = MUOS-R35S-EXT4-P4-B01 ] || fail 'Boot FAT marker mismatch'
+probe() {
+    echo 'INITIAL ROOT'; findmnt /
+    grep -qx enabled=0 /etc/default/muos-ui || return 1
+    modprobe gpio_keys || return 1
+    [ -d /sys/module/gpio_keys ] || return 1
+    grep -q 'Name="odroidgo3-keys"' /proc/bus/input/devices || return 1
+    echo 'GPIO_KEYS_OK'
+    mount -o remount,rw / || return 1
+    /etc/init.d/S90muos-storage start || return 1
+    /etc/init.d/S90muos-storage status || return 1
+    echo 'STORAGE_OK'
+    cat /run/muos/storage/bindmap
+    findmnt -R /mnt/mmc
+    return 0
+}
+diag_status=0
+probe > /run/steps.txt 2>&1 || diag_status=$?
+# Stop also handles a partial S90 transaction. No product rcS was invoked.
+/etc/init.d/S90muos-storage stop >> /run/steps.txt 2>&1 || diag_status=1
+sync
+mount -o remount,ro / >> /run/steps.txt 2>&1 || fail 'Cannot restore root read-only'
+findmnt -n -o OPTIONS / | tr ',' '\n' | grep -qx ro || fail 'Root read-only check failed'
+{
+    echo 'MUOS-R35S-EXT4-P4-B01'; uname -a
+    echo 'STATUS'; echo "$diag_status"
+    echo 'STEPS'; cat /run/steps.txt
+    echo 'FINAL MOUNTS'; cat /proc/mounts
+    echo 'TAINT'; cat /proc/sys/kernel/tainted
+    echo 'UPTIME'; cat /proc/uptime
+    echo 'INPUT'; cat /proc/bus/input/devices
+    echo 'MODULES'; cat /proc/modules
+    echo 'UI CONFIG'; cat /etc/default/muos-ui
+    echo 'PROCESSES'; ps
+} > /run/report.txt
+dmesg > /run/dmesg.txt
+mount -o remount,rw,nosuid,nodev,noexec /boot || fail 'Cannot enable FAT log writes'
+mkdir -p /boot/DIAG02 || fail 'Cannot create log directory'
+cp /run/report.txt /boot/DIAG02/REPORT.TXT || fail 'Cannot save report'
+cp /run/dmesg.txt /boot/DIAG02/DMESG.TXT || fail 'Cannot save kernel log'
+printf 'EXT4_DIAGNOSTIC_STATUS=%s\n' "$diag_status" > /boot/DIAG02/RESULT.TXT
+sync
+umount /boot || fail 'FAT unmount failed'
+[ "$diag_status" = 0 ] || fail 'Probe failed; DIAG02 logs saved, root read-only'
+screen 'muOS - R35S / Panel 0
+Ext4 diagnostic: ROOT REACHED
+STORAGE_OK / GPIO_KEYS_OK
+Logs saved: DIAG02 (FAT unmounted)
+Root is read-only. No frontend or network.
+Hold Power to turn off before changing cards.'
+park
