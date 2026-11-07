@@ -75,6 +75,29 @@ The development host runs Bazzite Linux.
 Do not modify the host operating system to
 satisfy build dependencies.
 
+## Storage and Versioning
+
+Use the local Git repository for original code and documentation. Do not add
+build/, dist/, refs/, ROMs, private keys, seeds or private provisioning records to Git.
+Reuse the installed SDKs and build only the changed component. Generate a full
+firmware image when the increment actually changes the filesystem/image or
+requires a firmware checkpoint; do not clone a full root for every script edit.
+
+Keep at most five firmware versions in `port/packaging/storage-retention.json`.
+Update that inventory when promoting a new version, recording the specific
+reason for any older dependency or recovery exception. Preserve frozen proof
+files and private recovery material. Small source history and proof metadata
+are audit exceptions; they do not require another full build tree per commit.
+Keep at most five named Git restore checkpoints; ordinary source commits use
+Git's compact storage. Never rewrite qualified source/proof files just to prune
+their build directories.
+
+Before deleting historical outputs, review a dry run of
+`port/scripts/retain-phase4-builds.py`, verify its current dependency closure,
+and check the resulting integrity report. This cleaner covers reviewed legacy
+replicas, not arbitrary newly created paths. Extend its scope deliberately when
+the retention inventory changes. No automatic cleanup of refs or devices.
+
 Review AArch64 compiler flags, ABI and sysroot
 compatibility before deploying binaries.
 

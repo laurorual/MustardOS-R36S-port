@@ -21,6 +21,19 @@ def main():
     for n,v in [('stdout',r.stdout),('stderr',r.stderr),('exit',str(r.returncode)+'\n')]:write_new(target/n,v.encode())
     require(r.returncode==0,'C105 caller fixture failed: '+str(target))
     tests=json.loads((target/'fixture-results.json').read_text())
+    binding=subprocess.run(['python3','-B',str(REPO/'port/diagnostics/phase4-manual-caller-binding-fixture.py')],
+        capture_output=True,text=True,timeout=30)
+    write_new(target/'binding-tests.log',(binding.stdout+binding.stderr).encode())
+    require(binding.returncode==0,'C105 current boot binding checks failed')
+    fresh=observed_common(81,'22222222-2222-2222-2222-222222222222')
+    historical=common()
+    pattern=r"printf '[^']+' ([0-9a-f]{64}) /([A-Za-z0-9_./+-]+) \| sha256sum -c - >/dev/null"
+    require(sorted(re.findall(pattern,fresh))==sorted(re.findall(pattern,historical)) and
+        fresh.splitlines().count('c25_ready')==1 and
+        qualified()[1]['kernel_boot_id'] not in fresh,'Fresh guard must retain the exact foundation and readiness')
+    subprocess.run(['sh','-n'],input=fresh,text=True,check=True)
+    tests.update(binding_test_groups=4,binding_negative_variants=12)
+    tests['fresh_generated_guard_same_foundation_and_ready_gate']=True
     for p in source_files():
         if p.suffix=='.py':ast.parse(p.read_text())
         else:subprocess.run(['sh','-n',str(p)],check=True)

@@ -1,5 +1,14 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Atualização C105,07/11/2026 — caller manual instalado:**
+[17arquivos/60.276bytes](phase4-manual-caller.md), sem imagem integral ou
+substituições. Boot81 observado com C07 pronto após reboot único do80 com USB
+recuperado.43casos +4grupos de vínculo passaram; check nativo142dependências,
+stage e recusas aprovados, rootRO/fingerprint/infra/mountinfo preservados e RAM
+removida. Sessão gráfica pelo novo entrypoint, autostart e navegador geral
+pendentes. [Retenção](storage-retention.md):11,8GiB físicos liberados, cinco
+marcos de firmware, Git local e SDKs/provas/backups preservados.
+
 **Atualização C104,05/11/2026 — fluxo após reboot aprovado:**
 [Transição normal78→79](phase4-reboot-layout-session.md), UUID novo e identidade4
 conferidos, layout C102 preservado. 22casos novos; menu→GB→menu, imagem/input/

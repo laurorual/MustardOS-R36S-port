@@ -1196,3 +1196,18 @@ preferências/infraestrutura/montagens restaurados, cápsula removida e prova
 reboot-layout-session congelada. Não qualifica boot frio ou longa duração.
 Próximo: preparar caller como componente instalado manual, mantendo autostart
 separado e sem repetir este reboot, C94 ou qualquer imagem provisionada antiga.
+
+**C105 CALLER MANUAL INSTALADO,07/11/2026:** [contrato e recibos](phase4-manual-caller.md).
+17arquivos/1diretório/60.276bytes, sem substituições, imagem integral ou autostart.
+43casos caller/transação +4grupos de vínculo/12variantes negativas; nova guarda
+conserva inventário e c25_ready. Boot80 com USB recuperado permaneceu falhado;
+um reboot normal único trouxe81, observado com identidade atual sem reescrever
+C104. Instalação/check142dependências/stage10scripts/recusas passaram; rootRO,
+fingerprint/infra/mountinfo preservados e RAM removida. Próximo: sessão gráfica
+pelo entrypoint instalado, sem repetir a instalação ou pedir Deck.
+
+**RETENÇÃO E GIT LOCAL:** [limpeza e política](storage-retention.md),404.812
+arquivos descartados,11,8GiB físicos recuperados; build41→18GiB. Cinco marcos
+de firmware com exceções concretas, código/docs versionados e builds menores
+por componente. SDKs/provas/backups/refs preservados; ROM e dados privados
+fora do índice Git. Não criar uma rootfs inteira por edição de script.

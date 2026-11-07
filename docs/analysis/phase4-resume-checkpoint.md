@@ -1,6 +1,67 @@
 # Fase 4 — ponto seguro de retomada
 
-## Estado atual — C104 fluxo após reboot APROVADO; cartão no R35S
+## Estado atual — C105 caller manual instalado; cartão no R35S
+
+**07/11/2026:** limpeza de builds e [C105](phase4-manual-caller.md) concluídos.
+Console **192.168.15.8:2222**, C07/**boot81**, raiz ext4 RO0755. Cartão de teste
+128GB no R35S; original32 guardado. Steam Deck segue limpo e fora do fluxo.
+Nenhum launcher/jogo está aberto.
+
+**Armazenamento:** removidos404.812 arquivos históricos, **11,8GiB físicos
+recuperados**; build/phase4 caiu41→18GiB em du, espaço livre30→42GiB.
+Planos consumidos `build/cleanup/retention-20261107T155500Z.json.gz` e
+`retention-20261107T160455Z.json.gz`: hashes/metadados de1.391 arquivos protegidos
+e cadeia offline reconferidos;9testes de segurança passaram. SDKs, downloads,
+refs, dist, ROM e backups privados preservados. Não reutilizar os planos.
+Código/docs agora no Git local com autor fornecido; baseline `ce01966` inclui
+C104 aprovado e rascunho C105 interrompido. Builds por componente, sem rootfs
+completa por edição. Política `port/packaging/storage-retention.json`: cinco
+marcos C64/C79/C89/C93/C100, sete arquivos de imagem nesses marcos, exceções
+concretas de recuperação/SDK/provas. Não são imagens prontas para regravar.
+Histórico Git compacto é exceção de auditoria; até5 checkpoints nomeados.
+Ver [retenção](storage-retention.md) e as regras novas em AGENTS.md.
+
+**C105:** `build/phase4/manual-caller/install.322dqnrs`, latest-complete;
+pacote `package.er1m0bnf`, **17arquivos0644/1diretório0755/60.276bytes** em
+`/usr/libexec/muos-caller`, sem substituições. Dez scripts MIT byte-idênticos
+ao C104. Entrada via sh: check, stage de cápsula tmpfs própria e run
+observe/load-only.142dependências públicas/10assets fixados; nenhuma
+ROM/ELF/identidade/seed. Preparo dos assets ainda pertence ao harness.
+Checks `checks.hpybluli`:43casos caller/transação +4grupos de vínculo com
+12variantes negativas. Guarda nova conserva inventário e c25_ready integral;
+sh-n passou. Fixture não executa core/ROM/namespace. Adaptador derivado C76,
+rollback só de folhas próprias e diretório vazio; preserva vizinhos.
+
+**Boot80→81:** entrada80 falhou em usb-mode após inserir dongle durante o
+boot; reinserção física recuperou SSH sem reclassificar C07. Pedido normal
+único com guarda de recuperação e intent/claim fsync:
+`reboot-recovered.zrm_92lu`; **NÃO remover `recovered-reboot.claim` nem repetir**.
+Observação `observe.70yc6fne` qualificou81 por c25_ready, contador/UUID novos,
+141arquivos/metadados/layout C102/identidade4. Usuário confirmou conexão.
+Não reescreveu UUID antigo ou alterou C10478→79; observador não leu seeds.
+Inserção tardia do dongle segue cenário pendente, separado do warm reboot
+aprovado com dongle presente desde o início. Não repetir investigação por rotina.
+
+**Fechamento nativo aprovado:** apply0;17folhas/hash/modos, check142dependências,
+stage RAM dos10scripts, recusa de stage repetido/run incompleto. Fingerprint
+privado, infraestrutura PID/starttime e mountinfo global iguais; raizRO/layout
+preservados, duas cápsulas removidas, recibos esperados0. **NÃO remover
+install.322dqnrs/dispatch.claim nem repetir apply.** Nenhuma UI/core/ROM/save/
+token/serviço/autostart executado pela instalação. Prova sanitizada
+`dist/phase4/manual-caller-installed`: payload público, adaptadores, fontes e
+resultados; sem guardas privados/ROM/ELF/seed/UUID.
+
+**Próximo C106:** qualificar menu→GB→menu pelo entrypoint instalado C105,
+assets/cápsula em RAM, worker original e restauração do snapshot existente.
+Sessão gráfica por esse entrypoint ainda NÃO aprovada. Pode usar81 após
+verificar estado real/integridade C105 e vínculo atual, sem relaxar c25_ready.
+Não exige Deck, migração ou nova imagem; não repetir C104 ou C105. Navegador
+geral/autostart/Power/SRAM/novos saves/boot frio/queda de energia/longa duração
+seguem separados. C99 exige ausência dos caminhos e não serve após C102.
+Não reativar.once/C94/candidata77 consumida nem regravar fábrica C100 sem
+provisão como atualização. C98 duas passagens segue rascunho não testado.
+
+## Marco anterior — C104 fluxo após reboot APROVADO; cartão no R35S
 
 **05/11/2026:** [C104](phase4-reboot-layout-session.md) concluído em
 `build/phase4/reboot-layout-session/load.f412eeby`, latest-load; observação

@@ -8,7 +8,8 @@ from phase4_gambatte_install import INFRA
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('operation',choices=['prepare','apply','collect'])
-    p.add_argument('--host',required=True,type=ipaddress.IPv4Address);p.add_argument('--stage',type=Path);a=p.parse_args()
+    p.add_argument('--host',required=True,type=ipaddress.IPv4Address);p.add_argument('--stage',type=Path)
+    p.add_argument('--observation',type=Path);a=p.parse_args()
     os.umask(0o077);package=Path((AREA/'latest-package').read_text().strip())
     require(package.resolve().is_relative_to(AREA),'Known C105 package')
     report=json.loads((package/'analysis.json').read_text())
@@ -19,10 +20,23 @@ def main():
     tested=json.loads((checks/'analysis.json').read_text())
     require(tested['passed'] is True and tested['package_analysis_sha256']==sha(package/'analysis.json') and
         tested['source_sha256']==report['source_sha256'],'Tested package and install scope required')
-    prior,boot=qualified();guard=common()
+    prior,previous=qualified()
     stage=Path(tempfile.mkdtemp(prefix='install.',dir=AREA)) if a.operation=='prepare' else (
         a.stage.resolve() if a.stage else Path((AREA/'latest-plan').read_text().strip()))
     require(stage.resolve().is_relative_to(AREA),'Known installation stage')
+    if a.operation=='prepare':
+        observed=a.observation.resolve() if a.observation else Path((AREA/'latest-observation').read_text().strip())
+    else:observed=Path(json.loads((stage/'plan.json').read_text())['observation_stage'])
+    require(observed.resolve().is_relative_to(AREA),'Known current observation')
+    boot=json.loads((observed/'observation.json').read_text())
+    observation_binding(boot,previous,sha(prior/'analysis.json'),sha(REPO/'port/scripts/phase4_manual_caller.py'))
+    require(boot['host']==str(a.host) and boot['source_sha256']==tested['source_sha256'] and
+        boot['checks_sha256']==sha(checks/'analysis.json'),'Current tested observation required')
+    guard=observed_common(boot['boot_sequence'],boot['kernel_boot_id'])
+    require((observed/'ready.exit').read_text()=='0\n' and
+        sha(observed/'ready.sh')==boot['guard_sha256'] and
+        (observed/'ready.sh').read_text()==guard+INFRA and
+        (observed/'ready.stdout').read_text()==boot['infrastructure'],'Authentic C07-ready native receipt')
     ssh=['ssh','-p','2222','-i',str(WORK/'private/c07-client'),'-oIdentitiesOnly=yes','-oStrictHostKeyChecking=yes',
         '-oHostKeyAlias=[192.168.15.17]:2222','-oUserKnownHostsFile='+str(WORK/'private/c07-known_hosts'),
         '-oBatchMode=yes','-oConnectTimeout=8','root@'+str(a.host)]
@@ -62,6 +76,7 @@ printf '%s  %s\\n' {h} /{PREFIX}/{n} | sha256sum -c - >/dev/null
             'files':report['package_files'],'bytes':report['bytes'],'existing_files_replaced':0,
             'activation':'manual only','source_sha256':report['source_sha256'],
             'package_analysis_sha256':sha(package/'analysis.json'),'checks_sha256':sha(checks/'analysis.json'),
+            'observation_stage':str(observed),'observation_sha256':sha(observed/'observation.json'),
             'C104_analysis_sha256':sha(prior/'analysis.json'),'parent_proofs_sha256':report['parent_proofs_sha256']}
         write('plan.json',json.dumps(plan,indent=2)+'\n')
         write('absence-backup.json',json.dumps({'schema':105,'plan_sha256':sha(stage/'plan.json'),
@@ -81,7 +96,8 @@ printf '%s  %s\\n' {h} /{PREFIX}/{n} | sha256sum -c - >/dev/null
         print('C105 exact caller absence plan synced; no persistent write:',stage);return
     plan=json.loads((stage/'plan.json').read_text());meta=json.loads((stage/'manifest.json').read_text())
     require(meta['host']==str(a.host) and meta['kernel_boot_id']==boot['kernel_boot_id'] and
-        plan['package_analysis_sha256']==sha(package/'analysis.json') and plan['checks_sha256']==sha(checks/'analysis.json'),
+        plan['package_analysis_sha256']==sha(package/'analysis.json') and plan['checks_sha256']==sha(checks/'analysis.json') and
+        plan['observation_sha256']==sha(observed/'observation.json'),
         'Installation binding changed')
     for n,h in meta['files'].items():require(sha(stage/n)==h,'Plan/absence/deployment changed')
     require((stage/'guard.sh').read_text()==guard,'Exact qualified boot guard')
