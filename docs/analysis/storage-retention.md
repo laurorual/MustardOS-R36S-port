@@ -132,3 +132,18 @@ integralmente. Resumo cumulativo em `build/cleanup/retention-summary.json`.
 C106 foi preparado/testado em arquivos pequenos, sem nova rootfs. A limpeza
 não alterou console, cartões ou Steam Deck. O teste nativo separado confirmou
 menu/jogo/retorno pelo entrypoint já instalado, com encerramento e restauração.
+
+## Rodada C107–C111 — 07/11/2026
+
+A preparação local foi desenvolvida sem clonar rootfs ou produzir nova imagem.
+Três revisões de seis scripts (31.689bytes no console) preservam regressões
+explícitas: modo das bibliotecas e callback do stage. Artefatos de pacote,
+fixtures e recibos desta rodada ocupam cerca de5MiB no host antes da coleta
+final da sessão C109. Código/documentação continuam no Git; ROM fora do índice.
+
+O trace agora percorre C111/C109 e as provas intermediárias, além da cadeia
+C104–C106. O dry-run `build/cleanup/retention-20261107T170957Z.json` passou e
+não encontrou novos arquivos elegíveis: zero descartes e zero bytes adicionais
+liberados nesta rodada. Não aplicar esse plano vazio nem reutilizar os antigos
+consumidos. Cinco marcos de firmware continuam no inventário; as revisões de
+scripts não acrescentam marcos de imagem. SDKs/backups/refs/provas preservados.

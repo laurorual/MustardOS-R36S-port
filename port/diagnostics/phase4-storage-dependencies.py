@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Read-only dependency trace for the current C104/C105/C106 offline setup."""
+"""Read-only dependency trace for the current C104-C111 offline setup."""
 import os,sys,json
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -37,6 +37,24 @@ ctx,*rest=m.parent.legacy.historical()
 import phase4_installed_caller_session as current
 _,installed,_,_=current.qualified()
 current.current_common('',0,installed['boot_sequence']);current.rendered_runner()
+# Protect the installed preparer package, native receipts and current integration.
+import phase4_prepared_capsule_session as prepared
+_,prepared_report,_,_=prepared.qualified()
+prepared.current_common('',0,prepared_report['boot_sequence']);prepared.rendered_runner()
+prepared.prep.asset_model()
+# The successful graphical cycle adds immutable receipts and its public proof.
+prepared.proof('prepared-capsule-session')
+session_stage=Path((prepared.AREA/'latest-load').read_text().strip())
+assert session_stage.resolve().is_relative_to(prepared.AREA)
+records={name:json.loads((session_stage/name).read_text()) for name in
+    ['analysis.json','technical-analysis.json','physical-observation.json','final-audit.json']}
+assert all(row['passed'] is True for row in records.values())
+for name in ['technical-analysis.json','physical-observation.json']:
+    assert records[name]['session_analysis_sha256']==prepared.sha(session_stage/'analysis.json')
+for row in records.values():
+    for name,digest in row.get('source_sha256',{}).items():assert prepared.sha(repo/name)==digest
+for name,digest in records['final-audit.json']['recorded_receipts_sha256'].items():
+    assert prepared.sha(session_stage/name)==digest
 # Runtime inputs can be returned as Paths before first open.
 def walk(v):
     if isinstance(v,Path):

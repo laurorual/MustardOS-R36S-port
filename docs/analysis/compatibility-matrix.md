@@ -1,5 +1,16 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Atualização C107–C111,07/11/2026 — preparador local instalado:**
+[Revisão atual](phase4-local-preparation-v3.md),44casos e seis arquivos novos
+na revisão C111; anteriores preservadas como regressão.31.689bytes no total,
+sem imagens/reboot/Deck. Guardas/raizRO/fingerprint/infra/montagens preservados.
+C109:22checks e preparo positivo nativo aprovados, cinco inputs em RAM,
+sete bibliotecas locais e metadados gerados no aparelho. Menu→GB→menu, imagem/input/som/Fn+L2/Fn+Start confirmados numa única rodada,
+1284frames e snapshot preservado. Fechamento0/raizRO/RAM removida, hardware/
+preferências/infra/mountinfo restaurados. Intervalo amostrado de abertura8,42s,
+startup interno1373,11ms; sem causa ou comparação inferida. Ver
+[fluxo](phase4-prepared-capsule-session.md).
+
 **Atualização C106,07/11/2026 — sessão pelo caller instalado aprovada:**
 [Stage/run e worker instalados](phase4-installed-caller-session.md), boot81
 existente; dez scripts sem upload pelo host,17testes novos. Menu/GB/retorno,

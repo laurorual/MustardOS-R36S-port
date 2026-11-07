@@ -1,6 +1,84 @@
 # Fase 4 — ponto seguro de retomada
 
-## Estado atual — C106 sessão pelo caller instalado APROVADA; cartão no R35S
+## Estado atual — C107–C111 concluídos; C109 com preparo local APROVADO
+
+**07/11/2026:** R35S **192.168.15.8:2222**, mesmo **boot81**, C07 pronto/
+raiz ext4RO0755. Cartão de teste128GB no console, original32 guardado; Deck
+fora do fluxo. UI/jogo encerrados, PCMclosed/p1p3off/taint0; página diagnóstica
+final escrita. Nenhum reboot nesta rodada. Dongle com inserção tardia continua
+adiado pelo usuário. Incrementos agrupados antes de **um único teste físico**.
+
+**Preparador local:** [C107/C108](phase4-local-preparation.md),
+[C110 modos reais](phase4-local-preparation-v2.md) e
+[C111 callback final](phase4-local-preparation-v3.md). Três prefixos próprios
+`/usr/libexec/muos-capsule`, `muos-capsule-v2`, `muos-capsule-v3`, seis arquivos
+cada; total31.689bytes, nenhuma substituição de arquivos anteriores. C105
+inalterado, sem imagem integral nova/autostart/serviço/token. Provas sanitizadas
+`capsule-preparer-installed`, `capsule-preparer-v2-installed`,
+`capsule-preparer-v3-installed` congeladas em dist/phase4.
+
+**Correções e limites históricos:** C109 inicial `load.pjofljbw` recusou modo
+esperado0755 antes do stage: bibliotecas reais são0644. Cinco inputs foram
+conferidos e removidos, recibo refusal-cleanup0, sem UI/jogo. C110 corrige os
+modos; revisão antes da UI encontrou callback final sem caller_exec capsule,
+necessário para c105_staged. C111 acrescenta findmnt/tmpfs nesse dispatch.
+C108/C110 passaram somente instalação/check/recusa vazia, **sem aprovação de
+preparo positivo/gráfico**. Não reescrever fontes/provas para corrigir história.
+
+**C111:** pacote `capsule-prepare-v3/package.22ef4ve8`,10.602bytes; checks
+`checks.21y_q3b5`:44casos, incluindo modo0644 e callback extraído da entrada
+real com funções C105/tmpfs reais em container (boot/caminhos de fixture).
+Instalação `install.enw93t77`, guardas172; todos os recibos0, fingerprint/
+infra/mountinfo preservados, RAM removida/raizRO. C108 instalação
+`capsule-prepare/install.0ebv0j0g`, C110 `capsule-prepare-v2/install.pfsk2m5s`.
+**Preservar dispatch.claim nos três stages; não repetir apply.** Claims C105
+install.322dqnrs e recovered-reboot também permanecem consumidos.
+
+**C109 aprovado:** [sessão e métricas](phase4-prepared-capsule-session.md),
+`prepared-capsule-session/load.ky2c382i`, latest-load; observação
+`observe.w28rjklk`,22checks em `checks.ebuwz4o8`. Guarda178 e identidade real
+core/ROM igual ao snapshot C63, fontes/provas históricas preservadas.
+`prepare.sh prepare` C111 copia sete bibliotecas locais, stage C105 fornece
+dez scripts e o aparelho gera identidade/metadados/manifestos. Host envia
+**5inputs em vez de12uploads**: quatro assets públicos+ROM privada somenteRAM.
+Sem montar/gravar p3 para persistir ROM. Check do host e ABI4 nativos0;
+caller.sh run e worker instalado confirmados por run.once/PID/starttime/cmdline,
+três mapas e preparation.once/ready. Jogo45s/worker210s/supervisor240s mantidos.
+
+**Físico e fechamento:** usuário “Tudo certo” para imagem/direcional/som,
+Fn+L2 e Fn+Start/retorno.1284frames, hotkey0/expired0; snapshot/metadados e
+inventários byte-idênticos ao C63,2status/1export, nenhum QuickSave. Native/
+OPERATION/CLEANUP/postflight/mount-health/caller-execution/cleanup/stopped-screen0.
+Mixer/DRM/volume/brilho/WirePlumber/preferências55/70 restaurados; PID/starttime
+infra e mountinfo global iguais, RAM removida. Fechamento offline autêntico
+preservou imagem C64 e SDK. Prova `dist/phase4/prepared-capsule-session`.
+
+**Medição:** seleção consumida→primeiro frame observado8,42s, polling nominal1s;
+startup interno1373,11ms. Não mede instante físico de A, não limita atraso do
+scheduler ou demonstra causa/comparação com C106. C44_FIRST_PRESENT seconds=45
+é limite do jogo, não latência. Analisador C77 intacto:59,9401Hz recente,
+4underruns/1546frames de áudio ausentes agregados; não localizam eventos nem
+qualificam longa duração. Som limpo/audível confirmado fisicamente.
+
+**Armazenamento/Git:** nenhuma nova imagem integral; artefatos desta rodada
+~6MiB. Cinco marcos de firmware continuam no inventário, fonte/docs no Git
+local, até5checkpoints nomeados. Trace C104–C111 passou; dry-run
+`build/cleanup/retention-20261107T170957Z.json`: zero novos descartes, sem nova
+liberação de bytes. Limpeza anterior~12,3GiB permanece; build/phase4~17GiB.
+SDKs/backups/refs/provas/ROM preservados. Não aplicar planos vazios/consumidos.
+
+**Próximo lote:** preparar residência dos quatro assets públicos remanescentes
+(runner/state-metadata/libmuxmod diagnóstico/probe ABI), com origem/hashes/
+licenças; instalação aditiva e integração antes do próximo teste físico. Meta:
+apenas ROM como input, sem supor armazenamento privado em p3. Pode usar81 se
+estado real/hashes atuais ainda passarem. Se houve novo boot, criar observador/
+vínculo novo sem reutilizar UUID81 nem rearmar claims; não repetir C109/C105/
+C104 por rotina. Autostart/navegador geral/SRAM/novos saves/Power/suspend/boot
+frio/queda de energia/longa duração separados. Não tocar Deck, rearmar.once/
+C94 ou regravar candidata77 consumida/fábrica C100 sem provisão. C99 não serve
+após C102; C98 segue rascunho.
+
+## Marco anterior — C106 sessão pelo caller instalado APROVADA; cartão no R35S
 
 **07/11/2026:** [C106](phase4-installed-caller-session.md) concluído no
 **boot81**, IP **192.168.15.8:2222**, C07 pronto/raiz ext4RO0755. Cartão de

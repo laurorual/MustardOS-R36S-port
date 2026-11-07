@@ -1223,3 +1223,30 @@ reportada, ainda sem medição de latência. Próximo: preparar assets/cápsula 
 aparelho, com plano da origem da ROM/dados; autostart/navegador geral separados.
 Cenário de dongle adiado pelo usuário. Mais515MiB físicos recuperados em
 fixtures/pacotes antigos, mantendo relatórios e dependências C104/C105/C106.
+
+**C107–C111 PREPARAÇÃO LOCAL,07/11/2026:**
+[Contrato inicial](phase4-local-preparation.md), [modos reais](phase4-local-preparation-v2.md)
+e [callback final](phase4-local-preparation-v3.md). Três revisões aditivas de
+seis arquivos,31.689bytes ao todo, sem substituir C105 ou gerar imagens.
+42→43→44casos de preparo/transação: modo0644 das bibliotecas e callback
+real de tmpfs corrigem lacunas encontradas antes da conferência física.
+Instalações/check/recusa vazia/limpeza aprovadas no boot81, rootRO e
+fingerprint/infra/mountinfo preservados. C108/C110 não qualificados para preparo
+gráfico; a revisão C111 é a entrada explícita da integração C109.
+
+**C109 INTEGRAÇÃO APROVADA:** [fluxo](phase4-prepared-capsule-session.md).
+22checks locais, guarda178 e identidade real core/ROM contra C63 passaram.
+Cápsula recebe5inputs em vez de12 uploads; sete bibliotecas e dez scripts
+vêm da instalação, metadados/identidade são gerados no aparelho. Preparo
+positivo/ABI, menu→GB→menu/imagem/input/som/Fn+L2/Fn+Start aprovados numa única
+conferência física,1284frames, snapshot preservado. Native/fechamento0, RAM
+removida/raizRO, hardware/preferências/infra/mountinfo restaurados. Prova própria
+prepared-capsule-session congelada.
+Sem reboot/Deck/save novo; ROM continua RAM. Watcher mediu8,42s entre observações seleção→primeiro frame e1373,11ms de
+startup interno; sem timestamp físico do botão ou causa atribuída. Retenção atéC111
+conferida, dry-run sem novos descartes; firmware permanece limitado a5marcos.
+
+Próximo lote: residência dos quatro assets públicos restantes, instalação e
+integração antes do próximo teste físico; manter a ROM como input RAM, sem
+montar/gravar p3 por suposição. Qualificar novo boot com observador próprio se
+necessário, mantendo claims consumidos. Autostart/navegador geral separados.
