@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Read-only dependency trace for the current C104-C115 offline setup."""
+"""Read-only dependency trace for the current C104-C116 setup."""
 import os,sys,json
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -81,6 +81,40 @@ for area,names in [(resident.assets.AREA,['latest-package','latest-complete']),
         for source,digest in row.get('source_sha256',{}).items():assert resident.sha(repo/source)==digest
         for source,digest in row.get('package_files',{}).items():
             assert resident.sha(stage/'target'/resident.assets.PREFIX/source)==digest
+# A fresh postboot session retains the original import and the new observation.
+# This is source/receipt history, not another firmware tree.
+import phase4_resident_boot_session as postboot
+postboot.qualified();postboot.rendered_runner()
+checks=Path((postboot.AREA/'latest-checks').read_text().strip())
+assert checks.resolve().is_relative_to(postboot.AREA)
+checked=json.loads((checks/'analysis.json').read_text());assert checked['passed'] is True
+for source,digest in checked['source_sha256'].items():assert postboot.sha(repo/source)==digest
+observed=Path((postboot.AREA/'latest-observation').read_text().strip())
+assert observed.resolve().is_relative_to(postboot.AREA)
+observation=json.loads((observed/'observation.json').read_text())
+guard=postboot.current_common('',0,observation['boot_sequence'],observation['kernel_boot_id'])
+assert (observed/'preflight.sh').read_text()==guard+resident_history[0]['infra']
+assert (observed/'preflight.exit').read_text()=='0\n'
+postboot.bind(resident_history[2],resident_history[4],observation,
+              observation['boot_sequence'],observation['kernel_boot_id'])
+for source,digest in observation['source_sha256'].items():assert postboot.sha(repo/source)==digest
+for receipt in postboot.AREA.glob('load.*/closed-timeout.json'):
+    attempt=receipt.parent
+    assert attempt.resolve().is_relative_to(postboot.AREA)
+    row=json.loads(receipt.read_text())
+    assert row['passed'] is True and row['game_started'] is False
+    assert row['session_analysis_sha256']==postboot.sha(attempt/'analysis.json')
+    for name,digest in row['recorded_receipts_sha256'].items():assert postboot.sha(attempt/name)==digest
+if (postboot.AREA/'latest-load').exists():
+    stage=Path((postboot.AREA/'latest-load').read_text().strip())
+    assert stage.resolve().is_relative_to(postboot.AREA)
+    report=json.loads((stage/'analysis.json').read_text());assert report['passed'] is True
+    assert report['observation_sha256']==postboot.sha(observed/'observation.json')
+    for name in ['technical-analysis.json','physical-observation.json','final-audit.json']:
+        row=json.loads((stage/name).read_text());assert row['passed'] is True
+        if name!='final-audit.json':assert row['session_analysis_sha256']==postboot.sha(stage/'analysis.json')
+        for source,digest in row.get('source_sha256',{}).items():assert postboot.sha(repo/source)==digest
+    postboot.proof('resident-boot-session')
 os.stat=oldstat;os.lstat=oldlstat
 # Failed open probes (including CPython cache and temporary-name probes)
 # are not retained artifacts. Keep only existing inputs for a stable closure.

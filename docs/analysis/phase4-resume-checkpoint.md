@@ -1,14 +1,41 @@
 # Fase 4 — ponto seguro de retomada
 
-## Estado atual — C112–C114 aprovados; ROM interna; C115 aguarda teste físico
+## Estado atual — C116 aprovado com ROM interna no boot83
 
-**07/11/2026:** R35S **192.168.15.8:2222**, **boot82/C07 pronto**, raiz ext4RO0755,
-PCMclosed/UIoff/taint0/p1p3off. Cartão128GB no console; original32 guardado,
-Deck fora do fluxo. Usuário pediu ROM INTERNA e depois se ausentou: nenhuma UI,
-core de jogo, input/áudio ou reboot foi iniciado nesta rodada. **Aguardar seu
-retorno para teste físico; todo o restante deste lote está preparado.**
+**09/11/2026:** R35S **192.168.15.13:2222**, **boot83/C07 pronto**. Cartão128GB
+no console; original32 guardado e Deck fora do fluxo. Novo boot observado, sem
+pedido de reboot nesta rodada. C112/C113/C114 continuam aprovados; instalações,
+importação e claims anteriores não foram repetidos. [C116](phase4-resident-boot-session.md)
+constrói o contexto atual sem alterar fontes/provas/UUIDs históricos.
 
-**Novo boot:** observado82/UUID real/identidade4 estável, guardas178 preservados,
+21checks offline `resident-boot-session/checks.0u1yo3at` passaram; observação
+`observe.a8wgi4yu` confirmou191hashes/identidade/readiness/infra no83. Rodada
+`load.i2yt7sk0` preparou11assets+ROM internos sem uploads, validou ABI e abriu
+o primeiro menu com cmdline do worker e mapas conferidos. **A seleção A não
+foi registrada: `C46_CANCELLED kind=timeout`; jogo não abriu nessa tentativa.**
+Preservar esse resultado negativo separado da repetição aprovada abaixo.
+**Fechamento conferido:** `closed-timeout.json`, cleanup0/PCMclosed/UIoff,
+RAM removida, raizRO/p1p3off, infraestrutura e montagens preservadas; tela final
+de diagnóstico escrita. Todos os recibos de pós-voo/cleanup0, fontes intactas.
+Resultado gráfico falso preservado (`analysis.json`): não publicar como sucesso.
+**C116 APROVADO:** usuário pediu repetição sem ampliar prazos; rodada
+`load.0tjkp099`, mesma observação83, passou operação0/cleanup0/1051frames.
+Imagem/direcional/som/Fn+L2/Fn+Start/retorno confirmados. EstadoC63 byte-idêntico,
+nenhum save novo.11assets+10scripts+ROM internos, zero uploads e leitura da
+ROMlocal proibida. Três mapas reais e cmdline do worker instalado conferidos.
+Análise técnica/física/fechamento vinculados à mesma sessão; prova sanitizada
+**`dist/phase4/resident-boot-session`** publicada, fontes congeladas.
+RaizRO0755/PCMclosed/UIoff/p1p3off/taint0, RAM removida, hardware55/70 e
+infra/mountinfo preservados; tela final diagnóstica escrita. SDK/imagem C64 intactos.
+
+**Demora na abertura:** usuário confirmou funcionamento e relatou demora.
+Observador mediu seleção consumida→primeiro frame7,37s (amostragem nominal1s,
+atraso não limitado, sem timestamp físicoA); startup interno1338,99ms e carga
+do conteúdo27,95ms. Não inferir causa ou ganho sobre C109.59,9401Hz recentes,
+frame médio16,6995ms; áudio reportou4underruns/1556frames ausentes, sem distorção
+relatada. Não equivale a estabilidade longa nem áudio sem underruns.
+
+**Histórico de observação C112–C115:** observado82/UUID real/identidade4 estável, guardas178 preservados,
 sem editar/reutilizar UUID81 ou pedir reboot. C112 `observe.xx0kthce`; C115
 `observe.npmqzojq` já confere191hashes com o pacote instalado. Se houver outro
 boot/IP, reconstruir o contexto novo antes da sessão; não reimportar/reinstalar
@@ -66,20 +93,24 @@ package próprios preparados, guardas191/mesmo boot82 e origem C113/C114 exigido
 Observação nativa `observe.npmqzojq` aprovada; **nenhuma sessão gráfica executada**
 e `dist/phase4/resident-session` NÃO existe. Não inventar confirmação física.
 
-**Próxima ação quando usuário retornar:** conferir presença/IP/boot real. Se
-82 ainda atual, confirmar integridade e usar UMA rodada com:
-`python3 -B port/scripts/run-phase4-resident-session.py --host 192.168.15.8 --boot 82 --observation build/phase4/resident-session/observe.npmqzojq`.
-Só pedir A/Start/direcional/Fn+L2/Fn+Start depois de confirmar menu ativo; jogo45s,
-sem salvar/Power/volume/brilho. Registrar resposta física vinculada à análise,
-analisar/fechar/publicar C115 somente se todos os recibos e confirmação passarem.
-Se houve reboot, preparar observador novo sem usar UUID82 ou reinstalar/importar.
+**Próximo incremento:** perfilar o caminho da seleção ao primeiro frame antes
+de otimizar a abertura. As fontes atuais fazem check e launch completos do
+host/provider (duas passagens40arquivos+7bibliotecas), ainda sem custo por fase
+medido. Preferir preparo/medições não interativas e preservar fontes/provas
+C112–C116, hashes/modos/ownership/RO/isolamento. Reutilizar observação83 apenas
+se contador/UUID/fontes/estado coincidirem; novo boot exige contexto fresco.
+Não repetir C116 aprovado sem razão concreta, nem instalação/importação/claims.
 
-**Armazenamento/Git:** sem nova imagem integral ou clone de rootfs; artefatos
-novos~16MiB. Inventário mantém cinco marcos de firmware. Trace C104–C115 passou,
-backup/provas/pacotes protegidos; dry-run
-`build/cleanup/retention-20261107T224404Z.json` encontrou zero descartes novos.
+**Armazenamento/Git:** sem nova imagem integral ou clone de rootfs; C112–C115
+geraram~16MiB e C116 somente fontes/recibos pequenos. Inventário mantém cinco
+marcos de firmware. Trace C104–C116 protege backup/provas/pacotes e o fechamento
+da tentativa expirada e prova nativa atual. Dry-run
+`build/cleanup/retention-20261109T182539Z.json`:
+1858arquivos protegidos/zero descartes, incluindo fechamento negativo e prova
+aprovada. Não houve exclusão.
 Não aplicar planos vazios/consumidos. ROM original local preservada fora do Git;
-execução atual não a lê. Cinco checkpoints Git nomeados, incluindo este lote.
+execução atual não a lê. Cinco checkpoints Git nomeados; C116 usa commit comum,
+sem novo tag.
 Não tocar Deck/original32, investigar dongle, rearmar.once/C94/claims ou regravar
 candidata77/fábrica C100 sem provisão. Autostart/navegador geral/SRAM/novos saves/
 Power/suspend/boot frio/queda de energia/longa duração continuam separados.

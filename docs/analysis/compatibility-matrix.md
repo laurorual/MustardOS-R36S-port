@@ -1,5 +1,17 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Atualização C116,09/11/2026 — contexto do boot83:**
+[Sessão residente pós-boot](phase4-resident-boot-session.md) reconstrói guard191
+sem reescrever bindings C112–C115 ou reimportar ROM.21checks offline e nova
+observação nativa passaram. Primeira tentativa expirou sem A e foi encerrada
+com cleanup0. Repetição1051frames aprovada: imagem/controles/som/Fn+L2/Fn+Start/
+retorno confirmados, snapshot preservado, zero uploads de inputs.
+Prova `resident-boot-session`, cleanup0/raizRO/RAM removida/infra preservada.
+Demora na abertura relatada: intervalo observado7,37s, startup interno1,339s;
+sem medição física do botão ou custo por fase. Áudio4underruns/1556frames ausentes
+no contador, sem distorção relatada; longa duração ainda não qualificada.
+Sem nova imagem, instalação, reboot ou uso do Deck.
+
 **Atualização C112–C115,07/11/2026 — ROM e assets internos:**
 [C112](phase4-resident-assets.md) instalado no boot82,13arquivos/1,8MiB aditivos;
 [C113](phase4-internal-rom.md) importa ROM64KiB na p3 com backup independente e

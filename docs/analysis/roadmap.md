@@ -1271,3 +1271,17 @@ ausente: não executar rodada gráfica nem publicar confirmação sintética.
 Próximo passo é UMA rodada supervisionada A/Start/direcional/Fn+L2/Fn+Start,
 com análise/fechamento/prova próprios depois. Backup/claims C112/C113 preservados.
 Trace atéC115 e retenção de cinco marcos aprovados, zero novos descartes.
+
+**C116 APROVADO,09/11/2026:** [contexto pós-boot](phase4-resident-boot-session.md)
+para boot83/IP13, sem repetir instalações ou importação.21checks offline,
+guard191 e observação nova passaram; histórico C112–C115 preservado. Rodada
+inicial expirou sem A, com cleanup0. Repetição solicitada sem ampliar prazos:
+1051frames, restore/saída por hotkeys, snapshot exato, imagem/input/som/retorno
+confirmados. Análise/fechamento/prova `resident-boot-session` concluídos;
+raizRO/PCMclosed/p3off/UIoff/RAM removida/infra/mountinfo preservados.
+Demora relatada: seleção→primeiro frame observado7,37s, startup interno1,339s,
+carga conteúdo27,95ms. Amostragem nominal1s sem timestamp físico ou custo de
+cada guarda; não atribuir causa nem declarar ganho comparativo. Áudio registrou
+4underruns/1556frames ausentes, sem distorção relatada; longa duração pendente.
+Próximo: perfilar fases da abertura e preparar otimização preservando guardas
+e fontes/provas históricas. Sem imagem nova, reboot, instalação ou uso do Deck.
