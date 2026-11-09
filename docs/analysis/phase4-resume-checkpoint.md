@@ -1,12 +1,30 @@
 # Fase 4 — ponto seguro de retomada
 
-## Estado atual — C116 aprovado com ROM interna no boot83
+## Estado atual — C117 perfil automático aprovado; C116 físico preservado
 
 **09/11/2026:** R35S **192.168.15.13:2222**, **boot83/C07 pronto**. Cartão128GB
 no console; original32 guardado e Deck fora do fluxo. Novo boot observado, sem
 pedido de reboot nesta rodada. C112/C113/C114 continuam aprovados; instalações,
 importação e claims anteriores não foram repetidos. [C116](phase4-resident-boot-session.md)
 constrói o contexto atual sem alterar fontes/provas/UUIDs históricos.
+
+**C117 APROVADO sem intervenção física:** [perfil da abertura](phase4-launch-profile.md),
+`launch-profile/profile.8ov5rk96`, boot83 confirmado novamente.17checks offline
+`checks.7hihu0kr` e11recibos nativos0. Preparo residente, scripts originais em
+check e três repetições: host40+provider7 mediana3000ms (2990/3000/3000),
+provider isolado610ms (610/610/610), hashes core/ROM+cópiaRAM160ms (160/160/150).
+Host já inclui provider: não somar as duas linhas. Medição por uptime centesimal,
+cache aquecido/overhead incluído, sem controle de frequência; NÃO é abertura
+gráfica perfilada nem ganho comprovado. Leitura das fontes aponta duas passagens
+completas no caminho check→launch; otimizar o custo preservando os checks.
+
+Zero uploads de inputs/openROMlocal proibido;11assets/10scripts/metadados
+conferidos antes/depois, run.once ausente. Sem UI/core/input/áudio/reboot ou
+escrita persistente; infra/mountinfo idênticos, RAM removida, raizRO/p3off/
+PCMclosed/UIoff. Prova congelada **`dist/phase4/launch-profile`** sem privados.
+Não amplia nem repete a aprovação gráfica/física C116. Nesta etapa o usuário
+não precisou interagir; conferência física fica para marcos que afetem painel,
+alto-falante, botões, energia/suspend ou recuperação/troca de cartão.
 
 21checks offline `resident-boot-session/checks.0u1yo3at` passaram; observação
 `observe.a8wgi4yu` confirmou191hashes/identidade/readiness/infra no83. Rodada
@@ -93,24 +111,30 @@ package próprios preparados, guardas191/mesmo boot82 e origem C113/C114 exigido
 Observação nativa `observe.npmqzojq` aprovada; **nenhuma sessão gráfica executada**
 e `dist/phase4/resident-session` NÃO existe. Não inventar confirmação física.
 
-**Próximo incremento:** perfilar o caminho da seleção ao primeiro frame antes
-de otimizar a abertura. As fontes atuais fazem check e launch completos do
-host/provider (duas passagens40arquivos+7bibliotecas), ainda sem custo por fase
-medido. Preferir preparo/medições não interativas e preservar fontes/provas
-C112–C116, hashes/modos/ownership/RO/isolamento. Reutilizar observação83 apenas
+**Próximo incremento:** preparar verificação por lote para reduzir processos/
+stat/hash do host sem retirar guardas. C117 mediu check completo~3s, provider
+isolado~0,61s e conteúdo/cópiaRAM~0,16s, com escopos distintos da abertura real.
+Qualificar equivalência e desempenho em testes automáticos/sem UI primeiro.
+Preservar fontes/provas C112–C117, hashes/modos/ownership/ancestrais/RO/isolamento.
+Integração gráfica posterior exige teste técnico e confirmação física se houver
+mudança perceptível de comportamento. Reutilizar observação83 apenas
 se contador/UUID/fontes/estado coincidirem; novo boot exige contexto fresco.
 Não repetir C116 aprovado sem razão concreta, nem instalação/importação/claims.
 
 **Armazenamento/Git:** sem nova imagem integral ou clone de rootfs; C112–C115
 geraram~16MiB e C116 somente fontes/recibos pequenos. Inventário mantém cinco
-marcos de firmware. Trace C104–C116 protege backup/provas/pacotes e o fechamento
+marcos de firmware. Trace C104–C117 protege backup/provas/pacotes e o fechamento
 da tentativa expirada e prova nativa atual. Dry-run
 `build/cleanup/retention-20261109T182539Z.json`:
 1858arquivos protegidos/zero descartes, incluindo fechamento negativo e prova
 aprovada. Não houve exclusão.
 Não aplicar planos vazios/consumidos. ROM original local preservada fora do Git;
 execução atual não a lê. Cinco checkpoints Git nomeados; C116 usa commit comum,
-sem novo tag.
+sem novo tag. C117 também somente fontes/recibos pequenos, sem imagem integral
+ou novo checkpoint nomeado. Dry-run C117
+`build/cleanup/retention-20261109T183806Z.json`:
+1934arquivos protegidos, incluindo medições/prova C117, zero candidatos/zero
+exclusões. Artefatos C117~1MiB no host; fontes versionadas no Git.
 Não tocar Deck/original32, investigar dongle, rearmar.once/C94/claims ou regravar
 candidata77/fábrica C100 sem provisão. Autostart/navegador geral/SRAM/novos saves/
 Power/suspend/boot frio/queda de energia/longa duração continuam separados.

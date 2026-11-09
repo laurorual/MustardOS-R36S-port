@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Read-only dependency trace for the current C104-C116 setup."""
+"""Read-only dependency trace for the current C104-C117 setup."""
 import os,sys,json
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -115,6 +115,20 @@ if (postboot.AREA/'latest-load').exists():
         if name!='final-audit.json':assert row['session_analysis_sha256']==postboot.sha(stage/'analysis.json')
         for source,digest in row.get('source_sha256',{}).items():assert postboot.sha(repo/source)==digest
     postboot.proof('resident-boot-session')
+import phase4_launch_profile as profile
+profile.qualified();profile.session.proof('launch-profile')
+profile_stage=Path((profile.AREA/'latest-complete').read_text().strip())
+assert profile_stage.resolve().is_relative_to(profile.AREA)
+profile_report=json.loads((profile_stage/'analysis.json').read_text())
+assert profile_report['passed'] is True and profile_report['schema']==117
+assert profile_report['metrics']==profile.metrics((profile_stage/'profile.stdout').read_text())
+for source,digest in profile_report['source_sha256'].items():assert profile.sha(repo/source)==digest
+profile_checks=Path((profile.AREA/'latest-checks').read_text().strip())
+assert profile_checks.resolve().is_relative_to(profile.AREA)
+assert profile.sha(profile_checks/'analysis.json')==profile_report['checks_analysis_sha256']
+for label in ['before','mounts-before','allocate','prepare','validate','profile','validate-after','after','mounts-after','cleanup','post-cleanup-health']:
+    assert (profile_stage/(label+'.exit')).read_text()=='0\n'
+    for ext in ['sh','stdout','stderr']:(profile_stage/(label+'.'+ext)).read_bytes()
 os.stat=oldstat;os.lstat=oldlstat
 # Failed open probes (including CPython cache and temporary-name probes)
 # are not retained artifacts. Keep only existing inputs for a stable closure.

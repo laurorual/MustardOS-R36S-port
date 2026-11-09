@@ -1285,3 +1285,15 @@ cada guarda; não atribuir causa nem declarar ganho comparativo. Áudio registro
 4underruns/1556frames ausentes, sem distorção relatada; longa duração pendente.
 Próximo: perfilar fases da abertura e preparar otimização preservando guardas
 e fontes/provas históricas. Sem imagem nova, reboot, instalação ou uso do Deck.
+
+**C117 APROVADO,09/11/2026:** [perfil automático](phase4-launch-profile.md),
+boot83,17checks offline e11recibos nativos0. Sem pedir botões: três repetições
+dos checks originais, host40+provider7 mediana3000ms, provider isolado610ms,
+hashes conteúdo+cópiaRAM160ms. Host inclui provider; caches aquecidos e uptime
+centesimal, sem controle de frequência ou abertura gráfica medida. Dupla
+validação completa check→launch é candidata a otimização, não causa exclusiva
+demonstrada. Zero uploads,11assets/10scripts/manifestos preservados, run.once
+ausente, sem GUI/core/input/áudio/reboot ou escrita persistente. Infra/mountinfo
+idênticos, raizRO/p3off/PCMclosed/UIoff e RAM removida. Prova launch-profile
+sanitizada; C116 físico não repetido. Próximo: verificação por lote com testes
+de equivalência negativos e benchmark sem UI, mantendo todos os checks.

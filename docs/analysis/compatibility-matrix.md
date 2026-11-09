@@ -1,5 +1,15 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Atualização C117,09/11/2026 — perfil sem supervisão física:**
+[Medições](phase4-launch-profile.md),17checks offline e11recibos nativos0 no83.
+Check do host40+provider7: mediana3s; provider isolado0,61s (incluído nos3s),
+checks conteúdo+cópiaRAM0,16s. Scripts originais, três repetições com uptime,
+cache aquecido; não é ganho de abertura real demonstrado. Zero inputs enviados,
+sem UI/core/botões/áudio/reboot/escrita persistente. Guard191, assets/scripts/
+metadados, infra/mountinfo/rootRO/p3off/PCMclosed/UIoff/RAM removida aprovados.
+C116 continua a confirmação física; C117 não acrescenta aprovação acústica ou
+visual. Próximo: verificação por lote preservando os contratos de integridade.
+
 **Atualização C116,09/11/2026 — contexto do boot83:**
 [Sessão residente pós-boot](phase4-resident-boot-session.md) reconstrói guard191
 sem reescrever bindings C112–C115 ou reimportar ROM.21checks offline e nova
