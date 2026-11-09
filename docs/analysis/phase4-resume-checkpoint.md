@@ -1,12 +1,33 @@
 # Fase 4 — ponto seguro de retomada
 
-## Estado atual — C117 perfil automático aprovado; C116 físico preservado
+## Estado atual — C118 lote aprovado em check; integração gráfica pendente
 
 **09/11/2026:** R35S **192.168.15.13:2222**, **boot83/C07 pronto**. Cartão128GB
 no console; original32 guardado e Deck fora do fluxo. Novo boot observado, sem
 pedido de reboot nesta rodada. C112/C113/C114 continuam aprovados; instalações,
 importação e claims anteriores não foram repetidos. [C116](phase4-resident-boot-session.md)
 constrói o contexto atual sem alterar fontes/provas/UUIDs históricos.
+
+**C118 APROVADO sem UI:** [validação em lote](phase4-batch-validation.md),
+`batch-validation/profile.k9alzk15`, mesmo83/IP13.51checks offline
+`checks.y3mlvyey`, incluindo36casos reais de paridade stat/SHA em container
+rootless e recusa launch. Fontes originais MIT/manifestos40+7 fixados em C116;
+um stat e um sha256sum por lote, mesmos donos/modos/tipos/links/ancestrais/hash,
+headers preservados e sem cache persistente de confiança. Fonte/documentação
+usam scripts shell (o termo “bytecode” no registro C118 refere-se aos bytes
+desses scripts; nenhum bytecode ou ELF foi compilado).
+
+12recibos nativos0, três rodadas de ordem alternada: host original mediana2990ms
+(2980/3010/2990), lote1130ms (1150/1120/1130), redução62,2% do check completo;
+provider original600ms e lote560ms, ganho pequeno. Host já inclui provider.
+Relógio uptime centesimal/caches aquecidos/frequência não controlada. NÃO é ganho
+de abertura real medido. **Launcher/caller instalados continuam no caminho antigo.**
+Dois protótipos shell enviados somente à RAM (19836+2406bytes), modos700/hashes
+conferidos antes/depois; zero upload de ROM/ELFs/assets e openROMlocal proibido.
+Originais/11assets/10scripts/metadados intactos, run.once ausente; infra/mountinfo
+byte-idênticos, RAM removida, raizRO0755/PCMclosed/UIoff/p1p3off. Sem save/reboot/
+imagem/instalação/Deck/original32. Prova **`dist/phase4/batch-validation`** congelada.
+C118 qualifica somente check; aprovação gráfica/física C116 permanece separada.
 
 **C117 APROVADO sem intervenção física:** [perfil da abertura](phase4-launch-profile.md),
 `launch-profile/profile.8ov5rk96`, boot83 confirmado novamente.17checks offline
@@ -111,19 +132,22 @@ package próprios preparados, guardas191/mesmo boot82 e origem C113/C114 exigido
 Observação nativa `observe.npmqzojq` aprovada; **nenhuma sessão gráfica executada**
 e `dist/phase4/resident-session` NÃO existe. Não inventar confirmação física.
 
-**Próximo incremento:** preparar verificação por lote para reduzir processos/
-stat/hash do host sem retirar guardas. C117 mediu check completo~3s, provider
-isolado~0,61s e conteúdo/cópiaRAM~0,16s, com escopos distintos da abertura real.
-Qualificar equivalência e desempenho em testes automáticos/sem UI primeiro.
-Preservar fontes/provas C112–C117, hashes/modos/ownership/ancestrais/RO/isolamento.
-Integração gráfica posterior exige teste técnico e confirmação física se houver
-mudança perceptível de comportamento. Reutilizar observação83 apenas
+**Próximo incremento:** preparar versão explícita do contrato caller/preparador
+para integrar o check em lote, com plano/guardas/recuperação e caminho anterior
+preservado. C105 fixa os hashes dos dez scripts preparados: não substituir um
+arquivo avulso no conjunto antigo. Considerar host-only (ganho principal) e
+preservar provider original, cujo ganho no lote foi pequeno. Launch continua
+recusado no protótipo C118; habilitá-lo exige novo componente/qualificação.
+Preservar fontes/provas C112–C118, hashes/modos/ownership/ancestrais/RO/isolamento.
+Primeiro verificar contrato/recusas de forma automática, depois fluxo gráfico
+e abertura real; confirmação física se mudar comportamento perceptível.
+Reutilizar observação83 apenas
 se contador/UUID/fontes/estado coincidirem; novo boot exige contexto fresco.
 Não repetir C116 aprovado sem razão concreta, nem instalação/importação/claims.
 
 **Armazenamento/Git:** sem nova imagem integral ou clone de rootfs; C112–C115
 geraram~16MiB e C116 somente fontes/recibos pequenos. Inventário mantém cinco
-marcos de firmware. Trace C104–C117 protege backup/provas/pacotes e o fechamento
+marcos de firmware. Trace C104–C118 protege backup/provas/pacotes e o fechamento
 da tentativa expirada e prova nativa atual. Dry-run
 `build/cleanup/retention-20261109T182539Z.json`:
 1858arquivos protegidos/zero descartes, incluindo fechamento negativo e prova
@@ -135,6 +159,10 @@ ou novo checkpoint nomeado. Dry-run C117
 `build/cleanup/retention-20261109T183806Z.json`:
 1934arquivos protegidos, incluindo medições/prova C117, zero candidatos/zero
 exclusões. Artefatos C117~1MiB no host; fontes versionadas no Git.
+C118 também sem imagem integral/novo tag, artefatos~1,3MiB no host. Dry-run
+`build/cleanup/retention-20261109T185425Z.json`:
+2002arquivos protegidos, incluindo protótipos/recibos/prova C118, zero candidatos
+e zero exclusões. Cinco versões de firmware e cinco checkpoints nomeados mantidos.
 Não tocar Deck/original32, investigar dongle, rearmar.once/C94/claims ou regravar
 candidata77/fábrica C100 sem provisão. Autostart/navegador geral/SRAM/novos saves/
 Power/suspend/boot frio/queda de energia/longa duração continuam separados.

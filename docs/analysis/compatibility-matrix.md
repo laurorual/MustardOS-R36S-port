@@ -1,5 +1,17 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Atualização C118,09/11/2026 — lote check-only aprovado:**
+[C118](phase4-batch-validation.md),51checks locais (36paridades reais de
+metadados/SHA) e12recibos nativos0 no83. Host original→lote: mediana2990→1130ms,
+62,2% menos no check; provider600→560ms, ganho pequeno. Três rodadas alternadas,
+cache aquecido, uptime centesimal; abertura gráfica não medida. Tipo/dono/grupo/
+modo/link/ancestral/hash e headers preservados, sem cache de confiança.
+Dois protótipos somenteRAM, launch recusado, componentes instalados intactos.
+11assets/10scripts/metadados e infra/mountinfo preservados; raizRO/p3off/UIoff/
+PCMclosed/RAM removida. Sem imagem/reboot/instalação/novo save/Deck.
+Integração no caller/preparador e qualificação de launch continuam pendentes;
+C116 continua a prova física. Prova sanitizada `batch-validation`.
+
 **Atualização C117,09/11/2026 — perfil sem supervisão física:**
 [Medições](phase4-launch-profile.md),17checks offline e11recibos nativos0 no83.
 Check do host40+provider7: mediana3s; provider isolado0,61s (incluído nos3s),

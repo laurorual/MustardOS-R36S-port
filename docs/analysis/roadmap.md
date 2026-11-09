@@ -1297,3 +1297,16 @@ ausente, sem GUI/core/input/áudio/reboot ou escrita persistente. Infra/mountinf
 idênticos, raizRO/p3off/PCMclosed/UIoff e RAM removida. Prova launch-profile
 sanitizada; C116 físico não repetido. Próximo: verificação por lote com testes
 de equivalência negativos e benchmark sem UI, mantendo todos os checks.
+
+**C118 APROVADO em check,09/11/2026:** [lote](phase4-batch-validation.md),
+51checks locais/36paridades reais de aceitação-recusa e12recibos nativos0 no83.
+Um stat de folhas/ancestrais e um sha256sum por lote mantêm as exigências dos
+loops anteriores; headers/tipos/modos/owners/links/hash preservados. Protótipo
+refusa launch. Três rodadas alternadas: host2990→1130ms (62,2% menor mediana),
+provider600→560ms. Não é abertura real nem promessa de ganho físico. Somente
+dois programas shell em RAM; originais/runtimeinputs/infra/mountinfo intactos,
+rootRO/PCMclosed/UIoff/p1p3off/RAM removida, sem escrita persistente/reboot/Deck.
+Prova batch-validation congelada. Próximo: contrato caller/preparador versionado
+para integrar o host otimizado sem invalidar o conjunto C105; manter caminho
+anterior e só depois qualificar launch e fluxo gráfico. Ganho pequeno do
+provider favorece considerar sua preservação. Sem nova imagem integral.

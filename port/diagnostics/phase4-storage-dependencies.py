@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Read-only dependency trace for the current C104-C117 setup."""
+"""Read-only dependency trace for the current C104-C118 setup."""
 import os,sys,json
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -129,6 +129,23 @@ assert profile.sha(profile_checks/'analysis.json')==profile_report['checks_analy
 for label in ['before','mounts-before','allocate','prepare','validate','profile','validate-after','after','mounts-after','cleanup','post-cleanup-health']:
     assert (profile_stage/(label+'.exit')).read_text()=='0\n'
     for ext in ['sh','stdout','stderr']:(profile_stage/(label+'.'+ext)).read_bytes()
+import phase4_batch_validation as batch
+batch.qualified();batch.session.proof('batch-validation')
+batch_stage=Path((batch.AREA/'latest-complete').read_text().strip())
+assert batch_stage.resolve().is_relative_to(batch.AREA)
+batch_report=json.loads((batch_stage/'analysis.json').read_text())
+assert batch_report['passed'] is True and batch_report['schema']==118
+assert batch_report['metrics']==batch.metrics((batch_stage/'profile.stdout').read_text())
+for source,digest in batch_report['source_sha256'].items():assert batch.sha(repo/source)==digest
+batch_checks=Path((batch.AREA/'latest-checks').read_text().strip())
+assert batch_checks.resolve().is_relative_to(batch.AREA)
+assert batch.sha(batch_checks/'analysis.json')==batch_report['checks_analysis_sha256']
+for kind,digest in batch_report['prototype_sha256'].items():
+    assert batch.sha(batch_checks/(kind+'.sh'))==digest
+    assert batch.hashlib.sha256(batch.rendered(kind).encode()).hexdigest()==digest
+for label in ['before','mounts-before','allocate','prepare','prototype','validate','profile','validate-after','after','mounts-after','cleanup','post-cleanup-health']:
+    assert (batch_stage/(label+'.exit')).read_text()=='0\n'
+    for ext in ['sh','stdout','stderr']:(batch_stage/(label+'.'+ext)).read_bytes()
 os.stat=oldstat;os.lstat=oldlstat
 # Failed open probes (including CPython cache and temporary-name probes)
 # are not retained artifacts. Keep only existing inputs for a stable closure.

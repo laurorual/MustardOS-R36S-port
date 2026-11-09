@@ -42,7 +42,7 @@
     "kernel-output": "Working kernel output",
     "uboot-sd/probe.3utahq01/source": "Last qualified bootloader working source",
     "uboot-sd/probe.3utahq01/output": "Last qualified bootloader output",
-    "current-dependency-leaves": "Only the files read/returned by the C104-C117 offline dependency trace; no whole historical root retained for this reason",
+    "current-dependency-leaves": "Only the files read/returned by the C104-C118 offline dependency trace; no whole historical root retained for this reason",
     "dist": "Frozen sanitized evidence and license archives; not a set of firmware builds"
   }
 }
