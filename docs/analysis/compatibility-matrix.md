@@ -1,5 +1,26 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Preparação C121,09/11/2026 — contexto gráfico corrigido, sem GUI:**
+[Adaptador](phase4-batch-graphics.md),oito checks executam o mapa real de quatro
+bibliotecas, loop sem uploads e admissões de prova/análise C120. Separação
+entre provider e seis arquivos do bundle corrige colisão encontrada no harness
+C120 antes de qualquer teste gráfico. Fontes C120 congeladas; novo entrypoint
+`run-phase4-batch-graphics.py`. Observação somente leitura no83/guard191 passou,
+sem UI/core/áudio/botões/escrita. Adaptadores de análise/fechamento preparados,
+CLI help e recusa de estágio C120 conferidos; uso numa sessão real pendente.
+nenhuma prova gráfica C121 ou ganho de abertura demonstrado.
+
+**Atualização C120,09/11/2026 — run implementado; gráfico pendente:**
+[Contrato](phase4-batch-run.md),47checks offline/43casos shell reais e15etapas
+nativas0 no83. Fixture executa runner com argv original240s/namespace/worker,
+reserva única, erro74 sem retry e recusas de modo/boot/metadata/asset/claim.
+No console: adoção/staged/check e run inválido, sem chamar run válido ou abrir
+GUI. Bundle seis arquivos/29.161bytes somenteRAM, hostcheck1190ms numa amostra;
+abertura real não medida. Infra/mountinfo preservados, RAM removida e
+raizRO/PCMclosed/UIoff/p1p3off. C105/worker/provider/imagens/SDK intactos;
+sem save/reboot/escrita persistente/Deck. Prova `batch-run`; C116 continua a
+aprovação física anterior, ciclo gráfico com C120 ainda não qualificado.
+
 **Atualização C119,09/11/2026 — adoção versionada em RAM aprovada:**
 [Contrato](phase4-batch-caller.md),39checks offline/32casos shell reais e
 15recibos nativos0 no83. Bundle de seis arquivos/28.743bytes substitui só o

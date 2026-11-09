@@ -1323,3 +1323,28 @@ batch-caller; sem imagem, instalação, save, reboot ou Deck. Primeiro ensaio
 preservado antes de correção somente do publicador para incluir fontes shell;
 segundo ensaio vincula a fonte final. Próximo: versão explícita para run e
 vínculos gráficos no stage novo, mantendo load-only e medindo abertura real.
+
+**C120 contrato/adoção APROVADOS; gráfico pendente,09/11/2026:**
+[Run limitado](phase4-batch-run.md),47checks offline/43casos shell reais e
+15etapas nativas0 no83. Novo contrato observe cria run.once antes do exec;
+argv original subreaper240s/namespace/worker/filho210s/jogo45s, provider intacto.
+Fixture executou o despacho, erro74 e recusas sem retry. Executor gráfico
+adaptado para novo stage/witness/host, ainda sem execução aprovada. Usuário
+pediu somente automáticos: no console apenas check/adopt/staged, run inválido
+e integridade; run válido não chamado. Hostcheck1190ms numa amostra, sem
+abertura real medida. Infra/mountinfo iguais, RAM removida/raizRO/UIoff/PCMclosed/
+p1p3off; sem save/reboot/imagem/instalação/Deck. Prova batch-run, fontes C119
+congeladas preservadas. Próximo: contexto vinculado à prova C120 e uma rodada
+gráfica load-only com A/Start/direcional/Fn+L2/Fn+Start quando usuário disponível.
+
+**C121 PREPARADO/OBSERVADO sem GUI,09/11/2026:** [contexto](phase4-batch-graphics.md),
+oito checks offline executam os loops reais com quatro bibliotecas e zero
+uploads, mais admissões positivas/negativas de análise/prova C120. Corrige a
+colisão entre NAMES do bundle seis e do provider quatro encontrada no harness
+C120 pendente, sem reescrever fontes/prova congeladas. Novo entrypoint
+run-phase4-batch-graphics; binds explícitos ao C120 nativo/bundle/checks.
+Observação somente leitura do83 passou guard191/infra, sem preparar ou rodar
+cápsula/GUI. Adaptadores de análise/fechamento preparados, CLI help e recusa
+de estágio C120 aprovados; sem análise de sessão inexistente/prova gráfica.
+Próximo: ciclo observado e qualificação desses adaptadores quando usuário disponível; C120 direto
+não deve ser usado como harness gráfico. Sem nova imagem/instalação/Deck.

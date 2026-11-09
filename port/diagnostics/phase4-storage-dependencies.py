@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Read-only dependency trace for the current C104-C119 setup."""
+"""Read-only dependency trace for the current C104-C121 setup."""
 import os,sys,json
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -186,6 +186,49 @@ for followup in adoption.AREA.glob('profile.*/publication-followup.json'):
     for label in ['before','mounts-before','allocate','prepare','bundle','contract-check','validate','adopt','refusals','profile','validate-after','after','mounts-after','cleanup','post-cleanup-health']:
         assert (attempt/(label+'.exit')).read_text()=='0\n'
         for ext in ['sh','stdout','stderr']:(attempt/(label+'.'+ext)).read_bytes()
+import phase4_batch_run as run_contract
+run_contract.qualified();run_contract.proof('batch-run')
+run_stage=Path((run_contract.AREA/'latest-complete').read_text().strip())
+assert run_stage.resolve().is_relative_to(run_contract.AREA)
+run_report=json.loads((run_stage/'analysis.json').read_text())
+assert run_report['passed'] is True and run_report['schema']==120 and run_report['run_enabled'] is True
+assert run_report['native_graphical_dispatch_qualified'] is False
+assert run_report['GUI_core_input_audio_reboot_or_persistent_write_executed'] is False
+assert run_report['metrics']==run_contract.metrics((run_stage/'profile.stdout').read_text())
+for source,digest in run_report['source_sha256'].items():assert run_contract.sha(repo/source)==digest
+run_checks=Path((run_contract.AREA/'latest-checks').read_text().strip())
+assert run_checks.resolve().is_relative_to(run_contract.AREA)
+assert run_contract.sha(run_checks/'analysis.json')==run_report['checks_analysis_sha256']
+for name in ['fixture.py','fixture-plan.json','fixture-results.json','fixture.stdout','fixture.stderr','fixture.exit']:(run_checks/name).read_bytes()
+generated=run_contract.bundle()
+for name,digest in run_report['bundle_sha256'].items():
+    assert run_contract.sha(run_checks/name)==digest
+    assert run_contract.hashlib.sha256(generated[name]).hexdigest()==digest
+for label in ['before','mounts-before','allocate','prepare','bundle','contract-check','validate','adopt','refusals','profile','validate-after','after','mounts-after','cleanup','post-cleanup-health']:
+    assert (run_stage/(label+'.exit')).read_text()=='0\n'
+    for ext in ['sh','stdout','stderr']:(run_stage/(label+'.'+ext)).read_bytes()
+import phase4_batch_graphics as graphics
+graphics_native,_=graphics.qualified()
+graphics_checks=Path((graphics.AREA/'latest-checks').read_text().strip())
+assert graphics_checks.resolve().is_relative_to(graphics.AREA)
+checked=json.loads((graphics_checks/'analysis.json').read_text())
+assert checked['passed'] is True and checked['schema']==121 and checked['device_or_GUI_executed'] is False
+assert checked['C120_native_analysis_sha256']==graphics.sha(graphics_native/'analysis.json')
+assert checked['C120_proof_sha256']==graphics.sha(graphics.proof('batch-run')/'SHA256SUMS')
+for source,digest in checked['source_sha256'].items():assert graphics.sha(repo/source)==digest
+for name in ['analyze','finish']:(repo/'port/scripts'/f'{name}-phase4-batch-graphics.py').read_bytes()
+graphics_observed=Path((graphics.AREA/'latest-observation').read_text().strip())
+assert graphics_observed.resolve().is_relative_to(graphics.AREA)
+observed=json.loads((graphics_observed/'observation.json').read_text())
+assert observed['passed'] is True and observed['C120_native_analysis_sha256']==checked['C120_native_analysis_sha256']
+assert observed['C120_proof_sha256']==checked['C120_proof_sha256']
+for source,digest in observed['source_sha256'].items():assert graphics.sha(repo/source)==digest
+context,*_=graphics.historical()
+guard=graphics.current_common('',0,observed['boot_sequence'],observed['kernel_boot_id'])
+assert (graphics_observed/'preflight.sh').read_text()==guard+context['infra']
+for label in ['preflight','boot-evidence']:
+    assert (graphics_observed/(label+'.exit')).read_text()=='0\n'
+    for ext in ['sh','stdout','stderr']:(graphics_observed/(label+'.'+ext)).read_bytes()
 os.stat=oldstat;os.lstat=oldlstat
 # Failed open probes (including CPython cache and temporary-name probes)
 # are not retained artifacts. Keep only existing inputs for a stable closure.

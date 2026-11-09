@@ -1,12 +1,41 @@
 # Fase 4 — ponto seguro de retomada
 
-## Estado atual — C119 adoção em RAM; integração gráfica pendente
+## Estado atual — C120 contrato aprovado; C121 contexto pronto, gráfico pendente
 
 **09/11/2026:** R35S **192.168.15.13:2222**, **boot83/C07 pronto**. Cartão128GB
 no console; original32 guardado e Deck fora do fluxo. Novo boot observado, sem
 pedido de reboot nesta rodada. C112/C113/C114 continuam aprovados; instalações,
 importação e claims anteriores não foram repetidos. [C116](phase4-resident-boot-session.md)
 constrói o contexto atual sem alterar fontes/provas/UUIDs históricos.
+
+**C121 PREPARADO/OBSERVADO sem GUI:** [contexto corrigido](phase4-batch-graphics.md),
+oito checks `batch-graphics/checks.kkoqulgn` e observação nativa somente leitura
+`observe.t97ip2u4`, mesmo83/IP13, guard191/infra/UUID aprovados. Detectada colisão
+de `NAMES` no harness gráfico C120: seis arquivos do bundle versus quatro
+bibliotecas. C121 separa os namespaces sem alterar fontes/prova C120; executa
+os loops reais com os quatro arquivos corretos, zero uploads de inputs e
+recusa vínculos de observação C120 incorretos. Usar o novo entrypoint
+`run-phase4-batch-graphics.py`, NÃO o harness `run-phase4-batch-run.py`.
+Não houve novo preparo/GUI/áudio/botões/reboot/escrita no aparelho no C121.
+**Não existe prova gráfica `dist/phase4/batch-graphics`.** Adaptadores próprios
+de análise/fechamento preparados; CLI help e recusa de estágio C120 passaram.
+Não houve análise/fechamento de sessão real C121; só qualificar após a coleta.
+
+**C120 contrato/adoção APROVADOS; gráfico pendente:** [execução versionada](phase4-batch-run.md).
+Por solicitação do usuário, sem teste físico/GUI nesta rodada.47checks offline
+`batch-run/checks.4gt4zitu`, incluindo43casos shell reais, passaram. Bundle de
+seis arquivos/29.161bytes, `contract-v3`, host em lote e provider/worker
+originais. Run admite apenas observe, cria claim próprio antes de exec e
+mantém subreaper240s/filho210s/jogo45s. Fixture registra argv real e erro74,
+sem iniciar UI; repetição/modos/boot/asset/claim inválidos recusados.
+Executor gráfico preparado para o stage novo e witness C120; parse/routing
+testados, **nenhum ciclo gráfico novo aprovado ou cronometrado**.
+`batch-run/profile.o2mnkrh6`, mesmo83/IP13,15recibos nativos0: check/adopt/staged,
+refusals de repetição/run save/aridade e check host1190ms numa amostra. Run
+válido NÃO foi chamado no console; claim novo ausente. Guard191/bundle/assets/
+scripts/metadados aprovados, infra/mountinfo iguais, RAM removida e raizRO0755/
+PCMclosed/UIoff/p1p3off. Sem save/reboot/GUI/escrita persistente/Deck. Prova
+sanitizada `dist/phase4/batch-run`, sem ampliar a aprovação física C116.
 
 **C119 APROVADO sem UI:** [contrato versionado](phase4-batch-caller.md),
 `batch-caller/profile.3ku0s6rs`, mesmo83/IP13.39checks offline
@@ -151,13 +180,17 @@ package próprios preparados, guardas191/mesmo boot82 e origem C113/C114 exigido
 Observação nativa `observe.npmqzojq` aprovada; **nenhuma sessão gráfica executada**
 e `dist/phase4/resident-session` NÃO existe. Não inventar confirmação física.
 
-**Próximo incremento:** versão explícita para run e adaptação dos vínculos do
-executor gráfico ao stage novo. C119 já qualifica adoção host-only, com provider
-original e reserva atômica do run antigo; não habilitar run por contorno nem
-misturar o stage antigo com o host adotado. Reutilizar worker/load-only e medir
-abertura real menu→jogo→menu, mantendo os prazos anteriores. Launch continua
-sem qualificação C119; C118 permanece um protótipo check-only.
-Preservar fontes/provas C112–C119, hashes/modos/ownership/ancestrais/RO/isolamento.
+**Próximo incremento:** qualificar o ciclo gráfico e os adaptadores de análise/fechamento
+pelo contrato C120 com adaptador C121,
+com contexto/observação novos se boot/IP mudarem. Vincular checks/prova de
+adoção C120 e a versão exata do bundle ao executor antes do despacho. O usuário
+pediu somente testes automáticos nesta rodada; não abrir janela que dependa
+de seleção física durante sua ausência. Quando disponível, uma rodada
+A/Start/direcional/Fn+L2/Fn+Start, load-only, e medir seleção→primeiro frame.
+Não misturar o stage antigo com o host adotado. C119/C118 permanecem check-only;
+a execução gráfica com esse contrato ainda não está qualificada.
+Preservar fontes/provas C112–C120 e fontes/checks/observação C121,
+hashes/modos/ownership/ancestrais/RO/isolamento.
 As etapas técnicas podem ser automáticas; confirmação física se mudar
 comportamento perceptível.
 Reutilizar observação83 apenas
@@ -166,7 +199,7 @@ Não repetir C116 aprovado sem razão concreta, nem instalação/importação/cl
 
 **Armazenamento/Git:** sem nova imagem integral ou clone de rootfs; C112–C115
 geraram~16MiB e C116 somente fontes/recibos pequenos. Inventário mantém cinco
-marcos de firmware. Trace C104–C119 protege backup/provas/pacotes e o fechamento
+marcos de firmware. Trace C104–C121 protege backup/provas/pacotes e o fechamento
 da tentativa expirada e prova nativa atual. Dry-run
 `build/cleanup/retention-20261109T182539Z.json`:
 1858arquivos protegidos/zero descartes, incluindo fechamento negativo e prova
@@ -186,6 +219,13 @@ C119 gerou~3MiB de fontes/recibos/prova, sem imagem integral ou novo tag.
 Dry-run `build/cleanup/retention-20261109T191749Z.json`:2169arquivos protegidos,
 zero candidatos/zero exclusões. O trace inclui a prova atual e a primeira
 rodada fechada com a cópia exata do publicador anterior; backup/claims intactos.
+C120 acrescenta~1,6MiB, sem imagem integral ou tag. Dry-run anterior à
+preparação C121 `build/cleanup/retention-20261109T193322Z.json`:2259arquivos
+protegidos, zero candidatos/zero exclusões. O trace agora inclui também os
+checks/contexto C121; inventário permanece com cinco firmwares/cinco tags.
+Dry-run final `build/cleanup/retention-20261109T193912Z.json`:2276arquivos
+protegidos, zero candidatos/zero exclusões, incluindo observação e ferramentas
+de resultados C121. C121 acrescenta~188KiB; não foi criada imagem de firmware.
 Não tocar Deck/original32, investigar dongle, rearmar.once/C94/claims ou regravar
 candidata77/fábrica C100 sem provisão. Autostart/navegador geral/SRAM/novos saves/
 Power/suspend/boot frio/queda de energia/longa duração continuam separados.
