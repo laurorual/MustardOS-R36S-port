@@ -1310,3 +1310,16 @@ Prova batch-validation congelada. Próximo: contrato caller/preparador versionad
 para integrar o host otimizado sem invalidar o conjunto C105; manter caminho
 anterior e só depois qualificar launch e fluxo gráfico. Ganho pequeno do
 provider favorece considerar sua preservação. Sem nova imagem integral.
+
+**C119 APROVADO em adoção/check,09/11/2026:** [caller versionado](phase4-batch-caller.md),
+39checks offline/32casos shell reais e15recibos nativos0 no83. Seis arquivos
+somenteRAM/28.743bytes adotam host em lote, com provider/worker originais.
+Metadados antigos byte-idênticos, backup/novo stage ligado ao boot e reserva
+atômica de run.once antigo antes da troca; tentativa parcial não pode repetir,
+CLI run recusada. Host adotado+provider original1190ms numa amostra; não é
+abertura gráfica medida. Pacote instalado C105/guard191/assets preservados,
+infra/mountinfo iguais, RAM removida e raizRO/PCMclosed/UIoff/p1p3off. Prova
+batch-caller; sem imagem, instalação, save, reboot ou Deck. Primeiro ensaio
+preservado antes de correção somente do publicador para incluir fontes shell;
+segundo ensaio vincula a fonte final. Próximo: versão explícita para run e
+vínculos gráficos no stage novo, mantendo load-only e medindo abertura real.

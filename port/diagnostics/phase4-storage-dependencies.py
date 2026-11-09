@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Read-only dependency trace for the current C104-C118 setup."""
+"""Read-only dependency trace for the current C104-C119 setup."""
 import os,sys,json
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -146,6 +146,46 @@ for kind,digest in batch_report['prototype_sha256'].items():
 for label in ['before','mounts-before','allocate','prepare','prototype','validate','profile','validate-after','after','mounts-after','cleanup','post-cleanup-health']:
     assert (batch_stage/(label+'.exit')).read_text()=='0\n'
     for ext in ['sh','stdout','stderr']:(batch_stage/(label+'.'+ext)).read_bytes()
+import phase4_batch_caller as adoption
+adoption.qualified();adoption.session.proof('batch-caller')
+adoption_stage=Path((adoption.AREA/'latest-complete').read_text().strip())
+assert adoption_stage.resolve().is_relative_to(adoption.AREA)
+adoption_report=json.loads((adoption_stage/'analysis.json').read_text())
+assert adoption_report['passed'] is True and adoption_report['schema']==119
+assert adoption_report['run_enabled'] is False and adoption_report['legacy_RAM_run_once_reserved'] is True
+assert adoption_report['metrics']==adoption.metrics((adoption_stage/'profile.stdout').read_text())
+for source,digest in adoption_report['source_sha256'].items():assert adoption.sha(repo/source)==digest
+adoption_checks=Path((adoption.AREA/'latest-checks').read_text().strip())
+assert adoption_checks.resolve().is_relative_to(adoption.AREA)
+assert adoption.sha(adoption_checks/'analysis.json')==adoption_report['checks_analysis_sha256']
+for name in ['fixture-results.json','fixture.stdout','fixture.stderr','fixture.exit']:(adoption_checks/name).read_bytes()
+for name,digest in adoption_report['bundle_sha256'].items():
+    assert adoption.sha(adoption_checks/name)==digest
+    assert adoption.hashlib.sha256(adoption.bundle()[name]).hexdigest()==digest
+for label in ['before','mounts-before','allocate','prepare','bundle','contract-check','validate','adopt','refusals','profile','validate-after','after','mounts-after','cleanup','post-cleanup-health']:
+    assert (adoption_stage/(label+'.exit')).read_text()=='0\n'
+    for ext in ['sh','stdout','stderr']:(adoption_stage/(label+'.'+ext)).read_bytes()
+# The initial successful native run preceded a publisher-only suffix fix.
+# Preserve that checked publisher and its receipts without rewriting history.
+for followup in adoption.AREA.glob('profile.*/publication-followup.json'):
+    attempt=followup.parent
+    assert attempt.resolve().is_relative_to(adoption.AREA)
+    note=json.loads(followup.read_text());assert note['native_passed'] is True and note['published'] is False
+    row=json.loads((attempt/'analysis.json').read_text())
+    assert row['passed'] is True and row['schema']==119
+    assert row['metrics']==adoption.metrics((attempt/'profile.stdout').read_text())
+    assert adoption.sha(attempt/'publication-source-before-fix.py')==row['source_sha256']['port/scripts/package-phase4-batch-caller.py']
+    historical_checks=[p.parent for p in adoption.AREA.glob('checks.*/analysis.json') if adoption.sha(p)==row['checks_analysis_sha256']]
+    assert len(historical_checks)==1
+    checked=json.loads((historical_checks[0]/'analysis.json').read_text());assert checked['passed'] is True
+    for source,digest in row['source_sha256'].items():
+        p=attempt/'publication-source-before-fix.py' if source=='port/scripts/package-phase4-batch-caller.py' else repo/source
+        assert adoption.sha(p)==digest
+    for name,digest in row['bundle_sha256'].items():assert adoption.sha(historical_checks[0]/name)==digest
+    for name in ['fixture-results.json','fixture.stdout','fixture.stderr','fixture.exit']:(historical_checks[0]/name).read_bytes()
+    for label in ['before','mounts-before','allocate','prepare','bundle','contract-check','validate','adopt','refusals','profile','validate-after','after','mounts-after','cleanup','post-cleanup-health']:
+        assert (attempt/(label+'.exit')).read_text()=='0\n'
+        for ext in ['sh','stdout','stderr']:(attempt/(label+'.'+ext)).read_bytes()
 os.stat=oldstat;os.lstat=oldlstat
 # Failed open probes (including CPython cache and temporary-name probes)
 # are not retained artifacts. Keep only existing inputs for a stable closure.

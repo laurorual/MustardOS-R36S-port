@@ -1,5 +1,16 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Atualização C119,09/11/2026 — adoção versionada em RAM aprovada:**
+[Contrato](phase4-batch-caller.md),39checks offline/32casos shell reais e
+15recibos nativos0 no83. Bundle de seis arquivos/28.743bytes substitui só o
+host da cápsula; provider/worker e C105 instalado preservados. Stage novo com
+boot atual, backup dos metadados/host e reserva atômica do run antigo antes da
+troca; repetição e run recusados. Check adotado+provider original1190ms numa
+amostra, sem abertura real medida. Infra/mountinfo intactos, RAM removida,
+raizRO/p3off/PCMclosed/UIoff, sem imagem/reboot/save/escrita persistente/Deck.
+Prova `batch-caller`; fluxo gráfico com o novo contrato segue pendente, e
+C116 continua sendo a aprovação física vigente.
+
 **Atualização C118,09/11/2026 — lote check-only aprovado:**
 [C118](phase4-batch-validation.md),51checks locais (36paridades reais de
 metadados/SHA) e12recibos nativos0 no83. Host original→lote: mediana2990→1130ms,
