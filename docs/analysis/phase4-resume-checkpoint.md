@@ -1,14 +1,35 @@
 # Fase 4 — ponto seguro de retomada
 
-## Estado atual — C120 contrato aprovado; C121 contexto pronto, gráfico pendente
+## Estado atual — C121 menu → GB → menu APROVADO no boot84
 
-**09/11/2026:** R35S **192.168.15.13:2222**, **boot83/C07 pronto**. Cartão128GB
+**09/11/2026:** R35S **192.168.15.15:2222**, **boot84/C07 pronto**. Cartão128GB
 no console; original32 guardado e Deck fora do fluxo. Novo boot observado, sem
 pedido de reboot nesta rodada. C112/C113/C114 continuam aprovados; instalações,
 importação e claims anteriores não foram repetidos. [C116](phase4-resident-boot-session.md)
 constrói o contexto atual sem alterar fontes/provas/UUIDs históricos.
 
-**C121 PREPARADO/OBSERVADO sem GUI:** [contexto corrigido](phase4-batch-graphics.md),
+**C121 APROVADO gráfico/físico:** [sessão e métricas](phase4-batch-graphics-session.md),
+observação `batch-graphics/observe.g0k9zci0` vinculada ao novo84/UUID real, guard191.
+Rodada única `load.0hrtc9t5`,17recibos0/OPERATION0/CLEANUP0/1134frames.
+Menu→GB→restoreFn+L2→exitFn+Start→menu confirmados; usuário relatou abertura
+“melhorou um pouco”. Host C120 em lote executou launch; worker instalado e
+três mapas reais conferidos. Provider original, pacote C105 e metadados
+antigos preservados; reservas RAM antiga/nova e seis arquivos do bundle
+conferidos. Onze assets+ROM internos, zero uploads de inputs/ROM/ELFs; só
+bundle de código29.161bytes enviado à RAM. Snapshot/inventários C63 byte-idênticos,
+nenhum save novo. Análise técnica/física/fechamento vinculados à mesma sessão.
+Prova sanitizada **`dist/phase4/batch-graphics`** publicada; fontes congeladas.
+
+Seleção consumida→primeiro frame observado**4,27s**, versus7,37s registrado no
+C116. Amostragem nominal1s, sem timestamp físicoA/controle de cache/frequência
+ou limite de atraso do watcher: indicação nesta rodada, não percentual de
+ganho garantido. Startup interno1369,42ms;59,8802Hz recentes/frame16,6834ms.
+Áudio4underruns/1971frames ausentes, sem distorção relatada; não é áudio sem
+perdas nem estabilidade longa. Infra/mountinfo/mixer/DRM/WirePlumber/preferências
+preservados; raizRO0755/PCMclosed/UIoff/p1p3off/taint0, RAM removida e tela final
+diagnóstica escrita. SDK/imagem C64 intactos. Sem instalação/reboot/Deck/original32.
+
+**Histórico C121 PREPARADO/OBSERVADO sem GUI:** [contexto corrigido](phase4-batch-graphics.md),
 oito checks `batch-graphics/checks.kkoqulgn` e observação nativa somente leitura
 `observe.t97ip2u4`, mesmo83/IP13, guard191/infra/UUID aprovados. Detectada colisão
 de `NAMES` no harness gráfico C120: seis arquivos do bundle versus quatro
@@ -17,9 +38,9 @@ os loops reais com os quatro arquivos corretos, zero uploads de inputs e
 recusa vínculos de observação C120 incorretos. Usar o novo entrypoint
 `run-phase4-batch-graphics.py`, NÃO o harness `run-phase4-batch-run.py`.
 Não houve novo preparo/GUI/áudio/botões/reboot/escrita no aparelho no C121.
-**Não existe prova gráfica `dist/phase4/batch-graphics`.** Adaptadores próprios
+Naquela etapa não havia prova gráfica. Adaptadores próprios
 de análise/fechamento preparados; CLI help e recusa de estágio C120 passaram.
-Não houve análise/fechamento de sessão real C121; só qualificar após a coleta.
+Análise/fechamento ainda estavam pendentes; ambos qualificados na rodada84 acima.
 
 **C120 contrato/adoção APROVADOS; gráfico pendente:** [execução versionada](phase4-batch-run.md).
 Por solicitação do usuário, sem teste físico/GUI nesta rodada.47checks offline
@@ -180,22 +201,18 @@ package próprios preparados, guardas191/mesmo boot82 e origem C113/C114 exigido
 Observação nativa `observe.npmqzojq` aprovada; **nenhuma sessão gráfica executada**
 e `dist/phase4/resident-session` NÃO existe. Não inventar confirmação física.
 
-**Próximo incremento:** qualificar o ciclo gráfico e os adaptadores de análise/fechamento
-pelo contrato C120 com adaptador C121,
-com contexto/observação novos se boot/IP mudarem. Vincular checks/prova de
-adoção C120 e a versão exata do bundle ao executor antes do despacho. O usuário
-pediu somente testes automáticos nesta rodada; não abrir janela que dependa
-de seleção física durante sua ausência. Quando disponível, uma rodada
-A/Start/direcional/Fn+L2/Fn+Start, load-only, e medir seleção→primeiro frame.
-Não misturar o stage antigo com o host adotado. C119/C118 permanecem check-only;
-a execução gráfica com esse contrato ainda não está qualificada.
-Preservar fontes/provas C112–C120 e fontes/checks/observação C121,
-hashes/modos/ownership/ancestrais/RO/isolamento.
-As etapas técnicas podem ser automáticas; confirmação física se mudar
-comportamento perceptível.
-Reutilizar observação83 apenas
+**Próximo incremento C122:** preparar componente residente versionado que
+forneça o bundle C120 e adote a cápsula localmente, retirando os seis uploads
+de código da preparação de cada sessão. Preservar o prefixo C105 e contratos
+C112/C120/C121; novo prefixo/manifesto/receita com guardas e plano de instalação
+aditiva no128 antes de qualquer escrita. Começar por testes offline de pacote,
+modos/hash, recusa de repetição/parcial e boot atual; depois instalação guardada
+e um ciclo pelo componente residente. Reutilizar worker/provider/load-only e
+limites atuais; autostart/navegador geral/novos saves permanecem separados.
+Preservar fontes/provas C112–C121, hashes/modos/ownership/ancestrais/RO/isolamento.
+Reutilizar observação84 apenas
 se contador/UUID/fontes/estado coincidirem; novo boot exige contexto fresco.
-Não repetir C116 aprovado sem razão concreta, nem instalação/importação/claims.
+Não repetir C116/C121 aprovados sem razão concreta, nem instalação/importação/claims.
 
 **Armazenamento/Git:** sem nova imagem integral ou clone de rootfs; C112–C115
 geraram~16MiB e C116 somente fontes/recibos pequenos. Inventário mantém cinco
@@ -226,6 +243,11 @@ checks/contexto C121; inventário permanece com cinco firmwares/cinco tags.
 Dry-run final `build/cleanup/retention-20261109T193912Z.json`:2276arquivos
 protegidos, zero candidatos/zero exclusões, incluindo observação e ferramentas
 de resultados C121. C121 acrescenta~188KiB; não foi criada imagem de firmware.
+Qualificação gráfica C121 acrescentou~2MiB de recibos/prova. Dry-run
+`build/cleanup/retention-20261109T235750Z.json`:2416arquivos protegidos,
+zero candidatos/zero exclusões, incluindo coleta, observação84, fechamento,
+prova gráfica e recusa de publicação prematura. Cinco firmwares/cinco tags
+mantidos; nenhuma imagem nova ou alteração no Deck/original32.
 Não tocar Deck/original32, investigar dongle, rearmar.once/C94/claims ou regravar
 candidata77/fábrica C100 sem provisão. Autostart/navegador geral/SRAM/novos saves/
 Power/suspend/boot frio/queda de energia/longa duração continuam separados.

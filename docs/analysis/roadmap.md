@@ -1348,3 +1348,16 @@ cápsula/GUI. Adaptadores de análise/fechamento preparados, CLI help e recusa
 de estágio C120 aprovados; sem análise de sessão inexistente/prova gráfica.
 Próximo: ciclo observado e qualificação desses adaptadores quando usuário disponível; C120 direto
 não deve ser usado como harness gráfico. Sem nova imagem/instalação/Deck.
+
+**C121 gráfico/físico APROVADO,09/11/2026:** [qualificação](phase4-batch-graphics-session.md),
+nova observação84/IP15/guard191;17recibos0,1134frames, hostbatch no launch e
+worker/provider originais. Menu→GB→Fn+L2→Fn+Start→menu confirmado, usuário
+percebeu abertura um pouco mais rápida. Intervalo observado4,27s (C1167,37s),
+amostragem1s/frequência/cache/scheduler não controlados: não declarar ganho
+garantido. Startup1369,42ms;59,8802Hz/frame16,6834ms; áudio4underruns/1971frames
+ausentes, sem distorção relatada. Snapshot/metadados C63 exatos, sem save;
+análise técnica/física/fechamento vinculados, prova batch-graphics publicada.
+Infra/mountinfo/restaurações preservados, RAM removida/raizRO/UIoff/PCMclosed/
+p1p3off/taint0 e tela diagnóstica final. Sem instalação/reboot/imagem/Deck.
+Próximo C122: pacote residente versionado para copiar/adotar o bundle local,
+eliminando os seis uploads de código; testes/plano antes da instalação aditiva.

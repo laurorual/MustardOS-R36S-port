@@ -229,6 +229,35 @@ assert (graphics_observed/'preflight.sh').read_text()==guard+context['infra']
 for label in ['preflight','boot-evidence']:
     assert (graphics_observed/(label+'.exit')).read_text()=='0\n'
     for ext in ['sh','stdout','stderr']:(graphics_observed/(label+'.'+ext)).read_bytes()
+graphics_public=graphics.proof('batch-graphics')
+graphics_stage=Path((graphics.AREA/'latest-load').read_text().strip())
+assert graphics_stage.resolve().is_relative_to(graphics.AREA)
+cycle={n:json.loads((graphics_stage/n).read_text()) for n in
+       ['analysis.json','technical-analysis.json','physical-observation.json','final-audit.json']}
+assert all(row['passed'] is True for row in cycle.values())
+assert cycle['analysis.json']['schema']==121 and cycle['analysis.json']['C121_graphical_provider_routing'] is True
+assert cycle['analysis.json']['observation_sha256']==graphics.sha(graphics_observed/'observation.json')
+assert cycle['analysis.json']['checks_analysis_sha256']==graphics.sha(graphics_checks/'analysis.json')
+assert cycle['analysis.json']['bundle_sha256']==checked['bundle_sha256']
+for name in ['technical-analysis.json','physical-observation.json']:
+    assert cycle[name]['session_analysis_sha256']==graphics.sha(graphics_stage/'analysis.json')
+for row in cycle.values():
+    for source,digest in row.get('source_sha256',{}).items():assert graphics.sha(repo/source)==digest
+for name,digest in cycle['final-audit.json']['recorded_receipts_sha256'].items():assert graphics.sha(graphics_stage/name)==digest
+for label in ['allocate','batch-adopt','batch-bundle','batch-stage','boot-evidence','caller-execution','cleanup','installed-host-check',
+              'mount-health','native-provider-ABI','native','postflight','preflight','prepare','stopped-screen','subdirs','watch-maps']:
+    assert (graphics_stage/(label+'.exit')).read_text()=='0\n'
+    for ext in ['sh','stdout','stderr']:(graphics_stage/(label+'.'+ext)).read_bytes()
+for path in (graphics_stage/'collected').iterdir():
+    assert path.is_file() and not path.is_symlink();path.read_bytes()
+publisher=repo/'port/scripts/package-phase4-batch-graphics.py'
+assert graphics.sha(publisher)==graphics.sha(graphics_public/'source'/publisher.relative_to(repo))
+for stage in graphics.AREA.glob('publication-check.*'):
+    row=json.loads((stage/'analysis.json').read_text())
+    assert row['passed'] is True and row['premature_publication_refused'] is True
+    assert row['publisher_sha256']==graphics.sha(publisher)
+    assert int((stage/'exit').read_text())!=0
+    for name in ['stdout','stderr']:(stage/name).read_bytes()
 os.stat=oldstat;os.lstat=oldlstat
 # Failed open probes (including CPython cache and temporary-name probes)
 # are not retained artifacts. Keep only existing inputs for a stable closure.

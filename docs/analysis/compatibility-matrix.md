@@ -1,5 +1,18 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Atualização C121,09/11/2026 — ciclo gráfico APROVADO no84:**
+[Sessão](phase4-batch-graphics-session.md),nova observação/IP15/guard191 e
+17recibos0,1134frames. A/Start/direcional/Fn+L2/Fn+Start/retorno e som limpo
+confirmados; usuário percebeu abertura um pouco mais rápida. Host em lote no
+launch, worker/provider instalados, três mapas e ambas as reservas conferidos.
+Snapshot C63 preservado, sem save. Intervalo observado seleção→frame4,27s
+(C116:7,37s), amostragem1s sem controle de atraso/cache/frequência: não é ganho
+garantido.59,8802Hz/frame16,6834ms; áudio4underruns/1971frames ausentes apesar
+da aprovação acústica. Infra/mountinfo/restaurações íntegros, RAM removida,
+raizRO/PCMclosed/UIoff/p1p3off/taint0, tela diagnóstica final. Prova batch-graphics;
+sem imagem/instalação/reboot/Deck. Só código do contrato enviado à RAM; inputs
+residentes. Próximo: pacote residente para esse bundle, sem uploads por sessão.
+
 **Preparação C121,09/11/2026 — contexto gráfico corrigido, sem GUI:**
 [Adaptador](phase4-batch-graphics.md),oito checks executam o mapa real de quatro
 bibliotecas, loop sem uploads e admissões de prova/análise C120. Separação
