@@ -2,111 +2,145 @@
 
 ## Goal
 
-Develop a native AArch64 port of MustardOS for
-genuine RK3326-based R35S/R36S handhelds.
+Develop a native AArch64 port of MustardOS (muOS) for genuine RK3326-based
+R35S/R36S handhelds. The final goal is a standalone bootable firmware, not an
+EmulationStation theme or a permanent muOS-on-dArkOSen installation.
 
-The final goal is a standalone bootable firmware,
-not an EmulationStation theme or a permanent
-muOS-on-dArkOSen installation.
+Current phase, open problems and next milestone live in `docs/STATUS.md`.
+Read it at the start of every session; update it at the end of every milestone.
 
 ## Target Hardware
 
 Initial test device:
-- Handheld: R35S
-- SoC: Rockchip RK3326, Cortex-A35
-- Architecture: AArch64
+- Handheld: R35S — SoC Rockchip RK3326 (Cortex-A35), AArch64
 - Device tree model: R36S-V12 2023-08-18 Panel 0
-- Current firmware: dArkOSen, Debian 13
+- Current firmware: dArkOSen, Debian 13 (FAT boot, Btrfs root)
 - Graphics: DRM/KMS and framebuffer available
-- Boot partition: FAT
-- Current root filesystem: Btrfs
 
-Do not assume all R35S/R36S panels or hardware
-revisions are identical.
+Do not assume all R35S/R36S panels or hardware revisions are identical.
 
-## Upstream References
+## Upstream References (READ-ONLY)
 
-All directories below are READ-ONLY references:
+refs/muos/frontend, refs/muos/internal, refs/muos/tool, refs/darkosen,
+refs/rocknix
 
-- refs/muos/frontend
-- refs/muos/internal
-- refs/muos/tool
-- refs/darkosen
-- refs/rocknix
+- Never modify, commit, reset or clean these repositories.
+- refs/ is Git-ignored: search with `rg --no-ignore <pattern> refs/...`.
+- Search narrowly and read only the relevant excerpts; never read whole
+  subsystems into context.
 
-Do not modify, commit, reset, or clean these
-repositories unless explicitly requested.
+## Priorities (in order)
 
-Because refs/ is Git-ignored, use targeted searches
-with rg --no-ignore when necessary.
+1. Recoverability: the device is disposable, but every brick costs a manual
+   reflash by the user. Always keep a known-good recovery image available.
+2. Disk space on the host: the SSD is small. Every task must avoid
+   unnecessary copies, caches and images.
+3. Throughput: deliver larger, coherent milestones per user test cycle.
+4. Token efficiency: avoid re-reading, verbose logs and redundant docs.
 
-## Development Rules
+## Way of Working: Milestones
 
-1. All original port code belongs under port/.
-2. Documentation belongs under docs/.
-3. Temporary build files belong under build/.
-4. Release artifacts belong under dist/.
-5. Prefer native muOS implementations.
-6. Reuse hardware knowledge from dArkOSen and
-   ROCKNIX rather than copying entire subsystems.
-7. Verify source licenses before copying code.
-8. Document assumptions and compatibility issues.
-9. Keep changes incremental and testable.
-10. Never modify, reflash, repartition, or overwrite
-    the test device without explicit authorization.
-11. Preserve the existing dArkOSen installation.
-12. Do not assume a successful compilation means
-    the resulting binary is runtime-compatible.
+Work is organized in milestones, not micro-steps.
 
-## Initial Development Priorities
+- A milestone is a coherent batch of changes that delivers one user-visible
+  or architectural result (e.g. "input mapping + battery + brightness").
+- At the start: propose a short plan (goal, files touched, tests, what the
+  user must check). For large or risky milestones, wait for approval;
+  otherwise proceed.
+- During: implement the whole batch, validating with T0–T2 tests (below)
+  as you go. Fix your own failures before involving the user.
+- Involve the user only when the milestone is complete and has passed T0–T2,
+  or when blocked by a decision or a physical test that cannot be avoided.
+- At the end: one commit (or a few logical commits), update
+  `docs/STATUS.md`, and hand the user a single consolidated T3 checklist.
 
-1. Document current RK3326 hardware support.
-2. Analyze muOS boot, rootfs, and device profiles.
-3. Identify display and input requirements.
-4. Establish a reproducible build environment.
-5. Validate the muOS frontend on the test device.
-6. Develop a standalone AArch64 firmware image.
+Explain tradeoffs only for non-obvious decisions. Trivial edits need no
+write-up.
+
+## Test Levels
+
+- T0 — Host static: build, compiler warnings, shellcheck, unit/lint checks.
+- T1 — Host runtime: run AArch64 binaries in the container (qemu-user) where
+  possible; inspect ELF/ABI/linked libraries against the target sysroot.
+- T2 — Device automated (SSH, agent runs it): deploy to the scratch area,
+  run tests, collect logs and exit codes via `port/scripts/device.sh`.
+- T3 — Device manual (user): only what needs eyes/hands — display, buttons,
+  audio, boot from SD card. Batch all T3 checks into one checklist per
+  milestone, with expected results for each item.
+
+A successful compilation does not prove runtime compatibility; T1/T2 are
+required before T3.
+
+## Device Access (SSH)
+
+The agent has full autonomy on the test device over SSH, including
+flashing, repartitioning and overwriting the system. All device storage
+is the microSD card in slot 1; its contents are disposable and a brick is
+recovered by reflashing the card on the host.
+
+Prefer `port/scripts/device.sh` for repeatable actions so tests stay
+reproducible and logs are collected consistently.
+
+Because each brick costs a manual reflash (a T3 cycle) and loses SSH
+access until then:
+- Keep one known-good, flashable recovery image in dist/ (counts toward
+  the five-version limit) and document how to flash it in docs/STATUS.md.
+- Before writing the bootloader, partition table or root filesystem,
+  make sure the change was validated as far as possible at T0–T2 and
+  that the recovery image matches the current card layout.
+- If a change leaves the device unreachable, tell the user immediately:
+  what was written, the likely cause, and the exact reflash steps.
+
+## Repository Layout
+
+- port/   original port code (incl. port/scripts/, port/packaging/)
+- docs/   documentation (STATUS.md, decisions, hardware notes)
+- build/  temporary build files (Git-ignored, compressible, disposable)
+- dist/   release artifacts (Git-ignored)
+
+Never add build/, dist/, refs/, ROMs, private keys, seeds or private
+provisioning records to Git. Verify licenses before copying upstream code;
+prefer reusing hardware knowledge over copying whole subsystems.
+
+## Disk Space Rules
+
+The host disk is small; treat space as a first-class constraint.
+
+- Build only the changed component; reuse installed SDKs and containers.
+- Generate a full firmware image only when the milestone changes the
+  filesystem/image or needs a firmware checkpoint.
+- Never duplicate a full rootfs with a plain copy. On Btrfs use
+  `cp --reflink=always` or subvolume snapshots; otherwise patch in place.
+- Keep build/ compressed (Btrfs zstd) and cap ccache size.
+- Keep at most five firmware versions, tracked in
+  `port/packaging/storage-retention.json` (record the reason for any
+  exception). Keep at most five named Git restore checkpoints.
+- Preserve frozen proof files and private recovery material.
+- Before deleting outputs: dry-run `port/scripts/retain-phase4-builds.py`,
+  verify the dependency closure and integrity report. Details in
+  `docs/storage.md`. Never auto-clean refs or the device.
+- At the end of a milestone, report disk usage of build/, dist/ and
+  container images if it grew significantly.
 
 ## Build Policy
 
-Use a containerized toolchain when practical.
-The development host runs Bazzite Linux.
+- Use the containerized toolchain; the host runs Bazzite Linux (immutable).
+- Never modify the host OS to satisfy dependencies.
+- Review AArch64 compiler flags, ABI and sysroot compatibility before
+  deploying binaries.
 
-Do not modify the host operating system to
-satisfy build dependencies.
+## Token Efficiency
 
-## Storage and Versioning
+- Start from `docs/STATUS.md` instead of re-exploring the repository.
+- Redirect long build/test output to files under build/logs/ and report
+  only summaries, errors and the relevant lines.
+- Don't paste large files or diffs back to the user; reference paths.
+- Record durable findings in docs/ once, concisely; don't write a document
+  per small task.
 
-Use the local Git repository for original code and documentation. Do not add
-build/, dist/, refs/, ROMs, private keys, seeds or private provisioning records to Git.
-Reuse the installed SDKs and build only the changed component. Generate a full
-firmware image when the increment actually changes the filesystem/image or
-requires a firmware checkpoint; do not clone a full root for every script edit.
+## Reporting
 
-Keep at most five firmware versions in `port/packaging/storage-retention.json`.
-Update that inventory when promoting a new version, recording the specific
-reason for any older dependency or recovery exception. Preserve frozen proof
-files and private recovery material. Small source history and proof metadata
-are audit exceptions; they do not require another full build tree per commit.
-Keep at most five named Git restore checkpoints; ordinary source commits use
-Git's compact storage. Never rewrite qualified source/proof files just to prune
-their build directories.
-
-Before deleting historical outputs, review a dry run of
-`port/scripts/retain-phase4-builds.py`, verify its current dependency closure,
-and check the resulting integrity report. This cleaner covers reviewed legacy
-replicas, not arbitrary newly created paths. Extend its scope deliberately when
-the retention inventory changes. No automatic cleanup of refs or devices.
-
-Review AArch64 compiler flags, ABI and sysroot
-compatibility before deploying binaries.
-
-## Workflow
-
-For each significant task:
-- Inspect relevant upstream implementations.
-- Explain the chosen approach and tradeoffs.
-- Make the smallest useful change.
-- Run available checks.
-- Record findings in docs/.
-- Report what was tested and what remains unverified.
+At the end of each milestone report briefly:
+- What was done and which tests (T0–T2) passed.
+- The T3 checklist for the user.
+- What remains unverified or risky, and the proposed next milestone.
