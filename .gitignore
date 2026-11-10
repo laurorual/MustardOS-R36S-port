@@ -12,3 +12,7 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# Local agent settings and backups.
+/.claude/
+/AGENTS.md.bak
