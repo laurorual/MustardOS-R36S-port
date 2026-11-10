@@ -1,49 +1,48 @@
 {
-  "schema": 1,
+  "schema": 2,
+  "note": "Managed by port/scripts/retention.py. Paths are repo-relative. Only files listed under firmware_versions are ever deleted.",
   "maximum_firmware_versions": 5,
   "firmware_versions": {
-    "C64": [
-      "muxretro-image/image.n_uthilw/images/rootfs.ext4"
-    ],
-    "C79": [
-      "initial-image/provision.evbj4tey/factory.ext4",
-      "gambatte-card-image/image.efszbcqw/muos-r35s-panel0-c79-private.img",
-      "gambatte-card-image/image.efszbcqw/partition-readback/rootfs.ext4"
-    ],
-    "C89": [
-      "recovery-image/compose.lru8bw5e/recovery.ext4"
-    ],
-    "C93": [
-      "initial-migration/compose.h5mhulhi/candidate.ext4"
-    ],
-    "C100": [
-      "c79-layout/compose.1yrez0md/output/factory.ext4"
-    ]
+    "C100": {
+      "reason": "Corrected unprovisioned factory ext4; rootfs rebuild reference",
+      "files": [
+        "build/phase4/c79-layout/compose.1yrez0md/output/factory.ext4"
+      ]
+    },
+    "M1-baseline": {
+      "reason": "Flashable test128 image before M1 (C07 init, kept seed); restores test128 only (CID-locked bootstrap)",
+      "files": [
+        "dist/recovery/test128-baseline-20261110.img.zst",
+        "dist/recovery/test128-baseline-20261110.img.zst.sha256",
+        "dist/recovery/test128-baseline-20261110.manifest"
+      ]
+    },
+    "M1": {
+      "reason": "Flashable M1 image: rcS/rcK init, UI autostart, seedless; works on any card >= 2 GiB",
+      "files": [
+        "dist/recovery/test128-m1-20261110.img.zst",
+        "dist/recovery/test128-m1-20261110.img.zst.sha256",
+        "dist/recovery/test128-m1-20261110.manifest"
+      ]
+    }
   },
-  "required_files": {
-    "gambatte-image/image.zal39n7u/target/opt/muos/share/conf/rootfs/asound.conf": "C100/C102/C105 pinned 444-byte audio template",
-    "foundation/staging.YRRiUd/core-staging.tar.gz": "Last foundation packaging input",
-    "internal-rom/import.tgknjpow/before.tar": "Independent C113 pre-import logical data backup; private; 88064 bytes",
-    "internal-rom/import.tgknjpow/dispatch.claim": "Consumed private ROM import attempt; never redispatch",
-    "resident-assets/install.0uvf0x6y/dispatch.claim": "Consumed C112 resident assets installation attempt; never redispatch",
-    "resident-batch/install.1a1mvhj9/dispatch.claim": "Consumed C122 additive resident contract installation; never redispatch"
-  },
-  "exceptions": {
-    "private": "Transport credentials and original C20 recovery backup",
-    "offline-backup": "Independent C82 backup and failure evidence",
-    "physical-capture": "Read-only reference and before/after recovery captures",
-    "card-rearm": "Pre-repair independent prefix and metadata",
-    "p2-initial": "Applied migration receipts, independent copy and consumed-attempt fences",
-    "p2-recovery": "Recovery receipt and rollback/freshness fences",
-    "rootfs-output/host": "Installed reproducible AArch64 SDK",
-    "graphics-config/output/host": "Installed graphics AArch64 SDK",
-    "rootfs-downloads": "Rebuild inputs",
-    "linux-base": "Kernel source",
-    "linaro6": "Compiler support source",
-    "kernel-output": "Working kernel output",
-    "uboot-sd/probe.3utahq01/source": "Last qualified bootloader working source",
-    "uboot-sd/probe.3utahq01/output": "Last qualified bootloader output",
-    "current-dependency-leaves": "Only the files read/returned by the C104-C122 offline dependency trace; no whole historical root retained for this reason",
-    "dist": "Frozen sanitized evidence and license archives; not a set of firmware builds"
+  "keep": {
+    "build/phase4/private": "SSH client key, known_hosts, Wi-Fi/credential backups (private)",
+    "build/phase4/offline-backup": "Independent C82 backup and failure evidence",
+    "build/phase4/physical-capture": "Read-only reference and before/after recovery captures",
+    "build/phase4/card-rearm": "Pre-repair independent prefix and metadata",
+    "build/phase4/p2-initial": "Applied migration receipts, independent copy and consumed-attempt fences",
+    "build/phase4/p2-recovery": "Recovery receipt and rollback/freshness fences",
+    "build/phase4/rootfs-output/host": "Installed reproducible AArch64 SDK",
+    "build/phase4/graphics-config/output/host": "Installed graphics AArch64 SDK",
+    "build/phase4/rootfs-downloads": "Rebuild inputs",
+    "build/phase4/linux-base": "Kernel source",
+    "build/phase4/linaro6": "Compiler support source",
+    "build/phase4/kernel-output": "Working kernel output",
+    "build/phase4/uboot-sd/probe.3utahq01/source": "Last qualified bootloader working source",
+    "build/phase4/uboot-sd/probe.3utahq01/output": "Last qualified bootloader output",
+    "dist/phase4": "Frozen sanitized evidence and license archives; not a set of firmware builds",
+    "dist/recovery": "Flashable recovery images (private: Wi-Fi PSK, SSH keys)",
+    "build/recovery": "Latest device capture used to compose the recovery images"
   }
 }
