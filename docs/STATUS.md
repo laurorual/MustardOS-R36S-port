@@ -16,16 +16,19 @@ M1 delivered three things:
   BusyBox rcS/rcK-style init,
 - the retirement of the C-step safety harness.
 
-All checks passed at T0–T2. **M1 T3 (2026-11-10) is incomplete:**
-- **Item 1, flash via dArkOSen: FAIL.**
-  - `dd` wrote the image to slot 2. The root-side script then stopped
-    at `blockdev: not found`, because dArkOSen's sudo `secure_path` has
-    no sbin directories. So it never verified the card or grew p3.
-  - Fixed in `9bf8f80`: full PATH, every tool checked before writing,
-    `blockdev` optional, and a clear "FLASH ABORTED" message. Tested at
-    T1 under a sudo-like PATH; not yet rerun on dArkOSen.
-- **Items 2–6:** not run yet, because they depend on item 1.
-- The raw report is `docs/t3-m1.txt` (not committed).
+All checks passed at T0–T2, and **M1 T3 passed (2026-11-10)**. The first
+flash attempt failed at verification (dArkOSen's sudo PATH has no sbin;
+fixed in `9bf8f80`); the rerun verified the card and grew p3 to 116.6 GiB.
+Results by checklist item:
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Flash via dArkOSen slot 2 | OK |
+| 2 | Cold boot to menu | OK (menu at ~15.5 s; SSH at 192.168.15.8) |
+| 3 | GB save/load/quit | OK |
+| 4 | Menu reboot, persistence | OK. Relaunching the game resumed the last state without Fn+L2: muxretro's default `auto_save=3` (idle + quit) writes `autosave.state` on quit and loads it at the next launch. Expected muOS behaviour. |
+| 5 | Menu shutdown, power on | OK |
+| 6 | Power key / speaker | OK |
 
 ## Device and bench
 
@@ -215,12 +218,6 @@ part of M3.
 
 ## Broken, caveated or unverified
 
-- **Not exercised by hand yet (T3 pending):**
-  - flashing an image
-  - a true cold boot from power-off
-  - physical poweroff
-  - the menu Shutdown entry. It uses the same path as Reboot, but
-    nothing powered the device back on to check it.
 - **Power:** Power key, suspend (`/sys/power` is bound ro), battery and
   charging, LEDs and rumble are untested. The muOS battery device config
   files are missing.
@@ -268,8 +265,6 @@ part of M3.
 
 **M2 — Power, battery and CPU frequency** (plan; waiting for approval):
 
-0. **Close M1 T3 first.** Rerun the fixed flash, then items 2–6 of the M1
-   checklist.
 1. **NES baseline (before).**
    - Install FCEUmm (`build-phase4-nes-core.py`) and the MIT demo ROM
      (`port/diagnostics/phase4-nes-demo.py`) as `ROMS/NES`.
@@ -343,7 +338,7 @@ part of M3.
 - **Long run:** 1–2 h of play, plus 20 reboot/poweroff cycles.
 - **T3:** a real play session, ROM import, and long-run stability.
 
-## M1 T3 checklist (for the user)
+## M1 T3 checklist (done 2026-11-10, results above)
 
 1. **Flash the M1 image** using the dArkOSen steps above, on test128.
    - Expected: `verified raw_sha256=1c65c693…` and `p3 grown and clean`.

@@ -129,7 +129,7 @@ case "$cmd" in
     ip=$(target)
     ssh_dev "$ip" 'echo "boot_id=$(cat /proc/sys/kernel/random/boot_id)"; echo "uptime=$(cut -d" " -f1 /proc/uptime)";
         awk '\''$2=="/"||$2=="/userdata"||$2=="/mnt/mmc"||$2=="/boot"{print "mount="$1","$2","$4}'\'' /proc/mounts;
-        pgrep muxfrontend >/dev/null && echo ui=running || echo ui=stopped'
+        pgrep -f /opt/muos/frontend/muxfrontend >/dev/null && echo ui=running || echo ui=stopped'
     echo "ip=$ip" ;;
  wait)
     ip=$(wait_up "${1:-180}") || die "device did not come back"
