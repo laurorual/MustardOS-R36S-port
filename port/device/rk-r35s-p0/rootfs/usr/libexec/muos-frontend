@@ -28,6 +28,17 @@ quit() {
 trap quit TERM INT HUP
 run_child() { "$@" & child=$!; wait "$child"; rc=$?; child=; return "$rc"; }
 foreground() { muvarctl set system foreground_process "$1" >/dev/null 2>&1 || :; }
+# CPU governor, as upstream launch.sh / SET_DEFAULT_GOVERNOR: the content's
+# request (/run/muos/governor, from muOS core.gov) while it runs, the device
+# default (device/config/cpu/default) in the frontend.
+gov_path=/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+set_governor() {
+    want=$1
+    grep -qw "$want" /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors 2>/dev/null || want=ondemand
+    [ "$(cat "$gov_path" 2>/dev/null)" = "$want" ] && return 0
+    printf '%s\n' "$want" > "$gov_path" 2>/dev/null && say "governor $want" || say "governor $want refused"
+}
+default_governor() { set_governor "$(cat /opt/muos/device/config/cpu/default 2>/dev/null || echo schedutil)"; }
 
 # Per-launch request files the frontend writes for launch.sh (governor,
 # controller, filter, ...). Upstream consumes them; left behind, the next
@@ -52,18 +63,25 @@ launch_content() {
     [ -f "/opt/muos/share/core/$core" ] || { say "missing core $core"; return 1; }
     [ -f "$content" ] || { say "missing content $content"; return 1; }
     fresh=; [ ! -e /tmp/ra_no_load ] || fresh=--fresh
+    if [ -s "$run/governor" ]; then set_governor "$(head -n1 "$run/governor")"; else default_governor; fi
     clear_requests
     foreground muxretro
+    # T2 hook: /run/muos/perf-capture arms muxretro's own frame-time capture
+    # (writes /run/muos/storage/pickles/performance.csv periodically).
+    MUXRETRO_PERF_CAPTURE=0; [ ! -e "$run/perf-capture" ] || MUXRETRO_PERF_CAPTURE=1
+    export MUXRETRO_PERF_CAPTURE
     # shellcheck disable=SC2086  # $fresh is empty or one flag
     run_child /opt/muos/frontend/muxretro "/opt/muos/share/core/$core" "$content" $fresh \
         >> /opt/muos/log/frontend.log 2>&1
     say "muxretro exit rc=$?"
+    default_governor
     sync
 }
 
 say "loop start hotkeys=${1:-1} audio=$SDL_AUDIODRIVER"
 [ "${1:-1}" != 1 ] || { /opt/muos/frontend/muhotkey & hotkey=$!; }
 [ -s "$act" ] || echo launcher > "$act"
+default_governor
 fast=0
 while :; do
     if [ -s "$rom" ]; then

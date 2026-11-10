@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MIT
 # Install files from port/device/rk-r35s-p0/rootfs/ onto the live device root.
 #
-#   install-rootfs.sh [--remove PATH]... [REL_PATH...]   (default: every file)
+#   install-rootfs.sh [--tree DIR] [--remove PATH]... [REL_PATH...]
+#                         (default: every file; --tree installs a build
+#                         staging tree instead of the Git rootfs/ tree)
 #
 # Each file is staged next to its target and renamed into place (atomic per
 # file). The first time a path is touched its original is kept under
@@ -20,6 +22,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --remove) removes+=("$2"); shift 2 ;;
         --restore) restore=1; shift ;;
+        --tree) tree=$(realpath "$2"); shift 2 ;;
         *) break ;;
     esac
 done

@@ -13,8 +13,9 @@
 #                                 them equal (its cp -f cannot replace a bind)
 #   p3 MUOS/log/system         -> /opt/muos/log (previous boot in system.prev)
 # p3 state is seeded once from the rootfs (which carries the R35S profile)
-# and imports the C21 preferences store (VOLUME/BRIGHTNESS). /sys/power and
-# the cpufreq tree stay read-only until power management is qualified (M2).
+# and imports the C21 preferences store (VOLUME/BRIGHTNESS). cpufreq is
+# writable (M2): the frontend loop applies muOS per-content governors.
+# /sys/power stays read-only; only muos-suspend may write it (M2).
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 port=/userdata/MUOS/port
 rw=/run/muos/rw
@@ -74,9 +75,7 @@ case "${1:-}" in
     logs=/userdata/MUOS/log
     rm -rf "$logs/system.prev"; [ ! -d "$logs/system" ] || mv "$logs/system" "$logs/system.prev"
     bind "$logs/system" /opt/muos/log
-    for path in /sys/power /sys/devices/system/cpu; do
-        mount --bind "$path" "$path" && mount -o remount,bind,ro "$path" && printf '%s\n' "$path" >> "$state/mounts"
-    done
+    mount --bind /sys/power /sys/power && mount -o remount,bind,ro /sys/power && printf '%s\n' /sys/power >> "$state/mounts"
     touch "$state/ready"
     ;;
  stop)

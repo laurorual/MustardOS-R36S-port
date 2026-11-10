@@ -1,0 +1,14 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Early CPU frequency cap. The M2 DTB adds stock OPPs up to 1512 MHz; until
+# S92muos-cpufreq applies the opt-in from p3 the CPU stays at <= 1296 MHz.
+p=/sys/devices/system/cpu/cpu0/cpufreq
+case "${1:-}" in
+ start)
+    [ -w "$p/scaling_max_freq" ] || exit 0
+    max=$(cat "$p/cpuinfo_max_freq")
+    [ "$max" -le 1296000 ] || echo 1296000 > "$p/scaling_max_freq"
+    echo "cpufreq: early cap $(cat "$p/scaling_max_freq") kHz (hardware max $max)" ;;
+ stop|status) : ;;
+ *) exit 2 ;;
+esac

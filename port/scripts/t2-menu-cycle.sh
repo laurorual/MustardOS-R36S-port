@@ -10,7 +10,8 @@ dev=$(dirname "$0")/device.sh
 pass() { printf 'PASS %s\n' "$*"; }
 fail() { printf 'FAIL %s\n' "$*"; exit 1; }
 r() { "$dev" run "cd /; $*"; }
-module() { r 'pgrep -l "mux[a-z]*" | grep -v muxretro_ | awk "{print \$2}" | grep -v muhotkey | head -n1'; }
+# Match on /proc/PID/exe: pgrep would also match this SSH command line.
+module() { r 'for p in /proc/[0-9]*; do case "$(readlink $p/exe)" in /opt/muos/frontend/muxretro|/opt/muos/frontend/muxfrontend) cat $p/comm;; esac; done | sort -r | head -n1'; }
 wait_module() { # NAME SECONDS
     for _ in $(seq 1 "$2"); do [ "$(module)" = "$1" ] && return 0; sleep 1; done
     return 1
