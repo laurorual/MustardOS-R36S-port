@@ -29,7 +29,7 @@ def main():
         checks[name]=(p,r)
     require(sha(checks['controller'][0]/'analysis.json')==package['checks_sha256'],'Deployed controller checks binding')
     sources.update(repo/'port/scripts'/n for n in manifest['files'] if n.endswith('.py'))
-    sources.update([Path(__file__),repo/'docs/analysis/phase4-p2-controller.md'])
+    sources.update([Path(__file__),repo/'docs/archive/phase4/phase4-p2-controller.md'])
     for n,h in manifest['files'].items():
         require(sha(pkg/'bundle'/n)==h,'Frozen bundle changed')
         if n.endswith('.py'):require(sha(repo/'port/scripts'/n)==h,'Deployed source changed')

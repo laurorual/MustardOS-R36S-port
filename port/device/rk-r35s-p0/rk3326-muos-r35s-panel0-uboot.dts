@@ -4,7 +4,7 @@
  * Init sequence: (C) 2020 Hardkernel, rk3326-r35s-linux.dts, GPL-2.0+ OR MIT,
  * Linux d8402159c04b1044106b4f27b7ed7c22ed09228f. Bytes match the installed
  * U-Boot Panel 0 DTB. U-Boot timings/delays/PWM follow that separate DTB,
- * not the Linux display mode. See docs/analysis/phase4-uboot-panel.md.
+ * not the Linux display mode. See docs/archive/phase4/phase4-uboot-panel.md.
  */
 #include "rg351mp-uboot.dts"
 

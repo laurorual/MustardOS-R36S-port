@@ -68,7 +68,7 @@ for name in ['contract.json','data-functions.sh','diagnostic.sh']:
     copy(repo/'port/device/rk-r35s-p0/preferences'/name,out/'port/device/rk-r35s-p0/preferences'/name)
 copy(repo/'port/LICENSE',out/'LICENSE')
 for name in ['phase4-userdata-offline.md','phase4-preferences-ext4.md','phase4-resume-checkpoint.md','roadmap.md']:
-    copy(repo/'docs/analysis'/name,out/'docs'/name)
+    copy(repo/'docs/archive/phase4'/name,out/'docs'/name)
 (out/'STATUS.txt').write_text(
  'PARTIAL C20 EXECUTION: p3 MBR entry exists; filesystem NOT created. Test128 unmounted in Deck; R35S off.\n'
  'Root mode is still0777 after Deck automount. Corrected helper/root-mode operation are prepared, NOT active.\n'

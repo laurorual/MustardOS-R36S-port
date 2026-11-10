@@ -40,7 +40,7 @@ def main():
     original=session.REPO/'port/device/rk-r35s-p0/app-selection/worker.sh'
     require(intent['worker_sha256']==session.sha(original) and 'etc-view.sh' not in intent['binary_sha256'],
         'Native cycle must use the original worker without directory view helper')
-    sources={Path(__file__),original,session.REPO/'docs/analysis/phase4-native-layout-session.md'}
+    sources={Path(__file__),original,session.REPO/'docs/archive/phase4/phase4-native-layout-session.md'}
     for r in [report,tested,final,technical]:
         for n,h in r['source_sha256'].items():
             require(session.sha(session.REPO/n)==h,'C103 evidence source changed');sources.add(session.REPO/n)

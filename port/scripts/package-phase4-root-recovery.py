@@ -39,7 +39,7 @@ def main():
     write_new(public/'analysis.json',(json.dumps(result,indent=2)+'\n').encode())
     shutil.copyfile(check/'analysis.json',public/'component-checks.json')
     for n in ['fixtures.stdout','fixtures.stderr','fixtures.exit']:shutil.copyfile(check/n,public/n)
-    sources={repo/n for n in report['source_sha256']};sources.update([Path(__file__),repo/'docs/analysis/phase4-root-recovery.md'])
+    sources={repo/n for n in report['source_sha256']};sources.update([Path(__file__),repo/'docs/archive/phase4/phase4-root-recovery.md'])
     for src in sorted(sources):
         dst=public/'source'/src.relative_to(repo);dst.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,dst)
     receipt=json.loads((download/'backup.json').read_text());context=json.loads((complete/'context.json').read_text())

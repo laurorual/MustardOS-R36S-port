@@ -54,7 +54,7 @@ for label,source in stages.items():
 observe=stages['observe'];physical=json.loads((observe/'physical-observation.json').read_text())
 clock=json.loads((observe/'PCM-clock.json').read_text());assert physical['qualified'] and clock['relative_error']<0.005
 for source in [*repo.glob('port/scripts/*phase4*gb*.py'),*repo.glob('port/device/rk-r35s-p0/gb-core/*.sh'),
-               repo/'port/diagnostics/phase4-gb-core-check.c',repo/'docs/analysis/phase4-gb-content.md']:
+               repo/'port/diagnostics/phase4-gb-core-check.c',repo/'docs/archive/phase4/phase4-gb-content.md']:
     target=stage/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
 copy_report(build/'analysis.json',stage/'core-preparation.json')
 report={'experiment':'C49_PRIVATE_GB_CONTENT','functional_native_test_passed':True,

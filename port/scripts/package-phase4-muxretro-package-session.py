@@ -22,7 +22,7 @@ assert r['exact_C59_boot_retained'] and r['native_ABI_passed'] and r['new_ELF_tr
 assert r['cleanup_passed'] and r['RAM_removed'] and r['root_ro'] and r['global_mountinfo_unchanged']
 assert r['store_matches_previous_boot'] and not r['preferences_persisted']
 public=Path(tempfile.mkdtemp(prefix='public.',dir=area))
-sources={Path(__file__),repo/'docs/analysis/phase4-muxretro-package-session.md'}
+sources={Path(__file__),repo/'docs/archive/phase4/phase4-muxretro-package-session.md'}
 def clean(value):
  if isinstance(value,dict):return {k:('private' if k in {'private_identity','ROM_sha256','kernel_boot_id'} else clean(v)) for k,v in value.items()}
  if isinstance(value,list):return [clean(v) for v in value]

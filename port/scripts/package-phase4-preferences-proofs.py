@@ -26,7 +26,7 @@ for p in [repo/'port/utils/muos-preferences.c',repo/'port/scripts/check-phase4-p
     copy(p,out/'port-source'/p.relative_to(repo/'port'))
 copy(repo/'port/LICENSE',out/'LICENSE')
 for n in ['phase4-preferences-preparation.md','phase4-resume-checkpoint.md','roadmap.md']:
-    copy(repo/'docs/analysis'/n,out/'docs'/n)
+    copy(repo/'docs/archive/phase4'/n,out/'docs'/n)
 files=sorted(p for p in out.rglob('*') if p.is_file())
 (out/'SHA256SUMS').write_text(''.join(sha(p)+'  '+str(p.relative_to(out))+'\n' for p in files))
 for line in (out/'SHA256SUMS').read_text().splitlines():

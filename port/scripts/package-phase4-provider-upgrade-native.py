@@ -34,7 +34,7 @@ assert 'undefined symbol: lang' in (stage / 'native-ABI-positional-failure.stder
 assert (stage / 'native-ABI.stdout').read_text().count('C65 eager load: ') == 4
 for label in ['pre-cleanup-health', 'pre-cleanup-tree', 'cleanup', 'stopped-screen', 'post-cleanup-health']:
     assert (stage / (label + '.exit')).read_text() == '0\n'
-sources = {Path(__file__), repo / 'docs/analysis/phase4-provider-upgrade-native.md'}
+sources = {Path(__file__), repo / 'docs/archive/phase4/phase4-provider-upgrade-native.md'}
 for report in [r, b, c, f]:
     for n, h in report['source_sha256'].items():
         assert sha(repo / n) == h, n

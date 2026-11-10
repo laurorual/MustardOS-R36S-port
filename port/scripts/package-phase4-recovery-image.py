@@ -45,7 +45,7 @@ def main():
     write_new(public/'analysis.json',(json.dumps(result,indent=2)+'\n').encode())
     shutil.copyfile(check/'analysis.json',public/'component-checks.json')
     for n in ['fixtures.stdout','fixtures.stderr','fixtures.exit']:shutil.copyfile(check/n,public/n)
-    sources={repo/n for n in host['source_sha256']};sources.update([Path(__file__),repo/'docs/analysis/phase4-recovery-image.md'])
+    sources={repo/n for n in host['source_sha256']};sources.update([Path(__file__),repo/'docs/archive/phase4/phase4-recovery-image.md'])
     for source in sorted(sources):
         target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
     forbidden=[request['backup_sha256'],*(r['sha256'] for r in request['backup_private_files'].values())]

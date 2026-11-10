@@ -40,7 +40,7 @@ def main():
     for name in ['analysis.json','fixtures.stdout','fixtures.stderr','fixtures.exit',*audits]:
         shutil.copyfile(check/name,public/('component-checks.json' if name=='analysis.json' else name))
     sources={repo/n for n in report['source_sha256']}
-    sources.update([Path(__file__),repo/'docs/analysis/phase4-initial-preparer.md'])
+    sources.update([Path(__file__),repo/'docs/archive/phase4/phase4-initial-preparer.md'])
     for source in sources:
         target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True)
         shutil.copyfile(source,target)

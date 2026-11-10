@@ -60,7 +60,7 @@ for name, row in coverage['programs'].items():
     assert differences == row['changed_or_new_paths']
     assert bool(differences) == (name in fresh)
 assert (stage / 'affected-loaders.stdout').read_text().splitlines() == ['C69_LOADER_PASS_' + n for n in fresh]
-sources = {Path(__file__), repo / 'docs/analysis/phase4-provider-image.md'}
+sources = {Path(__file__), repo / 'docs/archive/phase4/phase4-provider-image.md'}
 for n, h in r['source_sha256'].items():
     assert sha(repo / n) == h, n
     sources.add(repo / n)

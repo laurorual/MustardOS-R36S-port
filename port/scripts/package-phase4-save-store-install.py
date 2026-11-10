@@ -17,7 +17,7 @@ assert installed['plan_sha256']==sha(stage/'plan.json')==checks['plan_sha256']
 assert checks['passed'] and checks['case_count']==26 and plan['C56_proof_sha256']==sha(parent/'SHA256SUMS')
 meta=json.loads((stage/'manifest.json').read_text())
 for n,key in [('plan.json','plan_sha256'),('absence-backup.json','backup_sha256'),('deployment.tar','deployment_sha256')]:assert sha(stage/n)==meta[key]
-sources={Path(__file__),repo/'docs/analysis/phase4-save-store-installed.md'}
+sources={Path(__file__),repo/'docs/archive/phase4/phase4-save-store-installed.md'}
 for report in [plan,checks]:
  for n,h in report['source_sha256'].items():assert sha(repo/n)==h,n;sources.add(repo/n)
 public=Path(tempfile.mkdtemp(prefix='public.',dir=area))

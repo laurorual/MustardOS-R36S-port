@@ -19,7 +19,7 @@ def main():
  summary.update(private_ROM_or_backup_ELF_seed_identity_included=False,redistribution_approved=False,graphical_qualification=False)
  write_new(public/'analysis.json',(json.dumps(summary,indent=2)+'\n').encode())
  write_new(public/'checks.json',(json.dumps({k:tested[k] for k in ['passed','case_count','cases','private_content_used','real_media_or_namespace_used','sync_helper_A35_QEMU_used','power_loss_tested']},indent=2)+'\n').encode())
- paths=[REPO/n for n,h in r['source_sha256'].items()]+[Path(__file__),REPO/'docs/analysis/phase4-internal-rom.md']
+ paths=[REPO/n for n,h in r['source_sha256'].items()]+[Path(__file__),REPO/'docs/archive/phase4/phase4-internal-rom.md']
  for n,h in r['source_sha256'].items():require(sha(REPO/n)==h,'Qualified source changed')
  for p in paths:
   dest=public/'source'/p.relative_to(REPO);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)

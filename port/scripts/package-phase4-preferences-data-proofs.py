@@ -46,7 +46,7 @@ for name in ['contract.json','data-functions.sh','diagnostic.sh']:
 for name in ['audit-phase4-preferences-data.py',Path(__file__).name]:
     copy(repo/'port/scripts'/name,out/'port/scripts'/name)
 for name in ['phase4-resume-checkpoint.md','phase4-userdata-offline.md','roadmap.md']:
-    copy(repo/'docs/analysis'/name,out/'docs'/name)
+    copy(repo/'docs/archive/phase4'/name,out/'docs'/name)
 copy(repo/'port/LICENSE',out/'LICENSE')
 copy(repo/'dist/phase4/userdata-offline-complete/SHA256SUMS',out/'references/offline-complete.SHA256SUMS')
 summary={'passed':True,'native_boot_before':before,'native_boot_after':after,

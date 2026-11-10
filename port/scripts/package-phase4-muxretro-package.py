@@ -22,7 +22,7 @@ for name in ['gameboy-installed-store','gameboy-hotkey-exit','save-store-image']
  parents[name]=sha(proof/'SHA256SUMS')
 assert (work/'gb-exit/host.uuixcmie/analysis.json').read_bytes()==(repo/'dist/phase4/gameboy-hotkey-exit/host/analysis.json').read_bytes()
 assert sha(stage/'target/opt/muos/frontend/muxretro')==r['binary_sha256']
-sources={Path(__file__),repo/'docs/analysis/phase4-muxretro-package.md',repo/'port/scripts/phase4_candidate.py'}
+sources={Path(__file__),repo/'docs/archive/phase4/phase4-muxretro-package.md',repo/'port/scripts/phase4_candidate.py'}
 for n,h in r['source_sha256'].items():assert sha(repo/n)==h,n;sources.add(repo/n)
 public=Path(tempfile.mkdtemp(prefix='public.',dir=area))
 for name in ['analysis.json','source-files.json','composition-added.json','elf.stdout','package-info.json','minimal.defconfig','loader.stdout','recipe.stderr']:

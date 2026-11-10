@@ -7,7 +7,7 @@ if __name__=='__main__':
     require(source.read_bytes()==(session.proof('launch-profile')/'source'/source.relative_to(REPO)).read_bytes(),'Frozen C117 publisher')
     text=session.change(source.read_text(),'import phase4_launch_profile as m','import phase4_batch_validation as m')
     for old,new in [("'dist/phase4/launch-profile'","'dist/phase4/batch-validation'"),
-                    ("'docs/analysis/phase4-launch-profile.md'","'docs/analysis/phase4-batch-validation.md'"),
+                    ("'docs/archive/phase4/phase4-launch-profile.md'","'docs/archive/phase4/phase4-batch-validation.md'"),
                     ("m.session.proof('resident-boot-session')","m.session.proof('launch-profile')"),
                     ("'prepare','validate','profile'","'prepare','prototype','validate','profile'")]:
         text=session.change(text,old,new)

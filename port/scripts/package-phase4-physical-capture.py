@@ -52,7 +52,7 @@ def main(host):
     write_new(public/'analysis.json',(json.dumps(result,indent=2)+'\n').encode())
     shutil.copyfile(check/'analysis.json',public/'component-checks.json')
     for n in ['fixtures.stdout','fixtures.stderr','fixtures.exit']:shutil.copyfile(check/n,public/n)
-    sources={repo/n for n in cases['source_sha256']};sources.update([Path(__file__),repo/'docs/analysis/phase4-physical-capture.md'])
+    sources={repo/n for n in cases['source_sha256']};sources.update([Path(__file__),repo/'docs/archive/phase4/phase4-physical-capture.md'])
     for src in sorted(sources):
         dst=public/'source'/src.relative_to(repo);dst.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,dst)
     forbidden=[context[n] for n in ['mbr_sha256','boot_prefix_16MiB_sha256','automount_guard_sha256','backup_prefix_sha256','reference_root_sha256']]

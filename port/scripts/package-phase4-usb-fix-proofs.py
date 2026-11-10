@@ -45,7 +45,7 @@ for stage,name in entries:
     for sub in ['payload','package']:
         if (stage/sub).is_dir():tree(stage/sub,out/('public-'+sub))
     for n in ['phase4-usb-control.md','phase4-resume-checkpoint.md','roadmap.md']:
-        copy(repo/'docs/analysis'/n,out/'docs'/n)
+        copy(repo/'docs/archive/phase4'/n,out/'docs'/n)
     if stage==control:
         m=json.loads((stage/'manifest.json').read_text());build=Path(m['checks_stage'])
         for n in ['manifest.json','elf.txt','loader.txt','usb-control-probe.c','usb-control-probe-test.c','build.stdout','build.stderr']:

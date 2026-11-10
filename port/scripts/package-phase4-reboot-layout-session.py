@@ -50,7 +50,7 @@ def main():
     worker=session.REPO/'port/device/rk-r35s-p0/app-selection/worker.sh'
     require(native_intent['worker_sha256']==session.sha(worker) and 'etc-view.sh' not in native_intent['binary_sha256'],
         'Original worker without directory views required')
-    sources={Path(__file__),worker,session.REPO/'docs/analysis/phase4-reboot-layout-session.md'}
+    sources={Path(__file__),worker,session.REPO/'docs/archive/phase4/phase4-reboot-layout-session.md'}
     for d in [r,tested,final,technical,sent]:
         for n,h in d['source_sha256'].items():
             require(session.sha(session.REPO/n)==h,'Qualified source changed');sources.add(session.REPO/n)

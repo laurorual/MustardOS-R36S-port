@@ -80,7 +80,7 @@ print(json.dumps({'alias_readonly':{n:int((Path('/sys/class/block')/n/'ro').read
     shutil.copyfile(check/'analysis.json',public/'component-checks.json')
     for n in ['fixtures.py','fixtures.stdout','fixtures.stderr','fixtures.exit']:shutil.copyfile(check/n,public/n)
     sources={repo/n for n in cases['source_sha256']}
-    sources.update([Path(__file__),repo/'docs/analysis/phase4-root-permissions.md'])
+    sources.update([Path(__file__),repo/'docs/archive/phase4/phase4-root-permissions.md'])
     for src in sorted(sources):
         dst=public/'source'/src.relative_to(repo);dst.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,dst)
     forbidden=[ctx['prefix_before_sha256'],native['prefix_after_sha256'],ctx['mbr_sha256'],ctx['boot_prefix_16MiB_sha256'],native['automount_guard_sha256']]

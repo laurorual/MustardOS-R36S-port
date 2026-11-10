@@ -44,7 +44,7 @@ for label,source in [
 # Exact current coordinator/capsule source was used for the last native profile.
 last=json.loads((area/names[-1]/'analysis.json').read_text())
 for n,h in last['source_sha256'].items():assert sha(repo/n)==h
-files=[repo/'docs/analysis/phase4-nes-performance.md',Path(__file__),
+files=[repo/'docs/archive/phase4/phase4-nes-performance.md',Path(__file__),
        *repo.glob('port/scripts/*phase4*profile*.py'),
        repo/'port/scripts/build-phase4-pacing-host.py',repo/'port/scripts/build-phase4-nes-optimized.py',
        repo/'port/scripts/build-phase4-gb-core.py',

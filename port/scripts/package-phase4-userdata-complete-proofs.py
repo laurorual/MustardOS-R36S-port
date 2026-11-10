@@ -43,7 +43,7 @@ for name in ['audit-phase4-userdata-alias-cache.py','check-phase4-userdata-alias
 for name in ['contract.json','data-functions.sh','diagnostic.sh']:
     copy(repo/'port/device/rk-r35s-p0/preferences'/name,out/'port/device/rk-r35s-p0/preferences'/name)
 for name in ['phase4-userdata-offline.md','phase4-resume-checkpoint.md','roadmap.md']:
-    copy(repo/'docs/analysis'/name,out/'docs'/name)
+    copy(repo/'docs/archive/phase4'/name,out/'docs'/name)
 copy(repo/'port/LICENSE',out/'LICENSE')
 (out/'STATUS.txt').write_text(
  'C20 OFFLINE COMPLETE: ext4 data volume/markers, root0755 and 3 offline filesystem checks passed.\n'

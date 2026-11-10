@@ -42,7 +42,7 @@ header='libgambatte/libretro-common/include/libretro.h'
 assert sha(build/header)==source_files[header]
 out=REPO/'dist/phase4/gambatte-installed';assert not out.exists()
 public=Path(tempfile.mkdtemp(prefix='public.',dir=AREA))
-sources={Path(__file__),REPO/'docs/analysis/phase4-gambatte-installed.md'}
+sources={Path(__file__),REPO/'docs/archive/phase4/phase4-gambatte-installed.md'}
 for report in [plan,r,c]:
     for n,h in report['source_sha256'].items():assert sha(REPO/n)==h,n;sources.add(REPO/n)
 for filename in ['plan.json','absence-backup.json','install-analysis.json']:

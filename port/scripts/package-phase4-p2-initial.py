@@ -10,7 +10,7 @@ from phase4_root_migration import require
 def main():
     os.umask(0o077);repo=Path(__file__).resolve().parents[2];area=repo/'build/phase4/p2-initial'
     out=repo/'dist/phase4/p2-initial-prepared';require(not out.exists(),'Frozen proof must not be replaced')
-    reports={};sources={Path(__file__),repo/'docs/analysis/phase4-p2-initial.md'}
+    reports={};sources={Path(__file__),repo/'docs/archive/phase4/phase4-p2-initial.md'}
     for kind in ['entry','transport']:
         stage=Path((area/('latest-'+kind+'-checks')).read_text().strip())
         require(stage.resolve().is_relative_to(area),'Private test record location')

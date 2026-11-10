@@ -36,7 +36,7 @@ assert verify_image(image, r['regions'])['passed']
 out = repo / 'dist/phase4/card-image'
 assert not out.exists()
 public = Path(tempfile.mkdtemp(prefix='public.', dir=area))
-sources = {Path(__file__), repo / 'docs/analysis/phase4-card-image.md'}
+sources = {Path(__file__), repo / 'docs/archive/phase4/phase4-card-image.md'}
 for report in [r, c]:
     for n, h in report['source_sha256'].items():
         assert sha(repo / n) == h, n

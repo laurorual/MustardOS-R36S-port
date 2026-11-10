@@ -16,7 +16,7 @@ assert r['checks_analysis_sha256']==sha(checks/'analysis.json') and r['installed
 assert r['cleanup_passed'] and r['RAM_removed'] and r['snapshot_matches_C54']
 assert not r['card_saves_written'] and not r['store_ELF_transferred'] and not r['installed_files_modified']
 assert not r['UI_core_ROM_or_audio_started'] and r['real_p3_read_only_noload']
-identity=r['private_identity'];sources={Path(__file__),repo/'docs/analysis/phase4-installed-store-backend.md'}
+identity=r['private_identity'];sources={Path(__file__),repo/'docs/archive/phase4/phase4-installed-store-backend.md'}
 for report in [cr,r]:
  for n,h in report['source_sha256'].items():assert sha(repo/n)==h,n;sources.add(repo/n)
 public=Path(tempfile.mkdtemp(prefix='public.',dir=area));(public/'checks').mkdir();(public/'native').mkdir()

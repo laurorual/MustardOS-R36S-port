@@ -56,7 +56,7 @@ for suffix in ['sh', 'stdout', 'stderr', 'exit']:
     'first_probe_failed_and_is_not_runtime_approval': True,
     'full_firmware_reproducibility_qualified': False}, indent=2) + '\n')
 sources = {repo / n for n in report['source_sha256']}
-sources |= {Path(__file__), repo / 'docs/analysis/phase4-frontend-libs.md'}
+sources |= {Path(__file__), repo / 'docs/archive/phase4/phase4-frontend-libs.md'}
 for source in sorted(sources):
     dest = public / 'source' / source.relative_to(repo)
     dest.parent.mkdir(parents=True, exist_ok=True)

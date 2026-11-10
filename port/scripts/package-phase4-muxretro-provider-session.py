@@ -31,7 +31,7 @@ assert r['libraries'] == {n: v['sha256'] for n, v in provider['libraries'].items
 out = REPO / 'dist/phase4/muxretro-provider-session'
 assert not out.exists()
 public = Path(tempfile.mkdtemp(prefix='public.', dir=AREA))
-sources = {Path(__file__), REPO / 'docs/analysis/phase4-muxretro-provider-session.md'}
+sources = {Path(__file__), REPO / 'docs/archive/phase4/phase4-muxretro-provider-session.md'}
 def clean(value):
     if isinstance(value, dict):
         return {k: ('private' if k in {'ROM_sha256', 'private_identity', 'kernel_boot_id'} else clean(v)) for k, v in value.items()}

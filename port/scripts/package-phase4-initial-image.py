@@ -54,7 +54,7 @@ print(json.dumps({'passed':True,'private_regular_copy_reverified':True,'all_card
     write_new(public/'analysis.json',(json.dumps(report,indent=2)+'\n').encode())
     for name in ['analysis.json','fixtures.stdout','fixtures.stderr','fixtures.exit']:
         shutil.copyfile(checks/name,public/('component-checks.json' if name=='analysis.json' else name))
-    sources={repo/n for n in host_report['source_sha256']};sources.update([Path(__file__),repo/'docs/analysis/phase4-initial-image.md'])
+    sources={repo/n for n in host_report['source_sha256']};sources.update([Path(__file__),repo/'docs/archive/phase4/phase4-initial-image.md'])
     for source in sources:
         target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
     request=json.loads((p/'request.json').read_text());forbidden=[r['candidate_sha256'],request['reference_sha256']]

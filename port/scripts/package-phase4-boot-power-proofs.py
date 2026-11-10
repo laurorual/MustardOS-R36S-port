@@ -59,7 +59,7 @@ sources += [repo/'port/scripts'/n for n in ['check-phase4-boot-order.py','check-
 for p in sources: copy(p, pre/'port-source'/p.relative_to(repo/'port'))
 for out in outputs:
     for n in ['phase4-boot-power.md','phase4-resume-checkpoint.md','roadmap.md']:
-        copy(repo/'docs/analysis'/n, out/'docs'/n)
+        copy(repo/'docs/archive/phase4'/n, out/'docs'/n)
     files = sorted(p for p in out.rglob('*') if p.is_file())
     (out/'SHA256SUMS').write_text(''.join(sha(p)+'  '+str(p.relative_to(out))+'\n' for p in files))
     for line in (out/'SHA256SUMS').read_text().splitlines():

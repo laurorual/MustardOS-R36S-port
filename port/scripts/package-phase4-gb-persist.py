@@ -46,7 +46,7 @@ for label,source in stages.items():
   shutil.copyfile(source/'collected/state-metadata.txt',target/'state-metadata.txt')
 for source in [*repo.glob('port/scripts/*phase4-gb-persist*.py'),*repo.glob('port/device/rk-r35s-p0/gb-persist/*.sh'),
                repo/'port/diagnostics/phase4-save-directory.c',repo/'port/diagnostics/phase4-gb-persist-check.py',
-               repo/'docs/analysis/phase4-gb-persistence.md']:
+               repo/'docs/archive/phase4/phase4-gb-persistence.md']:
  target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
 report={'passed':True,'experiment':'C53_SELECTIVE_GB_PERSISTENCE','cross_session_restore_physically_qualified':True,
         'snapshot_retained_on_test128_p3':True,'generation':1,'original32_preserved':True,

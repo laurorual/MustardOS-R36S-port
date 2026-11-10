@@ -61,7 +61,7 @@ shutil.copyfile(component_checks/'analysis.json',public/'component-checks.json')
 for name in ['filesystem-fixtures.py','filesystem-fixtures.stdout','filesystem-fixtures.stderr','filesystem-fixtures.exit']:
  shutil.copyfile(component_checks/name,public/name)
 sources={repo/'port/scripts'/name for name in ['run-phase4-offline-backup.py','check-phase4-backup-transport.py',Path(__file__).name]}
-sources.add(repo/'docs/analysis/phase4-backup-native.md')
+sources.add(repo/'docs/archive/phase4/phase4-backup-native.md')
 sources.update(repo/name for name in components['source_sha256'])
 for name in ['audit-phase4-backup-private.py','check-phase4-backup-audit.py','prepare-phase4-backup-audit.py','collect-phase4-backup-audit.py','validate-phase4-partial-root.py']:
  sources.add(repo/'port/scripts'/name)

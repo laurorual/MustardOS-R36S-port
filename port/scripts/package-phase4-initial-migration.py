@@ -31,7 +31,7 @@ def main():
     for name in ['analysis.json','fixtures.stdout','fixtures.stderr','fixtures.exit']:
         shutil.copyfile(check/name,public/('component-checks.json' if name=='analysis.json' else name))
     sources={repo/n for n in report['source_sha256']}
-    sources.update([Path(__file__),repo/'docs/analysis/phase4-initial-migration.md'])
+    sources.update([Path(__file__),repo/'docs/archive/phase4/phase4-initial-migration.md'])
     for source in sources:
         require(source.resolve().is_relative_to(repo),'Repository source required')
         target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True)

@@ -20,7 +20,7 @@ def main():
     m.require((stage/'cleanup.stdout').read_text()=='C117_RAM_REMOVED_ROOT_RO_NO_UI\n','Authentic RAM cleanup')
     checks=Path((m.AREA/'latest-checks').read_text().strip());tested=json.loads((checks/'analysis.json').read_text())
     m.require(checks.resolve().is_relative_to(m.AREA) and tested['passed'] and r['checks_analysis_sha256']==m.sha(checks/'analysis.json'),'Bound tests')
-    sources={Path(__file__),m.REPO/'docs/analysis/phase4-launch-profile.md'}
+    sources={Path(__file__),m.REPO/'docs/archive/phase4/phase4-launch-profile.md'}
     for n,h in r['source_sha256'].items():m.require(m.sha(m.REPO/n)==h,'Frozen C117 source');sources.add(m.REPO/n)
     public=Path(tempfile.mkdtemp(prefix='public.',dir=m.AREA))
     report={k:v for k,v in r.items() if k not in ['kernel_boot_id','C116_analysis_sha256','checks_analysis_sha256','source_sha256']}

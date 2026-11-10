@@ -14,7 +14,7 @@ assert r['full_readback_inventory_matched'] and r['fsck_exit']==0 and r['factory
 assert r['base_C38_files_changed']==0 and not r['device_contacted'] and not r['device_written']
 assert not r['candidate_boot_tested'] and r['new_inodes_and_root_owned_by_root']
 assert sha(stage/'images/rootfs.ext4')==r['image_sha256']
-sources={Path(__file__),repo/'docs/analysis/phase4-save-store-image.md'}
+sources={Path(__file__),repo/'docs/archive/phase4/phase4-save-store-image.md'}
 for n,h in r['source_sha256'].items():assert sha(repo/n)==h,n;sources.add(repo/n)
 public=Path(tempfile.mkdtemp(prefix='public.',dir=area))
 for name in ['analysis.json','static-audit.json','foundation.sha256']:

@@ -33,7 +33,7 @@ for n, h in f['recorded_receipts_sha256'].items(): assert sha(stage/n) == h
 assert reports['guard']['observation_sha256'] == r['observation_sha256']
 assert reports['guard']['checks_analysis_sha256'] == r['checks_analysis_sha256']
 public = Path(tempfile.mkdtemp(prefix='public.',dir=AREA))
-sources = {Path(__file__), REPO/'docs/analysis/phase4-installed-core-session.md'}
+sources = {Path(__file__), REPO/'docs/archive/phase4/phase4-installed-core-session.md'}
 def clean(value):
     if isinstance(value,dict):
         return {k: ('private' if k in {'ROM_sha256','private_identity','kernel_boot_id'} else clean(v)) for k,v in value.items()}

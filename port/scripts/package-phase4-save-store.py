@@ -29,7 +29,7 @@ for label,stage in stages.items():
   (target/'markers.txt').write_text('\n'.join(lines)+'\n');shutil.copyfile(stage/'fsck-after.txt',target/'fsck-after.txt')
 for p in [*repo.glob('port/scripts/*phase4-save-store*.py'),*repo.glob('port/device/rk-r35s-p0/save-store/*'),
           repo/'port/utils/muos-save-store.c',repo/'port/diagnostics/phase4-save-store-check.py',
-          repo/'port/diagnostics/phase4-save-store-ext4.c',repo/'docs/analysis/phase4-save-store.md']:
+          repo/'port/diagnostics/phase4-save-store-ext4.c',repo/'docs/archive/phase4/phase4-save-store.md']:
  sources.add(p)
 for source in sorted(sources):
  target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)

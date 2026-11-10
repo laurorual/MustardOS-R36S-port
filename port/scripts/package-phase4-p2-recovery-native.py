@@ -80,7 +80,7 @@ def main():
     write_new(public/'analysis.json',(json.dumps(result,indent=2)+'\n').encode())
     write_new(public/'observer-checks.json',(json.dumps(wc,indent=2)+'\n').encode())
     sources={Path(__file__),repo/'port/scripts/collect-phase4-p2-recovery.py',
-        repo/'port/scripts/prepare-phase4-p2-recovery.py',repo/'docs/analysis/phase4-p2-recovery-native.md'}
+        repo/'port/scripts/prepare-phase4-p2-recovery.py',repo/'docs/archive/phase4/phase4-p2-recovery-native.md'}
     sources.update(repo/'port/scripts'/n for n in manifest['files'] if n.endswith('.py'))
     sources.update(repo/n for n in wc['source_sha256'])
     for source in sources:

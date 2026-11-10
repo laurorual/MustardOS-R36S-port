@@ -38,7 +38,7 @@ def main():
         (stage/'watch-maps.stdout').read_text().count('C106_INSTALLED_WORKER_CMDLINE_CONFIRMED')==1,
         'Authentic installed entry/worker evidence')
     session.require(r['checks_analysis_sha256']==session.sha(checks/'analysis.json'),'Checked C106 implementation')
-    sources={Path(__file__),session.REPO/'docs/analysis/phase4-installed-caller-session.md'}
+    sources={Path(__file__),session.REPO/'docs/archive/phase4/phase4-installed-caller-session.md'}
     for row in [r,tested,technical,final]:
         for n,h in row['source_sha256'].items():
             source=session.REPO/n;session.require(session.sha(source)==h,'Qualified source changed');sources.add(source)

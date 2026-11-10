@@ -41,7 +41,7 @@ for label,source in stages.items():
 physical=json.loads((stages['observe']/'physical-observation.json').read_text());assert physical['qualified']
 for source in [*repo.glob('port/scripts/*phase4*gb-exit*.py'),*repo.glob('port/device/rk-r35s-p0/gb-exit/*.sh'),
                repo/'port/diagnostics/phase4-diagnostic-exit.h',repo/'port/diagnostics/phase4-hotkey-exit-check.c',
-               repo/'port/patches/0015-muxretro-diagnostic-hotkey-exit.patch',repo/'docs/analysis/phase4-gb-hotkey-exit.md']:
+               repo/'port/patches/0015-muxretro-diagnostic-hotkey-exit.patch',repo/'docs/archive/phase4/phase4-gb-hotkey-exit.md']:
     target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
 report={'experiment':'C50_NATIVE_HOTKEY_EXIT','native_deadline_fallback_passed':True,
         'native_Fn_Start_and_physical_return_qualified':True,'cleanup_passed':True,

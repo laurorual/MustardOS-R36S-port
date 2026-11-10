@@ -28,7 +28,7 @@ def main():
  m.require((validated/'before.stdout').read_bytes()==(validated/'after.stdout').read_bytes()==(validated/'post-cleanup-health.stdout').read_bytes(),'Validation infrastructure unchanged')
  m.require((validated/'mounts-before.stdout').read_bytes()==(validated/'mounts-after.stdout').read_bytes(),'Validation global mounts unchanged')
  m.require((validated/'adopt.stdout').read_text()=='C122_RESIDENT_BATCH_ADOPTED_ZERO_UPLOADS\n','Native resident adoption')
- sources={Path(__file__),m.REPO/'docs/analysis/phase4-resident-batch.md'}
+ sources={Path(__file__),m.REPO/'docs/archive/phase4/phase4-resident-batch.md'}
  for row in [pkg,r,v,c]:
   for name,h in row['source_sha256'].items():
    p=m.REPO/name;m.require(m.sha(p)==h,'Frozen source changed');sources.add(p)

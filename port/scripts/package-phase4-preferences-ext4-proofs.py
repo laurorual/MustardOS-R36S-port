@@ -39,7 +39,7 @@ for n in ['port/diagnostics/phase4-preferences-ext4.c','port/scripts/prepare-pha
           'port/device/rk-r35s-p0/preferences/contract.json','port/scripts/phase4_userdata_layout.py',
           'port/scripts/check-phase4-userdata-layout.py','port/scripts/inspect-phase4-userdata-offline.py',
           'port/scripts/package-phase4-preferences-ext4-proofs.py','port/LICENSE',
-          'docs/analysis/phase4-preferences-ext4.md','docs/analysis/phase4-resume-checkpoint.md','docs/analysis/roadmap.md']:
+          'docs/archive/phase4/phase4-preferences-ext4.md','docs/archive/phase4/phase4-resume-checkpoint.md','docs/archive/phase4/roadmap.md']:
     copy(repo/n,out/n)
 (out/'NOT-A-CARD-IMAGE.txt').write_text(
  'Native ext4 tmpfs-loop proof and OFFLINE PLAN ONLY. No bootable/release image.\n'

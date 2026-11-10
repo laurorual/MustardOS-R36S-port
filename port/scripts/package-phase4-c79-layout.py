@@ -37,7 +37,7 @@ def main():
     write_new(public/'analysis.json',(json.dumps(summary,indent=2)+'\n').encode())
     write_new(public/'checks.json',(json.dumps({n:tested[n] for n in ['passed','case_count','cases','real_ext4_32MiB',
         'full_scan_fsck_and_regular_writes_executed','physical_media_or_network_accessed','source_sha256']},indent=2)+'\n').encode())
-    sources={Path(__file__),repo/'docs/analysis/phase4-c79-layout.md',*[repo/n for n in tested['source_sha256']]}
+    sources={Path(__file__),repo/'docs/archive/phase4/phase4-c79-layout.md',*[repo/n for n in tested['source_sha256']]}
     for source in sources:
         target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
     for p in public.rglob('*'):

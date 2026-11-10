@@ -24,7 +24,7 @@ spec=importlib.util.spec_from_file_location('prepare_backup',repo/'port/scripts/
 prep=importlib.util.module_from_spec(spec);spec.loader.exec_module(prep)
 prep.verify_bundle(stage/'bundle')
 assert r['source_sha256']==c['source_sha256']
-sources={Path(__file__),repo/'docs/analysis/phase4-offline-backup.md'}
+sources={Path(__file__),repo/'docs/archive/phase4/phase4-offline-backup.md'}
 for name,h in c['source_sha256'].items():assert sha(repo/name)==h,name;sources.add(repo/name)
 assert (checks/'filesystem-fixtures.exit').read_text()=='0\n'
 assert (work/'graphics-config/output/.config').read_bytes()==(work/'network-tools/baseline.config').read_bytes()

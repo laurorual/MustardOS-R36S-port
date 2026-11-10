@@ -18,7 +18,7 @@ assert r['installed_CLI_used'] and not r['store_ELF_transferred']
 assert r['session_checks_analysis_sha256']==sha(stages['checks']/'analysis.json')
 assert r['boot_sequence']==70 and r['source_boot_sequence']==69 and r['original_save_boot_sequence']==68
 assert r['cleanup_passed'] and r['RAM_removed'] and r['store_matches_previous_boot']
-public=Path(tempfile.mkdtemp(prefix='public.',dir=area));sources={Path(__file__),repo/'docs/analysis/phase4-gb-installed-session.md',repo/'port/scripts/analyze-phase4-gb-installed-session.py'}
+public=Path(tempfile.mkdtemp(prefix='public.',dir=area));sources={Path(__file__),repo/'docs/archive/phase4/phase4-gb-installed-session.md',repo/'port/scripts/analyze-phase4-gb-installed-session.py'}
 def clean(value):
  if isinstance(value,dict):return {k:('private' if k in {'private_identity','ROM_sha256','kernel_boot_id'} else clean(v)) for k,v in value.items()}
  if isinstance(value,list):return [clean(x) for x in value]

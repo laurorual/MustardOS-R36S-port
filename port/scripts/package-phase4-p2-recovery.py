@@ -12,7 +12,7 @@ def main():
     repo=Path(__file__).resolve().parents[2];work=repo/'build/phase4';area=work/'p2-recovery'
     out=repo/'dist/phase4/p2-recovery-prepared'
     require(not out.exists(),'Do not replace a frozen proof')
-    counts={};reports={};sources={Path(__file__),repo/'docs/analysis/phase4-p2-recovery.md'}
+    counts={};reports={};sources={Path(__file__),repo/'docs/archive/phase4/phase4-p2-recovery.md'}
     for name,pointer in [('eligibility','latest-checks'),('entry','latest-entry-checks'),
                          ('transport','latest-transport-checks'),('handoff','latest-handoff-checks')]:
         path=Path((area/pointer).read_text().strip())

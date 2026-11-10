@@ -76,7 +76,7 @@ for path in sources:
     copy(path, pre / "port-source" / path.relative_to(repo / "port"))
 for out in [pre, native]:
     for name in ["phase4-boot-coordinator.md", "phase4-resume-checkpoint.md", "roadmap.md"]:
-        copy(repo / "docs/analysis" / name, out / "docs" / name)
+        copy(repo / "docs/archive/phase4" / name, out / "docs" / name)
     (out / "STATE.txt").write_text(
         "C12 opt-in adapters and inactive inittab template.20 ordering +33 adapter/controller fixtures.\n"
         "Native check-stop: idle0, active1 with C11 still ready0, after manual stop0.\n"

@@ -41,7 +41,7 @@ def main():
         dest=public/'payload'/n;dest.parent.mkdir(exist_ok=True);shutil.copyfile(f,dest)
     for n,h in p['adapter_sha256'].items():
         require(sha(package/n)==h,'Adapter changed');dest=public/'adapter'/n;dest.parent.mkdir(exist_ok=True);shutil.copyfile(package/n,dest)
-    for source in [REPO/n for n in r['source_sha256']]+[Path(__file__),REPO/'docs/analysis/phase4-local-preparation-v2.md']:
+    for source in [REPO/n for n in r['source_sha256']]+[Path(__file__),REPO/'docs/archive/phase4/phase4-local-preparation-v2.md']:
         dest=public/'source'/source.relative_to(REPO);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,dest)
     meta=json.loads((stage/'manifest.json').read_text())
     for f in public.rglob('*'):

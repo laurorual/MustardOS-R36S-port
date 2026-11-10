@@ -56,7 +56,7 @@ def main():
         'physical_boot_after_initial_migration_qualified':False,'parent_proofs_sha256':parents,
         'private_images_payloads_contexts_trees_or_hashes_included':False}
     write_new(public/'analysis.json',(json.dumps(summary,indent=2)+'\n').encode())
-    sources={Path(__file__),prep.REPO/'docs/analysis/phase4-p2-initial.md',
+    sources={Path(__file__),prep.REPO/'docs/archive/phase4/phase4-p2-initial.md',
         *[prep.REPO/'port/scripts'/n for n in manifest['files'] if n.endswith('.py')],
         *[prep.REPO/'port/scripts'/n for n in ['collect-phase4-p2-initial.py','prepare-phase4-p2-initial.py','watch-phase4-p2-initial.py']]}
     for source in sources:

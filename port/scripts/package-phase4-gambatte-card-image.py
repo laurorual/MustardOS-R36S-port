@@ -59,7 +59,7 @@ assert r['canonical_MBR'] and r['partition_count'] == 2 and r['payload_regions_h
 out = repo / 'dist/phase4/gambatte-card-image'
 assert not out.exists()
 public = Path(tempfile.mkdtemp(prefix='public.', dir=area))
-sources = {Path(__file__), repo / 'docs/analysis/phase4-gambatte-card-image.md'}
+sources = {Path(__file__), repo / 'docs/archive/phase4/phase4-gambatte-card-image.md'}
 for report in [r, c]:
     for n, h in report['source_sha256'].items():
         assert sha(repo / n) == h, n

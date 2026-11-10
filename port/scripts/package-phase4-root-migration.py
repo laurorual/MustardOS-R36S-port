@@ -29,7 +29,7 @@ for name,h in r['parent_proofs_sha256'].items():
     parent=repo/'dist/phase4'/name
     for n,d in sums(parent/'SHA256SUMS').items():assert sha(parent/n)==d,(name,n)
     assert sha(parent/'SHA256SUMS')==h,name
-sources={Path(__file__),repo/'docs/analysis/phase4-root-migration.md'}
+sources={Path(__file__),repo/'docs/archive/phase4/phase4-root-migration.md'}
 for report in [r,c]:
     for n,h in report['source_sha256'].items():assert sha(repo/n)==h,n;sources.add(repo/n)
 out=repo/'dist/phase4/root-migration';assert not out.exists()

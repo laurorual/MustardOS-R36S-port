@@ -13,7 +13,7 @@ for name,digest in r['parent_proofs_sha256'].items():
  proof=repo/'dist/phase4'/name
  for n,h in sums(proof/'SHA256SUMS').items():assert sha(proof/n)==h
  assert sha(proof/'SHA256SUMS')==digest
-sources={Path(__file__),repo/'docs/analysis/phase4-installed-provider-return.md'}
+sources={Path(__file__),repo/'docs/archive/phase4/phase4-installed-provider-return.md'}
 for n,h in r['source_sha256'].items():assert sha(repo/n)==h;sources.add(repo/n)
 out=repo/'dist/phase4/installed-provider-return';assert not out.exists()
 public=Path(tempfile.mkdtemp(prefix='public.',dir=area))

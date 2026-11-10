@@ -20,7 +20,7 @@ def main():
  summary.update(private_ROM_ELF_seed_snapshot_or_backup_included=False,redistribution_approved=False)
  write_new(public/'analysis.json',(json.dumps(summary,indent=2)+'\n').encode())
  for n,h in r['source_sha256'].items():require(sha(REPO/n)==h,'Frozen C114 source changed')
- for p in [REPO/n for n in r['source_sha256']]+[Path(__file__),REPO/'docs/analysis/phase4-resident-preparation.md']:
+ for p in [REPO/n for n in r['source_sha256']]+[Path(__file__),REPO/'docs/archive/phase4/phase4-resident-preparation.md']:
   dest=public/'source'/p.relative_to(REPO);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)
  for p in public.rglob('*'):
   if p.is_file():require(not p.is_symlink() and not p.read_bytes().startswith(b'\x7fELF') and r['kernel_boot_id'].encode() not in p.read_bytes(),'No runtime private identity/payload')

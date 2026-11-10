@@ -60,7 +60,7 @@ def main():
     for n,h in built['adapter_sha256'].items():
         require(sha(package/n)==h,'Derived installer changed')
         target=public/'adapter'/n;target.parent.mkdir(exist_ok=True);shutil.copyfile(package/n,target)
-    sources=[REPO/n for n in report['source_sha256']]+[Path(__file__),REPO/'docs/analysis/phase4-manual-caller.md']
+    sources=[REPO/n for n in report['source_sha256']]+[Path(__file__),REPO/'docs/archive/phase4/phase4-manual-caller.md']
     for source in sources:
         target=public/'source'/source.relative_to(REPO);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
     forbidden=[obs['kernel_boot_id'].encode(),previous['kernel_boot_id'].encode()]

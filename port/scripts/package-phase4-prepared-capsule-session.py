@@ -44,7 +44,7 @@ def main():
         'Local preparation and sampled startup evidence')
     session.require((stage/'prepare.stdout').read_text()=='C107_CAPSULE_PREPARED_RAM_ONLY\n' and
         (stage/'prepare.exit').read_text()=='0\n','Native preparation completed')
-    sources={Path(__file__),session.REPO/'docs/analysis/phase4-prepared-capsule-session.md'}
+    sources={Path(__file__),session.REPO/'docs/archive/phase4/phase4-prepared-capsule-session.md'}
     for row in [r,tested,technical,final]:
         for n,h in row['source_sha256'].items():
             source=session.REPO/n;session.require(session.sha(source)==h,'Qualified source changed');sources.add(source)

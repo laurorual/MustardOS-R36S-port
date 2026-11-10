@@ -26,7 +26,7 @@ def main():
     for n,h in manifest['files'].items():
         require(sha(pkg/'bundle'/n)==h,'Frozen package changed')
         if n.endswith('.py'):require(sha(repo/'port/scripts'/n)==h,'Deployed code changed')
-    sources.update([Path(__file__),repo/'docs/analysis/phase4-p2-card-readiness.md'])
+    sources.update([Path(__file__),repo/'docs/archive/phase4/phase4-p2-card-readiness.md'])
     parents={}
     for name in ['p2-controller','physical-capture','initial-image']:
         root=repo/'dist/phase4'/name

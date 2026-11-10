@@ -33,7 +33,7 @@ for name,record in added.items():
   assert re.search(r'\bType: regular\b',match[1]) and re.search(r'\bLinks:\s+1\b',match[1]),name
   file_count+=1
 assert file_count==13
-sources={Path(__file__),repo/'docs/analysis/phase4-muxretro-image.md'}
+sources={Path(__file__),repo/'docs/archive/phase4/phase4-muxretro-image.md'}
 for n,h in r['source_sha256'].items():assert sha(repo/n)==h,n;sources.add(repo/n)
 public=Path(tempfile.mkdtemp(prefix='public.',dir=area))
 for name in ['analysis.json','static-audit.json','foundation.sha256']:

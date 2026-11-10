@@ -43,7 +43,7 @@ def main():
         'restore_to_saved_position_confirmed','launcher_return_confirmed']:
         require(physical[n] is True,'Physical confirmation incomplete')
     for n,h in final['recorded_receipts_sha256'].items():require(session.sha(stage/n)==h,'Recorded cleanup receipt changed')
-    sources={Path(__file__),session.REPO/'docs/analysis/phase4-c79-session.md'}
+    sources={Path(__file__),session.REPO/'docs/archive/phase4/phase4-c79-session.md'}
     for r in [report,tested,final,technical,native]:
         for n,h in r['source_sha256'].items():
             require(session.sha(session.REPO/n)==h,'C99 evidence source changed');sources.add(session.REPO/n)

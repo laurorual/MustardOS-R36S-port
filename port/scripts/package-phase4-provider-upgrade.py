@@ -27,7 +27,7 @@ for name, digest in plan['parent_proofs_sha256'].items():
     proof = repo / 'dist/phase4' / name
     for n, h in sums(proof / 'SHA256SUMS').items(): assert sha(proof / n) == h
     assert sha(proof / 'SHA256SUMS') == digest
-sources = {Path(__file__), repo / 'docs/analysis/phase4-provider-upgrade.md'}
+sources = {Path(__file__), repo / 'docs/archive/phase4/phase4-provider-upgrade.md'}
 for record in [plan, report]:
     for n, h in record['source_sha256'].items():
         assert sha(repo / n) == h, n

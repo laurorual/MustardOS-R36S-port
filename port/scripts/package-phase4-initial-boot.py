@@ -63,7 +63,7 @@ def main():
         'parent_proofs_sha256','network_or_physical_media_contacted']}
     write_new(public/'analysis.json',boot.recovery.encoded(summary))
     write_new(public/'checks.json',boot.recovery.encoded(sanitized_checks))
-    sources={Path(__file__),boot.REPO/'docs/analysis/phase4-initial-boot.md',
+    sources={Path(__file__),boot.REPO/'docs/archive/phase4/phase4-initial-boot.md',
         *[boot.REPO/n for n in checks['source_sha256']]}
     for source in sources:
         target=public/'source'/source.relative_to(boot.REPO)

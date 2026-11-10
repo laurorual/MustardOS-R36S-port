@@ -52,7 +52,7 @@ for name in ['muos-frontend-libs', 'muos-muxretro-provider']:
 old = work / 'muxretro-package/build.mdou4mqr'
 shutil.copyfile(old / 'prepared-source/provenance.json', public / 'C60-input-provenance.json')
 shutil.copyfile(stage / 'prepared-source/provenance.json', public / 'provenance.json')
-sources = {repo / n for n in r['source_sha256']} | {Path(__file__), repo / 'docs/analysis/phase4-muxretro-provider.md'}
+sources = {repo / n for n in r['source_sha256']} | {Path(__file__), repo / 'docs/archive/phase4/phase4-muxretro-provider.md'}
 for source in sorted(sources):
     dest = public / 'source' / source.relative_to(repo)
     dest.parent.mkdir(parents=True, exist_ok=True)

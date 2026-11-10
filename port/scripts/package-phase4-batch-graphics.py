@@ -41,7 +41,7 @@ def main():
     m.require((stage/'watch-maps.stdout').read_text().count('C106_INSTALLED_WORKER_CMDLINE_CONFIRMED')==1,'Installed worker confirmed')
     m.require((stage/'prepare.stdout').read_text()=='C112_RESIDENT_PREPARED_ZERO_UPLOADS\n','Resident ROM source')
     m.require((stage/'preflight.stdout').read_bytes()==(stage/'postflight.stdout').read_bytes(),'Infrastructure preserved')
-    source={Path(__file__),m.REPO/'docs/analysis/phase4-batch-graphics-session.md'}
+    source={Path(__file__),m.REPO/'docs/archive/phase4/phase4-batch-graphics-session.md'}
     for row in [*rows.values(),tested]:
         for name,h in row.get('source_sha256',{}).items():
             path=m.REPO/name;m.require(m.sha(path)==h,'Qualified source changed');source.add(path)

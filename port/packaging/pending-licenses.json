@@ -19,13 +19,13 @@
         "Required notices",
         "SONAME/strip modifications"
       ],
-      "reference": "docs/analysis/hardkernel-r13-license-request.md"
+      "reference": "docs/archive/phase4/hardkernel-r13-license-request.md"
     },
     {
       "id": "boot-chain-payloads",
       "component": "Selected RK3326 DDR 333MHz v1.10, miniloader v1.12, BL31 v1.14 and BL32 v1.10",
       "status": "exact payload bytes pinned; vendor license terms still require per-file matching; private use only",
-      "reference": "docs/analysis/phase4-uboot-sd.md",
+      "reference": "docs/archive/phase4/phase4-uboot-sd.md",
       "source_revision": "5606e804ffe8f9e5427d55c8da04c638f01a9391",
       "payload_sha256": {
         "tools/rk_tools/bin/rk33/rk3326_ddr_333MHz_v1.10.bin": "d1f4dacf707d6737876788e02483a4db10c02b6ce9973ad07dd7bc6a80db369b",
@@ -39,7 +39,7 @@
       "id": "complete-firmware-distribution",
       "component": "Final firmware distribution with GPLv3 frontend and proprietary components",
       "status": "review final included components and obligations before publication",
-      "reference": "docs/analysis/roadmap.md"
+      "reference": "docs/archive/phase4/roadmap.md"
     }
   ]
 }

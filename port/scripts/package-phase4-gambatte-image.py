@@ -55,7 +55,7 @@ for n in ['', *sorted(added)]:
     assert re.search(r'Mode:\s+0' + f'{mode:o}' + r'\b', match[1]), n
     if n and tree[n]['type'] == 'file':
         assert re.search(r'Type: regular', match[1]) and re.search(r'Links:\s+1\b', match[1]), n
-sources = {Path(__file__), repo / 'docs/analysis/phase4-gambatte-image.md'}
+sources = {Path(__file__), repo / 'docs/archive/phase4/phase4-gambatte-image.md'}
 for n, h in r['source_sha256'].items():
     assert sha(repo / n) == h, n
     sources.add(repo / n)

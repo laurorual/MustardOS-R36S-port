@@ -19,7 +19,7 @@ assert 'GNU_RELRO' in elf and 'BIND_NOW' in elf
 assert reports['composition']['source_build_analysis_sha256']==sha(stages['build']/'analysis.json')
 assert reports['composition']['base_C38_files_changed']==0 and reports['composition']['foundation_files']==97
 assert not reports['health']['new_package_installed'] and not reports['health']['device_mutated']
-sources={Path(__file__),repo/'docs/analysis/phase4-save-store-package.md'}
+sources={Path(__file__),repo/'docs/archive/phase4/phase4-save-store-package.md'}
 public=Path(tempfile.mkdtemp(prefix='public.',dir=area))
 for label,source in stages.items():
  r=reports[label];assert r['passed']

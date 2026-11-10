@@ -49,7 +49,7 @@ def main():
         'parent_proofs_sha256':c['parent_proofs_sha256'],'private_images_payloads_contexts_or_hashes_included':False}
     write_new(public/'analysis.json',(json.dumps(summary,indent=2)+'\n').encode())
     for n in ['analysis.json','fixtures.stdout','fixtures.stderr','fixtures.exit']:shutil.copyfile(tests/n,public/('checks.json' if n=='analysis.json' else n))
-    sources={p.REPO/n for n in c['source_sha256']};sources.update([Path(__file__),p.REPO/'docs/analysis/phase4-root-repair-current.md'])
+    sources={p.REPO/n for n in c['source_sha256']};sources.update([Path(__file__),p.REPO/'docs/archive/phase4/phase4-root-repair-current.md'])
     for source in sources:
         dest=public/'source'/source.relative_to(p.REPO);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,dest)
     forbidden={plan['current_prefix_before_sha256'],plan['current_prefix_after_sha256'],cap['attempt_sha256']}

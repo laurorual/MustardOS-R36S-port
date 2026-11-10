@@ -38,7 +38,7 @@ def main():
         'parent_proofs_sha256':c['parent_proofs_sha256'],'private_images_payloads_contexts_or_hashes_included':False}
     write_new(public/'analysis.json',(json.dumps(summary,indent=2)+'\n').encode())
     for n in ['analysis.json','fixtures.stdout','fixtures.stderr','fixtures.exit']:shutil.copyfile(checks/n,public/('checks.json' if n=='analysis.json' else n))
-    sources={p.REPO/n for n in c['source_sha256']};sources.update([Path(__file__),p.REPO/'docs/analysis/phase4-card-rearm.md'])
+    sources={p.REPO/n for n in c['source_sha256']};sources.update([Path(__file__),p.REPO/'docs/archive/phase4/phase4-card-rearm.md'])
     for source in sources:
         dest=public/'source'/source.relative_to(p.REPO);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,dest)
     forbidden={r['current_prefix_sha256'],r['attempt_sha256']}

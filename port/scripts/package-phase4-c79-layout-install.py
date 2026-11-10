@@ -33,7 +33,7 @@ def main():
         'transaction_checks':35,'private_only':True,'redistribution_approved':False}
     (public/'analysis.json').write_text(json.dumps(summary,indent=2)+'\n')
     (public/'checks.json').write_text(json.dumps(tested,indent=2)+'\n')
-    for source in [repo/n for n in report['source_sha256']]+[Path(__file__),repo/'docs/analysis/phase4-c79-layout-install.md']:
+    for source in [repo/n for n in report['source_sha256']]+[Path(__file__),repo/'docs/archive/phase4/phase4-c79-layout-install.md']:
         target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True)
         shutil.copyfile(source,target)
     files=sorted(p for p in public.rglob('*') if p.is_file())

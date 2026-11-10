@@ -50,7 +50,7 @@ for label,source in stages.items():
    'writer_completed_logs':game.count('Saved state to '),
    'restored_logs':game.count('Loaded state from ')},indent=2)+'\n')
 for source in [*repo.glob('port/scripts/*phase4-gb-state*.py'),*repo.glob('port/device/rk-r35s-p0/gb-state/*.sh'),
-               repo/'port/diagnostics/phase4-state-metadata.c',repo/'docs/analysis/phase4-gb-state.md']:
+               repo/'port/diagnostics/phase4-state-metadata.c',repo/'docs/archive/phase4/phase4-gb-state.md']:
  target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
 report={'experiment':'C51_NATIVE_RAM_STATE','passed':True,'physical_restore_and_exit_qualified':True,
         'metadata_validated_before_RAM_removal':True,'cleanup_passed':True,'parent_proof_sha256':parents,

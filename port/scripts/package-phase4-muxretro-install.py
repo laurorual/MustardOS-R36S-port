@@ -26,7 +26,7 @@ assert plan['preserved_prerequisites']==105 and plan['runtime_contract']['activa
 assert plan['runtime_contract']['GUI_requires_C46_RAM_libmuxmod_sha256']=='1ec8acd906ee25bd83b59c0c5818e7310d62bfeaabadb2b473e03562d7d6bcc9'
 meta=json.loads((stage/'manifest.json').read_text())
 for n,key in [('plan.json','plan_sha256'),('absence-backup.json','backup_sha256'),('deployment.tar','deployment_sha256')]:assert sha(stage/n)==meta[key]
-sources={Path(__file__),repo/'docs/analysis/phase4-muxretro-installed.md'}
+sources={Path(__file__),repo/'docs/archive/phase4/phase4-muxretro-installed.md'}
 for report in [plan,checks]:
  for n,h in report['source_sha256'].items():assert sha(repo/n)==h,n;sources.add(repo/n)
 public=Path(tempfile.mkdtemp(prefix='public.',dir=area))

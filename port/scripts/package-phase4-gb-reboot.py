@@ -42,7 +42,7 @@ for label,source in stages.items():
   lines.extend(s for s in (source/'collected'/n).read_text().splitlines() if re.match(r'^(C(44|45|46|50|51|53|54)_|RETRO_RUNNER_EXIT=)',s))
  (target/'markers.txt').write_text('\n'.join(lines)+'\n')
 for source in [*repo.glob('port/scripts/*phase4-gb-reboot*.py'),repo/'port/scripts/phase4_gb_reboot.py',
-               *repo.glob('port/device/rk-r35s-p0/gb-reboot/*.sh'),repo/'docs/analysis/phase4-gb-after-boot.md']:
+               *repo.glob('port/device/rk-r35s-p0/gb-reboot/*.sh'),repo/'docs/archive/phase4/phase4-gb-after-boot.md']:
  sources.add(source)
 for source in sorted(sources):
  target=public/'source'/source.relative_to(repo);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)

@@ -64,7 +64,7 @@ tar --sort=name --mtime="@$epoch" --owner=0 --group=0 --numeric-owner -C "$repo"
     port/scripts/build-phase3-menu.sh port/scripts/prepare-phase3-assets.py port/scripts/phase3-device-session.py \
     port/scripts/phase3-namespace.py port/scripts/phase2-device-session.py port/device/rk-r35s-p0/staging-config.json
 printf 'upstream_revision=%s\ntoolchain_image_id=%s\nsource_date_epoch=%s\n' "$revision" "$(cat "$work/toolchain.iid")" "$epoch" > "$output/build-manifest.txt"
-printf 'runtime_status=see docs/analysis/phase3-native-menu.md; compilation does not establish runtime approval\n' >> "$output/build-manifest.txt"
+printf 'runtime_status=see docs/archive/phase4/phase3-native-menu.md; compilation does not establish runtime approval\n' >> "$output/build-manifest.txt"
 sha256sum "$repo/port/diagnostics/phase3-menu.c" "$repo/port/packaging/phase3-menu.mk" \
     "$repo/port/packaging/phase3-toolchain.Containerfile" "$repo/port/scripts/build-phase3-menu.sh" \
     "$repo/port/scripts/prepare-phase3-assets.py" "$repo/port/scripts/phase3-device-session.py" \

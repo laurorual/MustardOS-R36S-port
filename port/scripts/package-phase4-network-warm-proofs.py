@@ -38,7 +38,7 @@ for stage,out,pointer in resolved:
     for n in ['report.json','fixture.sh','stdout','stderr']:
         if (checked/n).is_file():copy(checked/n,out/'checks'/n)
     for n in ['phase4-network-warm.md','phase4-resume-checkpoint.md','roadmap.md']:
-        copy(repo/'docs/analysis'/n,out/'docs'/n)
+        copy(repo/'docs/archive/phase4'/n,out/'docs'/n)
     for p in (repo/'port/device/rk-r35s-p0/network-warm-diagnostic').iterdir():
         copy(p,out/'port-source'/p.name)
     files=sorted(p for p in out.rglob('*') if p.is_file())
