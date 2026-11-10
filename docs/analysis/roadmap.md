@@ -1361,3 +1361,17 @@ Infra/mountinfo/restaurações preservados, RAM removida/raizRO/UIoff/PCMclosed/
 p1p3off/taint0 e tela diagnóstica final. Sem instalação/reboot/imagem/Deck.
 Próximo C122: pacote residente versionado para copiar/adotar o bundle local,
 eliminando os seis uploads de código; testes/plano antes da instalação aditiva.
+
+**C122 residente instalado/adoção APROVADOS,09/11/2026:**
+[Componente](phase4-resident-batch.md),novo prefixo muos-batch-v1 com9folhas/
+33.699bytes/um diretório e nenhuma substituição. C120 exato mais loader,
+funções/manifesto; receita nova opt-in/defaultn com export verificado.42checks
+offline cobrem cópia/C120 reais, recusas/parciais, transação9/rollback e receita.
+Plano/ausência/claim guardados no host;16recibos0 instalação/check/refusals e
+10recibos0 no validador instalado, mesmo84/IP15. Guard200, cópia local das seis
+folhas, staged/hostcheck/repetição/save recusados/run novo ausente; zero uploads
+de inputs ou contrato nesse validador. Fingerprint/infra/mountinfo preservados,
+RAM removida/raizRO/UIoff/PCMclosed/p1p3off. Prova resident-batch-installed,
+sem ROM/ELF/GUI/reboot/save/Deck/imagem integral. Preservar dispatch.claim.
+Próximo C123: integrar executor gráfico ao loader instalado, guard200/bindings
+C122/zero uploads, depois um ciclo físico; C121 aprovado não foi repetido.

@@ -25,7 +25,8 @@
     "foundation/staging.YRRiUd/core-staging.tar.gz": "Last foundation packaging input",
     "internal-rom/import.tgknjpow/before.tar": "Independent C113 pre-import logical data backup; private; 88064 bytes",
     "internal-rom/import.tgknjpow/dispatch.claim": "Consumed private ROM import attempt; never redispatch",
-    "resident-assets/install.0uvf0x6y/dispatch.claim": "Consumed C112 resident assets installation attempt; never redispatch"
+    "resident-assets/install.0uvf0x6y/dispatch.claim": "Consumed C112 resident assets installation attempt; never redispatch",
+    "resident-batch/install.1a1mvhj9/dispatch.claim": "Consumed C122 additive resident contract installation; never redispatch"
   },
   "exceptions": {
     "private": "Transport credentials and original C20 recovery backup",
@@ -42,7 +43,7 @@
     "kernel-output": "Working kernel output",
     "uboot-sd/probe.3utahq01/source": "Last qualified bootloader working source",
     "uboot-sd/probe.3utahq01/output": "Last qualified bootloader output",
-    "current-dependency-leaves": "Only the files read/returned by the C104-C121 offline dependency trace; no whole historical root retained for this reason",
+    "current-dependency-leaves": "Only the files read/returned by the C104-C122 offline dependency trace; no whole historical root retained for this reason",
     "dist": "Frozen sanitized evidence and license archives; not a set of firmware builds"
   }
 }

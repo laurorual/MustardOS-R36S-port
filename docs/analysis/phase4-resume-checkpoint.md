@@ -1,12 +1,37 @@
 # Fase 4 — ponto seguro de retomada
 
-## Estado atual — C121 menu → GB → menu APROVADO no boot84
+## Estado atual — C122 residente instalado; adoção sem uploads APROVADA
 
 **09/11/2026:** R35S **192.168.15.15:2222**, **boot84/C07 pronto**. Cartão128GB
 no console; original32 guardado e Deck fora do fluxo. Novo boot observado, sem
 pedido de reboot nesta rodada. C112/C113/C114 continuam aprovados; instalações,
 importação e claims anteriores não foram repetidos. [C116](phase4-resident-boot-session.md)
 constrói o contexto atual sem alterar fontes/provas/UUIDs históricos.
+
+**C122 APROVADO instalado/sem GUI:** [pacote e validação](phase4-resident-batch.md),
+mesmo84/IP15. Prefixo **`/usr/libexec/muos-batch-v1`**,9arquivos/33.699bytes,
+um diretório, zero substituições. Os seis arquivos C120 byte-idênticos ficam
+residentes com funções/manifesto/entrypoint próprios. Receita opt-in
+`port/buildroot-batch`, payload/export.sha256/digest explícitos, defaultn,
+sem ROM/ELF novo ou autostart.42checks offline `checks.3f5yuzvw` passaram,
+incluindo cópia/adoção C120 reais, parcial/recusas, transação9/rollback e receita.
+
+Pacote `resident-batch/package.6njmns_6`; plano/instalação
+**`install.1a1mvhj9`**,16recibos0, backup de ausência vinculado e prefixo
+ausente conferido antes da escrita. RootRO, fingerprint privado/infra/mountinfo
+preservados, check instalado e adoção incompleta recusada. **Preservar
+`install.1a1mvhj9/dispatch.claim`; não repetir apply.**
+
+Validação **`validate.zxyzyv87`**,10recibos0, guard200: C112 preparou cápsula
+nova, loader instalado copiou as seis folhas localmente e executou adoção
+C120; hashes/modos/staged/hostcheck passaram. Repetição/save recusados e novo
+run.once ausente. **Zero uploads de inputs e de código do contrato** nessa
+validação; openROMlocal proibido. Infra/mountinfo idênticos, RAM removida,
+raizRO/PCMclosed/UIoff/p1p3off. Sem GUI/core/áudio/botões/save/reboot/Deck.
+Prova **`dist/phase4/resident-batch-installed`** publicada, com payload público,
+export para receita/adaptadores/fontes/casos; sem ROM/ELF/UUID/seed/snapshot.
+Não houve novo ciclo gráfico pelo loader residente: aprovação C121 permanece
+separada. SDK/imagens/original32 preservados; nenhuma imagem integral nova.
 
 **C121 APROVADO gráfico/físico:** [sessão e métricas](phase4-batch-graphics-session.md),
 observação `batch-graphics/observe.g0k9zci0` vinculada ao novo84/UUID real, guard191.
@@ -201,22 +226,22 @@ package próprios preparados, guardas191/mesmo boot82 e origem C113/C114 exigido
 Observação nativa `observe.npmqzojq` aprovada; **nenhuma sessão gráfica executada**
 e `dist/phase4/resident-session` NÃO existe. Não inventar confirmação física.
 
-**Próximo incremento C122:** preparar componente residente versionado que
-forneça o bundle C120 e adote a cápsula localmente, retirando os seis uploads
-de código da preparação de cada sessão. Preservar o prefixo C105 e contratos
-C112/C120/C121; novo prefixo/manifesto/receita com guardas e plano de instalação
-aditiva no128 antes de qualquer escrita. Começar por testes offline de pacote,
-modos/hash, recusa de repetição/parcial e boot atual; depois instalação guardada
-e um ciclo pelo componente residente. Reutilizar worker/provider/load-only e
-limites atuais; autostart/navegador geral/novos saves permanecem separados.
-Preservar fontes/provas C112–C121, hashes/modos/ownership/ancestrais/RO/isolamento.
+**Próximo incremento C123:** integrar o executor gráfico C121 com o loader
+residente C122 instalado, usando `load.sh adopt` no lugar dos seis uploads e
+da adoção direta. Vincular plano/prova C122 e acrescentar nove hashes ao guard
+atual (200), manter namespaces separados de bibliotecas/bundle e zero inputs
+do host. Não reinstalar o pacote C122 nem repetir claims. Primeiro checks
+offline de routing/recusas/boot, depois uma rodada menu→GB→Fn+L2→Fn+Start→menu
+quando usuário disponível. Reutilizar worker/provider/load-only e limites
+atuais; autostart/navegador geral/novos saves continuam separados.
+Preservar fontes/provas C112–C122, hashes/modos/ownership/ancestrais/RO/isolamento.
 Reutilizar observação84 apenas
 se contador/UUID/fontes/estado coincidirem; novo boot exige contexto fresco.
 Não repetir C116/C121 aprovados sem razão concreta, nem instalação/importação/claims.
 
 **Armazenamento/Git:** sem nova imagem integral ou clone de rootfs; C112–C115
 geraram~16MiB e C116 somente fontes/recibos pequenos. Inventário mantém cinco
-marcos de firmware. Trace C104–C121 protege backup/provas/pacotes e o fechamento
+marcos de firmware. Trace C104–C122 protege backup/provas/pacotes e o fechamento
 da tentativa expirada e prova nativa atual. Dry-run
 `build/cleanup/retention-20261109T182539Z.json`:
 1858arquivos protegidos/zero descartes, incluindo fechamento negativo e prova
@@ -248,6 +273,11 @@ Qualificação gráfica C121 acrescentou~2MiB de recibos/prova. Dry-run
 zero candidatos/zero exclusões, incluindo coleta, observação84, fechamento,
 prova gráfica e recusa de publicação prematura. Cinco firmwares/cinco tags
 mantidos; nenhuma imagem nova ou alteração no Deck/original32.
+C122 gerou~2,9MiB de pacote/recibos/prova, com33.699bytes novos no console.
+Dry-run `build/cleanup/retention-20261110T001746Z.json`:2608arquivos protegidos,
+zero candidatos/zero exclusões. Trace inclui pacote/receita/export/planos,
+claim consumido,16recibos de instalação e10de validação. Inventário continua
+com cinco firmwares e cinco checkpoints Git nomeados, sem imagem integral nova.
 Não tocar Deck/original32, investigar dongle, rearmar.once/C94/claims ou regravar
 candidata77/fábrica C100 sem provisão. Autostart/navegador geral/SRAM/novos saves/
 Power/suspend/boot frio/queda de energia/longa duração continuam separados.

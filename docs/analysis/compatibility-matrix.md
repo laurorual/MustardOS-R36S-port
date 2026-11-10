@@ -1,5 +1,17 @@
 # Matriz de compatibilidade: muOS nativo no R35S
 
+**Atualização C122,09/11/2026 — residente instalado/adoção sem uploads:**
+[Pacote](phase4-resident-batch.md),9arquivos/33.699bytes em novo prefixo
+muos-batch-v1, zero substituições.42checks offline de cópia/adoção reais,
+parciais/recusas, transação/rollback e receita opt-in;16recibos nativos0 de
+instalação/check/recusa incompleta,10recibos0 de cópia/adopção local no84.
+Guard200/byte-identidade C120/staged/hostcheck, repetição/save recusados e
+run novo ausente. Zero uploads de inputs/contrato no validador; sem GUI/core/
+áudio/reboot/save. Fingerprint/infra/mountinfo intactos, rootRO/PCMclosed/UIoff/
+p1p3off/RAM removida. Prova resident-batch-installed com payload público texto;
+original32/Deck/SDK/imagens preservados, sem imagem integral. Integração do
+executor gráfico residente ainda pendente; C121 é a aprovação gráfica anterior.
+
 **Atualização C121,09/11/2026 — ciclo gráfico APROVADO no84:**
 [Sessão](phase4-batch-graphics-session.md),nova observação/IP15/guard191 e
 17recibos0,1134frames. A/Start/direcional/Fn+L2/Fn+Start/retorno e som limpo

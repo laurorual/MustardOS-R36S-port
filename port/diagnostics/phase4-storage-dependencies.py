@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Read-only dependency trace for the current C104-C121 setup."""
+"""Read-only dependency trace for the current C104-C122 setup."""
 import os,sys,json
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -258,6 +258,39 @@ for stage in graphics.AREA.glob('publication-check.*'):
     assert row['publisher_sha256']==graphics.sha(publisher)
     assert int((stage/'exit').read_text())!=0
     for name in ['stdout','stderr']:(stage/name).read_bytes()
+import phase4_resident_batch as resident_batch
+resident_batch.qualified();resident_public=graphics.proof('resident-batch-installed')
+rb_paths={key:Path((resident_batch.AREA/pointer).read_text().strip()) for key,pointer in
+          [('package','latest-package'),('install','latest-complete'),('checks','latest-checks'),('validation','latest-validated')]}
+assert all(path.resolve().is_relative_to(resident_batch.AREA) for path in rb_paths.values())
+rb={key:json.loads((path/'analysis.json').read_text()) for key,path in rb_paths.items()}
+assert all(row['passed'] is True and row['schema']==122 for row in rb.values())
+assert rb['install']['files_added']==9 and rb['install']['existing_files_replaced']==0
+assert rb['validation']['installed_analysis_sha256']==graphics.sha(rb_paths['install']/'analysis.json')
+assert rb['validation']['inputs_and_contract_files_uploaded']==0 and rb['validation']['new_run_claim_absent'] is True
+assert rb['validation']['GUI_core_audio_input_reboot_or_persistent_write_executed'] is False
+assert rb['checks']['package_analysis_sha256']==graphics.sha(rb_paths['package']/'analysis.json')
+for row in rb.values():
+    for name,digest in row['source_sha256'].items():assert graphics.sha(repo/name)==digest
+for name,digest in rb['package']['package_files'].items():
+    assert graphics.sha(rb_paths['package']/'target'/resident_batch.PREFIX/name)==digest
+    assert graphics.sha(resident_public/'payload'/name)==digest
+for name,digest in rb['package']['adapter_sha256'].items():assert graphics.sha(rb_paths['package']/name)==digest
+assert graphics.sha(rb_paths['package']/'export.sha256')==graphics.sha(resident_public/'export.sha256')
+meta=json.loads((rb_paths['install']/'manifest.json').read_text())
+for name,digest in meta['files'].items():assert graphics.sha(rb_paths['install']/name)==digest
+assert graphics.sha(rb_paths['install']/'plan.json')==rb['install']['plan_sha256']
+assert (rb_paths['install']/'dispatch.claim').read_text()=='C122 one attempt; never redispatch after interruption\n'
+for kind,labels in [('install',['survey','before','allocate','unpack','inspect','mounts-before','dispatch','result','after',
+                    'mounts-private','caller-check','allocate-stage','native-stage','cleanup-stage','cleanup','post-cleanup-health']),
+                    ('validation',['before','mounts-before','allocate','prepare','adopt','verify','after','mounts-after','cleanup','post-cleanup-health'])]:
+    for label in labels:
+        assert (rb_paths[kind]/(label+'.exit')).read_text()=='0\n'
+        for ext in ['sh','stdout','stderr']:(rb_paths[kind]/(label+'.'+ext)).read_bytes()
+for path in rb_paths['checks'].iterdir():
+    if path.is_file() and not path.is_symlink():path.read_bytes()
+rb_publisher=repo/'port/scripts/package-phase4-resident-batch.py'
+assert graphics.sha(rb_publisher)==graphics.sha(resident_public/'source'/rb_publisher.relative_to(repo))
 os.stat=oldstat;os.lstat=oldlstat
 # Failed open probes (including CPython cache and temporary-name probes)
 # are not retained artifacts. Keep only existing inputs for a stable closure.

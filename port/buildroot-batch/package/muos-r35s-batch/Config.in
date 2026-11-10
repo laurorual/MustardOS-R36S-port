@@ -1,0 +1,9 @@
+config BR2_PACKAGE_MUOS_R35S_BATCH
+	bool "R35S qualified resident batch contract"
+	depends on BR2_aarch64
+	depends on BR2_PACKAGE_MUOS_R35S_SESSION
+	default n
+	help
+	  Install an explicitly supplied, qualified C122 public payload.
+	  Requires the C105 caller and C112 resident preparation in the image.
+	  Manual activation only; no startup, reboot or ROM payload.
