@@ -10,8 +10,6 @@ rom=/mnt/mmc
 data=/userdata
 fstype=ext4
 [ ! -r /etc/default/muos-storage ] || . /etc/default/muos-storage
-[ -f /etc/muos-private-foundation ] || { echo 'Not a port foundation rootfs' >&2; exit 1; }
-[ "$(tr '\000' '\n' < /sys/firmware/devicetree/base/model)" = 'R36S-V12 2023-08-18 Panel 0' ] || exit 1
 mkdir -p "$state"
 exec 9>"$state/lock"
 flock -x 9

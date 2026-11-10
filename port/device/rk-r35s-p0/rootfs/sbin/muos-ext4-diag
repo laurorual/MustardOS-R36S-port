@@ -1,0 +1,29 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# U-Boot boots with init=/sbin/muos-ext4-diag and its environment is never
+# rewritten, so this name stays as a thin shim to BusyBox init. It keeps the
+# proc/sysfs mounts the old bootstrap provided (the first inittab sysinit
+# lines rely on them) and deliberately has no guards: any check failing here
+# would halt PID 1 before SSH exists.
+#
+# Trial boot (for risky init changes): with /etc/muos-boot-trial present the
+# next boot uses the new /etc/inittab once and leaves .used behind. Confirm
+# over SSH by deleting /etc/muos-boot-trial.used; if it is still there at the
+# following boot (the trial was not confirmed, e.g. no SSH and the user
+# power-cycled), /etc/inittab.fallback is restored first.
+mount -t proc proc /proc 2>/dev/null
+mount -t sysfs sysfs /sys 2>/dev/null
+if [ -e /etc/muos-boot-trial ] || [ -e /etc/muos-boot-trial.used ]; then
+    if mount -o remount,rw /; then
+        if [ -e /etc/muos-boot-trial ]; then
+            mv -f /etc/muos-boot-trial /etc/muos-boot-trial.used
+        elif [ -s /etc/inittab.fallback ]; then
+            cp -p /etc/inittab.fallback /etc/inittab
+            rm -f /etc/muos-boot-trial.used
+            echo 'muos: unconfirmed trial boot, restored /etc/inittab.fallback' > /dev/kmsg
+        fi
+        sync
+        mount -o remount,ro /
+    fi
+fi
+exec /sbin/init "$@"

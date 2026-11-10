@@ -1,0 +1,41 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Ordered, bounded and logged replacement for Buildroot's rcS/rcK.
+#   muos-rc start   run /etc/init.d/S??* start in order
+#   muos-rc stop    run them with stop in reverse order
+# Each script gets a time limit (muos-run-bounded, max 120 s). A failing
+# service is logged and skipped: SSH (S41) must come up even if the UI fails.
+# Log: /run/muos-rc.log; S89muos-data copies it to p3 MUOS/log/ on stop.
+# Same environment the C79 session gave the muOS services (S95 audio needs
+# HOME/XDG/PipeWire/D-Bus; muvarctl needs the frontend libraries).
+export PATH=/opt/muos/frontend:/opt/muos/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export HOME=/root XDG_RUNTIME_DIR=/run PIPEWIRE_RUNTIME_DIR=/run LC_ALL=C.UTF-8
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+export LD_LIBRARY_PATH=/opt/muos/frontend/lib
+log=/run/muos-rc.log
+bounded=/usr/libexec/muos-run-bounded
+action=${1:-}
+case "$action" in
+    start) list=$(ls /etc/init.d/S??* 2>/dev/null) ;;
+    stop) list=$(ls -r /etc/init.d/S??* 2>/dev/null) ;;
+    *) echo 'Usage: muos-rc start|stop' >&2; exit 2 ;;
+esac
+limit() {
+    case "$action:${1##*/}" in
+        stop:S99*) echo 30 ;;
+        start:S10udev|stop:S89*) echo 60 ;;
+        *) echo 45 ;;
+    esac
+}
+printf '%s rc %s boot_id=%s\n' "$(cut -d' ' -f1 /proc/uptime)" "$action" \
+    "$(cat /proc/sys/kernel/random/boot_id)" >> "$log"
+for script in $list; do
+    [ -f "$script" ] && [ -x "$script" ] || continue
+    t0=$(cut -d' ' -f1 /proc/uptime)
+    "$bounded" "$(limit "$script")" "$script" "$action" >> "$log" 2>&1
+    rc=$?
+    printf '%s %s %s rc=%s (started %s)\n' "$(cut -d' ' -f1 /proc/uptime)" \
+        "${script##*/}" "$action" "$rc" "$t0" >> "$log"
+done
+printf '%s rc %s done\n' "$(cut -d' ' -f1 /proc/uptime)" "$action" >> "$log"
+exit 0

@@ -1,0 +1,93 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Writable views the muOS frontend needs on a read-only root:
+#   p3 MUOS/port/config        -> /opt/muos/config         (user settings)
+#   p3 MUOS/port/volume        -> /opt/muos/share/volume   (per-output volume)
+#   p3 MUOS/port/info-content  -> /opt/muos/share/info/content (core assigns)
+#   p3 MUOS/port/info-config   -> /opt/muos/share/info/config
+#   tmpfs copy                 -> /opt/muos/device/config  (sdl_map etc.)
+#   tmpfs copy                 -> /usr/share/wireplumber, /root
+#   tmpfs copy                 -> /etc/asound.conf, /usr/share/alsa/alsa.conf
+#                                 seeded from the muOS templates in
+#                                 share/conf/rootfs, so S80pipewire.sh finds
+#                                 them equal (its cp -f cannot replace a bind)
+#   p3 MUOS/log/system         -> /opt/muos/log (previous boot in system.prev)
+# p3 state is seeded once from the rootfs (which carries the R35S profile)
+# and imports the C21 preferences store (VOLUME/BRIGHTNESS). /sys/power and
+# the cpufreq tree stay read-only until power management is qualified (M2).
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+port=/userdata/MUOS/port
+rw=/run/muos/rw
+state=/run/muos/runtime
+mkdir -p "$state"
+bind() {
+    mkdir -p "$1"
+    findmnt -rn -M "$2" >/dev/null && return 0
+    mount --bind "$1" "$2" && printf '%s\n' "$2" >> "$state/mounts"
+}
+seed() {
+    [ -e "$port/.seeded" ] && return 0
+    rm -rf "$port.tmp"; mkdir -p "$port.tmp"
+    cp -a /opt/muos/config "$port.tmp/config"
+    cp -a /opt/muos/share/volume "$port.tmp/volume"
+    prefs=/userdata/MUOS/preferences
+    if [ -d "$prefs" ] && out=$(/usr/libexec/muos-session/bin/muos-preferences --dir "$prefs" load 2>/dev/null); then
+        v=$(printf '%s\n' "$out" | sed -n 's/^VOLUME=//p')
+        b=$(printf '%s\n' "$out" | sed -n 's/^BRIGHTNESS=//p')
+        case "$v:$b" in *[!0-9:]*|:*|*:) ;; *)
+            printf '%s\n' "$v" > "$port.tmp/config/settings/general/volume"
+            printf '%s\n' "$b" > "$port.tmp/config/settings/general/brightness"
+            printf '0\n' > "$port.tmp/config/settings/advanced/volume"
+            for slot in "$port.tmp/volume"/*; do [ -f "$slot" ] && printf '%s\n' "$v" > "$slot"; done
+            echo "runtime: imported prefs volume=$v brightness=$b" ;;
+        esac
+    fi
+    sync
+    rm -rf "$port"; mv "$port.tmp" "$port"; touch "$port/.seeded"; sync
+}
+case "${1:-}" in
+ start)
+    findmnt -rn -M /userdata >/dev/null || { echo 'runtime: /userdata missing' >&2; exit 1; }
+    : > "$state/mounts"
+    seed
+    bind "$port/config" /opt/muos/config
+    bind "$port/volume" /opt/muos/share/volume
+    bind "$port/info-content" /opt/muos/share/info/content
+    bind "$port/info-config" /opt/muos/share/info/config
+    mkdir -p "$rw"
+    mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs "$rw"
+    cp -a /opt/muos/device/config "$rw/device-config"
+    cp -a /usr/share/wireplumber "$rw/wireplumber"
+    mkdir -m 700 "$rw/home"
+    bind "$rw/device-config" /opt/muos/device/config
+    bind "$rw/wireplumber" /usr/share/wireplumber
+    bind "$rw/home" /root
+    for file in /etc/asound.conf /usr/share/alsa/alsa.conf; do
+        copy=$rw/files$file
+        mkdir -p "${copy%/*}"
+        template=/opt/muos/share/conf/rootfs/${file##*/}
+        if [ -f "$template" ]; then cp "$template" "$copy"; elif [ -e "$file" ]; then cp -p "$file" "$copy"; fi
+        [ -e "$copy" ] || : > "$copy"
+        [ -e "$file" ] || continue
+        mount --bind "$copy" "$file" && printf '%s\n' "$file" >> "$state/mounts"
+    done
+    logs=/userdata/MUOS/log
+    rm -rf "$logs/system.prev"; [ ! -d "$logs/system" ] || mv "$logs/system" "$logs/system.prev"
+    bind "$logs/system" /opt/muos/log
+    for path in /sys/power /sys/devices/system/cpu; do
+        mount --bind "$path" "$path" && mount -o remount,bind,ro "$path" && printf '%s\n' "$path" >> "$state/mounts"
+    done
+    touch "$state/ready"
+    ;;
+ stop)
+    rm -f "$state/ready"
+    # muOS log helper started by S80pipewire.sh keeps /opt/muos/log open.
+    killall mulog 2>/dev/null && sleep 0.3
+    sync
+    [ -r "$state/mounts" ] && for dest in $(sed '1!G;h;$!d' "$state/mounts"); do umount "$dest" || umount -l "$dest"; done
+    ! findmnt -rn -M "$rw" >/dev/null || umount "$rw" || umount -l "$rw"
+    : > "$state/mounts"
+    ;;
+ status) [ -e "$state/ready" ] ;;
+ *) echo 'Usage: S91muos-runtime start|stop|status' >&2; exit 2 ;;
+esac

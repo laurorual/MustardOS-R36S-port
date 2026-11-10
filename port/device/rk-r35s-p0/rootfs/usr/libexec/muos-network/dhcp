@@ -1,0 +1,18 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# shellcheck disable=SC2154  # interface/ip/subnet/router come from udhcpc
+# udhcpc hook: address (+ default route) only; no resolver changes.
+state=/run/muos/network
+case "${1:-}" in
+    deconfig)
+        ifconfig "$interface" 0.0.0.0
+        rm -f "$state/address" ;;
+    bound|renew)
+        ifconfig "$interface" "$ip" netmask "${subnet:-255.255.255.0}" up
+        if [ -n "${router:-}" ]; then
+            while route del default gw 0.0.0.0 dev "$interface" 2>/dev/null; do :; done
+            route add default gw "${router%% *}" dev "$interface" 2>/dev/null || :
+        fi
+        printf '%s\n' "$ip" > "$state/address.tmp" && mv "$state/address.tmp" "$state/address" ;;
+esac
+exit 0

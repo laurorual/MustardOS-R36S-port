@@ -55,35 +55,41 @@ case "${1:-}" in
         [ ! -e "$state/ready" ] || exit 0
         mkdir -p "$state" /run/muos/storage /opt/muos/log
         "$vars" build
+        # Audio failure degrades to a silent UI: input (muinput) must still
+        # start, or the autostarted menu would have no controls at all.
+        audio_rc=0
         if [ "$audio" = 1 ]; then
             export MUOS_AUDIO_LOG_DIR="$state"
-            [ -S /run/dbus/system_bus_socket ] || { echo 'muOS core: DBus missing' >&2; exit 1; }
-            # Never start a second audio stack in this runtime.
-            [ ! -S /run/pipewire-0 ] || { echo 'muOS core: foreign audio stack' >&2; exit 1; }
-            if ! audio_prime_pcm; then
-                exit 1
+            if [ ! -S /run/dbus/system_bus_socket ]; then
+                echo 'muOS core: DBus missing' >&2; audio_rc=1
+            elif [ -S /run/pipewire-0 ]; then
+                # Never start a second audio stack in this runtime.
+                echo 'muOS core: foreign audio stack' >&2; audio_rc=1
+            elif ! audio_prime_pcm; then
+                audio_rc=1
+            elif ! "$audio_service" start; then
+                audio_failure; audio_rc=1
+            else
+                # Upstream audio/ready is also set on some failure paths; inspect
+                # the actual target node rather than trusting this flag alone.
+                # WirePlumber creates the sink asynchronously; under boot load it
+                # can take a few seconds after S80pipewire.sh start returns.
+                ready_wait=0
+                while ! audio_ready && [ "$ready_wait" -lt 80 ]; do sleep 0.1; ready_wait=$((ready_wait + 1)); done
+                if ! audio_ready || ! audio_set_quantum; then
+                    audio_failure; audio_rc=1
+                else
+                    touch "$state/audio"
+                fi
             fi
-            if ! "$audio_service" start; then
-                audio_failure
-                exit 1
-            fi
-            # Upstream audio/ready is also set on some failure paths; inspect
-            # the actual target node rather than trusting this flag alone.
-            if ! audio_ready; then
-                audio_failure
-                exit 1
-            fi
-            if ! audio_set_quantum; then
-                audio_failure
-                exit 1
-            fi
-            touch "$state/audio"
+            [ "$audio_rc" = 0 ] || echo 'muOS core: audio unavailable, continuing silent' >&2
         fi
         if [ "$input" = 1 ]; then
             start-stop-daemon -S -b -m -p "$state/input.pid" \
                 -x /opt/muos/frontend/muinput -- --device rk-r35s-p0 --foreground --rumble-strength 0
         fi
         touch "$state/ready"
+        exit "$audio_rc"
         ;;
     stop)
         if [ -r "$state/input.pid" ]; then

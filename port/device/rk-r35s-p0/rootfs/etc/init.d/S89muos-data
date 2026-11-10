@@ -1,0 +1,33 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Mount p3 (MUOSDATA, ext4) rw at /userdata and p1 (FAT) ro at /boot.
+# The ext4 journal covers unclean shutdowns (no e2fsck on the device yet).
+# stop: keep the rc log on p3 (MUOS/log/rc-last.log), sync, unmount.
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+disk=/dev/disk/by-partuuid/4d554432
+data=/userdata
+part() {
+    [ -b "$disk-0$1" ] && { echo "$disk-0$1"; return; }
+    echo "/dev/mmcblk0p$1"
+}
+case "${1:-}" in
+ start)
+    mkdir -p "$data" /boot
+    n=0; while [ ! -b "$(part 3)" ] && [ "$n" -lt 50 ]; do sleep 0.1; n=$((n+1)); done
+    findmnt -rn -M "$data" >/dev/null ||
+        mount -t ext4 -o rw,noatime,nosuid,nodev,data=ordered "$(part 3)" "$data" || exit 1
+    findmnt -rn -M /boot >/dev/null ||
+        mount -t vfat -o ro,nosuid,nodev,noexec "$(part 1)" /boot || echo 'data: p1 not mounted'
+    mkdir -p "$data/MUOS/log" "$data/ROMS"
+    ;;
+ stop)
+    if findmnt -rn -M "$data" >/dev/null; then
+        cp /run/muos-rc.log "$data/MUOS/log/rc-last.log" 2>/dev/null || :
+        sync
+        umount "$data" || { echo 'data: busy, remounting ro'; mount -o remount,ro "$data"; }
+    fi
+    ! findmnt -rn -M /boot >/dev/null || umount /boot || :
+    ;;
+ status) findmnt -rn -M "$data" -o OPTIONS | tr ',' '\n' | grep -qx rw ;;
+ *) echo 'Usage: S89muos-data start|stop|status' >&2; exit 2 ;;
+esac

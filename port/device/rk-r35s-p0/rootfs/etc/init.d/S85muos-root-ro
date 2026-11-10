@@ -1,0 +1,15 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Root is rw only for early boot (seedrng, first-boot host key); everything
+# mutable afterwards lives in tmpfs or on p3 (S89/S91). Keeping root ro is
+# the power-loss protection for p2.
+case "${1:-}" in
+ start)
+    sync
+    # A fresh image creates its host key in the network worker; give it time.
+    n=0
+    while [ ! -s /var/lib/muos-network/dropbear_ed25519_host_key ] && [ "$n" -lt 30 ]; do sleep 1; n=$((n+1)); done
+    if mount -o remount,ro /; then echo 'root: ro'; else echo 'root: stays rw (busy)'; fi ;;
+ stop|status) : ;;
+ *) exit 2 ;;
+esac

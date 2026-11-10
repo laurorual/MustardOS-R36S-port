@@ -1,0 +1,99 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Port frontend loop, after MustardOS internal/script/mux/frontend.sh:
+#   muxfrontend reads its module from /run/muos/action and exits to request
+#   content (/run/muos/content, 9-line ROM_GO record), reboot or shutdown.
+#   Content runs in muxretro (libretro cores in /opt/muos/share/core).
+# muxfrontend SIGTERMs itself when its parent is PID 1, hence this owner.
+# Usage (from S99muos-ui): muos-frontend HOTKEYS(0|1) AUDIO(pipewire|dummy)
+export HOME=/root XDG_RUNTIME_DIR=/run PIPEWIRE_RUNTIME_DIR=/run LC_ALL=C.UTF-8
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+export PATH=/opt/muos/frontend:/opt/muos/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export SDL_JOYSTICK_HIDAPI=0 SDL_VIDEODRIVER=KMSDRM SDL_AUDIODRIVER="${2:-dummy}"
+export SDL_VIDEO_EGL_DRIVER=libEGL.so SDL_VIDEO_GL_DRIVER=libGLESv2.so
+export LD_BIND_NOW=1 LD_LIBRARY_PATH=/opt/muos/frontend/lib
+run=/run/muos
+act=$run/action
+rom=$run/content
+exec >> /opt/muos/log/frontend-loop.log 2>&1
+say() { printf '%s %s\n' "$(cut -d' ' -f1 /proc/uptime)" "$*"; }
+child='' hotkey=''
+quit() {
+    say "stop requested"
+    [ -z "$child" ] || kill -TERM "$child" 2>/dev/null
+    [ -z "$hotkey" ] || kill -TERM "$hotkey" 2>/dev/null
+    wait
+    exit 0
+}
+trap quit TERM INT HUP
+run_child() { "$@" & child=$!; wait "$child"; rc=$?; child=; return "$rc"; }
+foreground() { muvarctl set system foreground_process "$1" >/dev/null 2>&1 || :; }
+
+# Per-launch request files the frontend writes for launch.sh (governor,
+# controller, filter, ...). Upstream consumes them; left behind, the next
+# muxfrontend start treats them as an "option" request.
+clear_requests() {
+    for f in governor controller filter retroarch shader overlay_options auto_core \
+             auto_governor auto_retroarch overlay overlay.filter overlay.shader overlay.options; do
+        rm -f "$run/$f"
+    done
+    rm -f /tmp/ra_no_load /tmp/ra_autoload_once.cfg
+}
+
+launch_content() {
+    {
+        read -r name; read -r core; read -r assign; read -r _; read -r _
+        read -r launch; read -r dir1; read -r dir2; read -r file
+    } < "$rom"
+    rm -f "$rom"
+    content="$dir1$dir2/$file"
+    say "content name=$name core=$core assign=$assign launch=$launch file=$content"
+    case "$launch" in ext-*) say "external launcher $launch not supported yet"; return 1 ;; esac
+    [ -f "/opt/muos/share/core/$core" ] || { say "missing core $core"; return 1; }
+    [ -f "$content" ] || { say "missing content $content"; return 1; }
+    fresh=; [ ! -e /tmp/ra_no_load ] || fresh=--fresh
+    clear_requests
+    foreground muxretro
+    # shellcheck disable=SC2086  # $fresh is empty or one flag
+    run_child /opt/muos/frontend/muxretro "/opt/muos/share/core/$core" "$content" $fresh \
+        >> /opt/muos/log/frontend.log 2>&1
+    say "muxretro exit rc=$?"
+    sync
+}
+
+say "loop start hotkeys=${1:-1} audio=$SDL_AUDIODRIVER"
+[ "${1:-1}" != 1 ] || { /opt/muos/frontend/muhotkey & hotkey=$!; }
+[ -s "$act" ] || echo launcher > "$act"
+fast=0
+while :; do
+    if [ -s "$rom" ]; then
+        launch_content || :
+        [ -s "$act" ] || echo explore > "$act"
+        continue
+    fi
+    action=$(head -n1 "$act" 2>/dev/null); [ -n "$action" ] || action=launcher
+    case "$action" in
+        reboot|shutdown|poweroff)
+            say "$action requested"
+            [ -z "$hotkey" ] || kill -TERM "$hotkey" 2>/dev/null
+            rm -f "$act"; sync
+            if [ "$action" = reboot ]; then reboot; else poweroff; fi
+            exit 0 ;;
+    esac
+    rm -f "$run/safe_quit"
+    [ "$action" != launcher ] || clear_requests
+    t0=$(cut -d. -f1 /proc/uptime)
+    foreground muxfrontend
+    say "muxfrontend action=$action"
+    run_child /opt/muos/frontend/muxfrontend >> /opt/muos/log/frontend.log 2>&1
+    rc=$?
+    say "muxfrontend exit rc=$rc next=$(head -n1 "$act" 2>/dev/null) content=$([ -s "$rom" ] && echo yes || echo no)"
+    sync
+    # Crash-loop brake: five quick failures in a row -> back off 30 s.
+    if [ "$rc" != 0 ] && [ $(( $(cut -d. -f1 /proc/uptime) - t0 )) -lt 10 ]; then
+        fast=$((fast+1))
+        [ "$fast" -lt 5 ] || { say "crash loop, backing off"; sleep 30; fast=0; echo launcher > "$act"; }
+    else
+        fast=0
+    fi
+done

@@ -12,6 +12,8 @@
 #   device.sh wait [secs]      wait until SSH answers again (rescans the LAN)
 #   device.sh reboot|poweroff  request it through init (rcK runs), then for
 #                              reboot wait for the new boot id
+#   device.sh capture DIR      stop UI/p3 services, capture the card for
+#                              make-recovery-image.sh (reboot afterwards)
 #
 # Identity is the pinned host-key fingerprint, never the IP. Every call is
 # appended to build/logs/device.log with its exit code.
@@ -151,10 +153,16 @@ case "$cmd" in
     # (bootloader, p1, p2), a tar of p3, the p3 superblock and the table.
     [ $# -eq 1 ] || die "capture OUTDIR"
     out=$1; mkdir -p "$out"; ip=$(target)
+    # Quiesce the UI and p3 users (network/SSH stay up), then require a
+    # consistent card: root ro, p1 not rw, p3 unmounted. Reboot afterwards.
+    ssh_dev "$ip" 'cd /; export HOME=/root XDG_RUNTIME_DIR=/run PIPEWIRE_RUNTIME_DIR=/run
+        export PATH=/opt/muos/frontend:/opt/muos/bin:/usr/sbin:/usr/bin:/sbin:/bin LD_LIBRARY_PATH=/opt/muos/frontend/lib
+        for s in S99muos-ui S96muos-input-ready S95muos-core S91muos-runtime S90muos-storage S89muos-data; do
+            [ -x /etc/init.d/$s ] && /etc/init.d/$s stop >/dev/null 2>&1; done; sync' || :
     ssh_dev "$ip" 'set -e
         grep -q "^/dev/root / ext4 ro," /proc/mounts
-        ! grep -q "^/dev/mmcblk0p[13] " /proc/mounts
-        ! grep -q " /userdata " /proc/mounts' || die "need root ro and p1/p3 unmounted"
+        ! grep -q "^/dev/mmcblk0p1 [^ ]* vfat rw" /proc/mounts
+        ! grep -q "^/dev/mmcblk0p3 " /proc/mounts' || die "need root ro, p1 not rw and p3 unmounted"
     ssh_dev "$ip" 'sfdisk -d /dev/mmcblk0' > "$out/table.sfdisk"
     ssh_dev "$ip" 'dd if=/dev/mmcblk0p3 bs=1M count=4 2>/dev/null' > "$out/p3-head.img"
     ssh_dev "$ip" 'dd if=/dev/mmcblk0 bs=1M count=640 2>/dev/null | gzip -1' > "$out/prefix.img.gz"

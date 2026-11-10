@@ -1,0 +1,22 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Wi-Fi (Realtek 0bda:1a2b -> 0bda:c820, 8821cu) + dropbear SSH on :2222.
+# start returns at once; usr/libexec/muos-network/worker runs in background
+# so the UI never waits for the network. Private state: /var/lib/muos-network
+# (network.conf = wpa_supplicant config, dropbear host key; both 0600).
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+state=/run/muos/network
+worker=/usr/libexec/muos-network/worker
+case "${1:-}" in
+ start)
+    mkdir -p "$state"
+    start-stop-daemon -S -b -m -p "$state/worker.pid" -x /bin/sh -- \
+        -c "exec $worker up > $state/worker.log 2>&1"
+    ;;
+ stop)
+    start-stop-daemon -K -q -p "$state/worker.pid" 2>/dev/null || :
+    "$worker" down
+    ;;
+ status) [ -f "$state/ready" ] ;;
+ *) echo 'Usage: S41muos-network start|stop|status' >&2; exit 2 ;;
+esac

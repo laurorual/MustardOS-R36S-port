@@ -1,45 +1,41 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
-# Bring-up UI service, separate from upstream install/power/content dispatch.
-set -eu
-export HOME=/root XDG_RUNTIME_DIR=/run PIPEWIRE_RUNTIME_DIR=/run LC_ALL=C.UTF-8
-export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+# muOS UI service: runs the frontend loop (usr/libexec/muos-frontend) as its
+# own session so stop can signal the whole group (frontend, muxretro,
+# muhotkey and helpers). Disabled by enabled=0 in /etc/default/muos-ui or by
+# a /boot/muos-noui flag file on the FAT partition (safe mode: SSH only).
 export PATH=/opt/muos/frontend:/opt/muos/bin:/usr/sbin:/usr/bin:/sbin:/bin
-export SDL_JOYSTICK_HIDAPI=0 SDL_VIDEODRIVER=KMSDRM
-export SDL_VIDEO_EGL_DRIVER=libEGL.so SDL_VIDEO_GL_DRIVER=libGLESv2.so
-export LD_BIND_NOW=1 LD_LIBRARY_PATH=/opt/muos/frontend/lib
 state=/run/muos/ui
+loop=/usr/libexec/muos-frontend
 enabled=0
 hotkeys=1
 [ ! -r /etc/default/muos-ui ] || . /etc/default/muos-ui
-case "$enabled:$hotkeys" in 0:0|0:1|1:0|1:1) ;; *) exit 2 ;; esac
 mkdir -p "$state"
-exec 9>"$state/service.lock"
-flock -x 9
-manager=/usr/libexec/muos-ui-supervisor
+running() { [ -s "$state/loop.pid" ] && kill -0 "$(cat "$state/loop.pid")" 2>/dev/null; }
 case "${1:-}" in
  start)
-    [ "$enabled" = 1 ] || exit 0
-    if "$manager" --status; then exit 0; fi
-    /etc/init.d/S96muos-input-ready status
-    mkdir -p /mnt/mmc/MUOS/log /mnt/mmc/ROMS
-    /opt/muos/script/system/assign.sh
-    if [ -e /run/muos/core/audio ]; then export SDL_AUDIODRIVER=pipewire; else export SDL_AUDIODRIVER=dummy; fi
-    rm -f "$state/ready" "$state/failed"
-    # Close the service flock in the child: it belongs to this invocation only.
-    ( exec 9>&-; exec start-stop-daemon -S -b -x "$manager" -- "$hotkeys" )
-    count=0
-    while [ "$count" -lt 140 ]; do
-        "$manager" --status && exit 0
-        [ ! -e "$state/failed" ] || break
-        sleep 0.1
-        count=$((count + 1))
-    done
-    "$manager" --stop || :
-    echo 'muOS UI: startup failed; see /run/muos/ui' >&2
-    exit 1
+    [ "$enabled" = 1 ] || { echo 'ui: disabled in /etc/default/muos-ui'; exit 0; }
+    [ ! -e /boot/muos-noui ] || { echo 'ui: safe mode (/boot/muos-noui)'; exit 0; }
+    running && exit 0
+    /etc/init.d/S96muos-input-ready status || echo 'ui: warning: input not ready'
+    /opt/muos/script/system/assign.sh > "$state/assign.log" 2>&1 || echo 'ui: assign.sh failed'
+    audio=dummy; [ ! -e /run/muos/core/audio ] || audio=pipewire
+    start-stop-daemon -S -b -m -p "$state/loop.pid" -x /bin/sh -- "$loop" "$hotkeys" "$audio"
+    n=0; while [ "$n" -lt 100 ] && [ ! -s /run/muos/first_paint ]; do sleep 0.1; n=$((n+1)); done
+    [ -s /run/muos/first_paint ] && echo 'ui: first paint' || echo 'ui: no first paint after 10 s'
     ;;
- stop) "$manager" --stop ;;
- status) "$manager" --status ;;
+ stop)
+    running || exit 0
+    pid=$(cat "$state/loop.pid")
+    # start-stop-daemon -b double-forks: the group leader is not $pid.
+    group=$(cut -d' ' -f5 "/proc/$pid/stat")
+    case "$group" in ''|*[!0-9]*|0|1) group=$pid ;; esac
+    kill -TERM "-$group" 2>/dev/null || kill -TERM "$pid"
+    n=0; while kill -0 "-$group" 2>/dev/null && [ "$n" -lt 100 ]; do sleep 0.1; n=$((n+1)); done
+    kill -KILL "-$group" 2>/dev/null || :
+    rm -f "$state/loop.pid"
+    sync
+    ;;
+ status) running ;;
  *) echo 'Usage: S99muos-ui start|stop|status' >&2; exit 2 ;;
 esac

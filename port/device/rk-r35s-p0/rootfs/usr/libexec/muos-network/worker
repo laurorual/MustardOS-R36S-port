@@ -1,0 +1,129 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-network worker: up (bounded retries) | down. See S41muos-network.
+# Warm-reboot note: btusb stays blacklisted (modprobe.d wifi-only); without
+# it the dongle's EP0 times out after a warm reboot (hardware-findings.md).
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+state=/run/muos/network
+private=/var/lib/muos-network
+lib=/usr/libexec/muos-network
+umask 077
+mkdir -p "$state/private" "$state/auth" "$state/wpa"
+
+stop_pid() {
+    [ -f "$state/$1.pid" ] || return 0
+    pid=$(cat "$state/$1.pid")
+    case "$pid" in ''|*[!0-9]*) rm -f "$state/$1.pid"; return 0 ;; esac
+    if [ "$pid" -gt 1 ] && kill -0 "$pid" 2>/dev/null; then
+        kill -TERM "$pid"
+        n=0; while kill -0 "$pid" 2>/dev/null && [ "$n" -lt 30 ]; do sleep 0.1; n=$((n+1)); done
+        kill -KILL "$pid" 2>/dev/null || :
+    fi
+    rm -f "$state/$1.pid"
+}
+down() {
+    rm -f "$state/ready"
+    stop_pid dropbear; stop_pid dhcp; stop_pid wpa
+    rm -f "$state/address"
+}
+
+# Find the dongle; switch CD-ROM mode 1a2b to Wi-Fi c820, or reset a c820
+# kept across a warm reboot so the new kernel probes it again.
+usb_mode() {
+    candidate=; n=0
+    while [ "$n" -lt 100 ]; do
+        for path in /sys/bus/usb/devices/*; do
+            [ -r "$path/idVendor" ] && [ -r "$path/idProduct" ] || continue
+            case "$(cat "$path/idVendor"):$(cat "$path/idProduct")" in
+                0bda:1a2b|0bda:c820) candidate=$path; break ;;
+            esac
+        done
+        [ -z "$candidate" ] || break
+        sleep 0.1; n=$((n+1))
+    done
+    [ -n "$candidate" ] || { echo 'network: USB dongle absent'; return 1; }
+    bus=$(cat "$candidate/busnum"); device=$(cat "$candidate/devnum")
+    reset_done=0
+    if [ "$(cat "$candidate/idProduct")" = c820 ] && [ ! -e "$state/usb-done" ]; then
+        usb_modeswitch -R -v 0bda -p c820 -b "$bus" -g "$device" > "$state/private/usb-reset.log" 2>&1 || :
+        grep -q 'Device was reset' "$state/private/usb-reset.log" && reset_done=1
+        sleep 1
+    fi
+    if [ -r "$candidate/idProduct" ] && [ "$(cat "$candidate/idProduct")" = 1a2b ]; then
+        bus=$(cat "$candidate/busnum"); device=$(cat "$candidate/devnum")
+        usb_modeswitch -K -v 0bda -p 1a2b -b "$bus" -g "$device" > "$state/private/usb-switch.log" 2>&1 || :
+    fi
+    n=0
+    while [ "$n" -lt 300 ]; do
+        [ -r "$candidate/idProduct" ] && [ "$(cat "$candidate/idVendor"):$(cat "$candidate/idProduct")" = 0bda:c820 ] && break
+        sleep 0.1; n=$((n+1))
+    done
+    [ "$n" -lt 300 ] || { echo 'network: dongle did not return as 0bda:c820'; return 1; }
+    udevadm settle --timeout=10 || :
+    modprobe 8821cu || return 1
+    if [ "$reset_done" = 1 ]; then
+        for interface in "$candidate":*; do
+            [ -r "$interface/bInterfaceClass" ] || continue
+            [ "$(cat "$interface/bInterfaceClass"):$(cat "$interface/bInterfaceSubClass"):$(cat "$interface/bInterfaceProtocol")" = ff:ff:ff ] || continue
+            [ ! -L "$interface/driver" ] || continue
+            printf '%s\n' "${interface##*/}" > /sys/bus/usb/drivers_probe || :
+        done
+    fi
+    touch "$state/usb-done"
+}
+
+up_once() {
+    usb_mode || return 1
+    found=; n=0
+    while [ "$n" -lt 100 ]; do
+        for path in /sys/class/net/*; do
+            [ "$(basename "$(readlink -f "$path/device/driver/module")")" = 8821cu ] && found=${path##*/}
+        done
+        [ -z "$found" ] || break
+        sleep 0.1; n=$((n+1))
+    done
+    [ -n "$found" ] || { echo 'network: no 8821cu interface'; return 1; }
+    printf '%s\n' "$found" > "$state/interface"
+    for rf in /sys/class/rfkill/rfkill*; do
+        [ -r "$rf/type" ] && [ "$(cat "$rf/type")" = wlan ] && printf '0\n' > "$rf/soft"
+    done
+    ifconfig "$found" up || return 1
+    cp "$private/network.conf" "$state/private/network.conf"
+    wpa_supplicant -i "$found" -D nl80211,wext -c "$state/private/network.conf" -C "$state/wpa" \
+        > "$state/private/wpa.log" 2>&1 &
+    echo $! > "$state/wpa.pid"
+    udhcpc -f -i "$found" -s "$lib/dhcp" -t 10 -T 3 -A 5 > "$state/private/dhcp.log" 2>&1 &
+    echo $! > "$state/dhcp.pid"
+    n=0
+    while [ "$n" -lt 90 ] && [ ! -s "$state/address" ]; do sleep 1; n=$((n+1)); done
+    [ -s "$state/address" ] || { echo 'network: no DHCP lease'; return 1; }
+    # First boot of a fresh image: create the host key (may wait for the RNG).
+    if [ ! -s "$private/dropbear_ed25519_host_key" ]; then
+        dropbearkey -t ed25519 -f "$private/dropbear_ed25519_host_key.tmp" > /dev/null 2>&1 &&
+            mv "$private/dropbear_ed25519_host_key.tmp" "$private/dropbear_ed25519_host_key" || return 1
+    fi
+    cp /etc/muos-network-authorized_key "$state/auth/authorized_keys"
+    chmod 600 "$state/auth/authorized_keys"
+    dropbear -F -E -s -j -k -m -r "$private/dropbear_ed25519_host_key" -D "$state/auth" \
+        -p 0.0.0.0:2222 -P "$state/dropbear.pid" -K 30 > "$state/private/dropbear.log" 2>&1 &
+    echo $! > "$state/dropbear.pid"
+    sleep 1
+    kill -0 "$(cat "$state/dropbear.pid")" || return 1
+    touch "$state/ready"
+    echo "network: ready $(cat "$state/address") on $found"
+}
+
+case "${1:-}" in
+ up)
+    attempt=1
+    while [ "$attempt" -le 3 ]; do
+        echo "network: attempt $attempt"
+        up_once && exit 0
+        down
+        attempt=$((attempt+1))
+        sleep 5
+    done
+    exit 1 ;;
+ down) down ;;
+ *) echo 'Usage: worker up|down' >&2; exit 2 ;;
+esac
