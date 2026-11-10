@@ -16,8 +16,16 @@ M1 delivered three things:
   BusyBox rcS/rcK-style init,
 - the retirement of the C-step safety harness.
 
-All checks passed at T0–T2. The M1 T3 checklist is pending; see the end of
-this file.
+All checks passed at T0–T2. **M1 T3 (2026-11-10) is incomplete:**
+- **Item 1, flash via dArkOSen: FAIL.**
+  - `dd` wrote the image to slot 2. The root-side script then stopped
+    at `blockdev: not found`, because dArkOSen's sudo `secure_path` has
+    no sbin directories. So it never verified the card or grew p3.
+  - Fixed in `9bf8f80`: full PATH, every tool checked before writing,
+    `blockdev` optional, and a clear "FLASH ABORTED" message. Tested at
+    T1 under a sudo-like PATH; not yet rerun on dArkOSen.
+- **Items 2–6:** not run yet, because they depend on item 1.
+- The raw report is `docs/t3-m1.txt` (not committed).
 
 ## Device and bench
 
@@ -258,19 +266,69 @@ part of M3.
 
 ## Proposed next milestones
 
-**M2 — Power and battery:**
-- **Power key** (`rk8xx_pwrkey`, event0): short press → suspend (or
-  screen off), long press → clean poweroff through init.
-- **Suspend/resume:** unbind `/sys/power`, then qualify suspend and
-  resume, including Wi-Fi and SSH recovery and audio after resume.
-- **Battery:** RK817 gauge → muOS battery config (`capacity`, `charger`,
-  `voltage`). Charging indication, low-battery warning and auto-poweroff,
-  and the charge LED (GPIO77).
-- **Headphones:** jack switching and volume (event1).
-- **Power-loss test:** pull the battery or power during a save, then check
-  p3 recovery. Add e2fsck to the rootfs and run it on p3 at boot.
-- **T3:** Power key behaviour, suspend/resume, battery % against the
-  charger, headphones.
+**M2 — Power, battery and CPU frequency** (plan; waiting for approval):
+
+0. **Close M1 T3 first.** Rerun the fixed flash, then items 2–6 of the M1
+   checklist.
+1. **NES baseline (before).**
+   - Install FCEUmm (`build-phase4-nes-core.py`) and the MIT demo ROM
+     (`port/diagnostics/phase4-nes-demo.py`) as `ROMS/NES`.
+   - Launch it from the menu with `muos-press` and record muxretro's
+     "Content rate" lines over 60 s, plus `scaling_cur_freq`, the
+     governor and load.
+   - Same build, ROM and boot as later, so the before/after numbers are
+     comparable.
+2. **Writable cpufreq.**
+   - Drop the read-only bind of `/sys/devices/system/cpu` in S91, so the
+     frontend and muxretro governor writes work.
+   - Verify that the per-content governor (muOS `core.gov`, schedutil
+     for GB) is applied on launch and restored on return.
+   - Record the available governors and the OPP table.
+   - Re-measure NES (after). Note: C47 already measured NES under
+     `performance` at 1296 MHz, so this step alone may not change NES fps.
+     Its main value is correct per-content governors and battery life.
+3. **Optional, needs your decision: raise the CPU cap from 1296 to
+   1512 MHz.**
+   - Stock dArkOSen allows 1512 MHz. The cap lives in the port DTB OPPs
+     on p1. Pairing it with the O3/LTO FCEUmm build (53.6 fps in C47) is
+     the realistic path toward 60 fps.
+   - Measure fps, temperature and stability over 10 minutes.
+   - Recovery if unstable: restore the old DTB on p1 over SSH, or reflash.
+4. **Power key** (`rk8xx_pwrkey`, event0): short press → suspend, if
+   step 5 qualifies, otherwise screen off. Long press (about 2 s) →
+   clean poweroff through init. Hook it into muhotkey or a small evdev
+   daemon.
+5. **Suspend/resume.**
+   - Unbind `/sys/power` and test `mem`/`freeze` over SSH.
+   - Qualify Wi-Fi and SSH return, audio after resume, input and
+     display.
+   - If resume is unreliable on 4.4, fall back to screen-off with a
+     reduced CPU frequency.
+6. **Battery.**
+   - RK817 gauge → muOS `device/config/battery/{capacity,charger,voltage}`.
+   - Show % and charging state in the frontend.
+   - Low-battery warning, then poweroff through init at a safe
+     threshold.
+   - Charge LED (GPIO77).
+7. **Headphones.** Jack detection (event1): sink switching and volume.
+8. **Data safety.**
+   - Add e2fsprogs to the rootfs and run e2fsck -p on p3 before S89
+     mounts it.
+   - Power-loss test: cut power during a quick save, then check p3 and
+     the saves.
+9. **T2:**
+   - before/after NES fps table
+   - governor round-trip
+   - 20 suspend/resume cycles over SSH, if step 5 qualifies
+   - battery readings against the charger plugged and unplugged
+   - p3 fsck at boot, and the full `t2-menu-cycle.sh`
+10. **T3:**
+    - Power key (short and long press)
+    - suspend/resume: screen and buttons after wake
+    - battery % and charging icon
+    - headphones
+    - NES feel
+    - one deliberate power cut during play
 
 **M3 — Real usage:**
 - **ROM library:** browse ROMs in `ROMS/<system>` with SRAM saves, and
