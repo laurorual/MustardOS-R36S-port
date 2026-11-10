@@ -31,7 +31,16 @@ raw_bytes=$(sed -n 's/^raw_bytes=//p' "$manifest")
 flash_script() { # DEV
     cat <<EOF
 set -eu
+# sudo's secure_path on dArkOSen lacks the sbin dirs (blockdev/sfdisk/e2fsck).
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 dev=$1
+need="dd sha256sum head findmnt awk"
+[ $grow = 0 ] || need="\$need sfdisk e2fsck resize2fs"
+for tool in \$need; do
+    command -v "\$tool" >/dev/null || { echo "missing tool: \$tool (nothing written)" >&2; exit 1; }
+done
+flush() { blockdev --flushbufs "\$dev" 2>/dev/null || :; }
+reread() { blockdev --rereadpt "\$dev" 2>/dev/null || partprobe "\$dev" 2>/dev/null || partx -u "\$dev" 2>/dev/null || :; }
 [ -b "\$dev" ] || { echo "no block device \$dev" >&2; exit 1; }
 root=\$(findmnt -no SOURCE /)
 case "\$root" in "\$dev"*) echo "refusing: \$dev holds the running root" >&2; exit 1 ;; esac
@@ -41,15 +50,14 @@ unmount_all() { for m in \$(awk -v d="\$dev" 'index(\$1, d) == 1 {print \$2}' /p
 unmount_all
 echo "writing \$dev (\$size bytes)"
 dd of="\$dev" bs=4M conv=fsync 2>/dev/null
-sync; blockdev --flushbufs "\$dev"; echo 3 > /proc/sys/vm/drop_caches
+sync; flush; echo 3 > /proc/sys/vm/drop_caches
 echo "SHA=\$(head -c $raw_bytes "\$dev" | sha256sum | cut -d' ' -f1)"
 if [ $grow = 1 ]; then
     p=\$dev; case "\$dev" in *mmcblk*|*nvme*|*loop*) p=\${dev}p ;; esac
-    blockdev --rereadpt "\$dev" 2>/dev/null || partprobe "\$dev" || :
-    sleep 2; unmount_all
+    reread; sleep 2; unmount_all
     echo ', +' | sfdisk -q --no-reread -N 3 "\$dev"
-    blockdev --rereadpt "\$dev" 2>/dev/null || partprobe "\$dev"
-    sleep 2; unmount_all
+    reread; sleep 2; unmount_all
+    [ -b "\${p}3" ] || { echo "p3 node missing after re-read; grow skipped" >&2; exit 1; }
     e2fsck -f -y "\${p}3" >/dev/null || [ \$? -le 1 ]
     resize2fs "\${p}3" 2>&1 | tail -n1
     e2fsck -fn "\${p}3" >/dev/null && echo "p3 grown and clean"
@@ -83,6 +91,7 @@ else
 fi
 
 got=$(tr -d '\r' < "$out" | sed -n 's/^SHA=//p')
+[ -n "$got" ] || { echo "FLASH ABORTED before verification (see the messages above)" >&2; exit 1; }
 [ "$got" = "$raw_sha" ] || { echo "VERIFY FAILED: card ${got:-?} != image $raw_sha" >&2; exit 1; }
 echo "verified raw_sha256=$got"
 echo "DONE: power off, move the card to slot 1 (slot 2 empty), power on."
