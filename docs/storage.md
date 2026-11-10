@@ -21,75 +21,36 @@ the details.
 
 ## Limits
 
-- At most **5 firmware milestones**, inventoried in
-  `port/packaging/storage-retention.json`. The limit is enforced: a 6th
-  version is refused, and a test covers this.
-  - The current five are C64, C79, C89, C93 and C100, which together make
-    up 7 image files:
+- At most **5 firmware versions**, inventoried in
+  `port/packaging/storage-retention.json` and managed by
+  `port/scripts/retention.py`. The tool refuses a 6th version; only files
+  listed for a version are ever deleted. Current versions (M1, 10/11):
 
-  | Milestone | Role |
+  | Version | Role |
   |---|---|
-  | C64 | Ancestor of the C77/C104 chain |
-  | C79 | Factory image, card image and p2 reread |
-  | C89 | Physical recovery reference |
-  | C93 | Migrated candidate; seed and counter consumed |
-  | C100 | Corrected, unprovisioned factory |
+  | C100 | Unprovisioned factory ext4, rootfs rebuild reference |
+  | M1-baseline | Flashable pre-M1 test128 image (C07 init; boots on test128 only) |
+  | M1 | Flashable M1 image (autostart; any card ≥ 2 GiB) |
 
-  - These are kept for audit and rebuild only. They do **not** authorise
-    rewriting a card, and none is a ready-to-flash recovery image.
-- At most **5 named Git checkpoints**. Current tags:
-  - `checkpoint/2026-11-07-before-retention`
-  - `checkpoint/2026-11-07-c105-installed`
-  - `checkpoint/2026-11-07-c106-installed-caller`
-  - `checkpoint/2026-11-07-c111-local-preparation`
-  - `checkpoint/2026-11-07-c114-internal-rom`
-- A compact source history is allowed as a recorded audit exception.
-
-## Always preserve
-
-- **Private material:**
-  - C82 independent backup (`build/phase4/offline-backup`).
-  - C20 and C95 private prefixes.
-  - Reference and postboot captures.
-  - C89 and C94 receipts and fences.
-  - Everything under `build/phase4/private/` (SSH keys, known_hosts, C24
-    backups).
-- **Toolchain and sources:**
-  - Both installed SDKs (`output/host` plus sysroots).
-  - Kernel and bootloader downloads and sources.
-  - `rootfs-downloads`.
-- **Proofs and records:**
-  - Licences and sanitised proofs in `dist/phase4/`.
-  - The audio template.
-  - `internal-rom/import.tgknjpow/before.tar` and the C112/C113 claims.
-- **Directories that scripts still reference:** `muos-*`,
-  `buildroot-config`, `host-skeleton`, the Rockchip Mali and libnl
-  directories. Also `glibc-*/COPYING.LIB`.
+  C64, C79, C89 and C93 (audit-only images) were retired in M1.
+- At most **5 named Git checkpoints** (tags `checkpoint/*`).
+- `keep` in the inventory lists what is never pruned: private material
+  (`build/phase4/private`, the C82 offline backup), SDKs, sources and
+  downloads, `dist/phase4` proofs, `dist/recovery`, and the latest
+  `build/recovery` capture.
 
 ## Cleanup procedure
 
-1. **Trace dependencies:** `port/scripts/phase4-storage-dependencies.py`
-   traces the current offline preparation. It blocks writes, network access
-   and subprocesses; only `git check-ignore` is allowed.
-2. **Make a plan (dry run):** `port/scripts/retain-phase4-builds.py`
-   cross-checks the trace against the inventory. It writes a private plan to
-   `build/cleanup/retention-*.json`. Review that plan.
-3. **Apply the plan.** Apply refuses to run if:
-   - anything changed since the plan was made,
-   - a tree is mounted,
-   - files are open,
-   - there are directory aliases or special file types.
+1. `port/scripts/retention.py check`: limit, presence and sizes.
+2. `port/scripts/retention.py retire VERSION`: dry run listing the files
+   and bytes; add `--apply` to delete them and drop the entry.
+3. `port/scripts/retention.py add VERSION REASON FILE...` after building
+   a new image.
+4. Measure the gain with `df`, not `du`, because Btrfs CoW shares blocks.
 
-   Symlinks are deleted without being followed, and hardlinks to protected
-   files are kept.
-4. **Rules:**
-   - Never run cleanup during a build.
-   - Never reuse a consumed plan, and never apply an empty dry-run plan.
-   - Consumed plans are gzipped and re-read in full.
-5. **Measure** the gain with `df`, not `du`, because Btrfs CoW shares
-   blocks.
-6. **Rebuild** removed historical builds from recipes plus
-   `rootfs-downloads`, into a new output tree.
+The old `retain-phase4-builds.py` replica pruner and its hash-pinned
+dependency trace (`phase4-storage-dependencies.py`) were retired in M1.
+Their history is in Git and in the table below.
 
 To sparsify images, use `port/scripts/sparsify-phase4-images.py`. It runs
 `fallocate --dig-holes` and checks SHA256 before and after. Never use it on

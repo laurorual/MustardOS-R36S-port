@@ -50,13 +50,19 @@ about other R35S/R36S panels or revisions.
   - **Do not unify it with the Linux DTB timing.**
   - The node named "60Hz" is not a refresh-rate measurement.
   - (phase4-uboot-panel.md)
-- **⚠ Conflict (panel timing):**
-  - compatibility-matrix.md quotes the stock Linux Panel 0 DTB
-    (`rk3326-r36s-linux.dtb`, SHA256 `5634eb3e…`) as 50 MHz,
-    h 450/**46**/450, v 17/5/13.
-  - phase4-uboot-panel.md says the Linux DTB is 29 MHz, which matches the
-    measured mode.
-  - Which DTB or mode the 50 MHz/hsync-46 figure describes is unresolved.
+- **Panel timing, resolved (M1, measured):** the two figures describe
+  different DTBs.
+  - Port DTB (`rk3326-muos-r35s-panel0.dts`, from the rk351
+    `rk3326-r35s-linux.dts`): single node "60Hz", 29 MHz, h 46/2/44,
+    v 165/2/14, htotal 732 / vtotal 661 = 59.9357 Hz. Measured on the device:
+    live DT, DRM CRTC 60 (`muos-drm-mode-probe`: 29000 kHz, 732×661,
+    59.935683 Hz), and muxretro reports the display locked at 59.94 Hz.
+  - Stock dArkOSen Linux DTB (`rk3326-r36s-linux.dtb`, `5634eb3e…`):
+    native-mode "60Hz" is 50 MHz, h 450/46/450, v 17/5/13 (1586×515,
+    ≈61.2 Hz), plus unused "50Hz" (25.5 MHz) and "75Hz" (30.6 MHz) nodes.
+    compatibility-matrix.md quoted this one.
+  - The U-Boot DTB is 50 MHz h 450/70/450 (see above). Keep all three
+    separate.
 - **Framebuffer:**
   - `/dev/fb0` is 640×480, 32 bpp XRGB, stride 2560, with an empty `fix.id`.
   - **mmap returns EINVAL**, so muOS musplash needed a pread/pwrite fallback
@@ -286,21 +292,43 @@ about other R35S/R36S panels or revisions.
   - Compare root MAJ:MIN using `findmnt -rn`; padded output once caused a
     false "Root device mismatch".
   - (phase4-ext4-diagnostic.md, phase4-card-image.md)
-- **Init:**
+- **Init (M1):**
+  - U-Boot passes `init=/sbin/muos-ext4-diag` (env never rewritten). Since
+    M1 it is a guard-free shim: mount proc/sys, optional trial-boot
+    fallback, `exec /sbin/init`. Any check that fails in it halts PID 1
+    before SSH exists, so keep it trivial.
   - BusyBox 1.37.0 init runs its SHUTDOWN actions, then `kill(-1)`. A
-    failing script **does not cancel** the shutdown, so every stop check must
-    finish before the reboot/poweroff request reaches PID 1.
-  - Service order: eudev → D-Bus → S90 storage → S95 core/audio/muinput →
-    S96 input/mapping → S99 UI.
-  - `muxfrontend` SIGTERMs itself if its parent is PID 1, which is why it
-    needs `muos-ui-supervisor`.
+    failing script **does not cancel** the shutdown; `muos-rc stop` bounds
+    each service stop instead.
+  - `muos-rc` order: seedrng/syslog/sysctl → udev → D-Bus → S41 network
+    (background) → S85 root ro → S89 p3 rw + p1 ro → S90 storage binds →
+    S91 runtime views → S95 core/audio/muinput → S96 input mapping → S99 UI.
+    Menu at ~15 s uptime; the stop sequence takes ~2 s.
+  - Services need the muOS environment (HOME=/root, XDG_RUNTIME_DIR,
+    PIPEWIRE_RUNTIME_DIR, D-Bus address, frontend LD_LIBRARY_PATH);
+    without it S95 audio fails.
+  - `muxfrontend` SIGTERMs itself if its parent is PID 1; the
+    `muos-frontend` loop owns it. `start-stop-daemon -b` double-forks, so
+    signal the process group read from `/proc/PID/stat`, not `-PID`.
+  - The frontend leaves per-launch request files in `/run/muos`
+    (`governor`, `controller`, ...). If they are not removed, the next
+    start opens an "option" screen.
+  - muOS writes `/opt/muos/config`, `/opt/muos/share/info/{content,config}`,
+    `/opt/muos/share/volume`, `/opt/muos/device/config`, `/opt/muos/log`,
+    `/root`, `/usr/share/wireplumber`, `/etc/asound.conf` and
+    `/usr/share/alsa/alsa.conf`. With root ro these are p3 or tmpfs binds
+    (S91). BusyBox `cp -f` unlinks first, so it cannot replace a
+    bind-mounted file: seed the ALSA copies from muOS's own templates.
   - (phase4-boot-coordinator.md, phase4-init-services.md)
 - **Entropy:**
   - HW_RANDOM=y, but HW_RANDOM_ROCKCHIP and CRYPTO_DEV_ROCKCHIP_V2 are off,
     so the RNG becomes ready only after about 7–11 s. The deadline was raised
     from 5 s to 60 s (S05 capped at 90 s).
-  - The seed lives in `/var/lib/muos-seedrng` (directory 0700, file 0400,
-    256 B). Credit it once per boot only.
+  - Buildroot's stock S01seedrng (`-d /var/lib/muos-seedrng`) runs while
+    root is still rw. Nothing waits for RNG readiness any more: the dropbear
+    host key is persisted, and a missing one is generated in the background
+    network worker. Images ship without `seed.*` (M1 retired the C05
+    entropy gate and the "never replay the seed" rule).
   - Buildroot's S01seedrng hides failures with `|| true`.
   - (phase4-entropy-diagnostic.md, phase4-service-diagnostic.md)
 - **Userspace:**
@@ -338,13 +366,15 @@ about other R35S/R36S panels or revisions.
   | p3 (640 MiB to end, ~118 GiB) | ext4 `MUOSDATA`, PARTUUID `4d554432-03`, UUID `6d756f73-c020-4000-8000-000000000001` |
 
   - (phase4-userdata-offline.md, phase4-card-image.md)
-- **Write and data rules:**
-  - The only routine write target is p2, at byte offset 134217728 with
-    length 536870912. The ranges 0–128 MiB and 640 MiB–end are protected.
-  - The 640 MiB factory images (C70/C79) contain only p1/p2. Writing one
-    whole would destroy p3.
-  - p3 holds `MUOS/preferences`, `MUOS/port-saves-v1` and
-    `MUOS/port-roms-v1`.
+- **Write and data rules (M1):** the whole card is disposable and is
+  rewritten with the images in `dist/recovery` (STATUS). These hold
+  0–640 MiB (bootloader, p1, p2) plus a 1 GiB p3. `flash-card.sh --grow`
+  extends p3 to the end of the card.
+  - p3 holds `ROMS/<system>` (`ROMS/GB/private.gb`), the muOS storage tree
+    `MUOS/*` (saves and states in `MUOS/pickles`), `MUOS/port`
+    (persistent config and assignments), `MUOS/log`, and the older C21
+    `MUOS/preferences` and `MUOS/port-saves-v1` stores (imported once,
+    no longer written).
   - (phase4-root-migration.md, phase4-p2-write-core.md)
 - **ext4 feature flags:**
   - Root and data ext4 are created **without** 64bit, metadata_csum(_seed),
@@ -354,9 +384,9 @@ about other R35S/R36S panels or revisions.
   - (phase4-rootfs.md, phase4-gambatte-image.md)
 - **Private state on p2:**
   - Network config and host key: 0600.
-  - `seed.credit`: 0400.
-  - Boot counter `var/lib/muos-diagnostic/boot-seq`: 0600, and must stay
-    0600. C07 sets umask 077 itself.
+  - SeedRNG seed: created per card at first boot; never in images.
+  - The C07 boot counter (`boot-seq`) was retired in M1. Boots are
+    identified by `/proc/sys/kernel/random/boot_id`.
   - Root directory: 0755.
   - (phase4-root-migration.md, phase4-candidate-update.md)
 - **Card-handling quirks:**
@@ -415,10 +445,9 @@ about other R35S/R36S panels or revisions.
 - **SSH:**
   - Port 2222, root, key only. The host key is generated on the device after
     the RNG is ready.
-  - Command:
-    `ssh -p 2222 -i build/phase4/private/c07-client -oIdentitiesOnly=yes
-    -oStrictHostKeyChecking=yes
-    -oUserKnownHostsFile=build/phase4/private/c07-known_hosts root@<IP>`
+  - Use `port/scripts/device.sh` (find/run/sh/push/pull/reboot/capture).
+    It finds the device by the pinned fingerprint below, because DHCP
+    changes the IP, and logs to `build/logs/device.log`.
   - Host key fingerprint
     `SHA256:fDW+/iNaWgqPwqBtO/ESuKPSQHvYN1PSo2RHfilOxK0`.
   - (phase4-network-ssh.md, phase4-resume-checkpoint.md)
@@ -440,8 +469,11 @@ about other R35S/R36S panels or revisions.
   - The port caps the CPU at 1296 MHz (stock allows 1512).
   - Under load the governor read performance at 1296000 kHz.
   - (phase4-bsp-foundation.md, phase4-nes-performance.md)
-- **Reboot:** a controlled reboot through the C12 preflight works. Physical
-  poweroff and suspend are untested. (phase4-boot-power.md)
+- **Reboot (M1):** `reboot` through init and the launcher's Reboot entry both
+  run the ordered rcK (UI → input → core → runtime → storage → p3 unmount)
+  and come back cleanly; p3 needs no journal recovery afterwards. Poweroff
+  uses the same path but is untested by hand, and suspend is untested.
+  `/sys/power` is bound ro until M2.
 
 ## Emulation stack facts
 
@@ -470,35 +502,28 @@ about other R35S/R36S panels or revisions.
 ## Recovery facts
 
 - **original32:**
-  - The stock dArkOSen card is the independent recovery and must never be
-    written.
+  - The stock dArkOSen card. Since M1 it is the flasher station: boot it
+    in slot 1 with the target card in slot 2 (`/dev/mmcblk1`) and run
+    `flash-card.sh darkosen` (it gets our key as root once). Never write
+    original32 itself.
   - Power off before swapping cards.
   - When booting dArkOSen, keep the test card out of slot 2. Otherwise it
     automounts its FAT as `/roms2`.
   - (phase4-memory-monitor.md, phase4-linux-diagnostic.md)
 - **Black screen:** wait 2 minutes before powering off.
   (phase4-native-graphics.md)
-- **Card writer guard:** the writer is locked by CID and exact capacity,
-  refuses to run if the dArkOSen CID is present, and verifies writes by
-  re-reading. (phase4-linux-diagnostic.md)
-- **p2-only repair flow (C89):**
-  - Steps, run in the Deck reader:
-    1. Seal a fence.
-    2. Capture p2.
-    3. Compose a 512 MiB ext4 from the C82 root, with a fresh unclaimed seed,
-       counter+1 and root 0755.
-    4. Write exactly p2, then re-read.
-    5. Compare MBR/p1/p3.
-  - Evidence: `dist/phase4/p2-recovery-native`.
-  - The flow needs the retired Deck workflow.
-  - (phase4-p2-recovery.md, phase4-recovery-image.md)
-- **Backups:**
-  - `build/phase4/offline-backup` (C82) holds a 640 MiB prefix plus a USTAR
-    of prefs and saves. It contains root, seed and credentials, so it is
-    **host-only** and never goes into `dist/`.
-  - Never restore old counters, seeds or keys from it.
-  - (phase4-offline-backup.md, phase4-userdata-offline.md)
-- **No documented full-card image recovery:** there are no `dd`/`bmaptool`
-  steps for a full-card recovery image anywhere in the reports. See STATUS
-  open decision 1.
+- **Card guards (retired in M1):** the C01/C07 bootstrap and harness were
+  locked to the test128 CID and exact capacity, and halted with
+  "STOPPED - media guard" on any other card or with original32 in slot 2.
+  The M1 init has no card guard. The **baseline** image still carries
+  the old bootstrap, so it only boots on test128 with slot 2 empty.
+- **Full-card images (M1):** `make-recovery-image.sh` composes them
+  rootless on the host from a `device.sh capture` (consistent read:
+  services quiesced, root ro, p3 unmounted, prefix hash re-checked). It
+  runs e2fsck on p2 and p3 and rebuilds p3 with the same label, UUID and
+  4.4-safe features (`has_journal ext_attr resize_inode dir_index filetype
+  extent sparse_super large_file uninit_bg dir_nlink extra_isize`).
+  The images are private: Wi-Fi PSK, SSH host key, authorized_keys.
+- **Superseded:** the C89 p2-only Deck repair flow and the C82 offline
+  backup (`build/phase4/offline-backup`, still kept, private).
 - **Untested:** power loss or SIGKILL during any write.

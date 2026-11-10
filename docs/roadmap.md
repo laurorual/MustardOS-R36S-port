@@ -38,8 +38,8 @@ in [STATUS.md](STATUS.md).
 | 1 | Run one native muOS C component (`muinput --list-devices`) | **Done** (23/10) |
 | 2 | Display and input separately (fb, SDL/GLES, all controls) | **Done** (23/10). Brightness and blank tests never run. |
 | 3 | First muOS menu on the Debian bench | **Done with caveats** (24/10). Help WAVs are inaudible. |
-| 4 | Standalone firmware base: own boot chain, kernel, rootfs, init, frontend, cores, persistence | **In progress.** Latest is C122 (09/11). |
-| 5 | Separate-card image and native bring-up | Formally not started, though several steps already happened inside Phase 4 (see below). |
+| 4 | Standalone firmware base: own boot chain, kernel, rootfs, init, frontend, cores, persistence | **Done** (C1–C122, closed by M1 on 10/11). |
+| 5 | Separate-card image and native bring-up | **In progress.** M1 (10/11): flashable image, boot straight to the menu, persistent saves. |
 | 6 | Consolidation and compatibility (board/panel/kernel matrix, automated builds) | Not started |
 
 **Phase 4 exit criteria:**
@@ -77,7 +77,6 @@ in [STATUS.md](STATUS.md).
 - **Hardware:** battery and charging, LEDs, Bluetooth.
 - **Audio:** the original help sounds.
 - **Performance:** NES speed, audio underruns, launch latency.
-- **Recovery:** a flashable recovery image (see STATUS).
 - **Provenance:** reproduce the installed boot chain; resolve the
   redistribution licences.
 
@@ -92,8 +91,10 @@ in [STATUS.md](STATUS.md).
 Exit: the separate card boots muOS AArch64, runs the Panel 0 basics and shuts
 down correctly without dArkOSen. Do not claim general R35S/R36S support.
 
-Steps 1–3 and 5 have already run on test128 as Phase 4 milestones. Step 4
-(except audio) and step 6 remain.
+Steps 1–3 and 5 ran as Phase 4 milestones; M1 added the flashable image,
+autostart and clean reboot/shutdown through init. Step 4 (battery, LEDs,
+power) and step 6 (suspend, long cycles) remain: milestones M2 and M3 in
+STATUS.
 
 **Phase 6:** extend to other boards and panels only with evidence and a
 physical test. Never autodetect a panel from the SoC name. Add update

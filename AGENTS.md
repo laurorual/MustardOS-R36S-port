@@ -116,9 +116,9 @@ The host disk is small; treat space as a first-class constraint.
   `port/packaging/storage-retention.json` (record the reason for any
   exception). Keep at most five named Git restore checkpoints.
 - Preserve frozen proof files and private recovery material.
-- Before deleting outputs: dry-run `port/scripts/retain-phase4-builds.py`,
-  verify the dependency closure and integrity report. Details in
-  `docs/storage.md`. Never auto-clean refs or the device.
+- Before deleting outputs: dry-run `port/scripts/retention.py retire`
+  and review the listed files. Details in `docs/storage.md`. Never
+  auto-clean refs.
 - At the end of a milestone, report disk usage of build/, dist/ and
   container images if it grew significantly.
 

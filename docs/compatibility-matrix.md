@@ -33,7 +33,7 @@ The reference commits are in [upstream-revisions.txt](upstream-revisions.txt).
 | Kernel / DTB / modules | F | T3 | `4.4.189-muos-r35s-p4`, own Panel 0 DTB, 555 modules | C97 | E4–5, E10 |
 | Root FS / init | F | T2 | ext4 RO root; BusyBox PID 1 → C07 init. Full rcS/rcK pending. | C97–C122 | E1–5 |
 | Partitions | F | T3 | test128: MBR, p1 FAT, p2 ext4 512 MiB, p3 ext4 data | C94/C97 | E2, E10 |
-| Panel 0 display | F | T3 | 640×480 @ 59.94 Hz. ⚠ Timing conflict, see hardware-findings. | C03 | E4, E7, E11 |
+| Panel 0 display | F | T3 | 640×480 @ 59.94 Hz: port DTB 29 MHz, 732×661 (measured M1). The stock dArkOSen DTB uses 50 MHz / ≈61.2 Hz. | M1 | E4, E7, E11 |
 | Brightness / blank | F | T3 / — | Levels 0–160 work. Blank is untested; UI percentage mapping is not calibrated. | C09, C21 | E4, E7, E11 |
 | GPU / graphics | F/U | T3 | Mali-G31 with r13p0 blob (private licence), SDL2 KMSDRM/GLES | C03 | E8, E10 |
 | Audio (speaker) | F | T3 | SPK_HP, gain 215, quantum 1024, PCM prime. Half-rate root cause still open; underruns. | C27, C36, C39 | E4–5, E7, E9, E11 |
