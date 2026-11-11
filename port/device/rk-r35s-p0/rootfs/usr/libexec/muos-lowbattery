@@ -1,0 +1,31 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Low battery, after MustardOS internal/script/system/lowpower.sh: every 10 s,
+# when not charging and capacity <= settings/power/low_battery, show the
+# battery overlay (/run/muos/overlay.battery). Port addition: at or below
+# CRITICAL % (default 3) for three checks in a row while discharging, power
+# off cleanly through init (saves, p3) before the PMIC cuts power.
+run=/run/muos
+cap=$run/battery/capacity chg=$run/battery/charging ovl=$run/overlay.battery
+critical=${MUOS_BATTERY_CRITICAL:-3} interval=${MUOS_BATTERY_INTERVAL:-10}
+say() { printf '%s %s\n' "$(cut -d' ' -f1 /proc/uptime)" "$*"; }
+cfg() { v=$(cat "/opt/muos/config/$1" 2>/dev/null); echo "${v:-$2}"; }
+until [ -f "$cap" ] && [ -f "$chg" ]; do sleep 2; done
+low=0
+while :; do
+    c=$(cat "$cap" 2>/dev/null); g=$(cat "$chg" 2>/dev/null)
+    case "$c:$g" in *[!0-9:]*|:*|*:) sleep "$interval"; continue ;; esac
+    if [ "$g" -ne 0 ] || [ "$c" -gt "$(cfg settings/power/low_battery 25)" ]; then
+        [ ! -e "$ovl" ] || { rm -f "$ovl"; say "battery ok ($c%, charging=$g)"; }
+        low=0
+    else
+        [ -e "$ovl" ] || { : > "$ovl"; say "low battery warning ($c%)"; }
+        if [ "$c" -le "$critical" ]; then
+            low=$((low + 1))
+            [ "$low" -lt 3 ] || { say "critical battery ($c%): power off"; sync; poweroff; exit 0; }
+        else
+            low=0
+        fi
+    fi
+    sleep "$interval"
+done

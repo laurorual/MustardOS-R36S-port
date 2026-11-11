@@ -1,0 +1,26 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Headphone switching, after MustardOS internal/script/device/headphone.sh
+# (RK817 G350 branch): follow the ASoC "Headphone Jack" control and set the
+# RK817 "Playback Path": jack in -> HP, jack out -> the device default
+# (device/config/audio/path, SPK_HP on this unit). /run/muos/headphones is
+# the muOS flag. Polarity: on = inserted (observed "off" with nothing
+# plugged in; G350 is inverted). device/config/audio/jack_inverted=1 flips it.
+run=/run/muos
+say() { printf '%s %s\n' "$(cut -d' ' -f1 /proc/uptime)" "$*"; }
+default=$(cat /opt/muos/device/config/audio/path 2>/dev/null); default=${default:-SPK_HP}
+inv=$(cat /opt/muos/device/config/audio/jack_inverted 2>/dev/null)
+jack() {
+    v=$(amixer -c 0 cget iface=CARD,name='Headphone Jack' 2>/dev/null | sed -n 's/.*: values=//p')
+    case "$v:$inv" in on:1|off:1) [ "$v" = on ] && echo 0 || echo 1 ;; on:*) echo 1 ;; off:*) echo 0 ;; *) echo x ;; esac
+}
+last=
+while :; do
+    now=$(jack)
+    if [ "$now" != x ] && [ "$now" != "$last" ]; then
+        if [ "$now" = 1 ]; then path=HP; : > "$run/headphones"; else path=$default; rm -f "$run/headphones"; fi
+        amixer -q -c 0 sset 'Playback Path' "$path" 2>/dev/null && say "jack=$now path=$path" || say "jack=$now path $path refused"
+        last=$now
+    fi
+    sleep 1
+done

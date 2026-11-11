@@ -1,0 +1,24 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Battery: muOS mubattery (writes /run/muos/battery/{capacity,voltage,
+# charging} for the frontend status bar, from device/config/battery/*) and
+# muos-lowbattery (upstream lowpower.sh warning overlay + a port addition:
+# clean poweroff through init when critically low and not charging), and
+# the muos-headphone jack follower (device monitors share this service).
+state=/run/muos/battery-service
+case "${1:-}" in
+ start)
+    mkdir -p "$state"
+    start-stop-daemon -S -b -m -p "$state/hp.pid" -x /bin/sh -- -c 'exec /usr/libexec/muos-headphone >> /opt/muos/log/headphone.log 2>&1'
+    [ -n "$(cat /opt/muos/device/config/battery/capacity 2>/dev/null)" ] || { echo 'battery: not configured'; exit 0; }
+    start-stop-daemon -S -b -m -p "$state/mubattery.pid" -x /opt/muos/frontend/mubattery
+    start-stop-daemon -S -b -m -p "$state/low.pid" -x /bin/sh -- -c 'exec /usr/libexec/muos-lowbattery >> /opt/muos/log/battery-port.log 2>&1'
+    echo "battery: started ($(cat /sys/class/power_supply/battery/capacity)%)" ;;
+ stop)
+    start-stop-daemon -K -q -p "$state/hp.pid" 2>/dev/null || :
+    start-stop-daemon -K -q -p "$state/low.pid" 2>/dev/null || :
+    start-stop-daemon -K -q -p "$state/mubattery.pid" 2>/dev/null || :
+    rm -f "$state"/*.pid ;;
+ status) [ -s "$state/mubattery.pid" ] && kill -0 "$(cat "$state/mubattery.pid")" 2>/dev/null ;;
+ *) echo 'Usage: S97muos-battery start|stop|status' >&2; exit 2 ;;
+esac
