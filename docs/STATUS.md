@@ -10,17 +10,17 @@ checklists) are in [milestones.md](milestones.md). See also
 ## Current phase
 
 **Phase 5 (own-card firmware). M1, M2 and M2.1 are done (T3 passed
-2026-11-10/11). M3a (reproducible image + e2fsck) is approved, including
-writing p2 after the trial-root boot passes, and is in progress.**
-
-Carried over from the M2.1 T3: per-output volume needs a retest with the
-plug fully inserted (the partly inserted plug isn't detected; see
-milestones.md M2.1). It's in the M3a T3.
+2026-11-10/11). M3a (reproducible image + e2fsck) passed T0–T2 on
+2026-11-11 and the built p2 is on the card; its T3 is at the end of this
+file.** Results: milestones.md M3a.
 
 ## Device and bench
 
-- **Device:** R35S Panel 0, test128 in slot 1, running the M2 image plus
-  the M2.1 fixes installed in place.
+- **Device:** R35S Panel 0, test128 in slot 1. p2 is the M3a Buildroot
+  build (`build-image.sh`, p2 sha256 `a21a4186…`), written from the trial
+  root; bootloader, p1 and p3 are still those of the M2 card. The previous
+  p2 (M2 + M2.1, sha256 `d5d9a5b6…`) is on p3 at
+  `MUOS/trial/p2-previous.img` until the M3a T3 passes.
   - The DHCP IP changes between boots; it was 192.168.15.8.
   - Identify the device by its host key, not its IP:
     `SHA256:fDW+/iNaWgqPwqBtO/ESuKPSQHvYN1PSo2RHfilOxK0`.
@@ -39,13 +39,15 @@ milestones.md M2.1). It's in the M3a T3.
 
 ## Recovery images and flashing
 
-The images are in `dist/recovery/`, each with `.sha256` and `.manifest`.
-**They are private:** they contain the Wi-Fi PSK, the SSH host key and
-authorized_keys. Never commit or share them. M2 is the recovery image
-(M2.1 was installed in place, without a new image).
+The images are in `dist/recovery/` (captures) and `dist/firmware/`
+(built), each with `.sha256` and `.manifest`. **They are private:** they
+contain the Wi-Fi PSK, the SSH host key and authorized_keys. Never commit
+or share them. M2 stays the known-good recovery image until the M3a image
+has been flashed once (M3a T3 item 3).
 
 | Image | Content | Boots on |
 |---|---|---|
+| `dist/firmware/test128-m3a-20261111.img.zst` (raw `2ac44673…`) | M3a: Buildroot-built p2 + M2 prefix/p1/p3; not yet flashed | any card ≥ 2 GiB (expected) |
 | `test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core | any card ≥ 2 GiB |
 | `test128-m1-20261110.img.zst` (raw `1c65c693…`) | M1: autostart, seedless | any card ≥ 2 GiB |
 | `test128-baseline-20261110.img.zst` (raw `9c1c8a37…`) | pre-M1 C07 init, SSH only | test128 only (CID-locked bootstrap), slot 2 empty |
@@ -64,11 +66,35 @@ authorized_keys. Never commit or share them. M2 is the recovery image
 `port/scripts/flash-card.sh host /dev/sdX <image> --grow`. Check `/dev/sdX`
 with `lsblk` first.
 
-**Build a new image** (until M3a's `build-image.sh` replaces this):
-1. `device.sh capture build/recovery/capture-<name>` (quiesces the UI and
-   p3; reboot afterwards).
-2. `port/scripts/make-recovery-image.sh --strip-seed build/recovery/capture-<name> dist/recovery/<name>.img.zst`
+**Build the firmware** (M3a; about 50 min from scratch, minutes
+incrementally, in `build/m3a/output`):
+1. `port/scripts/build-image.sh prepare`, then `source` (network, only
+   fetches what the cache lacks), then `build` (offline, detached;
+   follow with `build-image.sh status` or
+   `tail -f build/m3a/logs/build.log | grep --line-buffered '^>>>'`).
+2. `port/scripts/build-image.sh image <name>` → `dist/firmware/<name>.img.zst`
+   plus `build/m3a/<name>.p2.img` (raw p2 for the trial root).
 3. `port/scripts/retention.py add <name> "<reason>" <files>`
+
+Prebuilt inputs are pinned in `port/packaging/firmware-inputs.json` and
+stored in `build/m3a/inputs/<sha256>` (`build-image.sh inputs`). To
+re-derive them from a device: inventory p2 (`find` + sha256, see
+milestones.md M3a), then `firmware-inputs.py generate`; it reports every
+difference against the build. A device capture
+(`device.sh capture` + `make-recovery-image.sh`) still works for
+snapshots.
+
+**Update p2 in place via the trial root** (no reflash):
+1. Copy the raw p2 to p3 `MUOS/trial/rootfs.img` (`device.sh push` a
+   gzip, `gunzip` on the device) and check its sha256.
+2. `mount -o remount,rw / && touch /etc/muos-root-trial && mount -o remount,ro /`,
+   then `device.sh reboot`. `muos-root-trial status` must say
+   `trial-root yes`. Run the T2 suite there.
+3. Re-arm (the marker is one-shot), reboot, then
+   `/usr/libexec/muos-root-trial write-p2 /userdata/MUOS/trial/rootfs.img <sha256>`:
+   it saves the old p2 to `MUOS/trial/p2-previous.img`, writes and reads
+   back. Reboot into the new p2.
+4. To go back: the same with `p2-previous.img` and its `.sha256`.
 
 **Risky init changes** to inittab, rc or the shim: arm a trial boot.
 1. Copy the known-good inittab to `/etc/inittab.fallback`.
@@ -88,7 +114,7 @@ which runs `/usr/libexec/muos-rc start`:
 | 1 | stock `seedrng`, syslog, sysctl, `udev`, D-Bus | standard Buildroot services |
 | 2 | S41muos-network | Wi-Fi and dropbear on :2222 in the background; up at about 20 s |
 | 3 | S85 | root ro |
-| 4 | S89 | p3 rw at `/userdata`, p1 ro at `/boot` |
+| 4 | S89 | `e2fsck -p` on p3 (≤ 100 s; log p3 `MUOS/log/fsck-p3.log`), p3 rw at `/userdata`, p1 ro at `/boot` |
 | 5 | S90 | muOS storage binds |
 | 6 | S91 | persistent muOS config, core assignments and per-output volume on p3 (`MUOS/port`); tmpfs views for other muOS paths; logs on p3 `MUOS/log/system` (three previous boots in `system.prev*`) |
 | 7 | S95 | audio (retried up to 3× within 25 s) + muinput; audio failure is non-fatal |
@@ -141,10 +167,9 @@ host key is the only persistent identity (M1 decision, see milestones.md).
 | Never `saveenv` or dArkOSen `flash_uboot.sh`; never write original32 | Protects the bootloader and the stock card. |
 | ≤ 5 firmware versions (`retention.py`) | Host disk space. |
 
-The M1 retirements are listed in milestones.md. About 480 scripts in
-`port/scripts` remain: the prepare/package/compose chain that stages the
-Buildroot package sources, plus the C-step checks it references.
-Collapsing them is part of M3a.
+The M1 retirements are listed in milestones.md. M3a retired 410 Phase 4
+scripts (in Git at `e7d67a2`); 48 remain: the live tools, the producers
+of the pinned inputs, and the kernel/U-Boot/DTB tooling for M3b.
 
 ## What works (T3-confirmed)
 
@@ -172,11 +197,16 @@ charging icon; headphone path switching.
   fceumm); `ext-*` launchers are refused. ROMs are copied to p3
   `ROMS/<system>` by hand (`port/scripts/install-nes.sh` for
   `port/roms/nes`).
-- **No e2fsck on the device** yet; the p3 journal covers unclean
-  shutdowns. Comes with M3a.
-- **Rebuild:** the rootfs on the card is the C94 composition patched in
-  place by M1/M2/M2.1. A from-scratch Buildroot image hasn't been built
-  or booted yet (M3a).
+- **M3a image not yet flashed:** p2 was written in place; the full
+  `dist/firmware` image is unproven until M3a T3 item 3.
+- **Pinned, not rebuilt:** the muOS frontend binaries, muxretro, the
+  cores, kernel modules and the tuned `/opt/muos` config are prebuilt
+  inputs (`firmware-inputs.json`), copied byte-identical from the live
+  p2's host build outputs; Buildroot rebuilds the rest. U-Boot, the
+  kernel `Image` and the DTB on p1 still come from the M2 card (M3b).
+- **Trial root:** p3 can't be unmounted at shutdown while the trial root
+  runs from it, so the next boot replays p3's journal (S89 e2fsck handles
+  it).
 - **Wi-Fi:** inserting the dongle during boot is unqualified. Bluetooth is
   blacklisted.
 - **Licences:** Mali r13p0, DDR/miniloader/BL31/BL32, the dirty U-Boot,
@@ -196,7 +226,8 @@ M3 is split into sub-milestones; each ends with its own T3. Kernel
 changes (`HW_RANDOM_ROCKCHIP`, anything in `Image`/DTB) need M3b, because
 the port U-Boot pins the size and SHA256 of `Image` and the DTB.
 
-**M3a — reproducible image + e2fsck** (approved, in progress):
+**M3a — reproducible image + e2fsck** (done at T2 2026-11-11, T3 pending;
+the plan as executed, see milestones.md for results):
 0. **Disk first.** Review and retire old `build/phase4` outputs
    (`retention.py retire` dry run first) and check `podman system df`
    before the Buildroot build.
@@ -207,9 +238,9 @@ the port U-Boot pins the size and SHA256 of `Image` and the DTB.
 2. **One build.** `port/scripts/build-image.sh` in the existing
    `phase4-rootfs` container, reusing `build/phase4/buildroot` and its
    download cache:
-   - `port/device/rk-r35s-p0/firmware.defconfig` = the phase4 rootfs
-     defconfig + e2fsprogs (e2fsck, resize2fs) + i2c-tools + whatever the
-     inventory shows is missing;
+   - `port/device/rk-r35s-p0/firmware.defconfig` = the phase4 graphics +
+     network config + e2fsprogs (e2fsck, resize2fs); i2c-tools dropped
+     (BusyBox `i2cget` is used);
    - only the live BR2_EXTERNAL packages (muos-core, muxretro, wifi-only,
      ...); the legacy C-step packages (launcher-once, save-store,
      session, boot) are dropped;
@@ -254,3 +285,29 @@ libretro cores as needed.
 gauge calibration, the audio half-rate/underruns and the WirePlumber "no
 profile" failure; then a long run (1–2 h of play, 20 reboot/poweroff
 cycles).
+
+## M3a T3 checklist (for the user)
+
+The card already runs the M3a p2. Charger in or out as you like.
+
+1. **Normal use on the current card:** menu, Explore → GB and NES (SMB3),
+   sound, volume and brightness keys, Power sleep/wake in a game, battery
+   icon and %, charging icon.
+   - Expected: everything as with M2.1 (the system was rebuilt, so this
+     is the real check that nothing regressed).
+2. **Headphones, plug fully inserted** (the M2.1 item 4 retest):
+   1. Push the plug all the way in: the speaker must go silent (that's the
+      detection; accept that the sound is lower in this position).
+   2. Set a headphone volume clearly different from the speaker's, unplug.
+   - Expected: the speaker comes back at its own level; plug in again:
+     the headphone level is back.
+   - Also tell me: with the plug only half in, does the speaker keep
+     playing too?
+3. **Flash the built image** (proves it is a recovery image). **This
+   resets p3 to the M2-era data:** saves made since the M2 image are
+   lost (tell me first if you want them kept; I can copy them off).
+   - Use the dArkOSen steps in "Recovery images and flashing" with
+     `dist/firmware/test128-m3a-20261111.img.zst --grow`.
+   - Expected: `verified raw_sha256=2ac44673…` and `p3 grown and clean`;
+     cold boot to the menu in about 16–25 s; a short GB/NES session with
+     sound; battery % and charging icon.

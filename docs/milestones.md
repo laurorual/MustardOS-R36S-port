@@ -4,6 +4,55 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M3a — reproducible image + e2fsck (T2 done 2026-11-11, T3 pending)
+
+Commits `e7d67a2` (build, trial root, e2fsck), `76d9aec` (script
+retirement). Image `dist/firmware/test128-m3a-20261111.img.zst`.
+
+**Disk first:** retired the synthetic capture fixtures and the unused
+Mali SDK libs, then (user decision) the Phase 4 raw card captures and all
+non-project podman images: host free space 61 → 68 GiB before the build,
+62 GiB after it (`build/m3a/output` 9.8 G); podman images 15.0 → 4.6 GB.
+
+**Inventory** (3462 p2 paths, sha256 per file, via a bind mount of `/` so
+S90/S91 binds don't hide p2 content): all but 6 files were in the port
+overlay or byte-identical to a host build output. Final diff of the
+built target against the live p2: 3204 identical, 57 overlay, 90 rebuilt
+ELFs (plus the user tables, completed at image time), 9 symlink/file
+swaps (e2fsprogs replaces BusyBox links; proper library symlinks), 73
+new (e2fsprogs, libs, jimtcl), 12 removed (Buildroot's S50dropbear, the
+usb_modeswitch udev dispatcher, ifupdown/wpa defaults, hwdb sources,
+PipeWire raop/ffmpeg plugins) and 101 dropped (C-step probes, legacy
+session/save-store packages, the M1 backups, trial and seed state).
+Seven tuned files under `/opt/muos` and `/etc/default` (audio path
+`SPK_HP`, the C30 WirePlumber settings, input on, the saved
+`asound.state`, ...) differ from the package defaults; the live content
+is pinned.
+
+**Build:** the cross toolchain and all packages from scratch in about
+50 min (16 jobs). One fix: the container exported `TARGET=all`, which
+muinput's Makefile (`TARGET ?= muinput`) picked up; variables are now
+`M3A_*`.
+
+**T1:** `t1-shim.sh` (no marker, trial, failure at each of 8 steps
+before `pivot_root` → p2, marker consumed); `t1-elf-deps.sh`: 320
+dynamic ELFs resolve with the target ld.so under qemu; e2fsck 1.47.2,
+jq, dropbear, wpa_supplicant run. Image: fsck clean, label ROOTFS,
+4.4-safe features, dbus/pipewire users, BusyBox 04755, identity copied
+(byte-compared).
+
+**T2 on the trial root:** boot to menu (rc done 16.6 s, all services
+rc=0), `t2-sleep-cycle` 5/5, `t2-headphone` PASS, audio probe healthy,
+NES SMB3 59.91 fps; `t2-menu-cycle` 7/8: the only failure was "p3 needed
+journal recovery", expected because the trial root runs from p3.
+**p2 written** from the trial root in 2 m 43 s, read back
+`a21a4186…`; old p2 saved (`d5d9a5b6…`).
+
+**T2 on the new p2:** `t2-menu-cycle` 9/9 (p3 clean after the reboot),
+`t2-sleep-cycle` 10/10, `t2-headphone` PASS, NES 59.90 fps; 6-reboot
+soak: audio up on 6/6 (one second attempt), `e2fsck -p rc=0` every boot;
+the first boot after the trial replayed p3's journal in 0.16 s.
+
 ## M2.1 — battery indicator, per-output volume, audio start retry
 
 Done 2026-11-11 (`8114513`, installed in place on the M2 card).
