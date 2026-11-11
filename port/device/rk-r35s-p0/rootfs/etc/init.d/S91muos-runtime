@@ -57,6 +57,17 @@ case "${1:-}" in
         [ -e "$port/config/$f" ] && continue
         mkdir -p "$port/config/${f%/*}"; cp -p "/opt/muos/config/$f" "$port/config/$f"; echo "runtime: added config $f"
     done
+    # One-shot fixes of values earlier port images seeded wrong (each runs
+    # once per card, then the user's choice wins).
+    # battery-visible: the Phase 3 profile hid the status-bar battery
+    # (visual/battery 3); upstream default is 2 (icon + percent).
+    mig=$port/.migrations; touch "$mig"
+    if ! grep -qx battery-visible "$mig"; then
+        if [ "$(cat "$port/config/visual/battery" 2>/dev/null)" = 3 ]; then
+            printf '2\n' > "$port/config/visual/battery"; echo 'runtime: migrated visual/battery 3 -> 2'
+        fi
+        echo battery-visible >> "$mig"; sync
+    fi
     bind "$port/config" /opt/muos/config
     bind "$port/volume" /opt/muos/share/volume
     bind "$port/info-content" /opt/muos/share/info/content

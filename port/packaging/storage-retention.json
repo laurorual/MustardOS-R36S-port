@@ -24,6 +24,14 @@
         "dist/recovery/test128-m1-20261110.img.zst.sha256",
         "dist/recovery/test128-m1-20261110.manifest"
       ]
+    },
+    "M2": {
+      "reason": "Flashable M2 image: sleep/resume, battery, headphones, writable cpufreq, NES core",
+      "files": [
+        "dist/recovery/test128-m2-20261111.img.zst",
+        "dist/recovery/test128-m2-20261111.img.zst.sha256",
+        "dist/recovery/test128-m2-20261111.manifest"
+      ]
     }
   },
   "keep": {

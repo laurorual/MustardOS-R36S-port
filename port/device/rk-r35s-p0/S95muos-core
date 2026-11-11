@@ -42,6 +42,31 @@ audio_prime_pcm() {
     [ "$(cat /proc/asound/card0/pcm0p/sub0/status)" = closed ] || return 1
     echo DIRECT_ZERO_PCM_COMPLETED > "$state/pcm-prime.txt"
 }
+audio_snapshot() {
+    # Evidence for the unreproduced "silent until a hard power cut" fault
+    # (M2 T3): the RK817 keeps codec state across a warm reboot. Codec
+    # registers 0x12-0x4f are uncached and side-effect free to read; the
+    # file lands in p3 MUOS/log/system (previous boot kept in system.prev).
+    {
+        echo "boot $(cat /proc/sys/kernel/random/boot_id) up $(cut -d' ' -f1 /proc/uptime)"
+        cat /proc/asound/card0/pcm0p/sub0/status
+        for c in 1 3; do amixer -c 0 cget numid=$c 2>&1 | sed -n "s/^ *: values=/numid=$c values=/p"; done
+        r=18; while [ "$r" -le 79 ]; do
+            printf '%02x=%s ' "$r" "$(i2cget -f -y 0 0x20 "$(printf 0x%02x "$r")" b)"; r=$((r + 1))
+        done; echo
+    } > /opt/muos/log/audio-codec.txt 2>&1 || :
+}
+uptime_s() { cut -d. -f1 /proc/uptime; }
+# One full attempt: prime, upstream start, then wait for the real target
+# node (upstream audio/ready is also set on some failure paths, and
+# WirePlumber creates the sink asynchronously after S80 start returns).
+audio_start() {
+    audio_prime_pcm || return 1
+    "$audio_service" start || return 1
+    ready_wait=0
+    while ! audio_ready && [ "$ready_wait" -lt 80 ]; do sleep 0.1; ready_wait=$((ready_wait + 1)); done
+    audio_ready && audio_set_quantum
+}
 check_model() {
     model=$(tr '\000' '\n' < /sys/firmware/devicetree/base/model)
     [ "$model" = 'R36S-V12 2023-08-18 Panel 0' ] || {
@@ -65,22 +90,27 @@ case "${1:-}" in
             elif [ -S /run/pipewire-0 ]; then
                 # Never start a second audio stack in this runtime.
                 echo 'muOS core: foreign audio stack' >&2; audio_rc=1
-            elif ! audio_prime_pcm; then
-                audio_rc=1
-            elif ! "$audio_service" start; then
-                audio_failure; audio_rc=1
             else
-                # Upstream audio/ready is also set on some failure paths; inspect
-                # the actual target node rather than trusting this flag alone.
-                # WirePlumber creates the sink asynchronously; under boot load it
-                # can take a few seconds after S80pipewire.sh start returns.
-                ready_wait=0
-                while ! audio_ready && [ "$ready_wait" -lt 80 ]; do sleep 0.1; ready_wait=$((ready_wait + 1)); done
-                if ! audio_ready || ! audio_set_quantum; then
-                    audio_failure; audio_rc=1
-                else
-                    touch "$state/audio"
-                fi
+                # A failed start is retried with a fresh daemon pair: on some
+                # boots WirePlumber's ALSA device enumerates no profile (empty
+                # EnumProfile, no sink) and upstream S80 gives up after its 3 s
+                # node budget, which left the whole boot silent (M2 T3). The
+                # deadline keeps input startup well inside S95's 45 s bound.
+                attempt=1 deadline=$(( $(uptime_s) + 25 ))
+                until audio_start; do
+                    audio_failure
+                    for f in pw-dump-failure.json wpctl-failure.txt; do
+                        [ ! -e "$state/$f" ] || mv "$state/$f" "$state/attempt$attempt-$f"
+                    done
+                    if [ "$attempt" -ge 3 ] || [ "$(uptime_s)" -ge "$deadline" ]; then
+                        audio_rc=1; break
+                    fi
+                    echo "muOS core: audio attempt $attempt failed, retrying" >&2
+                    attempt=$((attempt + 1)); sleep 1
+                done
+                if [ "$audio_rc" = 0 ]; then touch "$state/audio"; fi
+                echo "$attempt" > "$state/audio-attempts"
+                audio_snapshot
             fi
             [ "$audio_rc" = 0 ] || echo 'muOS core: audio unavailable, continuing silent' >&2
         fi

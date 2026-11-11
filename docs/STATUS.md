@@ -8,9 +8,48 @@ Update at the end of every milestone. See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware) is in progress. M1 is done (2026-11-10);
-M2 (power, battery, cpufreq) passed T0–T2 on 2026-11-11 and waits for
-its T3 checklist (end of this file).**
+**Phase 5 (own-card firmware) is in progress. M1 is done (2026-11-10).
+M2 (power, battery, cpufreq) passed T3 on 2026-11-11 with three
+failures; their fixes (M2.1) wait for a short T3 (end of this file).
+M3 is planned below.**
+
+M2 T3 results (2026-11-11, `build/t3-m2.txt`):
+
+| # | Check | Result |
+|---|---|---|
+| 1–3 | Power short/long press, in menu and in game | OK |
+| 4 | Shutdown timer after 10 min asleep | OK |
+| 5 | Charging | PARTIAL: fake sleep OK (instant wake, dongle stayed on); no charging icon |
+| 6 | Battery % | NOT TESTABLE: no battery indicator in the status bar |
+| 7 | Headphones | OK polarity; **HP much quieter than the speaker** |
+| 8 | NES SMB3 | OK |
+| 9 | Hard power cut | OK |
+| — | Observation | **No sound after the hand-over; a menu reboot didn't fix it, the hard power cut (item 9) did** |
+
+M2.1 fixes:
+- **Battery indicator:** the Phase 3 staging profile shipped
+  `visual/battery=3` (hidden). The rootfs default and staging profile are
+  now `2` (upstream: icon + percent), and S91 migrates an existing p3
+  config once (`MUOS/port/.migrations`).
+- **Headphone volume:** the RK817 HP output is a 0 dB opamp with no
+  class-D amp, so the shared PipeWire level is loud on the speaker and
+  quiet on HP. `muos-headphone` now does upstream's per-output volume
+  (`/run/muos/headphones` flag + `SAVE/LOAD_SINK_VOLUME`): each output
+  keeps its own level. If HP is still too quiet at 100%, upstream's
+  Overdrive (Settings → Advanced, up to 200%) applies.
+- **Silence after boot (root cause found):** on some boots WirePlumber's
+  ALSA device enumerates no profile (empty `EnumProfile`, no sink) and
+  upstream S80pipewire gives up after its 3 s node budget; S95 then ran
+  the whole boot silent. Caught live on 2 of 13 warm reboots; two bad
+  boots in a row look like "reboot didn't fix it". Not codec state: the
+  RK817 playback registers and the 44.1 kHz PCM rate were identical across
+  reboots and 5 sleep cycles (`port/scripts/t2-audio-state.sh`). S95 now
+  retries the full audio start (prime + S80 + sink wait) up to 3 times
+  within a 25 s deadline, records `/run/muos/core/audio-attempts`, keeps
+  each failed attempt's `pw-dump`, and writes a codec/PCM snapshot to p3
+  `MUOS/log/system/audio-codec.txt` every boot.
+  Soak (15 warm reboots): audio up on 15/15; 2 needed the second attempt,
+  none a third; the playback registers were identical on all samples.
 
 M1 delivered three things:
 - a flashable recovery image,
@@ -55,7 +94,9 @@ Results by checklist item:
 
 ## Recovery images and flashing
 
-Both images are in `dist/recovery/`, each with `.sha256` and `.manifest`.
+The device runs the M2 image plus the M2.1 fixes installed in place
+(`install-rootfs.sh`; no new image, to save disk: M2 stays the recovery
+image). The images are in `dist/recovery/`, each with `.sha256` and `.manifest`.
 **They are private:** they contain the Wi-Fi PSK, the SSH host key and
 authorized_keys. Never commit or share them.
 
@@ -147,13 +188,16 @@ is skipped; SSH still comes up.
     screen off, frontend stopped, the next Power press wakes it.
   - Events are ignored for 6 s after waking, so the waking press can't
     put it back to sleep.
-- **Battery** (S97): muOS `mubattery` feeds the status bar from
+- **Battery** (S97): muOS `mubattery` feeds the status bar (hidden until
+  M2.1 by `visual/battery=3`, see above) from
   `device/config/battery/*` (RK817 gauge, `ac/online` as the charger).
   `muos-lowbattery` shows the warning overlay at
   `settings/power/low_battery` (25%). As a port addition, it powers off
   cleanly at ≤3% while discharging.
 - **Headphones** (S97, `muos-headphone`): jack in → playback path HP,
-  out → `SPK_HP`. Polarity still needs confirming at T3.
+  out → `SPK_HP` (polarity confirmed at T3). M2.1: per-output volume as
+  upstream; `port/scripts/t2-headphone.sh` simulates plug/unplug by
+  flipping the tmpfs `device/config/audio/jack_inverted`.
 - **cpufreq:** writable. The frontend loop applies muOS per-content
   governors and restores the device default, `schedutil`. The menu
   idles at 1008 MHz.
@@ -279,6 +323,8 @@ part of M3.
 - **Battery:** `/run/muos/battery` reports 100%, 4150 mV, charging=1.
   The low-battery logic (overlay, clean critical poweroff) passed at T1.
 - **Headphones:** jack=0 → `SPK_HP`. Insertion not exercised (no hands).
+  M2.1: `t2-headphone.sh` PASS (plug → HP with its own level, unplug →
+  speaker level restored, replug → HP level restored).
 - **Regression:** the full `t2-menu-cycle.sh` passes (9/9).
 
 ## Broken, caveated or unverified
@@ -291,10 +337,13 @@ part of M3.
     charge indication is presumably hardware) and rumble.
   - **No CPU overclock:** see M3.
 - **Audio:**
-  - half-rate PCM after reboot (root cause unknown)
+  - half-rate PCM after reboot (root cause unknown; not seen in 13+15
+    probed reboots, where hw_ptr always advanced at ≈44.1 kHz)
+  - the WirePlumber "no profile" start failure itself is unexplained;
+    M2.1 retries around it
   - 3–8 underrun bursts per game
   - help WAVs inaudible
-  - headphone polarity unconfirmed
+  - HP loudness at 100%/overdrive unconfirmed (T3)
 - **Unsupported content:** only libretro cores in `/opt/muos/share/core`
   are supported (gambatte and fceumm are installed); `ext-*` launchers
   are refused. There is no general ROM import path beyond copying files
@@ -330,24 +379,76 @@ part of M3.
   archive are historical.
 - **C123 guard:** obsolete, because the guards were retired.
 
-## Proposed next milestones
+## M3 plan — real usage and a reproducible boot chain
 
-**M3 — Real usage and a reproducible boot chain:**
-- **ROM library:** browse ROMs in `ROMS/<system>` with SRAM saves, plus a
-  ROM copy path (Samba/sftp over Wi-Fi, or the FAT partition). More
-  cores as needed.
-- **Reproducible image:** build the full image from Buildroot plus
-  `rootfs/`, with no in-place patching. Include e2fsprogs and run e2fsck
-  on p3 at boot (carried over from M2). Collapse the
-  prepare/package chain and retire the remaining C-step scripts.
-- **Boot chain:** rebuild U-Boot without the Image/DTB pin (or
-  re-pinned) and write it from a verified image. Only then revisit the
-  1512 MHz OPPs (`port/scripts/make-dtb-opp.sh`), if any content needs
-  them.
-- **Robustness:** auto-grow p3 on first boot, log rotation, and
-  `HW_RANDOM_ROCKCHIP`. Fix the audio half-rate and underruns.
-- **Long run:** 1–2 h of play, plus 20 reboot/poweroff cycles.
-- **T3:** a real play session, ROM import, and long-run stability.
+M3 is split into sub-milestones; each ends with its own T3. Order matters:
+kernel changes (`HW_RANDOM_ROCKCHIP`, anything in `Image`/DTB) need M3b,
+because the port U-Boot pins the size and SHA256 of `Image` and the DTB.
+
+**M3a — reproducible image + e2fsck** (next; needs approval: it ends with
+writing p2):
+1. **Inventory.** List every p2 file on the device (path, mode, size,
+   sha256) and classify it: Buildroot package, port `rootfs/`, prebuilt
+   input (kernel modules, Mali r13p0, Wi-Fi firmware, frontend,
+   muxretro, cores), or legacy C-step leftover (dropped).
+2. **One build.** `port/scripts/build-image.sh` in the existing
+   `phase4-rootfs` container, reusing `build/phase4/buildroot` and its
+   download cache:
+   - `port/device/rk-r35s-p0/firmware.defconfig` = the phase4 rootfs
+     defconfig + e2fsprogs (e2fsck, resize2fs) + i2c-tools + whatever
+     the inventory shows is missing;
+   - only the live BR2_EXTERNAL packages (muos-core, muxretro,
+     wifi-only, ...); the legacy C-step packages (launcher-once,
+     save-store, session, boot) are dropped;
+   - `BR2_ROOTFS_OVERLAY` = `port/device/rk-r35s-p0/rootfs`;
+   - prebuilt inputs pinned by SHA256 in
+     `port/packaging/firmware-inputs.json`;
+   - post-image: the full card image in the test128 layout (bootloader
+     at 64/16384/24576, p1 FAT, p2 ext4 with 4.4-safe features, p3
+     1 GiB) plus `.sha256` and `.manifest`, same format as
+     `make-recovery-image.sh`.
+3. **S89 runs `e2fsck -p` on p3** before mounting it (time-bounded;
+   result logged to p3). A "needs manual fsck" result still mounts p3 so
+   the UI comes up, and the problem is reported in the log.
+4. **T1.** Inventory diff of the new rootfs against the live p2 (every
+   difference explained), ELF/ldd resolution under qemu, fsck of the
+   image.
+5. **T2 without risking the card.** The shim
+   (`/sbin/muos-ext4-diag`, 29 lines) gets a one-shot "trial root": if
+   `/etc/muos-root-trial` exists, it consumes the marker, loop-mounts p3
+   `MUOS/trial/rootfs.img` read-only and `pivot_root`s into it (BusyBox
+   `switch_root` refuses a non-tmpfs root). A hang or failure → power
+   cycle → normal p2, as with the trial inittab. The new branch is only
+   reachable through the marker; it's tested in a container first (as the
+   M1 shim was), because a broken shim can't protect itself. That boot must pass `t2-menu-cycle.sh`,
+   `t2-sleep-cycle.sh`, `t2-headphone.sh` and the audio probe. Then,
+   from inside the trial root (p2 unmounted), the agent writes the new
+   p2, reads it back and verifies the SHA256. The old p2 image is kept on
+   p3 until T3 passes.
+6. **Collapse the chain.** Once `build-image.sh` is the single source,
+   retire the prepare/package/compose scripts and C-step checks that it
+   doesn't use (they stay in Git history), and dry-run
+   `retention.py retire` for the old `build/phase4` outputs.
+7. **T3:** flash the built image via dArkOSen (proves the image itself is
+   a recovery image), boot, short play session, battery %/charging
+   check.
+- **Disk:** host at 96% (44 GiB free); `build/phase4` is 16 GiB. The build
+  reuses the Buildroot tree, downloads and toolchain. Expected growth is
+  about 3–6 GiB, recovered by retiring old outputs (graphics-config 3 GiB,
+  physical-capture 2 GiB, offline-backup 0.9 GiB) after review.
+
+**M3b — boot chain:** rebuild U-Boot without the `Image`/DTB pin (or
+re-pinned from the build); write it from a verified image, using the
+dArkOSen flasher as the recovery path. Then `HW_RANDOM_ROCKCHIP` and, if
+content needs it, the 1512 MHz OPPs (`port/scripts/make-dtb-opp.sh`).
+
+**M3c — ROM library:** a ROM copy path (sftp over the existing dropbear
+first, then Samba or FAT-partition import), SRAM saves per system, more
+libretro cores as needed.
+
+**M3d — robustness:** p3 auto-grow on first boot, log rotation, the audio
+half-rate/underruns, and the WirePlumber "no profile" start failure;
+then a long run (1–2 h of play, 20 reboot/poweroff cycles).
 
 ## M1 T3 checklist (done 2026-11-10, results above)
 
@@ -372,7 +473,7 @@ part of M3.
 6. **Optional:** Power key presses (expected: nothing happens yet), and
    speaker sound in the menu and in the game.
 
-## M2 T3 checklist (for the user)
+## M2 T3 checklist (done 2026-11-11, results above)
 
 Device: test128 in slot 1, slot 2 empty, at the menu. No reflash needed:
 the device already runs M2.
@@ -411,3 +512,26 @@ the device already runs M2.
    - Expected: it boots to the menu. GB/NES load their last auto-save or
      quick save.
 
+
+## M2.1 T3 checklist (for the user)
+
+Device: test128 in slot 1, at the menu. No reflash: the fixes are
+installed. If anything is silent, **don't reboot**: tell me first, so I
+can inspect the live state over SSH.
+
+1. **Battery indicator:** look at the top-right of the menu status bar.
+   - Expected: a battery icon and a percentage.
+2. **Charging:** plug the charger in, wait about 10 s.
+   - Expected: the icon changes to charging. Unplug: back to normal.
+3. **Battery %:** unplugged, play for about 10–15 minutes.
+   - Expected: the % drops a few points (the gauge read 100% at
+     3.95 V; tell me if it never moves).
+4. **Headphones volume:** plug headphones in, raise the volume to a
+   comfortable level, unplug.
+   - Expected: the speaker comes back at its previous (lower) volume.
+     Plug in again: the headphone level you set is back.
+   - If 100% is still too quiet: Settings → Advanced → Overdrive on, and
+     tell me whether that's enough.
+5. **Sound after boot:** power off and on (or Reboot from the menu) 3
+   times; each time, check there's sound in the menu.
+   - Expected: sound on every boot.
