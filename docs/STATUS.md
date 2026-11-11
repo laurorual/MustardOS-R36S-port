@@ -12,16 +12,17 @@ checklists) are in [milestones.md](milestones.md). See also
 **Phase 5 (own-card firmware). M1, M2 and M2.1 are done (T3 passed
 2026-11-10/11). M3a's T3 (2026-11-11): the built image flashes and boots,
 but every boot was silent (SDL2 built without its pipewire driver).
-M3a.1 fixes that and passed T0–T2 on 2026-11-11; its p2 is on the card,
-and its T3 is at the end of this file.** Results: milestones.md M3a, M3a.1.
+M3a.1 fixes that: T3 passed 2026-11-11 (sound on 3 boots, speaker and
+headphones). Next: M3b (plan below, awaiting approval).** Results:
+milestones.md M3a, M3a.1.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0, test128 in slot 1, flashed with the M3a image
   (p3 grown to the whole card, M2-era data). p2 is the M3a.1 build (p2
   sha256 `1b3995a2…`), written from the trial root. The previous p2 (the
-  silent M3a one, as mounted) is on p3 at `MUOS/trial/p2-previous.img`
-  until the M3a.1 T3 passes.
+  silent M3a one, as mounted) is still on p3 at
+  `MUOS/trial/p2-previous.img`; it can be deleted.
   - The DHCP IP changes between boots; it was 192.168.15.8.
   - Identify the device by its host key, not its IP:
     `SHA256:fDW+/iNaWgqPwqBtO/ESuKPSQHvYN1PSo2RHfilOxK0`.
@@ -43,13 +44,14 @@ and its T3 is at the end of this file.** Results: milestones.md M3a, M3a.1.
 The images are in `dist/recovery/` (captures) and `dist/firmware/`
 (built), each with `.sha256` and `.manifest`. **They are private:** they
 contain the Wi-Fi PSK, the SSH host key and authorized_keys. Never commit
-or share them. **M2 stays the known-good recovery image** until M3a.1
-passes its T3 (sound on 3 boots).
+or share them. **Recovery image: M3a.1** (its p2 passed T3 on the card;
+the prefix, p1, p3 and `--grow` are the layout the M3a flash proved). M2
+stays as the fallback if an M3a.1 flash ever fails.
 
 | Image | Content | Boots on |
 |---|---|---|
-| `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`) | M3a.1: M3a + SDL2 with its pipewire driver; p2 on the card, image not yet flashed | any card ≥ 2 GiB (expected) |
-| `dist/firmware/test128-m3a-20261111.img.zst` (raw `2ac44673…`) | M3a: flashed once (boots, `--grow` OK) but **silent**; retire after the M3a.1 T3 | any card ≥ 2 GiB |
+| `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`) | M3a.1: M3a + SDL2 with its pipewire driver; p2 T3-passed on the card, image not flashed yet | any card ≥ 2 GiB (expected) |
+| `dist/firmware/test128-m3a-20261111.img.zst` (raw `2ac44673…`) | M3a: flashed once (boots, `--grow` OK) but **silent**; to retire (`retention.py retire M3a`) | any card ≥ 2 GiB |
 | `test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core | any card ≥ 2 GiB |
 | `test128-m1-20261110.img.zst` (raw `1c65c693…`) | M1: autostart, seedless | any card ≥ 2 GiB |
 | `test128-baseline-20261110.img.zst` (raw `9c1c8a37…`) | pre-M1 C07 init, SSH only | test128 only (CID-locked bootstrap), slot 2 empty |
@@ -182,7 +184,7 @@ of the pinned inputs, and the kernel/U-Boot/DTB tooling for M3b.
 ## What works (T3-confirmed)
 
 Display, all controls, frontend and submenus, volume and brightness,
-speaker audio on every boot (M2.1; M3a regressed it, M3a.1 T3 pending),
+speaker and headphone audio on every boot (M3a.1),
 Wi-Fi + SSH, prefs persistence; GB (Gambatte)
 and NES (fceumm, SMB3 at 59.9 fps) with saves and states; autostart, menu
 reboot/shutdown, hard power cut recovery; physical Power key sleep/resume
@@ -191,10 +193,14 @@ charging icon; headphone path switching.
 
 ## Broken, caveated or unverified
 
-- **Headphones:** per-output volume confirmed only at T2 (simulated jack);
-  the T3 plug was in the undetected half-inserted position. A full
-  insertion is quieter: hardware (codec registers are identical on both
-  paths).
+- **Headphones (hardware, deprioritized by the user 2026-11-11):** with
+  the plug fully in, the speaker keeps playing (no jack detection) and
+  only some frequencies drop in the headphones while others stay normal:
+  a jack contact problem, not software (codec registers are identical on
+  both paths; a center-cancel pattern suggests the sleeve/ground
+  contact). Only a slightly-off insertion is detected and mutes the
+  speaker. Per-output volume passes at T2 (simulated jack) but at T3 both
+  outputs share one level, as expected when the jack is never detected.
 - **Battery gauge:** jumps from 84% to 100% within about 20 s of plugging
   the charger (RK817 BSP gauge estimate). After a full discharge, a boot
   with the charger in showed 91%, and the kernel said `capacity=100` at
@@ -214,7 +220,6 @@ charging icon; headphone path switching.
 - **M3a.1 image not yet flashed:** its p2 was written in place. The M3a
   image proved the build's prefix/p1/p3 and `--grow` path; M3a.1 differs
   only in p2.
-- **Headphones (fully inserted) not re-tested:** M3a was silent.
 - **Pinned, not rebuilt:** the muOS frontend binaries, muxretro, the
   cores, kernel modules and the tuned `/opt/muos` config are prebuilt
   inputs (`firmware-inputs.json`), copied byte-identical from the live
@@ -303,22 +308,3 @@ hold the displayed % while the charge current is high, or re-seed from
 an IR-compensated voltage), the audio half-rate/underruns and the WirePlumber "no
 profile" failure; then a long run (1–2 h of play, 20 reboot/poweroff
 cycles).
-
-## M3a.1 T3 checklist (for the user)
-
-The card already runs the M3a.1 p2 (no reflash needed). Charger in or out
-as you like.
-
-1. **Sound on 3 boots:** power off fully (menu Shutdown), power on; repeat
-   three times. Each time, in the menu, move the cursor (navigation
-   sounds), then start a GB or NES game and play ~30 s.
-   - Expected: menu sounds and game sound from the speaker on all 3 boots;
-     the volume keys change the level.
-2. **Headphones, plug fully inserted** (the M2.1 item 4 retest):
-   1. Start a game, push the plug all the way in: the speaker goes silent
-      and the sound is in the headphones (possibly quieter).
-   2. Set a headphone volume clearly different from the speaker's, unplug.
-   - Expected: the speaker comes back at its own level; plug in again:
-     the headphone level is back.
-   - Also tell me: with the plug only half in, does the speaker keep
-     playing too?

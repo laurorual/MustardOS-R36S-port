@@ -4,7 +4,7 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M3a.1 — audio regression fix (T2 done 2026-11-11, T3 pending)
+## M3a.1 — audio regression fix (done 2026-11-11, T3 passed)
 
 **M3a T3 (2026-11-11):** the built image flashed via dArkOSen (`verified
 raw_sha256=2ac44673…`, `p3 grown and clean`) and boots: it is a working
@@ -49,6 +49,11 @@ p2 written from the trial root, read back `1b3995a2…`. New p2: audio
 soak 6/6 boots PASS (one second S95 attempt), `t2-menu-cycle` 11/11,
 `t2-sleep-cycle --game` 3/3, `t2-headphone` PASS, NES SMB3 59.90 fps.
 Image `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`).
+
+**T3 (2026-11-11):** sound on 3 boots, speaker and headphones; the volume
+keys work. Headphones: fully inserted is not detected (the speaker keeps
+playing) and only some frequencies drop: hardware, see STATUS. Per-output
+volume is shared at T3 (no jack event); the user deprioritized it.
 
 ## M3a — reproducible image + e2fsck (T2 done 2026-11-11; T3: flashes and boots, silent → M3a.1)
 
