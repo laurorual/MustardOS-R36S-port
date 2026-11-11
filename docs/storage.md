@@ -36,7 +36,7 @@ the details.
   C64, C79, C89 and C93 (audit-only images) were retired in M1.
 - At most **5 named Git checkpoints** (tags `checkpoint/*`).
 - `keep` in the inventory lists what is never pruned: private material
-  (`build/phase4/private`, the C82 offline backup), SDKs, sources and
+  (`build/phase4/private`), SDKs, sources and
   downloads, `dist/phase4` proofs, `dist/recovery`, and the latest
   `build/recovery` capture.
 - Pruned inside kept areas on 2026-11-11 (M3a): the synthetic self-test
@@ -44,6 +44,9 @@ the details.
   the result JSONs stay) and the extracted Mali SDK `lib/` under
   `graphics-config/output/build/rockchip-mali-721653b5…` (only `include/`
   and `pkgconfig/` are used; the tarball is in `rootfs-downloads`).
+  Deleted on 2026-11-11 at the user's request: the Phase 4 raw card
+  captures (`physical-capture`, `offline-backup`, `card-rearm`; superseded
+  by the flashable recovery images) and all non-project podman images.
   `legal-info/` dirs are fully reflinked to the downloads: deleting them
   frees nothing.
 

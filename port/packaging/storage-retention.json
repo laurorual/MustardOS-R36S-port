@@ -36,9 +36,6 @@
   },
   "keep": {
     "build/phase4/private": "SSH client key, known_hosts, Wi-Fi/credential backups (private)",
-    "build/phase4/offline-backup": "Independent C82 backup and failure evidence",
-    "build/phase4/physical-capture": "Read-only reference and before/after recovery captures",
-    "build/phase4/card-rearm": "Pre-repair independent prefix and metadata",
     "build/phase4/p2-initial": "Applied migration receipts, independent copy and consumed-attempt fences",
     "build/phase4/p2-recovery": "Recovery receipt and rollback/freshness fences",
     "build/phase4/rootfs-output/host": "Installed reproducible AArch64 SDK",
