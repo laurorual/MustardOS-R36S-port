@@ -24,13 +24,14 @@ the details.
 - At most **5 firmware versions**, inventoried in
   `port/packaging/storage-retention.json` and managed by
   `port/scripts/retention.py`. The tool refuses a 6th version; only files
-  listed for a version are ever deleted. Current versions (M1, 10/11):
+  listed for a version are ever deleted. Current versions (M2, 11/11):
 
   | Version | Role |
   |---|---|
   | C100 | Unprovisioned factory ext4, rootfs rebuild reference |
   | M1-baseline | Flashable pre-M1 test128 image (C07 init; boots on test128 only) |
   | M1 | Flashable M1 image (autostart; any card ≥ 2 GiB) |
+  | M2 | Flashable M2 image (sleep, battery, headphones; the recovery image) |
 
   C64, C79, C89 and C93 (audit-only images) were retired in M1.
 - At most **5 named Git checkpoints** (tags `checkpoint/*`).
@@ -38,6 +39,13 @@ the details.
   (`build/phase4/private`, the C82 offline backup), SDKs, sources and
   downloads, `dist/phase4` proofs, `dist/recovery`, and the latest
   `build/recovery` capture.
+- Pruned inside kept areas on 2026-11-11 (M3a): the synthetic self-test
+  fixtures in `physical-capture/checks.*` (`fake-card.regular`, `*.ext4`;
+  the result JSONs stay) and the extracted Mali SDK `lib/` under
+  `graphics-config/output/build/rockchip-mali-721653b5…` (only `include/`
+  and `pkgconfig/` are used; the tarball is in `rootfs-downloads`).
+  `legal-info/` dirs are fully reflinked to the downloads: deleting them
+  frees nothing.
 
 ## Cleanup procedure
 
