@@ -39,6 +39,9 @@ ctr_opts() { # common options of every Buildroot container (never touches block 
         -e SOURCE_DATE_EPOCH="$(git -C "$work/buildroot" show -s --format=%ct HEAD)")
 }
 make_args='O=/m3a/output BR2_EXTERNAL=/port/buildroot BR2_DL_DIR=/work/rootfs-downloads'
+# SDL must register the pipewire driver (muOS runs SDL_AUDIODRIVER=pipewire);
+# checked by running the target's own probe under qemu-user.
+sdl_check='qemu-aarch64 -L /m3a/output/target /m3a/output/target/usr/libexec/muos-sdl-audio-probe --require pipewire'
 
 stage_overlay() { # the port rootfs with its init-script symlinks resolved
     rm -rf "$m3a/overlay.tmp"
@@ -84,10 +87,22 @@ source|build)
     ctr_opts
     podman run --detach --name "$name" --network="$net" "${opts[@]}" -e M3A_STAGE="$stage" \
         -e M3A_GOAL="$target" -e M3A_JOBS="${JOBS:-$(nproc)}" "$(iid)" sh -c "
-        make $make_args BR2_JLEVEL=\$M3A_JOBS \
+        mk() { make $make_args BR2_JLEVEL=\$M3A_JOBS \
             BR2_WGET='wget --passive-ftp -nd -t 3 --connect-timeout=10 --read-timeout=30' \
-            \$M3A_GOAL > /m3a/logs/\$M3A_STAGE.log 2>&1
-        r=\$?; echo \$r > /m3a/logs/\$M3A_STAGE.exit; exit \$r" >/dev/null
+            \"\$@\" >> /m3a/logs/\$M3A_STAGE.log 2>&1; }
+        : > /m3a/logs/\$M3A_STAGE.log; mk \$M3A_GOAL; r=\$?
+        # pipewire depends on sdl2, so a clean build configures SDL2 before
+        # PipeWire is in staging and SDL2 drops its pipewire audio driver
+        # (silent M3a). Rebuild SDL2 from scratch once PipeWire is there:
+        # sdl2-reconfigure is not enough, Buildroot's
+        # --disable-dependency-tracking leaves SDL_audio.o (the driver table)
+        # stale.
+        if [ \$r = 0 ] && [ \$M3A_STAGE = build ] && ! $sdl_check >> /m3a/logs/build.log 2>&1; then
+            echo '>>> m3a: SDL2 lacks pipewire: sdl2-dirclean + rebuild' >> /m3a/logs/build.log
+            mk sdl2-dirclean && mk all; r=\$?
+            [ \$r != 0 ] || $sdl_check >> /m3a/logs/build.log 2>&1 || r=1
+        fi
+        echo \$r > /m3a/logs/\$M3A_STAGE.exit; exit \$r" >/dev/null
     echo "started $stage; use: build-image.sh status"
     ;;
 status)
@@ -105,6 +120,9 @@ status)
 stop) podman stop --time=30 "$name" ;;
 image)
     [ $# -eq 2 ] || { echo 'usage: image NAME' >&2; exit 2; }
+    ctr_opts
+    podman run --rm --network=none "${opts[@]}" "$(iid)" sh -c "$sdl_check" ||
+        { echo 'SDL2 lacks the pipewire audio driver: rebuild' >&2; exit 1; }
     exec bash "$repo/port/scripts/firmware-image.sh" "$out/images/rootfs.ext4" "$base_img" "$base_raw" \
         "$repo/dist/firmware/$2.img.zst"
     ;;

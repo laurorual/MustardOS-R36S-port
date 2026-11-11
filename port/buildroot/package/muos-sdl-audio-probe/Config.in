@@ -1,0 +1,8 @@
+config BR2_PACKAGE_MUOS_SDL_AUDIO_PROBE
+	bool "muOS SDL audio probe"
+	depends on BR2_PACKAGE_SDL2
+	help
+	  /usr/libexec/muos-sdl-audio-probe: lists the audio drivers SDL2
+	  registers (--require DRIVER fails the build when the pipewire
+	  driver is missing, run under qemu-user) and opens SDL audio the
+	  way the muOS frontend does (T2 audio probe).

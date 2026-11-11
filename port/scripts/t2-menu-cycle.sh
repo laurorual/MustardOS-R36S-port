@@ -23,6 +23,9 @@ fi
 wait_module muxlaunch 40 || fail "menu after boot (got $(module))"
 paint=$(r 'awk "/S99muos-ui start/ {print \$1}" /run/muos-rc.log')
 pass "boot to menu (rcS done at ${paint}s uptime)"
+sleep 5 # the menu opens its SDL_mixer device right after painting
+a=$("$(dirname "$0")/t2-audio-state.sh" 2>&1) || fail "audio in the menu: $(grep -E '^(boot|FAIL)' <<< "$a" | cut -c1-160 | tr '\n' ' ')"
+pass "audio in the menu ($(grep -o 'rate=[0-9]* streams=[^ ]*' <<< "$a"))"
 
 r 'rm -f /userdata/MUOS/pickles/state/gambatte/GB/private/quicksave.state'
 r '/usr/libexec/muos-press a; sleep 2; /usr/libexec/muos-press a; sleep 2; /usr/libexec/muos-press a'
@@ -30,6 +33,8 @@ wait_module muxretro 20 || fail "game start (got $(module))"
 pass "menu -> GB launched in muxretro"
 
 sleep 4
+a=$("$(dirname "$0")/t2-audio-state.sh" 2>&1) || fail "audio in the game: $(grep -E '^(boot|FAIL)' <<< "$a" | cut -c1-160 | tr '\n' ' ')"
+pass "audio in the game ($(grep -o 'rate=[0-9]* streams=[^ ]*' <<< "$a"))"
 r '/usr/libexec/muos-press fn+r2'; sleep 2
 r 'test -s /userdata/MUOS/pickles/state/gambatte/GB/private/quicksave.state' || fail "quick save on p3"
 pass "Fn+R2 quick save written to p3"

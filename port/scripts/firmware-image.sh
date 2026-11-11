@@ -63,6 +63,7 @@ for bad in 64bit metadata_csum_seed orphan_file fast_commit; do
 done
 label=$( (dumpe2fs -h "$work/p2.img" 2>/dev/null || :) | sed -n 's/^Filesystem volume name: *//p')
 [ "$label" = ROOTFS ] || { echo "p2 label $label" >&2; exit 1; }
+bash "$repo/port/scripts/check-rootfs-contract.sh" "$work/p2.img" || { echo 'p2 breaks the runtime contract' >&2; exit 1; }
 dd if="$work/p2.img" of="$img" bs=512 seek=$p2_start conv=notrunc status=none
 cmp -s "$work/p2.img" <(dd if="$img" bs=512 skip=$p2_start count=$p2_sectors status=none)
 p2_sum=$(sha256sum "$work/p2.img" | cut -d' ' -f1)

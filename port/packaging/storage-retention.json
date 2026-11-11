@@ -34,6 +34,14 @@
         "dist/firmware/test128-m3a-20261111.img.zst.sha256",
         "dist/firmware/test128-m3a-20261111.manifest"
       ]
+    },
+    "M3a.1": {
+      "reason": "Built M3a.1 firmware: M3a + SDL2 rebuilt with its pipewire driver (sound fix); T2-verified, written to test128 p2",
+      "files": [
+        "dist/firmware/test128-m3a1-20261111.img.zst",
+        "dist/firmware/test128-m3a1-20261111.img.zst.sha256",
+        "dist/firmware/test128-m3a1-20261111.manifest"
+      ]
     }
   },
   "keep": {

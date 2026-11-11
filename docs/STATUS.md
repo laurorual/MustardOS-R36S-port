@@ -10,17 +10,18 @@ checklists) are in [milestones.md](milestones.md). See also
 ## Current phase
 
 **Phase 5 (own-card firmware). M1, M2 and M2.1 are done (T3 passed
-2026-11-10/11). M3a (reproducible image + e2fsck) passed T0–T2 on
-2026-11-11 and the built p2 is on the card; its T3 is at the end of this
-file.** Results: milestones.md M3a.
+2026-11-10/11). M3a's T3 (2026-11-11): the built image flashes and boots,
+but every boot was silent (SDL2 built without its pipewire driver).
+M3a.1 fixes that and passed T0–T2 on 2026-11-11; its p2 is on the card,
+and its T3 is at the end of this file.** Results: milestones.md M3a, M3a.1.
 
 ## Device and bench
 
-- **Device:** R35S Panel 0, test128 in slot 1. p2 is the M3a Buildroot
-  build (`build-image.sh`, p2 sha256 `a21a4186…`), written from the trial
-  root; bootloader, p1 and p3 are still those of the M2 card. The previous
-  p2 (M2 + M2.1, sha256 `d5d9a5b6…`) is on p3 at
-  `MUOS/trial/p2-previous.img` until the M3a T3 passes.
+- **Device:** R35S Panel 0, test128 in slot 1, flashed with the M3a image
+  (p3 grown to the whole card, M2-era data). p2 is the M3a.1 build (p2
+  sha256 `1b3995a2…`), written from the trial root. The previous p2 (the
+  silent M3a one, as mounted) is on p3 at `MUOS/trial/p2-previous.img`
+  until the M3a.1 T3 passes.
   - The DHCP IP changes between boots; it was 192.168.15.8.
   - Identify the device by its host key, not its IP:
     `SHA256:fDW+/iNaWgqPwqBtO/ESuKPSQHvYN1PSo2RHfilOxK0`.
@@ -42,12 +43,13 @@ file.** Results: milestones.md M3a.
 The images are in `dist/recovery/` (captures) and `dist/firmware/`
 (built), each with `.sha256` and `.manifest`. **They are private:** they
 contain the Wi-Fi PSK, the SSH host key and authorized_keys. Never commit
-or share them. M2 stays the known-good recovery image until the M3a image
-has been flashed once (M3a T3 item 3).
+or share them. **M2 stays the known-good recovery image** until M3a.1
+passes its T3 (sound on 3 boots).
 
 | Image | Content | Boots on |
 |---|---|---|
-| `dist/firmware/test128-m3a-20261111.img.zst` (raw `2ac44673…`) | M3a: Buildroot-built p2 + M2 prefix/p1/p3; not yet flashed | any card ≥ 2 GiB (expected) |
+| `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`) | M3a.1: M3a + SDL2 with its pipewire driver; p2 on the card, image not yet flashed | any card ≥ 2 GiB (expected) |
+| `dist/firmware/test128-m3a-20261111.img.zst` (raw `2ac44673…`) | M3a: flashed once (boots, `--grow` OK) but **silent**; retire after the M3a.1 T3 | any card ≥ 2 GiB |
 | `test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core | any card ≥ 2 GiB |
 | `test128-m1-20261110.img.zst` (raw `1c65c693…`) | M1: autostart, seedless | any card ≥ 2 GiB |
 | `test128-baseline-20261110.img.zst` (raw `9c1c8a37…`) | pre-M1 C07 init, SSH only | test128 only (CID-locked bootstrap), slot 2 empty |
@@ -72,8 +74,14 @@ incrementally, in `build/m3a/output`):
    fetches what the cache lacks), then `build` (offline, detached;
    follow with `build-image.sh status` or
    `tail -f build/m3a/logs/build.log | grep --line-buffered '^>>>'`).
+   - `build` checks that SDL2 registers its pipewire driver (the target's
+     `/usr/libexec/muos-sdl-audio-probe --require pipewire` under qemu);
+     on a clean tree it isn't (pipewire depends on sdl2), so it runs
+     `sdl2-dirclean` + `all` and checks again (+~2 min).
 2. `port/scripts/build-image.sh image <name>` → `dist/firmware/<name>.img.zst`
-   plus `build/m3a/<name>.p2.img` (raw p2 for the trial root).
+   plus `build/m3a/<name>.p2.img` (raw p2 for the trial root). It refuses
+   an image whose SDL2 lacks the pipewire driver (qemu check, then
+   `check-rootfs-contract.sh` on the p2 image).
 3. `port/scripts/retention.py add <name> "<reason>" <files>`
 
 Prebuilt inputs are pinned in `port/packaging/firmware-inputs.json` and
@@ -174,7 +182,8 @@ of the pinned inputs, and the kernel/U-Boot/DTB tooling for M3b.
 ## What works (T3-confirmed)
 
 Display, all controls, frontend and submenus, volume and brightness,
-speaker audio on every boot, Wi-Fi + SSH, prefs persistence; GB (Gambatte)
+speaker audio on every boot (M2.1; M3a regressed it, M3a.1 T3 pending),
+Wi-Fi + SSH, prefs persistence; GB (Gambatte)
 and NES (fceumm, SMB3 at 59.9 fps) with saves and states; autostart, menu
 reboot/shutdown, hard power cut recovery; physical Power key sleep/resume
 in menu and game, shutdown timer, charging fake sleep; battery icon, %,
@@ -187,7 +196,12 @@ charging icon; headphone path switching.
   insertion is quieter: hardware (codec registers are identical on both
   paths).
 - **Battery gauge:** jumps from 84% to 100% within about 20 s of plugging
-  the charger (RK817 BSP gauge estimate). Calibration → M3d.
+  the charger (RK817 BSP gauge estimate). After a full discharge, a boot
+  with the charger in showed 91%, and the kernel said `capacity=100` at
+  4.112 V / 1.4 A charge current 13 min after boot: the PMIC loses its
+  coulomb-counter state when the battery dies and re-seeds SOC from the
+  charge-inflated voltage. `mubattery` only displays the kernel value.
+  Calibration → M3d.
 - **Power:** LEDs (the R35S LED node is disabled in stock too) and rumble
   not done. No CPU overclock (M3b).
 - **Audio:** half-rate PCM after reboot (not seen in 28 probed reboots);
@@ -197,8 +211,10 @@ charging icon; headphone path switching.
   fceumm); `ext-*` launchers are refused. ROMs are copied to p3
   `ROMS/<system>` by hand (`port/scripts/install-nes.sh` for
   `port/roms/nes`).
-- **M3a image not yet flashed:** p2 was written in place; the full
-  `dist/firmware` image is unproven until M3a T3 item 3.
+- **M3a.1 image not yet flashed:** its p2 was written in place. The M3a
+  image proved the build's prefix/p1/p3 and `--grow` path; M3a.1 differs
+  only in p2.
+- **Headphones (fully inserted) not re-tested:** M3a was silent.
 - **Pinned, not rebuilt:** the muOS frontend binaries, muxretro, the
   cores, kernel modules and the tuned `/opt/muos` config are prebuilt
   inputs (`firmware-inputs.json`), copied byte-identical from the live
@@ -282,32 +298,27 @@ first, then Samba or FAT-partition import), SRAM saves per system, more
 libretro cores as needed.
 
 **M3d — robustness:** p3 auto-grow on first boot, log rotation, battery
-gauge calibration, the audio half-rate/underruns and the WirePlumber "no
+gauge calibration (incl. the SOC re-seed after a full discharge: e.g.
+hold the displayed % while the charge current is high, or re-seed from
+an IR-compensated voltage), the audio half-rate/underruns and the WirePlumber "no
 profile" failure; then a long run (1–2 h of play, 20 reboot/poweroff
 cycles).
 
-## M3a T3 checklist (for the user)
+## M3a.1 T3 checklist (for the user)
 
-The card already runs the M3a p2. Charger in or out as you like.
+The card already runs the M3a.1 p2 (no reflash needed). Charger in or out
+as you like.
 
-1. **Normal use on the current card:** menu, Explore → GB and NES (SMB3),
-   sound, volume and brightness keys, Power sleep/wake in a game, battery
-   icon and %, charging icon.
-   - Expected: everything as with M2.1 (the system was rebuilt, so this
-     is the real check that nothing regressed).
+1. **Sound on 3 boots:** power off fully (menu Shutdown), power on; repeat
+   three times. Each time, in the menu, move the cursor (navigation
+   sounds), then start a GB or NES game and play ~30 s.
+   - Expected: menu sounds and game sound from the speaker on all 3 boots;
+     the volume keys change the level.
 2. **Headphones, plug fully inserted** (the M2.1 item 4 retest):
-   1. Push the plug all the way in: the speaker must go silent (that's the
-      detection; accept that the sound is lower in this position).
+   1. Start a game, push the plug all the way in: the speaker goes silent
+      and the sound is in the headphones (possibly quieter).
    2. Set a headphone volume clearly different from the speaker's, unplug.
    - Expected: the speaker comes back at its own level; plug in again:
      the headphone level is back.
    - Also tell me: with the plug only half in, does the speaker keep
      playing too?
-3. **Flash the built image** (proves it is a recovery image). **This
-   resets p3 to the M2-era data:** saves made since the M2 image are
-   lost (tell me first if you want them kept; I can copy them off).
-   - Use the dArkOSen steps in "Recovery images and flashing" with
-     `dist/firmware/test128-m3a-20261111.img.zst --grow`.
-   - Expected: `verified raw_sha256=2ac44673…` and `p3 grown and clean`;
-     cold boot to the menu in about 16–25 s; a short GB/NES session with
-     sound; battery % and charging icon.

@@ -4,7 +4,53 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M3a — reproducible image + e2fsck (T2 done 2026-11-11, T3 pending)
+## M3a.1 — audio regression fix (T2 done 2026-11-11, T3 pending)
+
+**M3a T3 (2026-11-11):** the built image flashed via dArkOSen (`verified
+raw_sha256=2ac44673…`, `p3 grown and clean`) and boots: it is a working
+recovery image for boot. Games, brightness and sleep/wake OK. **No sound
+on any boot**, speaker or headphones, before and after the flash; the
+headphone retest could not be judged. Battery showed 91% after a full
+discharge with the charger in (→ M3d, see STATUS).
+
+**Root cause:** muOS runs every SDL client with `SDL_AUDIODRIVER=pipewire`,
+and the Buildroot-built SDL2 had only `alsa dsp disk dummy`, so
+`SDL_Init(AUDIO)` failed ("Audio target 'pipewire' not available") and
+nothing opened the PCM. Buildroot's pipewire depends on sdl2 (examples),
+so a clean build configures SDL2 before PipeWire is in staging, and
+SDL2's configure silently drops the driver. The Phase 4 tree had
+PipeWire installed when SDL2 was built. Two traps on the way:
+- `sdl2-reconfigure` is not enough: with `--disable-dependency-tracking`
+  `SDL_pipewire.o` is built but the driver table in `SDL_audio.o` stays
+  stale. `sdl2-dirclean` + `all` works.
+- String checks on the library (`libpipewire-0.3.so.0`) pass on that
+  stale build; only asking SDL for its registered drivers is reliable.
+
+**Fix:** `build-image.sh build` runs the new
+`/usr/libexec/muos-sdl-audio-probe --require pipewire` (package
+`muos-sdl-audio-probe`) under qemu against the target, rebuilds SDL2 if
+needed and fails if it still lacks the driver; `image` repeats the qemu
+check and `check-rootfs-contract.sh` checks the p2 image. SDL2 is back to
+M2's size (1412240 bytes). The same ordering cost ffmpeg's SDL2 output
+device (libavdevice −8 KB); nothing uses it. Lesson for inventory diffs:
+a "rebuilt" ELF that shrank is a lost feature until explained.
+
+**T2 probe:** M3a's probe printed `pcm=closed rate=0` and passed by eye.
+`t2-audio-state.sh` now prints a verdict and exits non-zero unless the
+PCM is RUNNING at 40–50 k frames/s, a PipeWire output stream exists, this
+boot's audio log has an `SDL Init Success` and no failure, and a fresh SDL
+client opens `pipewire@44100`. `t2-menu-cycle.sh` runs it in the menu
+and in the game. Negative proof on the live silent M3a boot: `FAIL audio:
+pcm=closed rate=0 no-stream sdl=fail15`.
+
+**T2:** trial root: audio PASS, `t2-sleep-cycle` 5/5 (audio PASS after),
+`t2-headphone` PASS, `t2-menu-cycle` 11/11 (menu 44.1 kHz, game 48 kHz).
+p2 written from the trial root, read back `1b3995a2…`. New p2: audio
+soak 6/6 boots PASS (one second S95 attempt), `t2-menu-cycle` 11/11,
+`t2-sleep-cycle --game` 3/3, `t2-headphone` PASS, NES SMB3 59.90 fps.
+Image `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`).
+
+## M3a — reproducible image + e2fsck (T2 done 2026-11-11; T3: flashes and boots, silent → M3a.1)
 
 Commits `e7d67a2` (build, trial root, e2fsck), `76d9aec` (script
 retirement). Image `dist/firmware/test128-m3a-20261111.img.zst`.
