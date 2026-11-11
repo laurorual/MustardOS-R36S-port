@@ -11,7 +11,7 @@
 #                                 seeded from the muOS templates in
 #                                 share/conf/rootfs, so S80pipewire.sh finds
 #                                 them equal (its cp -f cannot replace a bind)
-#   p3 MUOS/log/system         -> /opt/muos/log (previous boot in system.prev)
+#   p3 MUOS/log/system         -> /opt/muos/log (previous boots in system.prev, .prev2, .prev3)
 # p3 state is seeded once from the rootfs (which carries the R35S profile)
 # and imports the C21 preferences store (VOLUME/BRIGHTNESS). cpufreq is
 # writable (M2): the frontend loop applies muOS per-content governors;
@@ -90,7 +90,11 @@ case "${1:-}" in
         mount --bind "$copy" "$file" && printf '%s\n' "$file" >> "$state/mounts"
     done
     logs=/userdata/MUOS/log
-    rm -rf "$logs/system.prev"; [ ! -d "$logs/system" ] || mv "$logs/system" "$logs/system.prev"
+    # Keep three previous boots: a T3 round often spans several reboots.
+    rm -rf "$logs/system.prev3"
+    [ ! -d "$logs/system.prev2" ] || mv "$logs/system.prev2" "$logs/system.prev3"
+    [ ! -d "$logs/system.prev" ] || mv "$logs/system.prev" "$logs/system.prev2"
+    [ ! -d "$logs/system" ] || mv "$logs/system" "$logs/system.prev"
     bind "$logs/system" /opt/muos/log
     touch "$state/ready"
     ;;
