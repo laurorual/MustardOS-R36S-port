@@ -285,6 +285,15 @@ about other R35S/R36S panels or revisions.
   - The stock config, recovered from the hidden `/boot`, differs from the
     public defconfig only in 2 Wi-Fi symbols.
   - (phase4-bsp-foundation.md, phase4-modules-firmware.md)
+- **U-Boot pins the boot assets (found in M2):** the port U-Boot
+  (`uboot-linux/boot.c`) loads `Image`, `rk3326-muos-r35s-panel0.dtb` (and
+  an initramfs where used) from p1 and stops with "muOS Linux diagnostic:
+  STOPPED / Asset read/size check failed" (or "SHA256 mismatch") unless each
+  matches the size and SHA256 generated into
+  `include/configs/muos-r35s-linux-assets.h` at U-Boot build time. Any
+  kernel or DTB change therefore needs a U-Boot rebuild and a write of the
+  bootloader region (sector 16384). The pinned DTB is `496bbe35…`
+  (89102 B). `install-dtb.sh` refuses anything else.
 - **Boot command and root check:**
   - Kernel cmdline: `root=PARTUUID=4d554432-02 rootfstype=ext4 rootwait ro`,
     no initramfs, `booti 0x02000000 - 0x01f00000`. The C79 image uses
