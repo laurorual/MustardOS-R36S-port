@@ -3,12 +3,6 @@
   "note": "Managed by port/scripts/retention.py. Paths are repo-relative. Only files listed under firmware_versions are ever deleted.",
   "maximum_firmware_versions": 5,
   "firmware_versions": {
-    "C100": {
-      "reason": "Corrected unprovisioned factory ext4; rootfs rebuild reference",
-      "files": [
-        "build/phase4/c79-layout/compose.1yrez0md/output/factory.ext4"
-      ]
-    },
     "M1-baseline": {
       "reason": "Flashable test128 image before M1 (C07 init, kept seed); restores test128 only (CID-locked bootstrap)",
       "files": [
@@ -31,6 +25,14 @@
         "dist/recovery/test128-m2-20261111.img.zst",
         "dist/recovery/test128-m2-20261111.img.zst.sha256",
         "dist/recovery/test128-m2-20261111.manifest"
+      ]
+    },
+    "M3a": {
+      "reason": "Built M3a firmware (build-image.sh, Buildroot p2 + M2 prefix/p3); T2-verified, written to test128 p2",
+      "files": [
+        "dist/firmware/test128-m3a-20261111.img.zst",
+        "dist/firmware/test128-m3a-20261111.img.zst.sha256",
+        "dist/firmware/test128-m3a-20261111.manifest"
       ]
     }
   },

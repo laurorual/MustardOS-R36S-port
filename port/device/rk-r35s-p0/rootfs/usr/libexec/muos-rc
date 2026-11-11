@@ -24,6 +24,7 @@ limit() {
     case "$action:${1##*/}" in
         stop:S99*) echo 30 ;;
         start:S10udev|stop:S89*) echo 60 ;;
+        start:S89*) echo 120 ;;  # e2fsck of p3 (bounded to 100 s inside)
         *) echo 45 ;;
     esac
 }

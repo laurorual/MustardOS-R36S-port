@@ -11,8 +11,48 @@
 # over SSH by deleting /etc/muos-boot-trial.used; if it is still there at the
 # following boot (the trial was not confirmed, e.g. no SSH and the user
 # power-cycled), /etc/inittab.fallback is restored first.
+#
+# Trial root (M3a): with /etc/muos-root-trial on p2, this boot runs the image
+# p3 MUOS/trial/rootfs.img (loop, read-only) as root, once. The marker is
+# removed before anything else, so a hang or a broken trial is a power cycle
+# back to p2. Before pivot_root, p3 moves to the trial's /userdata (S89 then
+# finds it mounted) and dev/proc/sys move along; p2 stays read-only at
+# /media until `muos-root-trial write-p2` unmounts and writes it. Any
+# failure before pivot_root undoes the mounts and boots p2 normally.
 mount -t proc proc /proc 2>/dev/null
 mount -t sysfs sysfs /sys 2>/dev/null
+trial_root() {
+    mount -o remount,rw / || return 1
+    rm -f /etc/muos-root-trial; sync
+    mount -o remount,ro / || return 1
+    [ ! -e /etc/muos-root-trial ] || return 1
+    mount -t tmpfs -o size=64k,mode=0700 muos-trial /tmp || return 1
+    mkdir /tmp/p3 /tmp/root
+    if mount -t ext4 -o rw,noatime,data=ordered /dev/mmcblk0p3 /tmp/p3; then
+        if mount -t ext4 -o loop,ro /tmp/p3/MUOS/trial/rootfs.img /tmp/root; then
+            r=/tmp/root
+            if [ -x $r/sbin/muos-ext4-diag ] && [ -x $r/sbin/init ] && [ -d $r/media ] &&
+                [ -d $r/userdata ] && [ -d $r/dev ] && [ -d $r/proc ] && [ -d $r/sys ] &&
+                mount --move /tmp/p3 $r/userdata; then
+                echo 'muos: trial root p3 MUOS/trial/rootfs.img' > /dev/kmsg
+                mount --move /dev $r/dev
+                mount --move /sys $r/sys
+                mount --move /proc $r/proc
+                cd $r && pivot_root . media && exec chroot . /sbin/muos-ext4-diag "$@"
+                # Not reached unless pivot_root failed: put everything back.
+                cd /
+                mount --move $r/proc /proc; mount --move $r/sys /sys; mount --move $r/dev /dev
+                mount --move $r/userdata /tmp/p3
+            fi
+            umount /tmp/root
+        fi
+        umount /tmp/p3 2>/dev/null
+    fi
+    umount /tmp
+    echo 'muos: trial root not started, booting p2' > /dev/kmsg
+    return 1
+}
+[ ! -e /etc/muos-root-trial ] || trial_root "$@"
 if [ -e /etc/muos-boot-trial ] || [ -e /etc/muos-boot-trial.used ]; then
     if mount -o remount,rw /; then
         if [ -e /etc/muos-boot-trial ]; then
