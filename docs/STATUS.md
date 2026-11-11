@@ -8,7 +8,9 @@ Update at the end of every milestone. See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware) is in progress. M1 is done (2026-11-10).**
+**Phase 5 (own-card firmware) is in progress. M1 is done (2026-11-10);
+M2 (power, battery, cpufreq) passed T0–T2 on 2026-11-11 and waits for
+its T3 checklist (end of this file).**
 
 M1 delivered three things:
 - a flashable recovery image,
@@ -59,6 +61,7 @@ authorized_keys. Never commit or share them.
 
 | Image | Content | Boots on |
 |---|---|---|
+| `test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core | any card ≥ 2 GiB |
 | `test128-m1-20261110.img.zst` (raw `1c65c693…`) | M1: autostart, seedless | any card ≥ 2 GiB |
 | `test128-baseline-20261110.img.zst` (raw `9c1c8a37…`) | pre-M1 C07 init, SSH only | test128 only (CID-locked bootstrap), slot 2 empty |
 
@@ -125,6 +128,38 @@ the changes.
 
 **Safe mode:** create `/boot/muos-noui` on the FAT partition and the UI
 is skipped; SSH still comes up.
+
+**M2 additions:**
+- **Power key and sleep, as upstream muOS:**
+  - `share/hotkey/sleep.json` binds `POWER_SHORT`/`POWER_LONG` to
+    `SLEEP_*`. The frontend loop starts `muos-hotkey`, which reads
+    muhotkey's output through a FIFO (like upstream `hotkey.sh`).
+  - Both presses run `muos-suspend` (like upstream `suspend.sh`):
+    muxretro SIGUSR1 (auto-save + pause), backlight off, mute,
+    Wi-Fi/SSH down, `mem` from `danger/state`, then everything in
+    reverse plus SIGUSR2.
+  - Wi-Fi: 8821cu is unloaded and the DWC2 USB host is unbound before
+    sleep and rebound after it; otherwise the dongle stays dead after
+    `mem`.
+  - Shutdown timer (`settings/power/shutdown`, upstream default 600 s):
+    a clean poweroff after 10 min asleep.
+  - With the charger connected it does upstream's "fake sleep" instead:
+    screen off, frontend stopped, the next Power press wakes it.
+  - Events are ignored for 6 s after waking, so the waking press can't
+    put it back to sleep.
+- **Battery** (S97): muOS `mubattery` feeds the status bar from
+  `device/config/battery/*` (RK817 gauge, `ac/online` as the charger).
+  `muos-lowbattery` shows the warning overlay at
+  `settings/power/low_battery` (25%). As a port addition, it powers off
+  cleanly at ≤3% while discharging.
+- **Headphones** (S97, `muos-headphone`): jack in → playback path HP,
+  out → `SPK_HP`. Polarity still needs confirming at T3.
+- **cpufreq:** writable. The frontend loop applies muOS per-content
+  governors and restores the device default, `schedutil`. The menu
+  idles at 1008 MHz.
+- **No overclock.** The port U-Boot pins the size and SHA256 of `Image`
+  and the DTB, so the 1512 MHz DTB stopped the boot. It was restored
+  through dArkOSen. See hardware-findings and M3.
 
 ## The seed (investigated in M1)
 
@@ -193,7 +228,8 @@ part of M3.
 - Wi-Fi + SSH
 - prefs persistence
 - Game Boy (Gambatte) with save states
-- NES, but slow (51.4 fps)
+- NES: the C47 "51.4 fps" figure applied only to the synthetic demo ROM
+  (see M2)
 
 **M1, automated on the device (T2):**
 - **Boot:** autostart to the menu on more than 15 boots of the new init,
@@ -216,25 +252,58 @@ part of M3.
   - a p3 grow test
   - AST import check of all 425 kept Python files
 
+**M2, automated on the device (T2), 2026-11-11:**
+- **NES fps.** Measured by `port/scripts/t2-nes-fps.sh` with muxretro's own
+  frame-time capture (`MUXRETRO_PERF_CAPTURE`; muxretro's "Content
+  rate" log line is audio-derived, not fps), 60 s after a 10 s warm-up:
+
+  | Run | ROM | fps | frame / core / present ms | CPU, governor |
+  |---|---|---|---|---|
+  | before (cpufreq ro) | Super Mario Bros. 3 (MMC3) | 59.90 | 16.69 / 5.88 / 10.60 | 1296 MHz, performance |
+  | after (writable) | Super Mario Bros. 3 | 59.89 | 16.70 / 7.09 / 9.35 | 1296 MHz, schedutil |
+  | before | r35s-flight (MIT demo) | 51.61 | 19.38 / 13.47 / 5.70 | 1296 MHz, performance |
+  | after | r35s-flight | 51.56 | 19.40 / 13.50 / 5.69 | 1296 MHz, performance (muxretro boost) |
+
+  A real game runs at full speed (vsync-locked to the 59.94 Hz panel)
+  with headroom. Only the synthetic demo ROM is slow. Writable cpufreq
+  doesn't change fps, but the menu now idles at 1008 MHz.
+- **Sleep:** 20/20 Power-key sleep/resume cycles
+  (`port/scripts/t2-sleep-cycle.sh`; injected Power press, `mem`, RTC
+  wake).
+  - 3 of them were in game: muxretro auto-saved, paused and resumed on
+    SIGUSR2.
+  - Each cycle checked the backlight restored and Wi-Fi/SSH back on the
+    first attempt.
+- **Charging fake sleep:** screen off and frontend stopped; a second
+  press wakes it.
+- **Battery:** `/run/muos/battery` reports 100%, 4150 mV, charging=1.
+  The low-battery logic (overlay, clean critical poweroff) passed at T1.
+- **Headphones:** jack=0 → `SPK_HP`. Insertion not exercised (no hands).
+- **Regression:** the full `t2-menu-cycle.sh` passes (9/9).
+
 ## Broken, caveated or unverified
 
-- **Power:** Power key, suspend (`/sys/power` is bound ro), battery and
-  charging, LEDs and rumble are untested. The muOS battery device config
-  files are missing.
+- **Power:**
+  - **Shutdown timer:** the poweroff after 10 min asleep is untested
+    (powering back on needs hands).
+  - **Physical Power key:** only injected presses have been tested.
+  - **Not done:** LEDs (the R35S LED node is disabled in stock too;
+    charge indication is presumably hardware) and rumble.
+  - **No CPU overclock:** see M3.
 - **Audio:**
   - half-rate PCM after reboot (root cause unknown)
   - 3–8 underrun bursts per game
   - help WAVs inaudible
-  - headphones untested
-- **CPU governor:** frontend and muxretro writes to the cpufreq governor
-  fail, because the cpufreq tree is bound ro. The DTB caps the CPU at
-  1296 MHz.
+  - headphone polarity unconfirmed
 - **Unsupported content:** only libretro cores in `/opt/muos/share/core`
-  are supported (only gambatte is installed); `ext-*` launchers are
-  refused. The NES core is not installed. There is no general ROM import
-  path beyond copying files to p3 `ROMS/<system>`.
-- **Missing on the device:** e2fsck. The p3 journal covers unclean
-  shutdowns, but no fsck ever runs on the device.
+  are supported (gambatte and fceumm are installed); `ext-*` launchers
+  are refused. There is no general ROM import path beyond copying files
+  to p3 `ROMS/<system>` (`port/scripts/install-nes.sh` copies
+  `port/roms/nes`).
+- **Missing on the device: e2fsck (M2 item 8 not done).** Building
+  e2fsprogs in the Buildroot output needs container access to `build/`,
+  which this session's permission rules deny. The p3 journal covers
+  unclean shutdowns, but no fsck runs on the device.
 - **Rebuild:** the rootfs on the card is the C94 composition patched in
   place by M1. The M1 changes are in Git (`rootfs/` plus install), but a
   from-scratch Buildroot image hasn't been rebuilt or booted.
@@ -263,76 +332,18 @@ part of M3.
 
 ## Proposed next milestones
 
-**M2 — Power, battery and CPU frequency** (plan; waiting for approval):
-
-1. **NES baseline (before).**
-   - Install FCEUmm (`build-phase4-nes-core.py`) and the MIT demo ROM
-     (`port/diagnostics/phase4-nes-demo.py`) as `ROMS/NES`.
-   - Launch it from the menu with `muos-press` and record muxretro's
-     "Content rate" lines over 60 s, plus `scaling_cur_freq`, the
-     governor and load.
-   - Same build, ROM and boot as later, so the before/after numbers are
-     comparable.
-2. **Writable cpufreq.**
-   - Drop the read-only bind of `/sys/devices/system/cpu` in S91, so the
-     frontend and muxretro governor writes work.
-   - Verify that the per-content governor (muOS `core.gov`, schedutil
-     for GB) is applied on launch and restored on return.
-   - Record the available governors and the OPP table.
-   - Re-measure NES (after). Note: C47 already measured NES under
-     `performance` at 1296 MHz, so this step alone may not change NES fps.
-     Its main value is correct per-content governors and battery life.
-3. **Optional, needs your decision: raise the CPU cap from 1296 to
-   1512 MHz.**
-   - Stock dArkOSen allows 1512 MHz. The cap lives in the port DTB OPPs
-     on p1. Pairing it with the O3/LTO FCEUmm build (53.6 fps in C47) is
-     the realistic path toward 60 fps.
-   - Measure fps, temperature and stability over 10 minutes.
-   - Recovery if unstable: restore the old DTB on p1 over SSH, or reflash.
-4. **Power key** (`rk8xx_pwrkey`, event0): short press → suspend, if
-   step 5 qualifies, otherwise screen off. Long press (about 2 s) →
-   clean poweroff through init. Hook it into muhotkey or a small evdev
-   daemon.
-5. **Suspend/resume.**
-   - Unbind `/sys/power` and test `mem`/`freeze` over SSH.
-   - Qualify Wi-Fi and SSH return, audio after resume, input and
-     display.
-   - If resume is unreliable on 4.4, fall back to screen-off with a
-     reduced CPU frequency.
-6. **Battery.**
-   - RK817 gauge → muOS `device/config/battery/{capacity,charger,voltage}`.
-   - Show % and charging state in the frontend.
-   - Low-battery warning, then poweroff through init at a safe
-     threshold.
-   - Charge LED (GPIO77).
-7. **Headphones.** Jack detection (event1): sink switching and volume.
-8. **Data safety.**
-   - Add e2fsprogs to the rootfs and run e2fsck -p on p3 before S89
-     mounts it.
-   - Power-loss test: cut power during a quick save, then check p3 and
-     the saves.
-9. **T2:**
-   - before/after NES fps table
-   - governor round-trip
-   - 20 suspend/resume cycles over SSH, if step 5 qualifies
-   - battery readings against the charger plugged and unplugged
-   - p3 fsck at boot, and the full `t2-menu-cycle.sh`
-10. **T3:**
-    - Power key (short and long press)
-    - suspend/resume: screen and buttons after wake
-    - battery % and charging icon
-    - headphones
-    - NES feel
-    - one deliberate power cut during play
-
-**M3 — Real usage:**
-- **ROM library:** browse ROMs in `ROMS/<system>` with SRAM saves, and
-  install the NES core with O3/LTO (target 60 fps). Optionally add a
-  simple ROM copy path: Samba/sftp over Wi-Fi, or the FAT partition.
+**M3 — Real usage and a reproducible boot chain:**
+- **ROM library:** browse ROMs in `ROMS/<system>` with SRAM saves, plus a
+  ROM copy path (Samba/sftp over Wi-Fi, or the FAT partition). More
+  cores as needed.
 - **Reproducible image:** build the full image from Buildroot plus
-  `rootfs/`, with no in-place patching, then boot and flash it.
-  Collapse the prepare/package chain and retire the remaining C-step
-  scripts.
+  `rootfs/`, with no in-place patching. Include e2fsprogs and run e2fsck
+  on p3 at boot (carried over from M2). Collapse the
+  prepare/package chain and retire the remaining C-step scripts.
+- **Boot chain:** rebuild U-Boot without the Image/DTB pin (or
+  re-pinned) and write it from a verified image. Only then revisit the
+  1512 MHz OPPs (`port/scripts/make-dtb-opp.sh`), if any content needs
+  them.
 - **Robustness:** auto-grow p3 on first boot, log rotation, and
   `HW_RANDOM_ROCKCHIP`. Fix the audio half-rate and underruns.
 - **Long run:** 1–2 h of play, plus 20 reboot/poweroff cycles.
@@ -360,3 +371,43 @@ part of M3.
    - Power on again: the menu comes back.
 6. **Optional:** Power key presses (expected: nothing happens yet), and
    speaker sound in the menu and in the game.
+
+## M2 T3 checklist (for the user)
+
+Device: test128 in slot 1, slot 2 empty, at the menu. No reflash needed:
+the device already runs M2.
+
+1. **Power key in the menu:** short-press Power.
+   - Expected: the screen goes dark within about 2 s.
+   - Short-press again: the menu returns within about 3 s, buttons work,
+     and Wi-Fi/SSH come back (I can confirm).
+2. **Power key in a game:** start GB (or Super Mario Bros. 3 in
+   Explore → NES), play, press Power, wait 20 s, press Power again.
+   - Expected: the game continues exactly where it was, after a pause
+     menu flash, with sound.
+3. **Long press:** hold Power about 1 s.
+   - Expected: the same sleep as a short press (that's upstream muOS
+     behaviour).
+   - Note: holding it much longer (≥ 6 s) is the PMIC's hard power cut;
+     don't use that.
+4. **Shutdown timer:** unplug the charger, press Power to sleep, and
+   leave it for more than 10 minutes.
+   - Expected: it powers off by itself (clean shutdown; the next power-on
+     boots to the menu with the GB save intact).
+5. **Charging:** plug the charger in.
+   - Expected: the battery icon shows charging.
+   - Power then gives the screen-off "fake sleep"; Power again wakes it.
+6. **Battery %:** unplug the charger and play for about 10 minutes.
+   - Expected: the status-bar % drops plausibly.
+7. **Headphones:** plug headphones in during a game or with menu sounds.
+   - Expected: sound only in the headphones. Unplug: sound back on the
+     speaker.
+   - Tell me if it's reversed (speaker silent with nothing plugged in),
+     so I can flip the polarity.
+8. **NES:** Explore → NES → Super Mario Bros. 3, play about 2 minutes.
+   - Expected: smooth full speed and clean audio.
+9. **Optional, data safety:** during a game, cut power the hard way
+   (hold Power ≥ 6 s), then power on.
+   - Expected: it boots to the menu. GB/NES load their last auto-save or
+     quick save.
+

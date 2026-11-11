@@ -1,0 +1,13 @@
+M1 T3 — 2026-11-10
+
+1. Flash: OK/FALHA — saída final: FALHA
+lauro@bazzite:~/dev/muos-r35s-port$ port/scripts/flash-card.sh darkosen 192.168.15.8 dist/recovery/test128-m1-20261110.img.zst --grow
+== copy image to ark@192.168.15.8 (SSH password once)
+Warning: Permanently added '192.168.15.8' (ED25519) to the list of known hosts.
+ark@192.168.15.8's password:
+/dev/mmcblk0p2   10G  7.9G  1.8G  83% /
+== write /dev/mmcblk1 (sudo password)
+writing /dev/mmcblk1 (127934660608 bytes)
+sh: 12: blockdev: not found
+Shared connection to 192.168.15.8 closed.
+VERIFY FAILED: card ? != image 1c65c693bcb61c0a21a422f35713d325e1aef4e2b791b6962f37249a5622addb

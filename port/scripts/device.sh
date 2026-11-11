@@ -157,7 +157,7 @@ case "$cmd" in
     # consistent card: root ro, p1 not rw, p3 unmounted. Reboot afterwards.
     ssh_dev "$ip" 'cd /; export HOME=/root XDG_RUNTIME_DIR=/run PIPEWIRE_RUNTIME_DIR=/run
         export PATH=/opt/muos/frontend:/opt/muos/bin:/usr/sbin:/usr/bin:/sbin:/bin LD_LIBRARY_PATH=/opt/muos/frontend/lib
-        for s in S99muos-ui S96muos-input-ready S95muos-core S91muos-runtime S90muos-storage S89muos-data; do
+        for s in S99muos-ui S97muos-battery S96muos-input-ready S95muos-core S91muos-runtime S90muos-storage S89muos-data; do
             [ -x /etc/init.d/$s ] && /etc/init.d/$s stop >/dev/null 2>&1; done; sync' || :
     ssh_dev "$ip" 'set -e
         grep -q "^/dev/root / ext4 ro," /proc/mounts

@@ -465,15 +465,30 @@ about other R35S/R36S panels or revisions.
 
 ## Power and battery
 
-- **Battery:** RK817 fuel gauge, design_capacity 3140, qmax 3454. Not
-  validated. (compatibility-matrix.md)
+- **Battery (M2):** RK817 fuel gauge, design_capacity 3140, qmax 3454.
+  `/sys/class/power_supply/battery/{capacity,voltage_now,status,health}`.
+  The charger is `ac/online` (1 when plugged in; `usb/online` stays 0), the
+  same as the RK817 G350 config upstream. Charge LED: the DTB
+  `blue:heartbeat` gpio-led (GPIO0_C1) is disabled in stock too.
 - **LEDs and rumble:** GPIO77 is the battery LED. LEDs and rumble are
   untested. (compatibility-matrix.md)
-- **Power key:**
-  - A long press powers off from the U-Boot monitor. This is the only Power
-    behaviour confirmed so far.
-  - The Linux Power key is `rk8xx_pwrkey` (event0) and is untested.
-  - (phase4-memory-monitor.md)
+- **Power key:** `rk8xx_pwrkey`, event0, `KEY_POWER`. The port board entry
+  gives muhotkey ev0 for power (ev3 for volume). muhotkey emits
+  `POWER_SHORT`/`POWER_LONG` (400 ms) combos; `share/hotkey/sleep.json` maps
+  both to sleep, as upstream. Evdev writes to a private `/dev` node inject
+  real presses (`/run` is `nodev`). A long press also powers off from the
+  U-Boot monitor.
+- **Suspend (M2):** `/sys/power/state` offers `freeze mem disk`; no
+  `mem_sleep`. The RK817 RTC (`rk808-rtc`, `/sys/class/rtc/rtc0/wakealarm`)
+  and the power key wake from `mem`.
+  - After `mem` the DWC2 USB host (`ff300000.usb`) does not recover: the
+    dongle's LED stays off, and replugging doesn't help.
+  - Fix: unload `8821cu` and unbind DWC2 before suspend, rebind after
+    resume and restart the network. The dongle re-enumerates as 1a2b and
+    is mode-switched again. 20/20 cycles passed.
+  - `pm_test=devices` alone does not reproduce the failure.
+  - Each fd a sleep script holds is inherited by the daemons it restarts.
+    Close lock fds (`9>&-`), or the next sleep finds the lock taken.
 - **CPU:**
   - The port caps the CPU at 1296 MHz (stock allows 1512).
   - Under load the governor read performance at 1296000 kHz.
@@ -489,11 +504,25 @@ about other R35S/R36S panels or revisions.
 - **Host:** the native host is muOS `muxretro`, not RetroArch. Port patches
   0003, 0006–0012 and 0015 are in the lineage; 0013 and 0014 are
   experimental. (phase4-muxretro-integration.md, phase4-nes-performance.md)
-- **NES (FCEUmm):**
-  - About 51.4 fps against 60.0998 nominal. A frame takes 19.4 ms: 13.5 ms
-    core plus 5.6 ms present.
-  - O3/LTO reaches 53.57 fps. Software pacing gives no gain.
-  - (phase4-nes-performance.md)
+- **NES (FCEUmm), M2 measurement:**
+  - Real game, Super Mario Bros. 3 (MMC3): 59.9 fps, vsync-locked to the
+    59.94 Hz panel. Core 5.9–7.1 ms per frame at 1296 MHz, under
+    performance or schedutil.
+  - The C47 figure (51.4 fps; 13.5 ms core + 5.6 ms present; O3/LTO
+    53.6 fps) is specific to the synthetic `r35s-flight` demo ROM and
+    reproduced exactly (51.6). It is not a general NES limit.
+- **Measuring fps:** `MUXRETRO_PERF_CAPTURE=1` makes muxretro write
+  `pickles/performance.csv` every 15 s (last 1024 frame intervals; frame,
+  core and present means). Use `port/scripts/t2-nes-fps.sh`. The muxretro
+  log line "Content rate window X Hz" is derived from audio and frame
+  counts, not from wall time; it reads 60.10 even when slow.
+- **muxretro signals:** SIGUSR1 → auto-save, then pause and write
+  `/run/muos/muxretro_save_ready` (pid). SIGUSR2 → resume. Auto-save
+  default `auto_save=3` (idle + quit) resumes the last state on launch.
+- **Headphone jack:** ASoC control `Headphone Jack` (`amixer -c 0 cget
+  iface=CARD,name='Headphone Jack'`) reads `off` with nothing plugged in.
+  RK817 `Playback Path` items: OFF/SPK/HP/SPK_HP. Polarity is
+  unconfirmed until headphones are inserted.
 - **GB (Gambatte):**
   - 59.8 fps measured against 59.7275 nominal.
   - The green palette in C77 comes from `gambatte_gb_colorization=internal`,
