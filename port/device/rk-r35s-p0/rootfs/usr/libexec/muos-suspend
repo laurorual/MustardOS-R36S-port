@@ -1,0 +1,125 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Port sleep/resume, after MustardOS internal/script/system/suspend.sh:
+#   muxretro SIGUSR1 (save + pause, waits for muxretro_save_ready) -> backlight
+#   off -> mute -> Wi-Fi/SSH down (8821cu unloaded, DWC2 unbound: the USB host
+#   does not survive "mem" otherwise) -> /sys/power/state <- danger/state
+#   (default mem); resume in reverse, muxretro SIGUSR2.
+# settings/power/shutdown (upstream default 600): seconds asleep before a
+# clean poweroff through init (RTC alarm); -1 sleep until woken; 2 power
+# off instead of sleeping. Charger connected: "fake sleep" (screen off,
+# frontend/muxretro stopped, wake on the Power key), timer ignored, as
+# upstream. Test hooks: --test-wake SECONDS or /run/muos/suspend-test-wake.
+export PATH=/opt/muos/frontend:/usr/sbin:/usr/bin:/sbin:/bin
+run=/run/muos
+log=/opt/muos/log/suspend.log
+bl=/sys/class/backlight/backlight/brightness
+gov=/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+rtc=/sys/class/rtc/rtc0
+dwc2=/sys/bus/platform/drivers/dwc2
+usb=ff300000.usb
+exec >> "$log" 2>&1
+say() { printf '%s %s\n' "$(cut -d' ' -f1 /proc/uptime)" "$*"; }
+cfg() { v=$(cat "/opt/muos/config/$1" 2>/dev/null); echo "${v:-$2}"; }
+test_wake=; [ "${1:-}" = --test-wake ] && test_wake=$2
+# T2 hook: /run/muos/suspend-test-wake (seconds) makes key-triggered sleeps
+# wake on the RTC so cycles can run unattended.
+[ -n "$test_wake" ] || [ ! -s /run/muos/suspend-test-wake ] || test_wake=$(cat /run/muos/suspend-test-wake)
+
+exec 9>"$run/suspend.lock"
+flock -n 9 || exit 0
+[ ! -e "$run/recent_wake" ] || exit 0
+: > "$run/recent_wake"
+# However this run ends, re-arm sleep a few seconds later.
+trap '( sleep 6; rm -f "$run/recent_wake" ) 9>&- &' EXIT
+
+state=$(cfg danger/state mem)
+shutdown=$(cfg settings/power/shutdown 600)
+charger=$(cat "$(cat /opt/muos/device/config/battery/charger 2>/dev/null || echo /sys/class/power_supply/ac/online)" 2>/dev/null || echo 0)
+fake=0; [ "$charger" = 1 ] && [ -z "$test_wake" ] && { fake=1; shutdown=-1; }
+[ -z "$test_wake" ] || shutdown=-1
+say "sleep state=$state shutdown=$shutdown charger=$charger"
+
+pid_of() { for p in /proc/[0-9]*; do [ "$(readlink "$p/exe")" = "/opt/muos/frontend/$1" ] && echo "${p#/proc/}"; done; }
+retro=$(pid_of muxretro | head -n1)
+save_retro() {
+    [ -n "$retro" ] || return 0
+    rm -f "$run/muxretro_save_ready"
+    kill -USR1 "$retro" 2>/dev/null || return 0
+    n=0
+    while [ "$n" -lt 100 ]; do
+        [ "$(cat "$run/muxretro_save_ready" 2>/dev/null)" = "$retro" ] && { say "muxretro saved"; break; }
+        kill -0 "$retro" 2>/dev/null || break
+        sleep 0.05; n=$((n+1))
+    done
+    rm -f "$run/muxretro_save_ready"
+}
+
+if [ "$shutdown" = 2 ]; then
+    save_retro
+    say "shutdown=2: power off instead of sleeping"
+    poweroff 9>&-; exit 0
+fi
+
+# ---- SLEEP
+save_retro
+bright=$(cat "$bl"); echo 0 > "$bl"
+wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 2>/dev/null
+saved_gov=$(cat "$gov")
+
+net_down() {
+    /etc/init.d/S41muos-network stop >/dev/null 2>&1
+    rmmod 8821cu 2>/dev/null
+    [ -e "$dwc2/$usb" ] && echo "$usb" > "$dwc2/unbind"
+}
+net_up() {
+    [ -e "$dwc2/$usb" ] || echo "$usb" > "$dwc2/bind"
+    # Close the lock fd: the daemons started here outlive this script.
+    /etc/init.d/S41muos-network start >/dev/null 2>&1 9>&-
+}
+
+if [ "$fake" = 1 ]; then
+    say "fake sleep (charging): wait for Power"
+    pids="$(pid_of muxfrontend) $retro"
+    # shellcheck disable=SC2086  # list of PIDs
+    [ -z "${pids% }" ] || kill -STOP $pids
+    echo powersave > "$gov" 2>/dev/null
+    dev=$(grep -l '^rk8xx_pwrkey$' /sys/class/input/event*/device/name | head -n1)
+    node=/dev/input/${dev#/sys/class/input/}; node=${node%/device/name}
+    # struct input_event (24 B): wait for EV_KEY KEY_POWER (116) press.
+    while :; do
+        ev=$(dd if="$node" bs=24 count=1 2>/dev/null | od -An -tu2 | tr -s ' ')
+        set -- $ev
+        [ "${9:-}" = 1 ] && [ "${10:-}" = 116 ] && [ "${11:-}" = 1 ] && break
+    done
+    # shellcheck disable=SC2086
+    [ -z "${pids% }" ] || kill -CONT $pids
+else
+    net_down
+    deadline=0
+    echo 0 > "$rtc/wakealarm"
+    if [ -n "$test_wake" ]; then
+        echo "+$test_wake" > "$rtc/wakealarm"
+    elif [ "$shutdown" -gt 0 ] 2>/dev/null; then
+        deadline=$(( $(cat "$rtc/since_epoch") + shutdown ))
+        echo "$deadline" > "$rtc/wakealarm"
+    fi
+    sync
+    say "suspend to $state"
+    echo "$state" > /sys/power/state || say "suspend refused"
+    echo 0 > "$rtc/wakealarm"
+    say "woke (rtc $(cat "$rtc/since_epoch"), deadline $deadline)"
+    if [ "$deadline" -gt 0 ] && [ "$(cat "$rtc/since_epoch")" -ge "$deadline" ]; then
+        say "shutdown timer reached: power off"
+        poweroff 9>&-; exit 0
+    fi
+fi
+
+# ---- RESUME
+echo "$saved_gov" > "$gov" 2>/dev/null
+echo "$bright" > "$bl"
+wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null
+[ -z "$retro" ] || kill -USR2 "$retro" 2>/dev/null
+cut -d' ' -f1 /proc/uptime > "$run/input_resume"
+[ "$fake" = 1 ] || net_up
+say "resumed"

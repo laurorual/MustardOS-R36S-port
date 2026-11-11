@@ -1,0 +1,36 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Port hotkey daemon, after MustardOS internal/script/mux/hotkey.sh:
+# muhotkey runs its own combos (volume, brightness) and prints the names of
+# the rest; this reads them from a FIFO and acts on the power ones:
+#   SLEEP_SHORT / SLEEP_LONG  -> muos-suspend (both, as upstream)
+#   IDLE_DISPLAY / IDLE_ACTIVE -> dim / restore the backlight
+#   IDLE_SLEEP                -> muos-suspend when settings/power/idle_sleep > 0
+# Events are ignored while /run/muos/recent_wake exists (set by muos-suspend
+# until a few seconds after resume), so the waking press cannot re-sleep.
+run=/run/muos
+fifo=$run/hotkey
+bl=/sys/class/backlight/backlight/brightness
+cfg() { cat "/opt/muos/config/$1" 2>/dev/null || echo "$2"; }
+say() { printf '%s %s\n' "$(cut -d' ' -f1 /proc/uptime)" "$*"; }
+[ -p "$fifo" ] || { rm -f "$fifo"; mkfifo "$fifo"; }
+exec 3<>"$fifo"
+mu=0
+start_mu() { /opt/muos/frontend/muhotkey >&3 & mu=$!; say "muhotkey $mu"; }
+trap '[ "$mu" -gt 0 ] && kill "$mu" 2>/dev/null; exit 0' INT TERM HUP
+start_mu
+dimmed=
+while :; do
+    kill -0 "$mu" 2>/dev/null || { say "muhotkey died, restarting"; start_mu; }
+    IFS= read -r key <&3 || continue
+    [ -n "$key" ] || continue
+    [ ! -e "$run/recent_wake" ] || continue
+    case "$key" in
+        SLEEP_SHORT|SLEEP_LONG) say "$key"; /usr/libexec/muos-suspend ;;
+        IDLE_SLEEP) [ "$(cfg settings/power/idle_sleep 0)" -gt 0 ] && { say "$key"; /usr/libexec/muos-suspend; } ;;
+        IDLE_DISPLAY)
+            [ "$(cfg settings/power/idle_display 0)" -gt 0 ] && [ -z "$dimmed" ] && {
+                dimmed=$(cat "$bl"); echo $((dimmed / 4 + 1)) > "$bl"; say "$key"; } ;;
+        IDLE_ACTIVE) [ -z "$dimmed" ] || { echo "$dimmed" > "$bl"; dimmed=; say "$key"; } ;;
+    esac
+done

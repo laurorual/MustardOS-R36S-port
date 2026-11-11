@@ -79,7 +79,8 @@ launch_content() {
 }
 
 say "loop start hotkeys=${1:-1} audio=$SDL_AUDIODRIVER"
-[ "${1:-1}" != 1 ] || { /opt/muos/frontend/muhotkey & hotkey=$!; }
+# muos-hotkey owns muhotkey and handles the power/idle hotkeys (sleep).
+[ "${1:-1}" != 1 ] || { /usr/libexec/muos-hotkey >> /opt/muos/log/hotkey.log 2>&1 & hotkey=$!; }
 [ -s "$act" ] || echo launcher > "$act"
 default_governor
 fast=0

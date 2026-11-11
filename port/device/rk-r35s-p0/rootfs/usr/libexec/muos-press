@@ -4,11 +4,18 @@
 # node so muinput sees them like real buttons.
 #   muos-press KEY [KEY...]   KEY: a b x y up down left right start select
 #                             l1 r1 l2 r2 fn, or fn+KEY for a chord;
-#                             "wait" sleeps 1 s.
-node=/dev/muos-pad
-dev=$(grep -l '^GO-Super Gamepad$' /sys/class/input/event*/device/name 2>/dev/null | head -n1)
-[ -n "$dev" ] || { echo 'muos-press: pad not found' >&2; exit 1; }
-[ -c "$node" ] || mknod "$node" c "$(cut -d: -f1 "${dev%/device/name}/dev")" "$(cut -d: -f2 "${dev%/device/name}/dev")"
+#                             "wait" sleeps 1 s; "power" / "power-long"
+#                             (1 s hold) go to the rk8xx_pwrkey node.
+# Private char nodes in /dev (/run is nodev) for the hidden physical nodes.
+node_for() { # NODE INPUT_NAME
+    [ -c "$1" ] && return 0
+    d=$(grep -l "^$2\$" /sys/class/input/event*/device/name 2>/dev/null | head -n1)
+    [ -n "$d" ] || { echo "muos-press: $2 not found" >&2; exit 1; }
+    mknod "$1" c "$(cut -d: -f1 "${d%/device/name}/dev")" "$(cut -d: -f2 "${d%/device/name}/dev")"
+}
+node=/dev/muos-pad pwr=/dev/muos-pwrkey
+node_for "$node" 'GO-Super Gamepad'
+node_for "$pwr" rk8xx_pwrkey
 code() {
     case "$1" in
         a) echo 305 ;; b) echo 304 ;; x) echo 307 ;; y) echo 308 ;;
@@ -20,10 +27,12 @@ code() {
 }
 # struct input_event on aarch64: 16-byte timeval, u16 type, u16 code, s32 value.
 ev() { printf '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'"\\$(printf %03o "$1")\\0\\$(printf %03o $(($2 & 255)))\\$(printf %03o $(($2 >> 8)))\\$(printf %03o "$3")\\0\\0\\0"; }
-key() { { ev 1 "$1" "$2"; ev 0 0 0; } > "$node"; }
+key() { { ev 1 "$1" "$2"; ev 0 0 0; } > "${3:-$node}"; }
 for k in "$@"; do
     case "$k" in
         wait) sleep 1 ;;
+        power) key 116 1 "$pwr"; sleep 0.15; key 116 0 "$pwr"; sleep 0.5 ;;
+        power-long) key 116 1 "$pwr"; sleep 1; key 116 0 "$pwr"; sleep 0.5 ;;
         fn+*) f=$(code fn) c=$(code "${k#fn+}") || exit 1
               key "$f" 1; sleep 0.1; key "$c" 1; sleep 0.15; key "$c" 0; sleep 0.1; key "$f" 0; sleep 0.5 ;;
         *) c=$(code "$k") || exit 1; key "$c" 1; sleep 0.15; key "$c" 0; sleep 0.5 ;;

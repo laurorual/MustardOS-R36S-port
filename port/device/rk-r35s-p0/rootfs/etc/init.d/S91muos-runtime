@@ -14,8 +14,10 @@
 #   p3 MUOS/log/system         -> /opt/muos/log (previous boot in system.prev)
 # p3 state is seeded once from the rootfs (which carries the R35S profile)
 # and imports the C21 preferences store (VOLUME/BRIGHTNESS). cpufreq is
-# writable (M2): the frontend loop applies muOS per-content governors.
-# /sys/power stays read-only; only muos-suspend may write it (M2).
+# writable (M2): the frontend loop applies muOS per-content governors;
+# /sys/power is written by muos-suspend (M2). Config keys added to the
+# rootfs later (e.g. the M2 power defaults) are copied into an existing p3
+# config without touching values the user already has.
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 port=/userdata/MUOS/port
 rw=/run/muos/rw
@@ -51,6 +53,10 @@ case "${1:-}" in
     findmnt -rn -M /userdata >/dev/null || { echo 'runtime: /userdata missing' >&2; exit 1; }
     : > "$state/mounts"
     seed
+    (cd /opt/muos/config && find . -type f) | while read -r f; do
+        [ -e "$port/config/$f" ] && continue
+        mkdir -p "$port/config/${f%/*}"; cp -p "/opt/muos/config/$f" "$port/config/$f"; echo "runtime: added config $f"
+    done
     bind "$port/config" /opt/muos/config
     bind "$port/volume" /opt/muos/share/volume
     bind "$port/info-content" /opt/muos/share/info/content
@@ -75,7 +81,6 @@ case "${1:-}" in
     logs=/userdata/MUOS/log
     rm -rf "$logs/system.prev"; [ ! -d "$logs/system" ] || mv "$logs/system" "$logs/system.prev"
     bind "$logs/system" /opt/muos/log
-    mount --bind /sys/power /sys/power && mount -o remount,bind,ro /sys/power && printf '%s\n' /sys/power >> "$state/mounts"
     touch "$state/ready"
     ;;
  stop)
