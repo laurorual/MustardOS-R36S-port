@@ -1,0 +1,6 @@
+config BR2_PACKAGE_MUOS_BOOTREC
+	bool "muOS R35S boot record tool"
+	help
+	  /usr/libexec/muos-bootrec: encodes and decodes the boot records
+	  (sectors 32-34) the port U-Boot boots from, with the same
+	  bootrec.c that U-Boot uses. Driven by /usr/libexec/muos-boot-slot.

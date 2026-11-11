@@ -4,6 +4,51 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M3b — boot chain from source, boot records, trial kernel, TRNG (T2 done 2026-11-11, T3 pending)
+
+Image `dist/firmware/test128-m3b-20261111.img.zst` (raw `2a8fec32…`).
+
+**Reproduced first:** `build-boot.sh kernel-ref` (from scratch, Linaro
+6.3.1, read-only linux-base, DTB built outside the tree) and `uboot-ref`
+(`uboot-tree.py ref`) rebuild the M2 card's `Image` (`78093582…`), DTB
+(`496bbe35…`) and `uboot.img` (`98c62e0b…`) byte for byte. The only
+assembly drift was a docs path in a U-Boot DTS comment.
+
+**Boot records instead of compiled-in pins:** the M2 U-Boot pinned the
+size and SHA256 of `Image`/DTB, so every kernel change meant a bootloader
+write, and its 0xec0000 kernel window had zero headroom (text_offset +
+image_size of the M2 kernel = 0xec0000; the M3b kernel needs 0xed0000).
+The M3b U-Boot (`muos_boot`) reads records at sectors 32/33/34 (main,
+previous, trial; shared `bootrec.c`, CRC32), consumes an armed trial on
+the card before trying it, verifies every file, falls through
+trial → main → previous, and appends `muos_slot=` (trial: `panic=10`).
+Kernel window 32 MiB at 0x02000000, the old window as fallback. Same
+U-Boot config as M2 (diffed); `install-dtb.sh` retired.
+
+**TRNG:** the DTB already enables `rockchip,cryptov2-rng`;
+`HW_RANDOM_ROCKCHIP=y` alone left `tpm-rng` (no TPM; EIO) as the current
+hwrng, because the 4.4 core keeps the first registered one, so
+`HW_RANDOM_TPM` is off too. RNG ready at 2.58 s (was 7–11 s), no
+"uninitialized urandom read" warnings. `Module.symvers` unchanged: the
+pinned modules stay valid. Time to the UI is unchanged (~16 s).
+
+**T0/T1:** `t0-boot.sh`: 19 U-Boot scenarios against mock U-Boot APIs
+(ASan/UBSan: trial once and consumed before booti, bad/stale/oversized
+files, corrupt records, window fallback, booti returning, no records);
+record codec: C and Python encoders byte-identical, cross-decoding, all
+512 single-byte corruptions rejected. ASan caught two harness bugs, none
+in `boot.c`. Image stage: p1 `fsck.fat`, records and U-Boot read back.
+
+**T2 (device):** new p2 via the trial root (audio, 3 sleep cycles); M2
+records written; U-Boot written and read back (old region saved on p3);
+first boot `muos_slot=main`. Trial kernel boots once with `panic=10`; the
+next boot is main again; after the TPM fix the TRNG is current and
+survives 5 sleep cycles; promoted. On hardware: corrupt main record →
+previous; bad-SHA trial → consumed → main (`t2-boot-slot.sh` 4/4). Suite
+on the M3b kernel: `t2-menu-cycle` 11/11, `t2-sleep-cycle --game` 3/3 and
+5/5, `t2-headphone` PASS, NES 59.89 fps, audio soak 6/6 boots (one second
+S95 attempt).
+
 ## M3a.1 — audio regression fix (done 2026-11-11, T3 passed)
 
 **M3a T3 (2026-11-11):** the built image flashed via dArkOSen (`verified

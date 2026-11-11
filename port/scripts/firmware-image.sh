@@ -2,21 +2,26 @@
 # SPDX-License-Identifier: MIT
 # M3a image stage (called by build-image.sh image NAME):
 #
-#   firmware-image.sh ROOTFS.ext4 BASE.img.zst BASE_RAW_PREFIX OUT.img.zst
+#   firmware-image.sh ROOTFS.ext4 BASE.img.zst BASE_RAW_PREFIX OUT.img.zst BOOT_DIR
 #
 # The card image is the base recovery image (bootloader at 64/16384/24576,
 # p1 FAT, the MBR and a 1 GiB p3) with p2 replaced by the Buildroot rootfs.
 # The device identity (dropbear host key, network.conf with the Wi-Fi PSK,
 # the authorized key) is copied from the base p2 with its modes; it is
 # never printed. Also writes OUT without .img.zst + .p2.img (the raw p2, for
-# the trial root) next to build/m3a. Runs rootless on the host (e2fsprogs,
-# zstd). The output is PRIVATE: never commit or share it.
+# the trial root) next to build/m3a. M3b: BOOT_DIR (build-boot.sh output)
+# supplies uboot.img (sector 16384) and the kernel + DTB, copied to p1 under
+# content names; boot records: main = them, previous = the M2 Image + DTB
+# already on p1, no trial. Runs rootless on the host (e2fsprogs, mtools,
+# dosfstools, zstd). The output is PRIVATE: never commit or share it.
 set -euo pipefail
 export LC_ALL=C
-[ $# -eq 4 ] || { sed -n '4p' "$0"; exit 2; }
-rootfs=$(realpath "$1") base=$(realpath "$2") base_raw=$3 out=$(realpath -m "$4")
+[ $# -eq 5 ] || { sed -n '4p' "$0"; exit 2; }
+rootfs=$(realpath "$1") base=$(realpath "$2") base_raw=$3 out=$(realpath -m "$4") bootd=$(realpath "$5")
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
-p2_start=262144 p2_sectors=1048576
+p2_start=262144 p2_sectors=1048576 p1_start=32768 p1_sectors=204800
+m2_image=780935823cb8c86e4330c8c8157ebb4005fb5580e68e72c4b0c4e480bab42d2f
+m2_dtb=496bbe3591f8619f059ebc384277ecdd17fd41f956aef40de20afb46b92d5b49
 private=(/var/lib/muos-network/dropbear_ed25519_host_key /var/lib/muos-network/network.conf
     /etc/muos-network-authorized_key)
 
@@ -68,6 +73,35 @@ dd if="$work/p2.img" of="$img" bs=512 seek=$p2_start conv=notrunc status=none
 cmp -s "$work/p2.img" <(dd if="$img" bs=512 skip=$p2_start count=$p2_sectors status=none)
 p2_sum=$(sha256sum "$work/p2.img" | cut -d' ' -f1)
 
+echo "== boot chain: U-Boot, p1 kernel, boot records"
+sha() { sha256sum "$1" | cut -d' ' -f1; }
+(cd "$bootd" && sha256sum -c --quiet SHA256SUMS)
+p1="$img@@$((p1_start * 512))" kimg=$bootd/Image kdtb=$bootd/rk3326-muos-r35s-panel0.dtb
+mcopy -n -i "$p1" ::Image "$work/m2.Image"
+mcopy -n -i "$p1" ::rk3326-muos-r35s-panel0.dtb "$work/m2.dtb"
+[ "$(sha "$work/m2.Image")" = "$m2_image" ] && [ "$(sha "$work/m2.dtb")" = "$m2_dtb" ] ||
+    { echo 'base p1 does not hold the M2 kernel' >&2; exit 1; }
+kin=Image-$(sha "$kimg" | cut -c1-12) kdn=panel0-$(sha "$kdtb" | cut -c1-12).dtb
+mcopy -o -i "$p1" "$kimg" "::$kin"
+mcopy -o -i "$p1" "$kdtb" "::$kdn"
+mcopy -n -i "$p1" "::$kin" "$work/chk.img"; mcopy -n -i "$p1" "::$kdn" "$work/chk.dtb"
+cmp "$kimg" "$work/chk.img" && cmp "$kdtb" "$work/chk.dtb"
+dd if="$img" of="$work/p1.img" bs=512 skip=$p1_start count=$p1_sectors status=none
+fsck.fat -n "$work/p1.img" > "$work/fsck-p1.txt" 2>&1 || { cat "$work/fsck-p1.txt"; echo 'p1 fsck failed' >&2; exit 1; }
+rm -f "$work/p1.img" "$work/chk.img" "$work/chk.dtb"
+br=$repo/port/scripts/bootrec.py klabel="m3b $(sha "$kimg" | cut -c1-8)"
+python3 "$br" encode valid "$kimg" "$kdtb" "$klabel" "$work/main.rec" --image-name "$kin" --fdt-name "$kdn"
+python3 "$br" encode valid "$work/m2.Image" "$work/m2.dtb" 'm2 4.4.189' "$work/prev.rec" \
+    --image-name Image --fdt-name rk3326-muos-r35s-panel0.dtb
+head -c 512 /dev/zero > "$work/trial.rec"
+cat "$work/main.rec" "$work/prev.rec" "$work/trial.rec" | dd of="$img" bs=512 seek=32 conv=notrunc status=none
+[ "$(stat -c %s "$bootd/uboot.img")" = 4194304 ] || { echo 'uboot.img is not 4 MiB' >&2; exit 1; }
+dd if="$bootd/uboot.img" of="$img" bs=512 seek=16384 conv=notrunc status=none
+cmp -s "$bootd/uboot.img" <(dd if="$img" bs=512 skip=16384 count=8192 status=none)
+cmp -s <(cat "$work/main.rec" "$work/prev.rec" "$work/trial.rec") <(dd if="$img" bs=512 skip=32 count=3 status=none)
+uboot_sum=$(sha "$bootd/uboot.img")
+echo "main: $kin + $kdn ($klabel); previous: Image + rk3326-muos-r35s-panel0.dtb (m2)"
+
 echo "== compress"
 raw_sum=$(sha256sum "$img" | cut -d' ' -f1)
 zstd -q -T0 -12 --long=27 -f "$img" -o "$out"
@@ -83,6 +117,9 @@ p2_sha256=$p2_sum
 rootfs_sha256=$(sha256sum "$rootfs" | cut -d' ' -f1)
 base=$(basename "$base") base_raw_sha256=$(sed -n 's/^raw_sha256=//p' "${base%.img.zst}.manifest")
 p2_features=$(tr ' ' ',' <<< "$features")
+uboot_sha256=$uboot_sum
+boot_main=$kin,$kdn,$(sha "$kimg"),$(sha "$kdtb")
+boot_previous=Image,rk3326-muos-r35s-panel0.dtb,$m2_image,$m2_dtb
 private=yes  # contains Wi-Fi PSK, SSH host key and authorized_keys
 EOF
 echo "OK $out raw_sha256=$raw_sum p2_sha256=$p2_sum size=$(stat -c %s "$out")"

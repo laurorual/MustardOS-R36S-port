@@ -27,20 +27,20 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "M3a": {
-      "reason": "Built M3a firmware (build-image.sh, Buildroot p2 + M2 prefix/p3); T2-verified, written to test128 p2",
-      "files": [
-        "dist/firmware/test128-m3a-20261111.img.zst",
-        "dist/firmware/test128-m3a-20261111.img.zst.sha256",
-        "dist/firmware/test128-m3a-20261111.manifest"
-      ]
-    },
     "M3a.1": {
       "reason": "Built M3a.1 firmware: M3a + SDL2 rebuilt with its pipewire driver (sound fix); T2-verified, written to test128 p2",
       "files": [
         "dist/firmware/test128-m3a1-20261111.img.zst",
         "dist/firmware/test128-m3a1-20261111.img.zst.sha256",
         "dist/firmware/test128-m3a1-20261111.manifest"
+      ]
+    },
+    "M3b": {
+      "reason": "Built M3b firmware: boot-records U-Boot, M3b kernel (HW_RANDOM_ROCKCHIP) main + M2 kernel previous; T2 pending",
+      "files": [
+        "dist/firmware/test128-m3b-20261111.img.zst",
+        "dist/firmware/test128-m3b-20261111.img.zst.sha256",
+        "dist/firmware/test128-m3b-20261111.manifest"
       ]
     }
   },

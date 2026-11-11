@@ -285,15 +285,25 @@ about other R35S/R36S panels or revisions.
   - The stock config, recovered from the hidden `/boot`, differs from the
     public defconfig only in 2 Wi-Fi symbols.
   - (phase4-bsp-foundation.md, phase4-modules-firmware.md)
-- **U-Boot pins the boot assets (found in M2):** the port U-Boot
-  (`uboot-linux/boot.c`) loads `Image`, `rk3326-muos-r35s-panel0.dtb` (and
-  an initramfs where used) from p1 and stops with "muOS Linux diagnostic:
-  STOPPED / Asset read/size check failed" (or "SHA256 mismatch") unless each
-  matches the size and SHA256 generated into
-  `include/configs/muos-r35s-linux-assets.h` at U-Boot build time. Any
-  kernel or DTB change therefore needs a U-Boot rebuild and a write of the
-  bootloader region (sector 16384). The pinned DTB is `496bbe35…`
-  (89102 B). `install-dtb.sh` refuses anything else.
+- **U-Boot boot records (M3b; replaced the M2 compiled-in asset pins):**
+  the port U-Boot (`uboot-boot/boot.c`, command `muos_boot`) reads three
+  512-byte records in the unused MBR gap: sector 32 main, 33 previous, 34
+  trial (`bootrec/bootrec.h`; CRC32, file names, sizes, SHA256). An armed
+  trial is rewritten to "consumed" on the card *before* it is tried, so a
+  bad trial kernel costs one power cycle; then main, then previous. Each
+  file is size- and SHA256-checked; a failure falls through to the next
+  record. U-Boot appends `muos_slot=<slot>` (trial also `panic=10`). Kernel
+  window: 0x02000000 + 32 MiB (fallback 0xec0000, which the M2 kernel
+  filled exactly; the M3b kernel ends at 0xed0000). Kernel/DTB updates no
+  longer touch the bootloader: `muos-boot-slot install-trial`, reboot,
+  `promote`. Never overwrite a p1 file a record points to (new files go
+  under content names, `Image-<sha12>`, `panel0-<sha12>.dtb`).
+- **TRNG (M3b):** `rockchip,cryptov2-rng` at 0xff0b0000 is already "okay"
+  in the port DTB; `CONFIG_HW_RANDOM_ROCKCHIP=y` drives it. The 4.4 hwrng
+  core keeps the *first* registered RNG as current, and `tpm-rng` (no TPM
+  on this board; reads fail with EIO) registered first, so
+  `HW_RANDOM_TPM` is off. Result: the RNG is ready at 2.6 s instead of
+  7–11 s.
 - **Boot command and root check:**
   - Kernel cmdline: `root=PARTUUID=4d554432-02 rootfstype=ext4 rootwait ro`,
     no initramfs, `booti 0x02000000 - 0x01f00000`. The C79 image uses
@@ -330,9 +340,9 @@ about other R35S/R36S panels or revisions.
     bind-mounted file: seed the ALSA copies from muOS's own templates.
   - (phase4-boot-coordinator.md, phase4-init-services.md)
 - **Entropy:**
-  - HW_RANDOM=y, but HW_RANDOM_ROCKCHIP and CRYPTO_DEV_ROCKCHIP_V2 are off,
-    so the RNG becomes ready only after about 7–11 s. The deadline was raised
-    from 5 s to 60 s (S05 capped at 90 s).
+  - Up to M3a, HW_RANDOM_ROCKCHIP was off and the RNG became ready only
+    after about 7–11 s. Since M3b the TRNG makes it ready at 2.6 s (see
+    "TRNG (M3b)" above).
   - Buildroot's stock S01seedrng (`-d /var/lib/muos-seedrng`) runs while
     root is still rw. Nothing waits for RNG readiness any more: the dropbear
     host key is persisted, and a missing one is generated in the background

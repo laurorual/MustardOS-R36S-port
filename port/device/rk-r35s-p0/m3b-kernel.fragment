@@ -1,0 +1,8 @@
+# M3b: the RK3326 crypto block's TRNG (rockchip,cryptov2-rng, already
+# "okay" in the port DTB) feeds the kernel RNG at boot. Built in: nothing
+# modular changes, so the pinned modules stay valid (build-boot.sh checks
+# Module.symvers).
+CONFIG_HW_RANDOM_ROCKCHIP=y
+# The 4.4 hwrng core keeps the first registered RNG as current; tpm-rng
+# (no TPM on this board) registered first and kept the TRNG idle.
+# CONFIG_HW_RANDOM_TPM is not set

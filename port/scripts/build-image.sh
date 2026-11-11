@@ -123,8 +123,9 @@ image)
     ctr_opts
     podman run --rm --network=none "${opts[@]}" "$(iid)" sh -c "$sdl_check" ||
         { echo 'SDL2 lacks the pipewire audio driver: rebuild' >&2; exit 1; }
+    [ -f "$repo/build/m3b/boot/SHA256SUMS" ] || { echo 'run build-boot.sh all first' >&2; exit 1; }
     exec bash "$repo/port/scripts/firmware-image.sh" "$out/images/rootfs.ext4" "$base_img" "$base_raw" \
-        "$repo/dist/firmware/$2.img.zst"
+        "$repo/dist/firmware/$2.img.zst" "$repo/build/m3b/boot"
     ;;
 *) sed -n '3,10p' "$0"; exit 2 ;;
 esac

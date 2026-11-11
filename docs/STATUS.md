@@ -13,16 +13,22 @@ checklists) are in [milestones.md](milestones.md). See also
 2026-11-10/11). M3a's T3 (2026-11-11): the built image flashes and boots,
 but every boot was silent (SDL2 built without its pipewire driver).
 M3a.1 fixes that: T3 passed 2026-11-11 (sound on 3 boots, speaker and
-headphones). Next: M3b (plan below, awaiting approval).** Results:
-milestones.md M3a, M3a.1.
+headphones). M3b (boot chain built from source, boot-record U-Boot with a
+one-shot trial kernel, TRNG) passed T0–T2 on 2026-11-11 and is on the
+card; its T3 is at the end of this file.** Results: milestones.md.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0, test128 in slot 1, flashed with the M3a image
-  (p3 grown to the whole card, M2-era data). p2 is the M3a.1 build (p2
-  sha256 `1b3995a2…`), written from the trial root. The previous p2 (the
-  silent M3a one, as mounted) is still on p3 at
-  `MUOS/trial/p2-previous.img`; it can be deleted.
+  (p3 grown to the whole card). Since M3b, written in place:
+  - bootloader region (sector 16384): the M3b U-Boot `65fb3dcd…` (the M2
+    one is saved on p3 at `MUOS/boot/uboot-previous.img`);
+  - p1: + `Image-ab18bba307f8` and `panel0-496bbe3591f8.dtb`;
+  - boot records: main = M3b kernel (`m3b ab18bba3`), previous = M2 kernel
+    (`Image`, `rk3326-muos-r35s-panel0.dtb`);
+  - p2: the M3b build (`f7ffdef4…`); the M3a.1 p2 is on p3 at
+    `MUOS/trial/p2-previous.img`.
+  - Saves as of 2026-11-11 are copied to `build/m3b/p3-backup`.
   - The DHCP IP changes between boots; it was 192.168.15.8.
   - Identify the device by its host key, not its IP:
     `SHA256:fDW+/iNaWgqPwqBtO/ESuKPSQHvYN1PSo2RHfilOxK0`.
@@ -31,7 +37,8 @@ milestones.md M3a, M3a.1.
   `find`, `id`, `run CMD`, `sh`, `push`, `pull`, `reboot` / `poweroff`
   (both through init), `capture DIR`.
 - **test128 layout** (disk ID `4d554432`, 249872384 sectors):
-  - Bootloader at sectors 64 / 16384 / 24576.
+  - Bootloader at sectors 64 / 16384 / 24576; boot records at sectors
+    32 (main), 33 (previous), 34 (trial).
   - p1: FAT `MUOSDIAG`, 16 MiB+100 MiB, ro at `/boot`.
   - p2: ext4 root, 128 MiB+512 MiB, ro at runtime.
   - p3: ext4 `MUOSDATA`, 640 MiB to the end, rw at `/userdata`. 1 GiB in
@@ -44,14 +51,14 @@ milestones.md M3a, M3a.1.
 The images are in `dist/recovery/` (captures) and `dist/firmware/`
 (built), each with `.sha256` and `.manifest`. **They are private:** they
 contain the Wi-Fi PSK, the SSH host key and authorized_keys. Never commit
-or share them. **Recovery image: M3a.1** (its p2 passed T3 on the card;
-the prefix, p1, p3 and `--grow` are the layout the M3a flash proved). M2
-stays as the fallback if an M3a.1 flash ever fails.
+or share them. **Recovery image: M3a.1** (M2 U-Boot and kernel; its p2
+passed T3) until the M3b image has been flashed once (M3b T3). Flashing
+any image rewrites the whole card, bootloader included.
 
 | Image | Content | Boots on |
 |---|---|---|
+| `dist/firmware/test128-m3b-20261111.img.zst` (raw `2a8fec32…`) | M3b: boot-record U-Boot, M3b kernel (main) + M2 kernel (previous), M3b p2; not flashed yet | any card ≥ 2 GiB (expected) |
 | `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`) | M3a.1: M3a + SDL2 with its pipewire driver; p2 T3-passed on the card, image not flashed yet | any card ≥ 2 GiB (expected) |
-| `dist/firmware/test128-m3a-20261111.img.zst` (raw `2ac44673…`) | M3a: flashed once (boots, `--grow` OK) but **silent**; to retire (`retention.py retire M3a`) | any card ≥ 2 GiB |
 | `test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core | any card ≥ 2 GiB |
 | `test128-m1-20261110.img.zst` (raw `1c65c693…`) | M1: autostart, seedless | any card ≥ 2 GiB |
 | `test128-baseline-20261110.img.zst` (raw `9c1c8a37…`) | pre-M1 C07 init, SSH only | test128 only (CID-locked bootstrap), slot 2 empty |
@@ -70,8 +77,15 @@ stays as the fallback if an M3a.1 flash ever fails.
 `port/scripts/flash-card.sh host /dev/sdX <image> --grow`. Check `/dev/sdX`
 with `lsblk` first.
 
-**Build the firmware** (M3a; about 50 min from scratch, minutes
-incrementally, in `build/m3a/output`):
+**Build the firmware** (about 50 min from scratch, minutes
+incrementally; rootfs in `build/m3a/output`, boot chain in `build/m3b`):
+0. Boot chain: `port/scripts/build-boot.sh all` (kernel incremental in
+   `build/m3b/kernel-output`, U-Boot in `build/m3b/uboot-boot`; outputs
+   and `SHA256SUMS` in `build/m3b/boot`). `kernel-ref` / `uboot-ref`
+   rebuild the M2 card's `Image`/DTB/`uboot.img` and must match byte for
+   byte (done once in M3b). `kernel` fails if `Module.symvers` changes
+   (the modules are pinned inputs). Host tests: `port/scripts/t0-boot.sh`
+   (U-Boot logic against mocks, record codec).
 1. `port/scripts/build-image.sh prepare`, then `source` (network, only
    fetches what the cache lacks), then `build` (offline, detached;
    follow with `build-image.sh status` or
@@ -83,7 +97,9 @@ incrementally, in `build/m3a/output`):
 2. `port/scripts/build-image.sh image <name>` → `dist/firmware/<name>.img.zst`
    plus `build/m3a/<name>.p2.img` (raw p2 for the trial root). It refuses
    an image whose SDL2 lacks the pipewire driver (qemu check, then
-   `check-rootfs-contract.sh` on the p2 image).
+   `check-rootfs-contract.sh` on the p2 image). The boot chain comes from
+   `build/m3b/boot`: U-Boot at 16384, the kernel on p1 under content
+   names, records main = it, previous = the M2 kernel.
 3. `port/scripts/retention.py add <name> "<reason>" <files>`
 
 Prebuilt inputs are pinned in `port/packaging/firmware-inputs.json` and
@@ -106,6 +122,19 @@ snapshots.
    back. Reboot into the new p2.
 4. To go back: the same with `p2-previous.img` and its `.sha256`.
 
+**Update the kernel or DTB via a trial kernel** (no bootloader write):
+1. `device.sh push` the `Image` and DTB to `/run` (tmpfs: gone after a
+   reboot), then `/usr/libexec/muos-boot-slot install-trial /run/Image
+   /run/<dtb> "<label>"`: copies them to p1 as `Image-<sha12>` /
+   `panel0-<sha12>.dtb` and arms the trial record.
+2. `device.sh reboot`; `/proc/cmdline` must say `muos_slot=trial`. U-Boot
+   consumed the record before booting it: a hang → power cycle → main; a
+   panic reboots by itself (`panic=10` on trial boots only). Run T2.
+3. `muos-boot-slot promote` (previous = old main, main = trial), reboot.
+   `muos-boot-slot status` shows the records; `t2-boot-slot.sh` checks
+   the fallbacks (3 reboots).
+- Never overwrite or delete a p1 file that main or previous points to.
+
 **Risky init changes** to inittab, rc or the shim: arm a trial boot.
 1. Copy the known-good inittab to `/etc/inittab.fallback`.
 2. Install the change, `touch /etc/muos-boot-trial`, reboot.
@@ -116,12 +145,14 @@ If SSH never comes back, a long-press power cycle boots
 
 ## Boot and runtime
 
-U-Boot boots `init=/sbin/muos-ext4-diag`, a shim that runs BusyBox init,
-which runs `/usr/libexec/muos-rc start`:
+U-Boot (`muos_boot`: armed trial once, then main, then previous; each
+file size- and SHA256-checked, see hardware-findings.md) boots
+`init=/sbin/muos-ext4-diag` with `muos_slot=<slot>`; the shim runs BusyBox
+init, which runs `/usr/libexec/muos-rc start`:
 
 | Step | Service | What it does |
 |---|---|---|
-| 1 | stock `seedrng`, syslog, sysctl, `udev`, D-Bus | standard Buildroot services |
+| 1 | stock `seedrng`, syslog, sysctl, `udev`, D-Bus | standard Buildroot services; the TRNG has the RNG ready at 2.6 s |
 | 2 | S41muos-network | Wi-Fi and dropbear on :2222 in the background; up at about 20 s |
 | 3 | S85 | root ro |
 | 4 | S89 | `e2fsck -p` on p3 (≤ 100 s; log p3 `MUOS/log/fsck-p3.log`), p3 rw at `/userdata`, p1 ro at `/boot` |
@@ -150,8 +181,8 @@ The menu is on screen about 15 s after power-on.
 - **Headphones:** jack in → path `HP`, out → `SPK_HP`; each output keeps
   its own volume (upstream `SWITCH_OUTPUT_VOLUME`).
 - **cpufreq:** muOS per-content governors; default `schedutil`, the menu
-  idles at 1008 MHz. No overclock: the port U-Boot pins the size and
-  SHA256 of `Image` and the DTB (M3b).
+  idles at 1008 MHz. No overclock (deferred by the user 2026-11-11; a
+  1512 MHz DTB from `make-dtb-opp.sh` would now go in as a trial kernel).
 
 Source lives in `port/device/rk-r35s-p0/rootfs/`; the init scripts are
 symlinks to the files Buildroot also uses. Deploy with
@@ -174,12 +205,14 @@ host key is the only persistent identity (M1 decision, see milestones.md).
 | 4.4-safe ext4 features (no 64bit, metadata_csum_seed, orphan_file or fast_commit) | Kernel 4.4 compatibility. |
 | btusb blacklist (Wi-Fi-only) | The warm-reboot dongle fix. |
 | `muos-run-bounded` | Time limits for services. |
+| Boot records + one-shot trial kernel; previous = the M2 kernel | Kernel/DTB changes never touch the bootloader; a bad kernel costs a power cycle. |
 | Never `saveenv` or dArkOSen `flash_uboot.sh`; never write original32 | Protects the bootloader and the stock card. |
 | ≤ 5 firmware versions (`retention.py`) | Host disk space. |
 
 The M1 retirements are listed in milestones.md. M3a retired 410 Phase 4
-scripts (in Git at `e7d67a2`); 48 remain: the live tools, the producers
-of the pinned inputs, and the kernel/U-Boot/DTB tooling for M3b.
+scripts (in Git at `e7d67a2`). M3b retired `install-dtb.sh` (it overwrote
+the DTB the previous record pins); the Phase 4 U-Boot/kernel probe
+scripts remain only as the producers of the Phase 4 references.
 
 ## What works (T3-confirmed)
 
@@ -209,7 +242,7 @@ charging icon; headphone path switching.
   charge-inflated voltage. `mubattery` only displays the kernel value.
   Calibration → M3d.
 - **Power:** LEDs (the R35S LED node is disabled in stock too) and rumble
-  not done. No CPU overclock (M3b).
+  not done. No CPU overclock (deferred).
 - **Audio:** half-rate PCM after reboot (not seen in 28 probed reboots);
   the WirePlumber "no profile" start failure is retried, not explained;
   3–8 underrun bursts per game; help WAVs inaudible.
@@ -217,14 +250,18 @@ charging icon; headphone path switching.
   fceumm); `ext-*` launchers are refused. ROMs are copied to p3
   `ROMS/<system>` by hand (`port/scripts/install-nes.sh` for
   `port/roms/nes`).
-- **M3a.1 image not yet flashed:** its p2 was written in place. The M3a
-  image proved the build's prefix/p1/p3 and `--grow` path; M3a.1 differs
-  only in p2.
+- **M3b image not yet flashed:** everything was written in place. The
+  M3a image proved the prefix/p1/p3 and `--grow` path.
+- **U-Boot messages** (which record failed and why) go to the serial
+  console and the LCD only; there is no log on the card.
+- **p1** still holds the Phase 4 `DIAG*` folders (about 1 MiB).
 - **Pinned, not rebuilt:** the muOS frontend binaries, muxretro, the
   cores, kernel modules and the tuned `/opt/muos` config are prebuilt
   inputs (`firmware-inputs.json`), copied byte-identical from the live
-  p2's host build outputs; Buildroot rebuilds the rest. U-Boot, the
-  kernel `Image` and the DTB on p1 still come from the M2 card (M3b).
+  p2's host build outputs; Buildroot rebuilds the rest. The kernel
+  modules are pinned too; `build-boot.sh kernel` proves them valid
+  (`Module.symvers` unchanged). The idbloader and trust come from the M2
+  image (vendor blobs).
 - **Trial root:** p3 can't be unmounted at shutdown while the trial root
   runs from it, so the next boot replays p3's journal (S89 e2fsck handles
   it).
@@ -243,60 +280,10 @@ charging icon; headphone path switching.
 
 ## M3 plan — real usage and a reproducible boot chain
 
-M3 is split into sub-milestones; each ends with its own T3. Kernel
-changes (`HW_RANDOM_ROCKCHIP`, anything in `Image`/DTB) need M3b, because
-the port U-Boot pins the size and SHA256 of `Image` and the DTB.
+M3 is split into sub-milestones; each ends with its own T3.
 
-**M3a — reproducible image + e2fsck** (done at T2 2026-11-11, T3 pending;
-the plan as executed, see milestones.md for results):
-0. **Disk first.** Review and retire old `build/phase4` outputs
-   (`retention.py retire` dry run first) and check `podman system df`
-   before the Buildroot build.
-1. **Inventory.** List every p2 file on the device (path, mode, size,
-   sha256) and classify it: Buildroot package, port `rootfs/`, prebuilt
-   input (kernel modules, Mali r13p0, Wi-Fi firmware, frontend, muxretro,
-   cores), or legacy C-step leftover (dropped).
-2. **One build.** `port/scripts/build-image.sh` in the existing
-   `phase4-rootfs` container, reusing `build/phase4/buildroot` and its
-   download cache:
-   - `port/device/rk-r35s-p0/firmware.defconfig` = the phase4 graphics +
-     network config + e2fsprogs (e2fsck, resize2fs); i2c-tools dropped
-     (BusyBox `i2cget` is used);
-   - only the live BR2_EXTERNAL packages (muos-core, muxretro, wifi-only,
-     ...); the legacy C-step packages (launcher-once, save-store,
-     session, boot) are dropped;
-   - `BR2_ROOTFS_OVERLAY` = `port/device/rk-r35s-p0/rootfs`;
-   - prebuilt inputs pinned by SHA256 in
-     `port/packaging/firmware-inputs.json`;
-   - post-image: the full card image in the test128 layout (bootloader at
-     64/16384/24576, p1 FAT, p2 ext4 with 4.4-safe features, p3 1 GiB)
-     plus `.sha256` and `.manifest`, as `make-recovery-image.sh` does.
-3. **S89 runs `e2fsck -p` on p3** before mounting it (time-bounded;
-   result logged to p3). A "needs manual fsck" result still mounts p3 so
-   the UI comes up, and the problem is reported in the log.
-4. **T1.** Inventory diff of the new rootfs against the live p2 (every
-   difference explained), ELF/ldd resolution under qemu, fsck of the
-   image.
-5. **T2 without risking the card.** The shim (`/sbin/muos-ext4-diag`)
-   gets a one-shot "trial root": if `/etc/muos-root-trial` exists, it
-   consumes the marker, loop-mounts p3 `MUOS/trial/rootfs.img` read-only
-   and `pivot_root`s into it (BusyBox `switch_root` refuses a non-tmpfs
-   root). A hang or failure → power cycle → normal p2. The branch is only
-   reachable through the marker and is tested in a container first. That
-   boot must pass `t2-menu-cycle.sh`, `t2-sleep-cycle.sh`,
-   `t2-headphone.sh` and the audio probe. Then, from inside the trial
-   root (p2 unmounted), the agent writes the new p2, reads it back and
-   verifies the SHA256. The old p2 image stays on p3 until T3 passes.
-6. **Collapse the chain.** Retire the prepare/package/compose scripts and
-   C-step checks that `build-image.sh` doesn't use (they stay in Git).
-7. **T3:** flash the built image via dArkOSen (proves it is a recovery
-   image), boot, short play session, battery %/charging, and the
-   per-output volume retest with the plug fully inserted.
-
-**M3b — boot chain:** rebuild U-Boot without the `Image`/DTB pin (or
-re-pinned from the build); write it from a verified image, with the
-dArkOSen flasher as the recovery path. Then `HW_RANDOM_ROCKCHIP` and, if
-content needs it, the 1512 MHz OPPs (`port/scripts/make-dtb-opp.sh`).
+**M3a** (reproducible image + e2fsck), **M3a.1** (audio fix) and **M3b**
+(boot chain, T3 pending) are done; plans and results in milestones.md.
 
 **M3c — ROM library:** a ROM copy path (sftp over the existing dropbear
 first, then Samba or FAT-partition import), SRAM saves per system, more
@@ -308,3 +295,23 @@ hold the displayed % while the charge current is high, or re-seed from
 an IR-compensated voltage), the audio half-rate/underruns and the WirePlumber "no
 profile" failure; then a long run (1–2 h of play, 20 reboot/poweroff
 cycles).
+
+## M3b T3 checklist (for the user)
+
+The card already runs M3b (new U-Boot and kernel). Charger in or out.
+
+1. **Normal use, 3 cold boots:** power off from the menu, power on, three
+   times. Each time: menu within about 16–25 s, sound in the menu, a short
+   GB or NES game with sound, brightness keys, Power sleep/wake in the
+   game.
+   - Expected: as with M3a.1. If a boot ever stops on a "muOS boot:
+     STOPPED" screen, photograph it and tell me (a long Power press turns
+     it off).
+2. **Flash the M3b image** (proves it is a recovery image with the new
+   bootloader). This resets p3 to M2-era data; your current saves are
+   copied to `build/m3b/p3-backup` and I'll restore them afterwards.
+   - dArkOSen steps in "Recovery images and flashing" with
+     `dist/firmware/test128-m3b-20261111.img.zst --grow`.
+   - Expected: `verified raw_sha256=2a8fec32…` and `p3 grown and clean`;
+     cold boot to the menu; sound in a short game.
+

@@ -1,0 +1,99 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M3b boot records (sectors 32 main, 33 previous, 34 trial; layout in
+# port/device/rk-r35s-p0/bootrec/bootrec.h). The port U-Boot boots the armed
+# trial once (consuming it first), then main, then previous, verifying each
+# file's size and SHA256, and appends muos_slot=<slot> to the kernel command
+# line (none: an older U-Boot).
+#
+#   muos-boot-slot status
+#   muos-boot-slot init IMAGE DTB LABEL      main = previous = these p1 files
+#   muos-boot-slot install-trial IMAGE DTB LABEL
+#                                            copy to p1 by content name, arm trial
+#   muos-boot-slot promote                   on a trial boot: previous = main, main = trial
+#   muos-boot-slot write-uboot UBOOT.IMG SHA256
+#                                            bootloader region (sector 16384, 4 MiB)
+# IMAGE/DTB of init are p1 file names; of install-trial, local files.
+set -eu
+disk=/dev/mmcblk0 boot=/boot
+tool=/usr/libexec/muos-bootrec
+tmp=/run/muos-boot-slot; mkdir -p "$tmp"
+
+die() { echo "muos-boot-slot: $*" >&2; exit 1; }
+sector() { case $1 in main) echo 32;; previous) echo 33;; trial) echo 34;; *) die "slot $1";; esac; }
+slot_now() { sed -n 's/.*muos_slot=\([a-z]*\).*/\1/p' /proc/cmdline; }
+sha() { sha256sum "$1" | cut -d' ' -f1; }
+read_rec() { dd if=$disk of="$2" bs=512 skip="$(sector "$1")" count=1 2>/dev/null; }
+flush() { sync; echo 3 > /proc/sys/vm/drop_caches; }
+write_rec() { # SLOT FILE: write, flush, read back
+    [ "$(wc -c < "$2")" = 512 ] || die "record $2 is not 512 bytes"
+    dd if="$2" of=$disk bs=512 seek="$(sector "$1")" count=1 conv=notrunc,fsync 2>/dev/null
+    flush; read_rec "$1" "$tmp/back"
+    cmp -s "$2" "$tmp/back" || die "VERIFY FAILED: $1 record reads back different"
+}
+image_fits() { # FILE: arm64 Image whose text_offset + image_size fits U-Boot's wide window
+    [ "$(head -c 60 "$1" | tail -c 4)" = ARMd ] || return 1
+    # shellcheck disable=SC2046 # four numbers
+    set -- $(od -An -tu4 -j8 -N16 "$1")
+    [ "$2" = 0 ] && [ "$4" = 0 ] && [ "$3" -gt 0 ] && [ $(( $1 + $3 )) -le $((0x02000000)) ]
+}
+encode() { # STATE IMAGE_NAME DTB_NAME LABEL OUT (files on p1)
+    i=$boot/$2 d=$boot/$3
+    [ -f "$i" ] && [ -f "$d" ] || die "missing on p1: $2 or $3"
+    $tool encode "$1" "$2" "$(wc -c < "$i")" "$(sha "$i")" "$3" "$(wc -c < "$d")" "$(sha "$d")" "$4" "$5"
+}
+p1_rw() { mount -o remount,rw $boot; }
+p1_ro() { sync; mount -o remount,ro $boot; }
+
+cmd=${1:-status}; [ $# -gt 0 ] && shift
+case $cmd in
+status)
+    b=$(slot_now); echo "booted=${b:-none (U-Boot without boot records)}"
+    for s in main previous trial; do
+        read_rec $s "$tmp/$s"
+        echo "== $s"; $tool decode "$tmp/$s" || :
+    done ;;
+init)
+    [ $# -eq 3 ] || die 'usage: init IMAGE DTB LABEL'
+    encode valid "$1" "$2" "$3" "$tmp/new"
+    write_rec previous "$tmp/new"; write_rec main "$tmp/new"
+    echo "main = previous = $1 + $2 ($3)" ;;
+install-trial)
+    [ $# -eq 3 ] || die 'usage: install-trial IMAGE DTB LABEL'
+    head -c 4 "$2" | od -An -tx1 | grep -q 'd0 0d fe ed' || die "$2 is not a DTB"
+    image_fits "$1" || die "$1 is not an arm64 Image that fits the kernel window"
+    in=Image-$(sha "$1" | cut -c1-12) dn=panel0-$(sha "$2" | cut -c1-12).dtb
+    p1_rw
+    for f in "$1:$in" "$2:$dn"; do
+        src=${f%%:*} dst=$boot/${f#*:}
+        if [ ! -f "$dst" ] || ! cmp -s "$src" "$dst"; then cp "$src" "$dst.tmp" && mv -f "$dst.tmp" "$dst"; fi
+    done
+    p1_ro; flush
+    { cmp -s "$1" "$boot/$in" && cmp -s "$2" "$boot/$dn"; } || die "p1 copy verify failed"
+    encode trial "$in" "$dn" "$3" "$tmp/new"
+    write_rec trial "$tmp/new"
+    echo "trial armed: $in + $dn ($3); reboot to try it once" ;;
+promote)
+    [ "$(slot_now)" = trial ] || die 'promote only from a trial boot'
+    read_rec trial "$tmp/t"; $tool decode "$tmp/t" > "$tmp/t.txt" || die 'trial record invalid'
+    grep -qx 'state=trial-consumed' "$tmp/t.txt" || die 'trial record not consumed'
+    v() { sed -n "s/^$1=//p" "$tmp/t.txt"; }
+    encode valid "$(v image)" "$(v fdt)" "$(v label)" "$tmp/new"
+    read_rec main "$tmp/old"
+    # previous first: an interruption leaves main = previous = old main.
+    write_rec previous "$tmp/old"; write_rec main "$tmp/new"
+    echo "promoted: main = $(v image) + $(v fdt) ($(v label)); previous = old main" ;;
+write-uboot)
+    [ $# -eq 2 ] || die 'usage: write-uboot UBOOT.IMG SHA256'
+    [ "$(wc -c < "$1")" = 4194304 ] || die "$1 is not 4 MiB"
+    [ "$(sha "$1")" = "$2" ] || die "$1 sha256 differs"
+    keep=/userdata/MUOS/boot; mkdir -p $keep
+    dd if=$disk bs=512 skip=16384 count=8192 of=$keep/uboot-previous.img conv=fsync 2>/dev/null
+    echo "saved the old bootloader region to $keep/uboot-previous.img ($(sha $keep/uboot-previous.img | cut -c1-16))"
+    dd if="$1" of=$disk bs=512 seek=16384 conv=notrunc,fsync 2>/dev/null
+    flush
+    back=$(dd if=$disk bs=512 skip=16384 count=8192 2>/dev/null | sha256sum | cut -d' ' -f1)
+    [ "$back" = "$2" ] || die "VERIFY FAILED: bootloader region reads $back"
+    echo "verified bootloader region sha256=$back" ;;
+*) sed -n '3,15p' "$0"; exit 2 ;;
+esac
