@@ -22,8 +22,10 @@ M3c (ROM library), plan at the end of this file.** Results: milestones.md.
   Boot records: main = M3b kernel (`Image-ab18bba307f8`,
   `panel0-496bbe3591f8.dtb`), previous = M2 kernel (`Image`,
   `rk3326-muos-r35s-panel0.dtb`).
-  - p2 differs from the image only by `/usr/libexec/muos-press` (test
-    helper with volume keys; `install-rootfs.sh`, original kept).
+  - p2: the M3c work build `0b4dca56…` (M3b + `sftp-server`, `muos-press`
+    volume keys), written via the trial root on 2026-11-12. The previous
+    p2 (M3b + in-place `muos-press`, `92042b14…`) is on p3 at
+    `MUOS/trial/p2-previous.img`.
   - Saves: the pre-flash `pickles` were restored from
     `build/m3b/p3-backup` (byte-identical); the post-flash ones are kept
     in `build/m3b/p3-postflash`.
@@ -32,8 +34,9 @@ M3c (ROM library), plan at the end of this file.** Results: milestones.md.
     `SHA256:fDW+/iNaWgqPwqBtO/ESuKPSQHvYN1PSo2RHfilOxK0`.
   - Identify a boot by `/proc/sys/kernel/random/boot_id`.
 - **Access:** `port/scripts/device.sh` locates the device by fingerprint:
-  `find`, `id`, `run CMD`, `sh`, `push`, `pull`, `reboot` / `poweroff`
-  (both through init), `capture DIR`.
+  `find`, `id`, `run CMD`, `sh`, `sftp`, `scp` (device paths as
+  `dev:/path`), `push`, `pull`, `reboot` / `poweroff` (both through init),
+  `capture DIR`.
 - **test128 layout** (disk ID `4d554432`, 249872384 sectors):
   - Bootloader at sectors 64 / 16384 / 24576; boot records at sectors
     32 (main), 33 (previous), 34 (trial).
@@ -293,13 +296,18 @@ M3 is split into sub-milestones; each ends with its own T3.
 **M3a** (reproducible image + e2fsck), **M3a.1** (audio fix) and **M3b**
 (boot chain) are done; plans and results in milestones.md.
 
-**M3c — ROM library** (planned 2026-11-11; in progress). Goal: the user
+**M3c — ROM library** (planned 2026-11-11; step 1 done 2026-11-12). Goal: the user
 adds games from the PC without the agent, and more systems play.
 1. **File transfer:** Buildroot `gesftpserver` → `/usr/libexec/sftp-server`,
    so dropbear serves SFTP (GUI clients, `sftp`, and OpenSSH `scp`, which
    speaks SFTP by default; today only legacy `scp -O` works). Host helper
    `port/scripts/rom-push.sh SYSTEM FILE...` (mkdir `ROMS/<dir>`, copy,
-   sha256 check, refresh). Login stays key-only root on :2222.
+   sha256 check). Login stays key-only root on :2222.
+   **Done:** on the card; `t2-sftp.sh` (sftp put/ls/get/rename/rm and
+   OpenSSH scp both ways, names with spaces/brackets, SHA256-checked)
+   PASS at about 8–9 MiB/s over Wi-Fi; regression suite on the new p2
+   PASS (audio, menu cycle, 5 sleep cycles in game, headphone, NES
+   59.90 fps). `rom-push.sh` done.
 2. **ROM folders:** create `ROMS/<dir>` for every system with a core at
    boot (S90), so the PC client shows where files go.
 3. **More cores** (built in the container like fceumm/gambatte, pinned as
@@ -309,6 +317,9 @@ adds games from the PC without the agent, and more systems play.
    test ROMs the user owns.
 4. **SRAM saves:** prove battery saves (`.srm`) land on p3 per system and
    survive quit, sleep, poweroff and a power cut (T2 with a battery ROM).
+   muxretro writes `pickles/sram/<core prefix>/<rom>.srm` and flushes
+   changes every 60 s (upstream `sram_flush_seconds`), so a power cut
+   loses at most a minute. Neither installed game has battery RAM.
 5. Deferred to after M3c: Samba, a FAT import partition (repartitioning).
 
 T0: shellcheck, defconfig diff; T1: `sftp-server` ELF/deps, cores' ELF
