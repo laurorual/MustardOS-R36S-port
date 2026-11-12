@@ -5422,6 +5422,34 @@
    "origin": "build/phase4/gb-core/build.lgsx_3c2/gambatte-libretro-77f2567d718b8973d02caa2daa8dce4953faf811/gambatte_libretro.so"
   },
   {
+   "path": "/opt/muos/share/core/gpsp_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "ad2b70fe515fb035e4098d2f6fc6cc361d82f439bc742a262f12b43da0b0473a",
+   "origin": "build/m3c/cores/out/gpsp_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/pcsx_rearmed_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "e21fa7be052dcb8303b75802e256f440c46d0bdedd94394b8b6938611575812a",
+   "origin": "build/m3c/cores/out/pcsx_rearmed_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/picodrive_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "9c42e04c61974e23b2b18b48f8e57c4fa8449c6b3f9adb6a73ce6ac84bc303e9",
+   "origin": "build/m3c/cores/out/picodrive_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/snes9x2005_plus_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "1c429ae588388fc9cd3b9fc6ccfa37d31c59f0fec2504067f6955c05d9420654",
+   "origin": "build/m3c/cores/out/snes9x2005_plus_libretro.so"
+  },
+  {
    "path": "/opt/muos/share/font",
    "type": "dir",
    "mode": "755"

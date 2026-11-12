@@ -12,6 +12,8 @@
 #                                 share/conf/rootfs, so S80pipewire.sh finds
 #                                 them equal (its cp -f cannot replace a bind)
 #   p3 MUOS/log/system         -> /opt/muos/log (previous boots in system.prev, .prev2, .prev3)
+# ROMS/<DIR> and default core assignments come from
+# /usr/share/muos-r35s/core-assign.txt (only folders without one, M3c).
 # p3 state is seeded once from the rootfs (which carries the R35S profile)
 # and imports the C21 preferences store (VOLUME/BRIGHTNESS). cpufreq is
 # writable (M2): the frontend loop applies muOS per-content governors;
@@ -68,6 +70,18 @@ case "${1:-}" in
         fi
         echo battery-visible >> "$mig"; sync
     fi
+    # M3c: default ROM folders + core assignments for installed cores.
+    grep -v '^#' /usr/share/muos-r35s/core-assign.txt 2>/dev/null |
+    while IFS='|' read -r dir core sys launch; do
+        [ -n "$dir" ] && [ -f "/opt/muos/share/core/$core" ] || continue
+        mkdir -p "/userdata/ROMS/$dir"
+        c=$port/info-content/$dir
+        [ -e "$c/core.cfg" ] && continue
+        mkdir -p "$c"
+        printf '%s\n%s\n%s\n0\n%s\n' "$core" "$sys" "$sys" "$launch" > "$c/core.cfg"
+        echo system > "$c/core.con"; echo schedutil > "$c/core.gov"; echo false > "$c/core.rac"
+        echo "runtime: assigned $dir -> $core"
+    done
     bind "$port/config" /opt/muos/config
     bind "$port/volume" /opt/muos/share/volume
     bind "$port/info-content" /opt/muos/share/info/content

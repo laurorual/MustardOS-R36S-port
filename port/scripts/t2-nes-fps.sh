@@ -7,20 +7,23 @@
 # after a 10 s warm-up, read one dump per 15 s window for SECONDS together
 # with CPU frequency, governor and SoC temperature. fps = 1000 / mean frame
 # interval. (muxretro's "Content rate" log line is audio-derived, not fps.)
-#   t2-nes-fps.sh [--reboot] [--rom FILE.nes] [SECONDS] [LABEL]
+#   t2-nes-fps.sh [--reboot] [--dir DIR] [--rom FILE] [SECONDS] [LABEL]
+# --dir: another ROMS folder with a core assignment (M3c: GB GBA SNES MD
+# PSX); --rom is then required.
 # Default ROM: see game_rom in t2-game.lib.sh.
 # Prints one summary line; details go to build/logs/nes-fps.log.
 set -euo pipefail
 dev=$(dirname "$0")/device.sh
 logs=$(cd "$(dirname "$0")/../.." && pwd)/build/logs; mkdir -p "$logs"
 reboot=0; [ "${1:-}" = --reboot ] && { reboot=1; shift; }
+dir=NES; [ "${1:-}" = --dir ] && { dir=$2; shift 2; }
 rom=; [ "${1:-}" = --rom ] && { rom=$2; shift 2; }
 secs=${1:-60} label=${2:-run}
 . "$(dirname "$0")/t2-game.lib.sh"
 
 [ "$reboot" = 0 ] || "$dev" reboot >/dev/null
-[ -n "$rom" ] || rom=$(game_rom)
-game_start "$rom"
+[ -n "$rom" ] || { [ "$dir" = NES ] || fail "--rom required with --dir"; rom=$(game_rom); }
+game_start "$rom" "$dir"
 sleep 10
 csv=/run/muos/storage/pickles/performance.csv
 : > "$logs/nes-fps.samples"; : > "$logs/nes-fps.windows"
@@ -34,11 +37,11 @@ for _ in $(seq 1 $(( (secs + 14) / 15 ))); do
     r "awk -F, '/^frame,/{f=\$4} /^core,/{c=\$4} /^present,/{p=\$4} END{if (f>0) printf \"%.3f %.3f %.3f %.3f\\n\", 1000/f, f, c, p}' $csv" >> "$logs/nes-fps.windows" || :
 done
 game_stop
-summary=$(awk -v label="$label" -v rom="${rom%.nes}" -v samples="$logs/nes-fps.samples" '
+summary=$(awk -v label="$label" -v dir="$dir" -v rom="${rom%.*}" -v samples="$logs/nes-fps.samples" '
   NF { n++; s+=$1; fm+=$2; cm+=$3; pm+=$4; if (min=="" || $1<min) min=$1; if ($1>max) max=$1 }
   END {
     while ((getline line < samples) > 0) { split(line, f, " "); m++; mhz+=f[3]/1000; gov=f[4]; if (f[5]>t) t=f[5] }
     if (n==0) { print "FAIL no performance.csv windows"; exit 0 }
-    printf "NES %s [%s]: fps avg=%.2f min=%.2f max=%.2f (windows=%d) frame=%.2f ms core=%.2f ms present=%.2f ms cpu=%.0f MHz gov=%s temp_max=%.1f C\n", label, rom, s/n, min, max, n, fm/n, cm/n, pm/n, (m?mhz/m:0), gov, t/1000 }' "$logs/nes-fps.windows")
+    printf "%s %s [%s]: fps avg=%.2f min=%.2f max=%.2f (windows=%d) frame=%.2f ms core=%.2f ms present=%.2f ms cpu=%.0f MHz gov=%s temp_max=%.1f C\n", dir, label, rom, s/n, min, max, n, fm/n, cm/n, pm/n, (m?mhz/m:0), gov, t/1000 }' "$logs/nes-fps.windows")
 { date -u +%FT%TZ; echo "$summary"; cat "$logs/nes-fps.samples" "$logs/nes-fps.windows"; } >> "$logs/nes-fps.log"
 echo "$summary"

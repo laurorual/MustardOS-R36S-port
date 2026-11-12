@@ -12,8 +12,9 @@ checklists) are in [milestones.md](milestones.md). See also
 **Phase 5 (own-card firmware). M1–M3b are done. M3b (boot chain built
 from source, boot-record U-Boot with a one-shot trial kernel, TRNG)
 passed T3 on 2026-11-11: 3 cold boots, then a flash of the M3b image
-with the host card reader. The M3b image is the recovery image. Next:
-M3c (ROM library), plan at the end of this file.** Results: milestones.md.
+with the host card reader. The M3b image is the recovery image. M3c
+(SFTP, 4 new cores, ROM folders) passed T0–T2 on 2026-11-12 and is on the
+card; its T3 checklist is at the end of this file.** Results: milestones.md.
 
 ## Device and bench
 
@@ -22,10 +23,12 @@ M3c (ROM library), plan at the end of this file.** Results: milestones.md.
   Boot records: main = M3b kernel (`Image-ab18bba307f8`,
   `panel0-496bbe3591f8.dtb`), previous = M2 kernel (`Image`,
   `rk3326-muos-r35s-panel0.dtb`).
-  - p2: the M3c work build `0b4dca56…` (M3b + `sftp-server`, `muos-press`
-    volume keys), written via the trial root on 2026-11-12. The previous
-    p2 (M3b + in-place `muos-press`, `92042b14…`) is on p3 at
-    `MUOS/trial/p2-previous.img`.
+  - p2: the M3c build `313d6a44…` (content-identical to the p2 of
+    `test128-m3c-20261112`; ext4 metadata differs), written via the trial
+    root on 2026-11-12. The previous p2 (M3c step 1, `30e0f57c…`) is on p3
+    at `MUOS/trial/p2-previous.img`.
+  - ROMs on p3: GB (private, Pokemon Yellow, Super Mario Land), NES (SMB3),
+    GBA, SNES, MD, PSX (CTR) from `port/roms`; volume left at 10.
   - Saves: the pre-flash `pickles` were restored from
     `build/m3b/p3-backup` (byte-identical); the post-flash ones are kept
     in `build/m3b/p3-postflash`.
@@ -58,11 +61,11 @@ any image rewrites the whole card, bootloader included.
 
 | Image | Content | Boots on |
 |---|---|---|
+| `dist/firmware/test128-m3c-20261112.img.zst` (raw `64811ce2…`) | M3c: M3b + sftp-server, 4 cores, ROM folders; p2 T2-passed on the card, T3 pending | any card ≥ 2 GiB (expected) |
 | **`dist/firmware/test128-m3b-20261111.img.zst`** (raw `2a8fec32…`) | **Recovery image.** M3b: boot-record U-Boot, M3b kernel (main) + M2 kernel (previous), M3b p2 | any card ≥ 2 GiB |
 | `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`) | M3a.1: M2 U-Boot and kernel, SDL2 with its pipewire driver; p2 T3-passed, image never flashed | any card ≥ 2 GiB (expected) |
 | `test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core | any card ≥ 2 GiB |
 | `test128-m1-20261110.img.zst` (raw `1c65c693…`) | M1: autostart, seedless | any card ≥ 2 GiB |
-| `test128-baseline-20261110.img.zst` (raw `9c1c8a37…`) | pre-M1 C07 init, SSH only | test128 only (CID-locked bootstrap), slot 2 empty |
 
 **Flash with the host card reader (primary, since 2026-11-11):**
 1. Power the device off and put its card in the USB reader on the host.
@@ -255,10 +258,10 @@ charging icon; headphone path switching.
 - **Audio:** half-rate PCM after reboot (not seen in 28 probed reboots);
   the WirePlumber "no profile" start failure is retried, not explained;
   3–8 underrun bursts per game; help WAVs inaudible.
-- **Content:** only libretro cores in `/opt/muos/share/core` (gambatte,
-  fceumm); `ext-*` launchers are refused. ROMs are copied to p3
-  `ROMS/<system>` by hand (`port/scripts/install-nes.sh` for
-  `port/roms/nes`).
+- **Content:** only libretro cores in `/opt/muos/share/core` (fceumm,
+  gambatte, gpsp, pcsx_rearmed, picodrive, snes9x2005_plus); `ext-*`
+  launchers are refused. No BIOS files (PSX runs the HLE BIOS). ROMs go to
+  p3 `ROMS/<DIR>` by SFTP or `rom-push.sh`.
 - **In-game volume/brightness change:** 2–5 dropped frames per second
   while the keys are pressed (59.9 → 58.5–59.7 fps), none at rest.
   Upstream behaviour on this SoC, not a port defect (hardware-findings.md,
@@ -296,7 +299,8 @@ M3 is split into sub-milestones; each ends with its own T3.
 **M3a** (reproducible image + e2fsck), **M3a.1** (audio fix) and **M3b**
 (boot chain) are done; plans and results in milestones.md.
 
-**M3c — ROM library** (planned 2026-11-11; step 1 done 2026-11-12). Goal: the user
+**M3c — ROM library** (planned 2026-11-11; steps 1–3 done and T2-passed
+2026-11-12, image `test128-m3c-20261112`; T3 pending, checklist below). Goal: the user
 adds games from the PC without the agent, and more systems play.
 1. **File transfer:** Buildroot `gesftpserver` → `/usr/libexec/sftp-server`,
    so dropbear serves SFTP (GUI clients, `sftp`, and OpenSSH `scp`, which
@@ -308,24 +312,49 @@ adds games from the PC without the agent, and more systems play.
    PASS at about 8–9 MiB/s over Wi-Fi; regression suite on the new p2
    PASS (audio, menu cycle, 5 sleep cycles in game, headphone, NES
    59.90 fps). `rom-push.sh` done.
-2. **ROM folders:** create `ROMS/<dir>` for every system with a core at
-   boot (S90), so the PC client shows where files go.
-3. **More cores** (built in the container like fceumm/gambatte, pinned as
-   inputs, core assignment + `core.gov` per system), each with a T2 fps
-   check: proposed SNES (snes9x2005_plus), GBA (gpsp), Mega Drive/SMS/GG
-   (picodrive), PS1 (pcsx_rearmed). Needs a user decision on the list and
-   test ROMs the user owns.
+2. **ROM folders:** S91 reads `/usr/share/muos-r35s/core-assign.txt` and,
+   for each installed core, creates `ROMS/<DIR>` and writes the folder's
+   assignment (`info-content/<DIR>/core.cfg` …) only if it has none, so the
+   user's choice wins. Folders: NES GB GBC GBA SNES MD SMS GG 32X PSX.
+   **Done** (host-tested loop; on the card it added GBC SMS GG 32X).
+3. **More cores:** `port/scripts/build-cores.sh fetch|build` (pinned
+   commits, reproducible source tarballs with submodules in
+   `build/m3c/cores/cache`, offline container build with the Buildroot
+   SDK, `-mcpu=cortex-a35`, an unresolved-symbol check against the
+   target libc/libm). Pinned in `firmware-inputs.json`; licences in
+   `pending-licenses.json`. **Done**, T2 fps (title/attract, no input):
+
+   | Folder | Core | ROM | fps | core ms |
+   |---|---|---|---|---|
+   | NES | fceumm | SMB3 | 59.90 | 7.0 |
+   | GB | gambatte | Pokemon Yellow | 59.90 | 2.9 |
+   | SNES | snes9x2005_plus | Super Mario World | 59.92 | 9.4 |
+   | GBA | gpsp (arm64 dynarec) | Minish Cap | 59.91 | 4.2 |
+   | MD | picodrive | UMK3 | 59.93 | 4.9 |
+   | PSX | pcsx_rearmed (ari64, HLE BIOS) | CTR | 59.09 | 3.6 |
+
+   PSX runs a steady 59.1 (frame 16.92 ms), not a CPU limit; cause open.
+   No PSX BIOS is installed (HLE: "expect compatibility problems").
 4. **SRAM saves:** prove battery saves (`.srm`) land on p3 per system and
    survive quit, sleep, poweroff and a power cut (T2 with a battery ROM).
    muxretro writes `pickles/sram/<core prefix>/<rom>.srm` and flushes
    changes every 60 s (upstream `sram_flush_seconds`), so a power cut
-   loses at most a minute. Neither installed game has battery RAM.
+   loses at most a minute. A test run of Pokemon Yellow wrote
+   `sram/gambatte/GB/<rom>.srm` + `.srm.sum` (removed again: test data).
+   The in-game save cycle is a T3 item.
 5. Deferred to after M3c: Samba, a FAT import partition (repartitioning).
 
 T0: shellcheck, defconfig diff; T1: `sftp-server` ELF/deps, cores' ELF
 and `retro_api_version` under qemu; T2: sftp/scp round trip from the
 host, `rom-push.sh`, per-core fps (`t2-nes-fps.sh`-style), SRAM cycle.
 p2 changes go in via the trial root; a firmware image at the end.
+On the new p2: audio, 5 sleep cycles in game, headphone, SFTP, all six
+fps runs, and `t2-menu-cycle` 11/11 PASS.
+**T2 hygiene fixed in M3c:** `t2-menu-cycle` deleted and re-wrote the
+user's `private.gb` quicksave on every run (since M2); it now plays
+whichever GB game Explore opens and restores the GB states, SRAM and
+`resume.ini` from a p3 snapshot (also on failure). The user's
+`private.gb` states were restored from `build/m3b/p3-backup` (verified).
 
 **M3d — robustness:** p3 auto-grow on first boot, log rotation, battery
 gauge calibration (incl. the SOC re-seed after a full discharge: e.g.
@@ -333,3 +362,26 @@ hold the displayed % while the charge current is high, or re-seed from
 an IR-compensated voltage), the audio half-rate/underruns and the WirePlumber "no
 profile" failure; then a long run (1–2 h of play, 20 reboot/poweroff
 cycles).
+
+## M3c T3 checklist (for the user)
+
+The card already runs M3c. Volume: keep it low; nothing here needs sound
+louder than the current 10.
+
+1. **New systems from the menu:** Explore → each of GBA, SNES, MD, PSX →
+   the game → play ~1 min, then Fn+Start to quit.
+   - Expected: each starts, runs smoothly, with sound. PSX (CTR) uses the
+     HLE BIOS: tell me if it hangs, has no picture, or glitches.
+   - Also: Explore shows the empty GBC, SMS, GG and 32X folders.
+2. **Battery save (Pokemon Yellow):** start a new game, save in the game
+   menu (START → SAVE), quit with Fn+Start, relaunch: "Continue" shows
+   your save. Then save again, play 2 minutes, put the console to sleep
+   with Power, wake it, quit, relaunch: the save is there. Finally save,
+   wait 1 minute, power off from the menu, power on: the save is there.
+   - Expected: the save survives quit, sleep and poweroff.
+3. **Copy a ROM from the PC (SFTP):** on the PC run
+   `port/scripts/device.sh sftp`, then `cd /userdata/ROMS/GB` and
+   `put "<a .gb file>"` (or `port/scripts/rom-push.sh GB <file>`).
+   - Expected: the file shows up in Explore → GB (re-enter the folder).
+4. **Regression:** one cold boot to the menu, a short NES or GB game,
+   brightness keys.

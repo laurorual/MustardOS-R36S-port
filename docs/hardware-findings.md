@@ -526,6 +526,15 @@ about other R35S/R36S panels or revisions.
   core and present means). Use `port/scripts/t2-nes-fps.sh`. The muxretro
   log line "Content rate window X Hz" is derived from audio and frame
   counts, not from wall time; it reads 60.10 even when slow.
+- **M3c cores (1296 MHz, schedutil):** all vsync-locked at 59.9 except
+  PSX (59.1). Core time per frame: GB 2.9 ms, PSX 3.6 ms (ari64 dynarec),
+  GBA 4.2 ms (gpsp arm64 dynarec), MD 4.9 ms, NES 7.0 ms, SNES 9.4 ms
+  (snes9x2005_plus, the tightest). pcsx_rearmed needs
+  `HAVE_PHYSICAL_CDROM=0` (otherwise `cdrom.c` links without `dir_list.c`
+  → `undefined symbol: dir_list_new` at load). gpsp needs `platform=arm64`
+  for its dynarec (`unix` picks x86 from the host's uname). Changing the
+  volume during a game drops frames (see below), so measure without
+  touching the keys.
 - **Level-change judder (M3b T3, `t2-level-fps.sh`):** SMB3 has no frame
   over 20 ms at rest. Changing volume or brightness in game drops frames
   (each about 33 ms, one missed vsync) for as long as the keys are
@@ -587,8 +596,8 @@ about other R35S/R36S panels or revisions.
 - **Card guards (retired in M1):** the C01/C07 bootstrap and harness were
   locked to the test128 CID and exact capacity, and halted with
   "STOPPED - media guard" on any other card or with original32 in slot 2.
-  The M1 init has no card guard. The **baseline** image still carries
-  the old bootstrap, so it only boots on test128 with slot 2 empty.
+  The M1 init has no card guard. (The pre-M1 baseline image that still
+  carried it was retired on 2026-11-12.)
 - **Full-card images (M1):** `make-recovery-image.sh` composes them
   rootless on the host from a `device.sh capture` (consistent read:
   services quiesced, root ro, p3 unmounted, prefix hash re-checked). It

@@ -1,0 +1,14 @@
+# M3c default ROM folders and core assignments, seeded by S91muos-runtime
+# into p3 (ROMS/<DIR>, MUOS/port/info-content/<DIR>) when the core is
+# installed and the folder has no assignment yet; the user's choice wins.
+# DIR|core file|muOS system (core.json)|launcher (mu-<core.json key>)
+NES|fceumm_libretro.so|Nintendo NES - Famicom|mu-fceumm
+GB|gambatte_libretro.so|Nintendo Game Boy|mu-gambatte
+GBC|gambatte_libretro.so|Nintendo Game Boy Color|mu-gambatte
+GBA|gpsp_libretro.so|Nintendo Game Boy Advance|mu-gpsp
+SNES|snes9x2005_plus_libretro.so|Nintendo SNES - SFC|mu-snes9x 2005 plus
+MD|picodrive_libretro.so|Sega Mega Drive - Genesis|mu-picodrive
+SMS|picodrive_libretro.so|Sega Master System|mu-picodrive
+GG|picodrive_libretro.so|Sega Game Gear|mu-picodrive
+32X|picodrive_libretro.so|Sega 32X|mu-picodrive
+PSX|pcsx_rearmed_libretro.so|Sony PlayStation|mu-pcsx rearmed

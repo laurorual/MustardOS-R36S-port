@@ -40,6 +40,13 @@
       "component": "Final firmware distribution with GPLv3 frontend and proprietary components",
       "status": "review final included components and obligations before publication",
       "reference": "docs/archive/phase4/roadmap.md"
+    },
+    {
+      "id": "libretro-cores-m3c",
+      "component": "snes9x2005_plus, picodrive, gpsp, pcsx_rearmed libretro cores (M3c)",
+      "source": "port/scripts/build-cores.sh (pinned commits; source tarballs in build/m3c/cores/cache)",
+      "status": "snes9x2005 and picodrive: non-commercial licences (no sale, no bundling in a commercial product); gpsp and pcsx_rearmed: GPL-2.0, ship or offer the pinned source with any distributed image",
+      "reference": "docs/STATUS.md M3c"
     }
   ]
 }
