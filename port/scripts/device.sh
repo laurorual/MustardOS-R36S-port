@@ -6,6 +6,10 @@
 #   device.sh find [ip]        locate the device (DHCP IP changes) by host key
 #   device.sh run CMD...       run a shell command on the device (stdin passed)
 #   device.sh sh               interactive shell
+#   device.sh sftp [ARGS...]   SFTP session as root (M3c; ARGS go to sftp,
+#                              e.g. -b batchfile)
+#   device.sh scp ARGS...      OpenSSH scp (SFTP protocol); write device
+#                              paths as dev:/path
 #   device.sh push SRC DST     copy a local file/dir into device dir DST (tar)
 #   device.sh pull SRC DST     copy a device file/dir into local dir DST (tar)
 #   device.sh id               boot id, uptime, root/p3 mounts, UI state
@@ -110,6 +114,15 @@ case "$cmd" in
     ip=$(target); rc=0
     ssh_dev "$ip" "$*" || rc=$?
     log "run rc=$rc $*"; exit "$rc" ;;
+ sftp)
+    ip=$(target)
+    sftp -P "$port" -i "$key" -oIdentitiesOnly=yes -oStrictHostKeyChecking=yes \
+        -oUserKnownHostsFile="$known" "$@" "root@$ip" ;;
+ scp)
+    ip=$(target); args=()
+    for a in "$@"; do case "$a" in dev:*) args+=("root@$ip:${a#dev:}") ;; *) args+=("$a") ;; esac; done
+    scp -P "$port" -i "$key" -oIdentitiesOnly=yes -oStrictHostKeyChecking=yes \
+        -oUserKnownHostsFile="$known" "${args[@]}" ;;
  sh)
     ip=$(target)
     ssh -t -p "$port" -i "$key" -oIdentitiesOnly=yes -oStrictHostKeyChecking=yes \
