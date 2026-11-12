@@ -6,22 +6,24 @@
 # the RTC via /run/muos/suspend-test-wake. Each cycle checks: suspend entered,
 # resumed, backlight restored, Wi-Fi/SSH back, frontend (or game) alive.
 #   t2-sleep-cycle.sh [--game] [CYCLES] [WAKE_SECONDS]
-# --game: launch GB first (frontend content handoff); checks muxretro saved
-# on SIGUSR1 and is still running after each resume.
+# --game: launch the NES test game first (t2-game.lib.sh: content handoff,
+# the ROM's pickles snapshotted and restored afterwards, so the auto-save on
+# SIGUSR1 never replaces the user's); checks muxretro saved on SIGUSR1 and
+# is still running after each resume. (Before M3d it launched GB private.gb
+# without a snapshot.)
 set -euo pipefail
 dev=$(dirname "$0")/device.sh
 game=0; [ "${1:-}" = --game ] && { game=1; shift; }
 cycles=${1:-5} wake=${2:-15}
-r() { "$dev" run "cd /; $*"; }
-pid_of() { echo 'for p in /proc/[0-9]*; do [ "$(readlink $p/exe)" = /opt/muos/frontend/'"$1"' ] && echo ${p#/proc/}; done'; }
+# shellcheck source=port/scripts/t2-game.lib.sh
+. "$(dirname "$0")/t2-game.lib.sh"
+pid_of() { pids_of "$1"; }
 fail() { echo "FAIL $*"; r 'tail -5 /opt/muos/log/suspend.log' || :; exit 1; }
 
 r "echo $wake > /run/muos/suspend-test-wake"
 if [ "$game" = 1 ]; then
-    r 'printf "%s\n" private gambatte_libretro.so "Nintendo Game Boy" 0 0 mu-gambatte /mnt/mmc/ROMS /GB private.gb > /run/muos/content
-       echo explore > /run/muos/action; '"$(pid_of muxfrontend)"' | while read -r q; do kill -TERM "$q"; done'
-    sleep 6
-    [ -n "$(r "$(pid_of muxretro)")" ] || fail "game did not start"
+    game_start "$(game_rom)" NES
+    sleep 4
     echo "game started"
 fi
 pass=0
@@ -45,5 +47,5 @@ for i in $(seq 1 "$cycles"); do
     sleep 8   # past the recent_wake guard
 done
 r 'rm -f /run/muos/suspend-test-wake'
-if [ "$game" = 1 ]; then r '/usr/libexec/muos-press fn+start'; fi
+if [ "$game" = 1 ]; then game_stop; fi
 echo "PASS $pass/$cycles sleep cycles$( [ "$game" = 1 ] && echo ' (in game)')"

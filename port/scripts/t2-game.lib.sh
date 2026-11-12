@@ -26,7 +26,7 @@ game_rom() {
 # not deterministic. Launch through the frontend's own content handoff
 # instead: the 9-line ROM_GO record + governor request muxplore writes,
 # then a safe quit of muxfrontend; the frontend loop runs muxretro as for a
-# menu launch. Arms muxretro's frame-time capture (MUXRETRO_PERF_CAPTURE via
+# menu launch (governor: $game_gov if set, else the folder's core.gov). Arms muxretro's frame-time capture (MUXRETRO_PERF_CAPTURE via
 # /run/muos/perf-capture; performance.csv every 15 s, last 1024 frames).
 game_start() { # ROM [DIR]
     local rom=$1 dir=${2:-NES} cfg core sys launch
@@ -38,7 +38,7 @@ game_start() { # ROM [DIR]
     wait_module muxlaunch 40 || { for _ in 1 2 3; do r '/usr/libexec/muos-press b'; sleep 2; done; wait_module muxlaunch 10 || fail "not at launcher"; }
     r 'touch /run/muos/perf-capture; rm -f /run/muos/storage/pickles/performance.csv
        printf "%s\n" "'"$game_rom_name"'" "'"$core"'" "'"$sys"'" 0 0 "'"$launch"'" /mnt/mmc/ROMS "/'"$dir"'" "'"$rom"'" > /run/muos/content
-       gov=$(cat "/opt/muos/share/info/content/'"$dir"'/core.gov" 2>/dev/null || cat /opt/muos/device/config/cpu/default)
+       gov='"${game_gov:-}"'; [ -n "$gov" ] || gov=$(cat "/opt/muos/share/info/content/'"$dir"'/core.gov" 2>/dev/null || cat /opt/muos/device/config/cpu/default)
        printf "%s\n" "$gov" > /run/muos/governor; echo explore > /run/muos/action
        '"$(pids_of muxfrontend)"' | while read -r q; do kill -TERM "$q"; done'
     wait_module muxretro 20 || fail "$dir/$rom did not start (got $(module))"
