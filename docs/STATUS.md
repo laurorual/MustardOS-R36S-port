@@ -9,26 +9,24 @@ checklists) are in [milestones.md](milestones.md). See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1, M2 and M2.1 are done (T3 passed
-2026-11-10/11). M3a's T3 (2026-11-11): the built image flashes and boots,
-but every boot was silent (SDL2 built without its pipewire driver).
-M3a.1 fixes that: T3 passed 2026-11-11 (sound on 3 boots, speaker and
-headphones). M3b (boot chain built from source, boot-record U-Boot with a
-one-shot trial kernel, TRNG) passed T0–T2 on 2026-11-11 and is on the
-card; its T3 is at the end of this file.** Results: milestones.md.
+**Phase 5 (own-card firmware). M1–M3b are done. M3b (boot chain built
+from source, boot-record U-Boot with a one-shot trial kernel, TRNG)
+passed T3 on 2026-11-11: 3 cold boots, then a flash of the M3b image
+with the host card reader. The M3b image is the recovery image. Next:
+M3c (ROM library), plan at the end of this file.** Results: milestones.md.
 
 ## Device and bench
 
-- **Device:** R35S Panel 0, test128 in slot 1, flashed with the M3a image
-  (p3 grown to the whole card). Since M3b, written in place:
-  - bootloader region (sector 16384): the M3b U-Boot `65fb3dcd…` (the M2
-    one is saved on p3 at `MUOS/boot/uboot-previous.img`);
-  - p1: + `Image-ab18bba307f8` and `panel0-496bbe3591f8.dtb`;
-  - boot records: main = M3b kernel (`m3b ab18bba3`), previous = M2 kernel
-    (`Image`, `rk3326-muos-r35s-panel0.dtb`);
-  - p2: the M3b build (`f7ffdef4…`); the M3a.1 p2 is on p3 at
-    `MUOS/trial/p2-previous.img`.
-  - Saves as of 2026-11-11 are copied to `build/m3b/p3-backup`.
+- **Device:** R35S Panel 0, test128 in slot 1, flashed with the M3b
+  image on 2026-11-11 (host card reader, p3 grown to the whole card).
+  Boot records: main = M3b kernel (`Image-ab18bba307f8`,
+  `panel0-496bbe3591f8.dtb`), previous = M2 kernel (`Image`,
+  `rk3326-muos-r35s-panel0.dtb`).
+  - p2 differs from the image only by `/usr/libexec/muos-press` (test
+    helper with volume keys; `install-rootfs.sh`, original kept).
+  - Saves: the pre-flash `pickles` were restored from
+    `build/m3b/p3-backup` (byte-identical); the post-flash ones are kept
+    in `build/m3b/p3-postflash`.
   - The DHCP IP changes between boots; it was 192.168.15.8.
   - Identify the device by its host key, not its IP:
     `SHA256:fDW+/iNaWgqPwqBtO/ESuKPSQHvYN1PSo2RHfilOxK0`.
@@ -51,31 +49,39 @@ card; its T3 is at the end of this file.** Results: milestones.md.
 The images are in `dist/recovery/` (captures) and `dist/firmware/`
 (built), each with `.sha256` and `.manifest`. **They are private:** they
 contain the Wi-Fi PSK, the SSH host key and authorized_keys. Never commit
-or share them. **Recovery image: M3a.1** (M2 U-Boot and kernel; its p2
-passed T3) until the M3b image has been flashed once (M3b T3). Flashing
+or share them. **Recovery image: M3b** (flashed and T3-passed
+2026-11-11). M3a.1 and M2 stay as fallbacks with the M2 U-Boot. Flashing
 any image rewrites the whole card, bootloader included.
 
 | Image | Content | Boots on |
 |---|---|---|
-| `dist/firmware/test128-m3b-20261111.img.zst` (raw `2a8fec32…`) | M3b: boot-record U-Boot, M3b kernel (main) + M2 kernel (previous), M3b p2; not flashed yet | any card ≥ 2 GiB (expected) |
-| `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`) | M3a.1: M3a + SDL2 with its pipewire driver; p2 T3-passed on the card, image not flashed yet | any card ≥ 2 GiB (expected) |
+| **`dist/firmware/test128-m3b-20261111.img.zst`** (raw `2a8fec32…`) | **Recovery image.** M3b: boot-record U-Boot, M3b kernel (main) + M2 kernel (previous), M3b p2 | any card ≥ 2 GiB |
+| `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`) | M3a.1: M2 U-Boot and kernel, SDL2 with its pipewire driver; p2 T3-passed, image never flashed | any card ≥ 2 GiB (expected) |
 | `test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core | any card ≥ 2 GiB |
 | `test128-m1-20261110.img.zst` (raw `1c65c693…`) | M1: autostart, seedless | any card ≥ 2 GiB |
 | `test128-baseline-20261110.img.zst` (raw `9c1c8a37…`) | pre-M1 C07 init, SSH only | test128 only (CID-locked bootstrap), slot 2 empty |
 
-**Flash via dArkOSen:**
+**Flash with the host card reader (primary, since 2026-11-11):**
+1. Power the device off and put its card in the USB reader on the host.
+2. `lsblk -dno NAME,TRAN,SIZE,MODEL` (the reader shows `usb`, about 119 GiB
+   for test128).
+3. `port/scripts/flash-card.sh host /dev/sdX dist/firmware/test128-m3b-20261111.img.zst --grow`
+   - It accepts only a whole USB/removable/MMC disk (it refuses the
+     internal `sda` and `nvme0n1`, partitions, an empty reader and a
+     too-small card), shows model and size, asks `y`, then asks for sudo.
+   - It unmounts the card, writes, re-reads with caches dropped, checks
+     the SHA256 (`verified raw_sha256=…`), then grows p3 (`p3 grown and
+     clean`).
+4. Put the card in slot 1 (slot 2 empty), power on.
+
+**Flash via dArkOSen (fallback, no reader):**
 1. Power off. Put original32 in slot 1 and the target card in slot 2.
    Boot, join Wi-Fi, and enable Remote services (Options).
 2. On the host:
-   `port/scripts/flash-card.sh darkosen <dArkOSen-IP> dist/recovery/test128-m2-20261111.img.zst --grow`
+   `port/scripts/flash-card.sh darkosen <dArkOSen-IP> dist/firmware/test128-m3b-20261111.img.zst --grow`
    - Enter the `ark` SSH password once and the sudo password once.
-   - The script refuses the running root and too-small cards, unmounts
-     slot 2, writes, re-reads and verifies the SHA256, then grows p3.
+   - Same checks as above; the target is always slot 2 (`/dev/mmcblk1`).
 3. Power off. Move the card to slot 1, leave slot 2 empty, power on.
-
-**Flash with a host card reader** (once it arrives):
-`port/scripts/flash-card.sh host /dev/sdX <image> --grow`. Check `/dev/sdX`
-with `lsblk` first.
 
 **Build the firmware** (about 50 min from scratch, minutes
 incrementally; rootfs in `build/m3a/output`, boot chain in `build/m3b`):
@@ -250,8 +256,10 @@ charging icon; headphone path switching.
   fceumm); `ext-*` launchers are refused. ROMs are copied to p3
   `ROMS/<system>` by hand (`port/scripts/install-nes.sh` for
   `port/roms/nes`).
-- **M3b image not yet flashed:** everything was written in place. The
-  M3a image proved the prefix/p1/p3 and `--grow` path.
+- **In-game volume/brightness change:** 2–5 dropped frames per second
+  while the keys are pressed (59.9 → 58.5–59.7 fps), none at rest.
+  Upstream behaviour on this SoC, not a port defect (hardware-findings.md,
+  "Level-change judder"); not fixed.
 - **U-Boot messages** (which record failed and why) go to the serial
   console and the LCD only; there is no log on the card.
 - **p1** still holds the Phase 4 `DIAG*` folders (about 1 MiB).
@@ -283,11 +291,30 @@ charging icon; headphone path switching.
 M3 is split into sub-milestones; each ends with its own T3.
 
 **M3a** (reproducible image + e2fsck), **M3a.1** (audio fix) and **M3b**
-(boot chain, T3 pending) are done; plans and results in milestones.md.
+(boot chain) are done; plans and results in milestones.md.
 
-**M3c — ROM library:** a ROM copy path (sftp over the existing dropbear
-first, then Samba or FAT-partition import), SRAM saves per system, more
-libretro cores as needed.
+**M3c — ROM library** (planned 2026-11-11; in progress). Goal: the user
+adds games from the PC without the agent, and more systems play.
+1. **File transfer:** Buildroot `gesftpserver` → `/usr/libexec/sftp-server`,
+   so dropbear serves SFTP (GUI clients, `sftp`, and OpenSSH `scp`, which
+   speaks SFTP by default; today only legacy `scp -O` works). Host helper
+   `port/scripts/rom-push.sh SYSTEM FILE...` (mkdir `ROMS/<dir>`, copy,
+   sha256 check, refresh). Login stays key-only root on :2222.
+2. **ROM folders:** create `ROMS/<dir>` for every system with a core at
+   boot (S90), so the PC client shows where files go.
+3. **More cores** (built in the container like fceumm/gambatte, pinned as
+   inputs, core assignment + `core.gov` per system), each with a T2 fps
+   check: proposed SNES (snes9x2005_plus), GBA (gpsp), Mega Drive/SMS/GG
+   (picodrive), PS1 (pcsx_rearmed). Needs a user decision on the list and
+   test ROMs the user owns.
+4. **SRAM saves:** prove battery saves (`.srm`) land on p3 per system and
+   survive quit, sleep, poweroff and a power cut (T2 with a battery ROM).
+5. Deferred to after M3c: Samba, a FAT import partition (repartitioning).
+
+T0: shellcheck, defconfig diff; T1: `sftp-server` ELF/deps, cores' ELF
+and `retro_api_version` under qemu; T2: sftp/scp round trip from the
+host, `rom-push.sh`, per-core fps (`t2-nes-fps.sh`-style), SRAM cycle.
+p2 changes go in via the trial root; a firmware image at the end.
 
 **M3d — robustness:** p3 auto-grow on first boot, log rotation, battery
 gauge calibration (incl. the SOC re-seed after a full discharge: e.g.
@@ -295,23 +322,3 @@ hold the displayed % while the charge current is high, or re-seed from
 an IR-compensated voltage), the audio half-rate/underruns and the WirePlumber "no
 profile" failure; then a long run (1–2 h of play, 20 reboot/poweroff
 cycles).
-
-## M3b T3 checklist (for the user)
-
-The card already runs M3b (new U-Boot and kernel). Charger in or out.
-
-1. **Normal use, 3 cold boots:** power off from the menu, power on, three
-   times. Each time: menu within about 16–25 s, sound in the menu, a short
-   GB or NES game with sound, brightness keys, Power sleep/wake in the
-   game.
-   - Expected: as with M3a.1. If a boot ever stops on a "muOS boot:
-     STOPPED" screen, photograph it and tell me (a long Power press turns
-     it off).
-2. **Flash the M3b image** (proves it is a recovery image with the new
-   bootloader). This resets p3 to M2-era data; your current saves are
-   copied to `build/m3b/p3-backup` and I'll restore them afterwards.
-   - dArkOSen steps in "Recovery images and flashing" with
-     `dist/firmware/test128-m3b-20261111.img.zst --grow`.
-   - Expected: `verified raw_sha256=2a8fec32…` and `p3 grown and clean`;
-     cold boot to the menu; sound in a short game.
-

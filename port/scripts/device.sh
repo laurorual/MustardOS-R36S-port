@@ -114,11 +114,12 @@ case "$cmd" in
     ip=$(target)
     ssh -t -p "$port" -i "$key" -oIdentitiesOnly=yes -oStrictHostKeyChecking=yes \
         -oUserKnownHostsFile="$known" "root@$ip" ;;
+    # push extracts as root without the host uid/gid (-o): files are root-owned.
  push)
     [ $# -eq 2 ] || die "push SRC DST"
     ip=$(target); src=$1; dst=$2
     tar -C "$(dirname "$src")" -cf - "$(basename "$src")" |
-        ssh_dev "$ip" "mkdir -p '$dst' && tar -xf - -C '$dst'"
+        ssh_dev "$ip" "mkdir -p '$dst' && tar -xof - -C '$dst'"
     log "push $src -> $dst" ;;
  pull)
     [ $# -eq 2 ] || die "pull SRC DST"

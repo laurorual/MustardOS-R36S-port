@@ -36,7 +36,7 @@
       ]
     },
     "M3b": {
-      "reason": "Built M3b firmware: boot-records U-Boot, M3b kernel (HW_RANDOM_ROCKCHIP) main + M2 kernel previous; T2 pending",
+      "reason": "Known-good recovery image since 2026-11-11: M3b firmware (boot-records U-Boot, M3b kernel main + M2 kernel previous); T3 passed incl. a host card-reader flash",
       "files": [
         "dist/firmware/test128-m3b-20261111.img.zst",
         "dist/firmware/test128-m3b-20261111.img.zst.sha256",

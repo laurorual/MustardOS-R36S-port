@@ -526,6 +526,30 @@ about other R35S/R36S panels or revisions.
   core and present means). Use `port/scripts/t2-nes-fps.sh`. The muxretro
   log line "Content rate window X Hz" is derived from audio and frame
   counts, not from wall time; it reads 60.10 even when slow.
+- **Level-change judder (M3b T3, `t2-level-fps.sh`):** SMB3 has no frame
+  over 20 ms at rest. Changing volume or brightness in game drops frames
+  (each about 33 ms, one missed vsync) for as long as the keys are
+  pressed; average fps falls only 0.3–2 %.
+  - Per 13.5 s of changes (about 1.5 per s): volume keys 30–70 slow
+    frames, brightness keys about 33, the overlay alone (config value
+    written, no script) 20–25, `bright.sh` without the overlay 0–3,
+    `audio.sh`'s `wpctl` calls alone 0, `audio.sh` from a shell 9–46
+    (large run-to-run variance).
+  - Not the cause: GPU clock (pinned 520 MHz), `debug_mode` 2 vs 0, the
+    SVG glyph decode (tiny glyphs), DDR devfreq (10 transitions per
+    uptime), muhotkey's environment; nice 19, SCHED_BATCH and SCHED_IDLE
+    for `audio.sh` gave no consistent gain.
+  - Mechanism: while any HUD element is visible, muxretro leaves its
+    video fast path and runs `lv_refr_now()` + composite every frame, and
+    each value change redraws the bar. NES leaves about 6–8 ms of slack
+    per frame (core 7 ms, upload 2 ms, present 9 ms incl. the vsync wait),
+    so small stalls miss vsync. The scripts, `muxretro` and the overlay
+    are upstream code (same on upstream's RK3326 GKD Pixel 2); not a port
+    defect. A fix would be an upstream muxretro change.
+  - Port differences seen on the way, left as they are: `system/debug_mode`
+    is 2 (upstream default 0; debug lines from every module go to p3), and
+    the port's `r35s-bringup.json` volume/brightness combos lack
+    upstream's `handle_hold` (holding a key does not repeat).
 - **muxretro signals:** SIGUSR1 → auto-save, then pause and write
   `/run/muos/muxretro_save_ready` (pid). SIGUSR2 → resume. Auto-save
   default `auto_save=3` (idle + quit) resumes the last state on launch.

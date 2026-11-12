@@ -4,7 +4,7 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M3b — boot chain from source, boot records, trial kernel, TRNG (T2 done 2026-11-11, T3 pending)
+## M3b — boot chain from source, boot records, trial kernel, TRNG (done 2026-11-11, T3 passed)
 
 Image `dist/firmware/test128-m3b-20261111.img.zst` (raw `2a8fec32…`).
 
@@ -48,6 +48,27 @@ previous; bad-SHA trial → consumed → main (`t2-boot-slot.sh` 4/4). Suite
 on the M3b kernel: `t2-menu-cycle` 11/11, `t2-sleep-cycle --game` 3/3 and
 5/5, `t2-headphone` PASS, NES 59.89 fps, audio soak 6/6 boots (one second
 S95 attempt).
+
+**T3 (2026-11-11, user):** 3 cold boots with sound, games, brightness
+and in-game sleep/wake: OK. The M3b image was flashed with the host USB
+card reader (`flash-card.sh host /dev/sdb … --grow`, its first real use):
+`verified raw_sha256=2a8fec32…`, `p3 grown and clean`, cold boot to the
+menu with sound. M3b became the recovery image; the reader is the primary
+flash method (dArkOSen stays the fallback). Afterwards: the pre-flash
+`pickles` restored byte-identical; `flash-card.sh host` now accepts only a
+USB/removable/MMC whole disk and asks before writing (the host also has an
+internal SATA `sda`).
+
+**T3 observation: fps drops while changing volume/brightness in game.**
+Measured with the new `t2-level-fps.sh` (keys injected through
+`muos-press volup|voldown|fn+vol*`, i.e. the real muhotkey path); see
+hardware-findings.md "Level-change judder". Upstream behaviour, not
+fixed. The investigation found and fixed two test hazards: a T2 game run
+autosaves on exit and replaced the user's state (`t2-game.lib.sh` now
+snapshots and restores the ROM's pickles), and replacing
+`MUOS/pickles` by rename leaves the `/run/muos/storage/pickles` bind on
+the deleted directory (copy in place instead; `device.sh push` no longer
+keeps the host uid).
 
 ## M3a.1 — audio regression fix (done 2026-11-11, T3 passed)
 

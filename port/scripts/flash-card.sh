@@ -9,7 +9,10 @@
 #       it with sudo in one interactive session: expect the SSH password
 #       once and the sudo password once.
 #   flash-card.sh host /dev/sdX IMAGE.img.zst [--grow]
-#       a card reader on this host (uses sudo).
+#       a card reader on this host (uses sudo). Only a whole-disk node on
+#       a USB, removable or MMC transport is accepted; it shows the model,
+#       size and transport and asks before writing (MUOS_FLASH_YES=1 skips
+#       the question).
 #
 # Both refuse the disk holding the running root or a card that is too
 # small, unmount the target's partitions, write the raw image, re-read it
@@ -85,6 +88,22 @@ elif [ -n "${MUOS_FLASH_TEST_FILE:-}" ]; then
     zstd -dc --long=27 "$image" | dd of="$f" bs=4M conv=notrunc 2>/dev/null
     echo "SHA=$(head -c "$raw_bytes" "$f" | sha256sum | cut -d' ' -f1)" | tee "$out"
 else
+    name=${where##*/}
+    [ -b "$where" ] || { echo "no block device $where" >&2; exit 1; }
+    case "$name" in sd[a-z]|sd[a-z][a-z]|mmcblk[0-9]|mmcblk[0-9][0-9]) ;;
+        *) echo "refusing $where: expected a whole card-reader disk (/dev/sdX or /dev/mmcblkN)" >&2; exit 1 ;; esac
+    read -r tran rm size model < <(lsblk -dno TRAN,RM,SIZE,MODEL "$where")
+    case "$name:$tran:$rm" in mmcblk*|*:usb:*|*:*:1) ;;
+        *) echo "refusing $where: not a USB/removable/MMC disk (transport ${tran:-?}, removable $rm)" >&2; exit 1 ;; esac
+    bytes=$(lsblk -bdno SIZE "$where")
+    [ "$bytes" -gt 0 ] || { echo "no card in $where" >&2; exit 1; }
+    [ "$bytes" -ge "$raw_bytes" ] || { echo "card too small: $bytes < $raw_bytes bytes" >&2; exit 1; }
+    echo "== target $where: ${model:-?} $size (transport ${tran:-?}, removable $rm)"
+    lsblk -no NAME,SIZE,FSTYPE,LABEL,MOUNTPOINT "$where" | sed 's/^/   /'
+    if [ "${MUOS_FLASH_YES:-0}" != 1 ]; then
+        read -r -p "Overwrite all of $where? [y/N] " ok
+        [ "$ok" = y ] || [ "$ok" = Y ] || { echo "nothing written"; exit 1; }
+    fi
     echo "== write $where (sudo)"
     sudo -v
     zstd -dc --long=27 "$image" | sudo sh -c "$(flash_script "$where")" | tee "$out"
@@ -94,4 +113,8 @@ got=$(tr -d '\r' < "$out" | sed -n 's/^SHA=//p')
 [ -n "$got" ] || { echo "FLASH ABORTED before verification (see the messages above)" >&2; exit 1; }
 [ "$got" = "$raw_sha" ] || { echo "VERIFY FAILED: card ${got:-?} != image $raw_sha" >&2; exit 1; }
 echo "verified raw_sha256=$got"
-echo "DONE: power off, move the card to slot 1 (slot 2 empty), power on."
+if [ "$mode" = host ]; then
+    echo "DONE: eject the card, put it in slot 1 of the powered-off device (slot 2 empty), power on."
+else
+    echo "DONE: power off, move the card to slot 1 (slot 2 empty), power on."
+fi
