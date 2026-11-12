@@ -492,6 +492,25 @@ about other R35S/R36S panels or revisions.
   The charger is `ac/online` (1 when plugged in; `usb/online` stays 0), the
   same as the RK817 G350 config upstream. Charge LED: the DTB
   `blue:heartbeat` gpio-led (GPIO0_C1) is disabled in stock too.
+- **Battery % (M3d step 2):** the rk351 BSP's `capacity` was not the fuel
+  gauge but an rg351p hack, `rk817_battery_rg351p_capacity_get()`: linear
+  3.3–3.9 V, 100% at ≥ 3.9 V, only allowed to fall while discharging. A
+  rested battery (cold boot) or the charger lifts the voltage above 3.9 V
+  → 100% (the M2 "84→100% on plugging" and the M3d T3 "back to 100% after
+  a cold boot"). dArkOSen reads the same kernel value. The driver's own
+  Rockchip gauge ran all along (`dbg_level` 1 prints it: `dsoc`, `rsoc`,
+  `remain_cap`, FCC 3380 mAh from the PMIC). `port/patches/kernel/0001`
+  reports `dsoc` (kept in PMIC registers across reboots, OCV-corrected
+  after ≥ 30 min off). Below `zero_algorithm_vol` (3850 mV) under load it
+  pulls dsoc toward the OCV table (seen: 66 → 58% at 3.73 V / 0.7 A, OCV
+  ≈ 3.80 V ≈ 57%), so it should reach 0 at the 3.3 V cut-off; FCC learns on
+  a full charge.
+- **Battery current (M3d step 2, `build/logs/power-m3d`, on battery,
+  volume 10, backlight as set):** menu idle 559 mA (1008 MHz); per game
+  performance / schedutil: NES 759/645, GB –/625, GBA 759/633, SNES 803/664,
+  MD 779/666, PSX 821/718 mA. Missed vsyncs per 45 s with schedutil: 0–1
+  for NES/GB/GBA/SNES/MD, ~420 for PSX (performance: ~30–45). The menu's
+  559 mA idle is high (backlight, Wi-Fi, redraws: not yet split).
 - **LEDs and rumble:** GPIO77 is the battery LED. LEDs and rumble are
   untested. (compatibility-matrix.md)
 - **Power key:** `rk8xx_pwrkey`, event0, `KEY_POWER`. The port board entry
@@ -580,6 +599,12 @@ about other R35S/R36S panels or revisions.
     intro ran a 20/13/17/17 ms pattern, and `t2-nes-fps` read 59.09 fps
     (= 1000/16.92 ms). With `performance` (1296 MHz) the intro is clean:
     PSX cold run 540 → 152 slow frames, missed vsyncs 89 → 46.
+  - *muxretro's own governor boost* (prebuilt muxretro, frontend.log
+    "Governor boost"): `scaling_governor` → performance on content startup,
+    on "sustained frame misses" and on state save, restored afterwards; it
+    doesn't touch GPU, DDR or idle. With schedutil, volume/brightness
+    presses trigger it; `muos-boost` (2 s CPU/GPU floor + idle off) acts
+    sooner.
   - *DDR devfreq:* `dmc_ondemand` switches 528↔786 MHz without VOP sync
     (`failed to get vop bandwidth to dmc rate`, `rockchip-drm: devfreq is
     not set`); muOS upstream pins DDR to performance with the

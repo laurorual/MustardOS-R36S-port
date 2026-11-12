@@ -9,24 +9,24 @@ checklists) are in [milestones.md](milestones.md). See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M3c are done. M3c (SFTP, 4 new cores,
-ROM folders) passed T3 on 2026-11-12; its image is now the recovery image.
-M3d (smoothness + robustness) started 2026-11-12: step 1 (game governor,
-wake order, panel timing, PSX BIOS) is T2-passed on the card; its T3
-checklist is at the end of this file.** Results: milestones.md.
+**Phase 5 (own-card firmware). M1–M3c are done; M3c's image is the
+recovery image. M3d (smoothness + robustness): step 1 (game governor, wake
+order, panel timing, PSX BIOS) passed T3 on 2026-11-12; step 2 (battery %
+from the fuel gauge, per-system governor profiles) is T2-tested on the
+card; its T3 checklist is at the end of this file.** Results: milestones.md.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0, test128 in slot 1, flashed with the M3b
   image on 2026-11-11 (host card reader, p3 grown to the whole card).
-  Boot records (since 2026-11-12): main = M3b kernel `Image-ab18bba307f8`
-  + M3d DTB `panel0-d2cef0b6bd98.dtb` (panel timing; label still says
-  "60.006Hz", the rate is 60.0046 Hz), previous = M3b kernel + DTB
-  `panel0-496bbe3591f8.dtb`. The M2 kernel files are still on p1 but no
-  longer referenced.
+  Boot records (since 2026-11-12, step 2): main = M3d kernel
+  `Image-48b6fc61382f` (rk817 gauge patch) + M3d DTB
+  `panel0-d2cef0b6bd98.dtb`; previous = M3b kernel `Image-ab18bba307f8` +
+  the same DTB (label "60.006Hz"; the rate is 60.0046 Hz). The M2 kernel
+  and the M3b DTB `panel0-496bbe3591f8.dtb` are still on p1, unreferenced.
   - p2: the M3c build `313d6a44…` (content-identical to the p2 of
     `test128-m3c-20261112`; ext4 metadata differs), written via the trial
-    root on 2026-11-12, plus the M3d step 1 files installed with
+    root on 2026-11-12, plus the M3d step 1–2 files installed with
     `install-rootfs.sh` (originals in `/var/lib/muos-m1-backup`). The previous p2 (M3c step 1, `30e0f57c…`) is on p3
     at `MUOS/trial/p2-previous.img`.
   - ROMs on p3: GB (private, Pokemon Yellow, Super Mario Land), NES (SMB3),
@@ -258,13 +258,13 @@ charging icon; headphone path switching.
   contact). Only a slightly-off insertion is detected and mutes the
   speaker. Per-output volume passes at T2 (simulated jack) but at T3 both
   outputs share one level, as expected when the jack is never detected.
-- **Battery gauge:** jumps from 84% to 100% within about 20 s of plugging
-  the charger (RK817 BSP gauge estimate). After a full discharge, a boot
-  with the charger in showed 91%, and the kernel said `capacity=100` at
-  4.112 V / 1.4 A charge current 13 min after boot: the PMIC loses its
-  coulomb-counter state when the battery dies and re-seeds SOC from the
-  charge-inflated voltage. `mubattery` only displays the kernel value.
-  Calibration → M3d.
+- **Battery %:** since M3d step 2 the kernel reports the RK817 fuel
+  gauge (coulomb counter) instead of the BSP's voltage-only estimate that
+  jumped to 100% on charging or after a cold boot (hardware-findings
+  "Battery %"). Unverified: accuracy over a full discharge (FCC 3380 mAh is
+  the DT value until a full charge teaches it), the low-battery shutdown
+  at 3.3 V, and the reading after a full discharge (the PMIC then
+  re-seeds from voltage).
 - **Power:** LEDs (the R35S LED node is disabled in stock too) and rumble
   not done. No CPU overclock (deferred).
 - **Audio:** half-rate PCM after reboot (not seen in 28 probed reboots);
@@ -275,20 +275,26 @@ charging icon; headphone path switching.
   launchers are refused. PSX uses the user's BIOS (p3 `MUOS/bios`,
   `scph550{0,1,2}.bin`; private, never in an image). ROMs go to p3
   `ROMS/<DIR>` by SFTP or `rom-push.sh`.
-- **Frame pacing (M3d step 1):** games run with `performance` (CPU 1296 MHz,
-  GPU floor 520 MHz, DDR performance, deep idle off; the menu keeps
-  schedutil). Waking resumes the game only after the Wi-Fi radio is up
-  (~3 s paused). Remaining:
-  - *Volume/brightness changes in game* still drop frames (vol ~45, bright
-    ~22 frames > 20 ms per 14 s; the overlay accounts for ~20, `wpctl` for
-    the rest). The user rules this out for a final build → M3d step 2
+- **Frame pacing (M3d steps 1–2):** per-system governor from
+  `core-assign.txt` (folder `core.gov` seed + coredb system governor):
+  PSX and 32X `performance` (CPU 1296 MHz, GPU floor 520 MHz, DDR
+  performance, deep idle off), the 8/16-bit systems and GBA `schedutil`
+  (same smoothness at T2, ~17% less current); the menu keeps schedutil.
+  Per folder or game: muOS Content Options → Governor. Volume/brightness
+  keys boost for 2 s (`muos-boost`). Waking resumes the game only after
+  the Wi-Fi radio is up (~3 s paused). Remaining:
+  - *Volume changes in game* still drop frames (NES, schedutil + boost:
+    ~55 frames > 20 ms per 14 s of presses, 59.0–59.3 fps; brightness
+    ~10–30, 59.8 fps; the overlay accounts for ~20, `wpctl` for the rest). The user rules this out for a final build → M3d step 3
     (muxretro from source).
   - *Wake:* one 80–95 ms frame ~4 s after resume while the 8821cu associates
     (`RTW_CMD_THREAD`).
   - *PSX (CTR intro cutscene):* 56–59 fps for ~20 s, CPU/GPU-thread bound,
     not I/O.
   - The DDR devfreq isn't synced to the display (no `vop-bw-dmc-freq` in the
-    DT): DDR now switches only at game start/exit; watch for a flash there.
+    DT): with performance DDR switches only at game start/exit; schedutil
+    games keep `dmc_ondemand`, so DDR may switch mid-game (no flash seen
+    at T2; 0–1 missed vsyncs per 45 s).
 - **U-Boot messages** (which record failed and why) go to the serial
   console and the LCD only; there is no log on the card.
 - **p1** still holds the Phase 4 `DIAG*` folders (about 1 MiB).
@@ -332,59 +338,71 @@ milestones.md.
 **M3d — smoothness + robustness** (planned and started 2026-11-12). Goal: no
 visible slowdowns in normal play (the user's bar for the final build), then
 robustness for long use.
-1. **Stalls found in M3c T3** (done, T2-passed on the card; tools
-   `t2-stall.sh` + `stall-report.py`, findings in hardware-findings.md
-   "Frame stalls"):
-   - `muos-governor` (frontend loop + suspend): CPU governor plus GPU floor,
-     deep idle and DDR follow it, as upstream `governor.sh`; S91 makes
-     `performance` the game default (one-shot migration of the seeded
-     schedutil).
-   - Wake: the game resumes after the radio is up (`radio` marker from
-     the network worker, at most 6 s), as upstream.
-   - Panel timing: the M3d DTB (60.0046 Hz, stock vertical timing) fixed
-     the bottom-rows glitch; `device/config/screen/refresh` follows.
-   - PSX BIOS from the user (p3 `MUOS/bios`); BIOS vs HLE A/B in
-     milestones/hardware-findings.
-2. **Volume/brightness judder:** build muxretro from source (Buildroot
+1. **Stalls found in M3c T3** (done, T3 passed 2026-11-12; milestones.md):
+   `muos-governor` (CPU governor + GPU floor, deep idle, DDR), wake after
+   the radio is up, panel timing 60.0046 Hz, the user's PSX BIOS.
+2. **Battery % + per-system profiles** (done, T2-passed on the card):
+   - Kernel `port/patches/kernel/0001` (applied by `build-boot.sh kernel`
+     to a reflinked `build/m3b/linux-src`): `capacity` = the RK817 fuel
+     gauge instead of the voltage-only hack (hardware-findings "Battery %").
+     Main kernel `Image-48b6fc61382f`.
+   - Governor per system (`core-assign.txt` 5th column → folder `core.gov`
+     seed, S91 one-shot migration `system-governor`, coredb system
+     governor at image post-build): PSX/32X performance, the rest
+     schedutil (current per system: hardware-findings "Battery current").
+   - `muos-boost`: volume/brightness keys raise CPU and GPU floors and turn
+     deep idle off for 2 s under schedutil (post-build wraps the pinned
+     `audio.sh`/`bright.sh`). Level test on NES (schedutil): vol 58.1 →
+     59.0–59.3 fps, bright 58.8 → 59.8–59.9 (performance: 59.8 / 59.9).
+   - muxretro has its own governor boost (content startup, "sustained
+     frame misses", state save: `scaling_governor` → performance for a
+     while); `muos-governor` records the port profile in
+     `/run/muos/governor.active` so `muos-boost` isn't confused by it.
+3. **Volume/brightness judder:** build muxretro from source (Buildroot
    `muos-muxretro-provider`, patches in `port/`), add a per-frame stage
-   trace, then keep the video fast path while only the level bar shows, and
-   make the volume path one `wpctl` call. Target: vol/bright ≤ 2 missed
-   vsyncs per 14 s (`t2-level-fps.sh --max-slow`).
-3. **Remaining stalls:** the wake hitch during 8821cu association
-   (IRQ/thread affinity), the PSX cutscene (pcsx_rearmed GPU-thread mode,
+   trace, keep the video fast path while only the level bar shows, make the
+   volume path one `wpctl` call. Target: vol/bright ≤ 2 missed vsyncs per
+   14 s (`t2-level-fps.sh --max-slow`) on schedutil systems too.
+4. **Remaining stalls:** the wake hitch during 8821cu association, CTR's
+   race start/end (T3) and cutscene dips (pcsx_rearmed GPU-thread mode,
    muxretro threaded run; the overclock is the user's call).
-4. **Robustness (the original M3d):** p3 auto-grow on first boot, log
-   rotation, battery gauge calibration (incl. the SOC re-seed after a full
-   discharge), audio half-rate/underruns, the WirePlumber "no profile"
-   failure.
-5. **Long run:** 1–2 h of play, 20 reboot/poweroff cycles; M3d image;
-   recovery image → M3d.
+5. **Robustness (the original M3d):** p3 auto-grow on first boot, log
+   rotation, the battery gauge over a full discharge (low-battery
+   shutdown, re-seed after a dead battery), the 559 mA menu idle
+   (backlight, Wi-Fi power save), audio half-rate/underruns, the
+   WirePlumber "no profile" failure.
+6. **Long run:** 1–2 h of play, 20 reboot/poweroff cycles; M3d image
+   (includes the step 2 kernel and post-build); recovery image → M3d.
 
 T2 hygiene: `t2-sleep-cycle.sh --game` now uses the NES test game with
 the pickles snapshot (it used to rewrite the user's `private.gb` autosave).
 
-## M3d step 1 T3 checklist (for the user)
+## M3d step 2 T3 checklist (for the user)
 
-The card already runs it (main = M3d DTB; previous = M3b). Volume: keep it
-at the current 10. Report anything that looks or sounds worse than M3c.
+The card already runs it (main = the step 2 kernel; previous = the step 1
+kernel). Volume is at 10. Report anything worse than step 1.
 
-1. **Screen:** after a cold boot (power off, then on), look at the bottom
-   rows during the menu and one game for ~5 min.
-   - Expected: no strip showing the top of the screen; no flicker or
-     tearing; the picture as before (same geometry and colours).
-   - Also: a short flash exactly at game start/exit is worth reporting
-     (DDR clock switch).
-2. **PSX (CTR):** start it, watch the Naughty Dog logos, the intro
-   cutscene and the menu (no need to race).
-   - Expected: logos and menu smooth. The intro cutscene may still dip
-     briefly (known, step 3). The game now uses your BIOS (scph5501): tell
-     me if anything behaves differently from before (boot, menus, sound).
-3. **Waking up in a game** (NES or GB, ~1 min each): play, press Power to
-   sleep, wait ~10 s, press Power to wake.
-   - Expected: the picture comes back paused for ~3 s, then the game runs
-     smoothly; at most one short hitch a few seconds later.
-4. **Volume/brightness in game:** a few presses each.
-   - Expected: unchanged from M3c (still some judder: step 2 targets it).
-     Just confirm it's no worse.
-5. **Battery feel:** after ~30 min of play, the battery % drop compared
-   with before (games now run at full clock).
+1. **Battery % on a cold boot:** note the % in the menu, power off, wait
+   ~1 min, power on.
+   - Expected: the same % (±1) after the boot, not 100%. It was charging
+     at 79% when I finished.
+2. **Battery % while playing** (on battery, ~30 min, e.g. NES/GB then PSX):
+   note the % and the time at the start and the end.
+   - Expected: a steady fall, about 1% every 3 min (~19%/h) in
+     NES/GB/SNES/GBA and every ~2.5 min in PSX (full clock); no jumps. Below ~3.85 V (around
+     55–60%) it may fall a few % faster for a while, which is the gauge
+     correcting to the voltage table.
+3. **Battery % on the charger:** plug it in for a few minutes.
+   - Expected: the % rises gradually (no jump to 100%); the charging icon
+     shows.
+4. **Light systems feel** (NES, GB, SNES, GBA, MD; they now run the
+   power-saving governor): a few minutes each.
+   - Expected: as smooth as in step 1. Any slowdown → tell me which game
+     and where (a single folder can go back to full clock via Content
+     Options → Governor → performance).
+5. **Volume/brightness in an NES or GB game:** a few presses each.
+   - Expected: about the same as step 1 (brightness clean, volume a light
+     judder); step 3 targets volume.
+6. **PSX (CTR):** a race.
+   - Expected: as in step 1 (full clock; the small dips at race start/end
+     are known, step 4).

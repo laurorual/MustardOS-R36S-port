@@ -4,7 +4,7 @@
 #
 #   build-boot.sh kernel-ref   from scratch: must reproduce the M2 card's Image
 #                              and DTB byte for byte (once; ~15 min)
-#   build-boot.sh kernel       + m3b-kernel.fragment and the port DTS
+#   build-boot.sh kernel       + m3b-kernel.fragment, port/patches/kernel and the port DTS
 #                              (incremental); Module.symvers must equal the
 #                              reference, so the pinned modules stay valid
 #   build-boot.sh uboot-ref    must reproduce the M2 card's uboot.img
@@ -35,9 +35,33 @@ ctr() { # the common sandbox; extra -v/-e options, then the script
         --userns=keep-id --memory=8g --pids-limit=2048 --tmpfs /tmp:rw,nosuid,nodev,size=2g "$@"
 }
 
+# The m3b kernel builds from build/m3b/linux-src: a reflinked copy of the
+# pinned linux-base (mtimes kept, so the incremental output only rebuilds
+# what the patches touch) with port/patches/kernel/*.patch applied. The
+# copy is redone when the patch set changes; files a dropped patch
+# restored are touched so make rebuilds them too. kernel-ref keeps the
+# pristine tree.
+kernel_src() {
+    local src=$m3b/linux-src stamp=$m3b/linux-src.patches want old new p
+    want=$(cat /dev/null "$repo"/port/patches/kernel/*.patch 2>/dev/null | sha256sum | cut -d' ' -f1)
+    [ -d "$src" ] && [ "$(head -n1 "$stamp" 2>/dev/null)" = "$want" ] && return 0
+    old=$(tail -n +2 "$stamp" 2>/dev/null || :)
+    rm -rf "$src" "$stamp"
+    cp -a --reflink=always "$work/linux-base" "$src"
+    for p in "$repo"/port/patches/kernel/*.patch; do
+        [ -e "$p" ] || continue
+        git -C "$src" apply --whitespace=nowarn "$p" || { echo "kernel patch failed: $p" >&2; rm -rf "$src"; exit 1; }
+    done
+    new=$(git -C "$src" diff --name-only)
+    (cd "$src" && for p in $old $new; do [ ! -e "$p" ] || touch "$p"; done)
+    printf '%s\n%s\n' "$want" "$new" > "$stamp"
+    echo "kernel: source = linux-base + $(printf '%s\n' "$new" | grep -c .) patched file(s)"
+}
+
 kernel() { # MODE=ref|m3b
-    local mode=$1
-    ctr -v "$work:/work:ro,z" -v "$m3b/kernel-output:/work/kernel-output:rw,z" -v "$out:/out:rw,z" \
+    local mode=$1 srcmnt=()
+    [ "$mode" = ref ] || { kernel_src; srcmnt=(-v "$m3b/linux-src:/work/linux-base:ro,z"); }
+    ctr -v "$work:/work:ro,z" "${srcmnt[@]}" -v "$m3b/kernel-output:/work/kernel-output:rw,z" -v "$out:/out:rw,z" \
         -v "$repo/port:/port:ro,z" -e SOURCE_DATE_EPOCH="$kepoch" -e MODE="$mode" -e JOBS="${JOBS:-$(nproc)}" \
         -w /work/linux-base "$iid" sh -euc '
         export ARCH=arm64 CROSS_COMPILE=/work/linaro6/bin/aarch64-linux-gnu-

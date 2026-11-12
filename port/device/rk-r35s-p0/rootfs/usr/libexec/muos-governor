@@ -41,4 +41,7 @@ if [ -w "$dmc/governor" ]; then
         cat "$saved" > "$dmc/governor" && rm -f "$saved"
     fi
 fi
+# The profile in force, for muos-boost (muxretro's own governor boost
+# flips scaling_governor to performance for a while; this does not).
+mkdir -p /run/muos && printf '%s\n' "$gov" > /run/muos/governor.active
 exit 0

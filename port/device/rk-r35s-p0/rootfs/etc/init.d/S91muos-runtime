@@ -72,15 +72,15 @@ case "${1:-}" in
     fi
     # M3c: default ROM folders + core assignments for installed cores.
     grep -v '^#' /usr/share/muos-r35s/core-assign.txt 2>/dev/null |
-    while IFS='|' read -r dir core sys launch; do
+    while IFS='|' read -r dir core sys launch gov; do
         [ -n "$dir" ] && [ -f "/opt/muos/share/core/$core" ] || continue
         mkdir -p "/userdata/ROMS/$dir"
         c=$port/info-content/$dir
         [ -e "$c/core.cfg" ] && continue
         mkdir -p "$c"
         printf '%s\n%s\n%s\n0\n%s\n' "$core" "$sys" "$sys" "$launch" > "$c/core.cfg"
-        echo system > "$c/core.con"; echo performance > "$c/core.gov"; echo false > "$c/core.rac"
-        echo "runtime: assigned $dir -> $core"
+        echo system > "$c/core.con"; echo "${gov:-performance}" > "$c/core.gov"; echo false > "$c/core.rac"
+        echo "runtime: assigned $dir -> $core ($gov)"
     done
     # game-governor (M3d): M3c seeded schedutil, which idles at the 1008 MHz
     # floor through per-frame bursts (PSX 59.1 fps, missed vsyncs); games
@@ -92,6 +92,19 @@ case "${1:-}" in
             echo performance > "$g"; echo "runtime: migrated ${g#"$port"/} schedutil -> performance"
         done
         echo game-governor >> "$mig"; sync
+    fi
+    # system-governor (M3d step 2): per-system profiles from core-assign.txt
+    # (light systems back to schedutil, ~17% less battery at the same
+    # smoothness). Only folders still holding the step-1 seed change.
+    if ! grep -qx system-governor "$mig"; then
+        grep -v '^#' /usr/share/muos-r35s/core-assign.txt 2>/dev/null |
+        while IFS='|' read -r dir _ _ _ gov; do
+            g=$port/info-content/$dir/core.gov
+            [ -n "$gov" ] && [ "$gov" != performance ] && [ -f "$g" ] || continue
+            [ "$(tr -d ' \n' < "$g")" = performance ] || continue
+            echo "$gov" > "$g"; echo "runtime: migrated ${g#"$port"/} performance -> $gov"
+        done
+        echo system-governor >> "$mig"; sync
     fi
     bind "$port/config" /opt/muos/config
     bind "$port/volume" /opt/muos/share/volume

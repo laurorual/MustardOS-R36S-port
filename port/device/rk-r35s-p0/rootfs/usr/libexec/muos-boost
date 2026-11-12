@@ -1,0 +1,49 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-boost [SECS]: input boost. For SECS (default 2), unless the port's
+# performance profile is in force (muos-governor, /run/muos/governor.active):
+# CPU floor at its top OPP, GPU floor at its top OPP, deep CPU idle off (as
+# muos-governor's performance, minus the DDR switch, which has no VOP
+# sync). Repeated calls extend the deadline. Used by the volume/brightness
+# script wrappers (firmware-post-build.sh): with schedutil the level bar and
+# the wpctl calls land on a CPU idling at 1008 MHz and drop frames (M3d
+# step 2, t2-level-fps on NES).
+# muxretro's own governor boost (startup, frame misses, state save) only
+# flips scaling_governor, so it is not a reason to skip or keep anything.
+cpu=/sys/devices/system/cpu/cpu0/cpufreq
+gpu=/sys/class/devfreq/ff400000.gpu
+run=/run/muos
+secs=${1:-2}
+active() { [ "$(cat "$run/governor.active" 2>/dev/null)" = performance ]; }
+active && exit 0
+[ -w "$cpu/scaling_min_freq" ] || exit 0
+mkdir -p "$run"
+now=$(cut -d. -f1 /proc/uptime)
+echo $((now + secs)) > "$run/boost.until"
+idle() { for s in /sys/devices/system/cpu/cpu[0-9]*/cpuidle/state[1-9]*/disable; do
+    [ -w "$s" ] && echo "$1" > "$s"; done 2>/dev/null; }
+# One holder at a time: it restores everything once the deadline passed.
+if mkdir "$run/boost.lock" 2>/dev/null; then
+    cat "$cpu/cpuinfo_min_freq" > "$run/boost.min"
+    cat "$cpu/scaling_max_freq" > "$cpu/scaling_min_freq"
+    if [ -w "$gpu/min_freq" ]; then
+        tr ' ' '\n' < "$gpu/available_frequencies" | grep . | sort -n | head -n1 > "$run/boost.gpumin"
+        cat "$gpu/max_freq" > "$gpu/min_freq" 2>/dev/null
+    fi
+    idle 1
+    (
+        while [ "$(cut -d. -f1 /proc/uptime)" -le "$(cat "$run/boost.until" 2>/dev/null || echo 0)" ]; do
+            sleep 0.5
+        done
+        # The CPU floor is not part of any profile: always back to the
+        # hardware minimum. GPU floor and idle belong to muos-governor's
+        # performance profile when that came in meanwhile.
+        cat "$run/boost.min" > "$cpu/scaling_min_freq"
+        if ! active; then
+            [ ! -s "$run/boost.gpumin" ] || cat "$run/boost.gpumin" > "$gpu/min_freq" 2>/dev/null
+            idle 0
+        fi
+        rm -rf "$run/boost.lock"
+    ) </dev/null >/dev/null 2>&1 &
+fi
+exit 0

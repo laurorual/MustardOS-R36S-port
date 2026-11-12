@@ -1,0 +1,69 @@
+From: muOS R35S port
+Subject: [PATCH] power: rk817_battery: report the fuel gauge SOC as capacity
+
+The rk351 BSP (rg351p) reports capacity as a linear map of the battery
+voltage between 3.3 V and 3.9 V, 100% at or above 3.9 V, only allowed to
+fall while discharging. A rested battery (cold boot) or a connected
+charger lifts the voltage above 3.9 V, so the level jumps to 100%.
+Report the driver's own Rockchip fuel-gauge display SOC instead, as the
+upstream Rockchip driver does.
+
+SPDX-License-Identifier: GPL-2.0
+---
+--- a/drivers/power/rk817_battery.c	2026-11-12 19:40:37.584166268 -0300
++++ b/drivers/power/rk817_battery.c	2026-11-12 19:40:37.599297772 -0300
+@@ -2019,29 +2019,6 @@
+ 	return (battery->usb_in || battery->ac_in);
+ }
+ 
+-//static int rg351p_battery_skip = 30000;
+-static int rg351p_battery_pre_voltage = 5000;
+-#define RG351_BAT_MAX_VOLTAGE 3900
+-#define RG351_BAT_MIN_VOLTAGE 3300
+-static int rk817_battery_rg351p_capacity_get(int voltage,int charge_status)
+-{
+-	if(rg351p_battery_pre_voltage>=5000){
+-		rg351p_battery_pre_voltage = RG351_BAT_MAX_VOLTAGE;
+-	}
+-	//if(rg351p_battery_skip++ >= 30000){
+-		if(voltage<3900 && voltage>3300 && (voltage<rg351p_battery_pre_voltage || charge_status)){
+-			rg351p_battery_pre_voltage = voltage;
+-		}else if(voltage>=3900){
+-			rg351p_battery_pre_voltage = RG351_BAT_MAX_VOLTAGE;
+-		}else if(voltage<=3300){
+-			rg351p_battery_pre_voltage = RG351_BAT_MIN_VOLTAGE;
+-		}
+-		//rg351p_battery_skip = 0;
+-	//}
+-	return (rg351p_battery_pre_voltage-RG351_BAT_MIN_VOLTAGE)/((RG351_BAT_MAX_VOLTAGE-RG351_BAT_MIN_VOLTAGE)/100);
+-	
+-}
+-
+ static int rk817_battery_get_property(struct power_supply *psy,
+ 				      enum power_supply_property psp,
+ 				      union power_supply_propval *val)
+@@ -2060,14 +2037,18 @@
+ 			val->intval = VIRTUAL_VOLTAGE * 1000;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+-		/*
+-		val->intval = (battery->dsoc  + 500) / 1000;
++		/* muOS R35S port: report the fuel gauge's display SOC (coulomb
++		 * counter, kept in the PMIC across reboots and OCV-corrected
++		 * after rest) instead of the rg351p linear voltage estimate
++		 * (3.3-3.9 V, 100% at >= 3.9 V), which jumps to 100% whenever
++		 * the voltage recovers: after a rest, a cold boot or on charge. */
++		val->intval = (battery->dsoc + 500) / 1000;
++		if (val->intval > 100)
++			val->intval = 100;
++		else if (val->intval < 0)
++			val->intval = 0;
+ 		if (battery->pdata->bat_mode == MODE_VIRTUAL)
+ 			val->intval = VIRTUAL_SOC;
+-		*/
+-		//dev_err(dev, "%d\n",battery->voltage_avg);
+-		val->intval = rk817_battery_rg351p_capacity_get(battery->voltage_avg,rk817_bat_get_charge_state(battery));
+-		
+ 		break;
+ 	case POWER_SUPPLY_PROP_HEALTH:
+ 		val->intval = POWER_SUPPLY_HEALTH_GOOD;

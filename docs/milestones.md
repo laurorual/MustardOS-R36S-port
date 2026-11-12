@@ -4,6 +4,23 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M3d step 1 — game governor, wake order, panel timing, PSX BIOS (done 2026-11-12, T3 passed)
+
+**Delivered:** `muos-governor` (CPU governor + GPU floor, deep idle, DDR
+follow it, as upstream `governor.sh`), games at `performance`; wake resumes
+the game after the Wi-Fi radio is up; panel timing 60.0046 Hz (stock
+vertical porches) fixed the bottom-rows glitch; the user's PSX BIOS on p3.
+T2: NES 59.97, GB 60.00, PSX 58.76–59.8 fps; wake 2–6 missed vsyncs (was
+41); sleep-cycle 3/3; boot-slot fallbacks PASS. Commit 638d39a.
+
+**T3 (user, 2026-11-12):** 1 screen OK (no strip ever, incl. cold boot);
+2 PSX OK, a little slowdown at the start and end of a race only; 3 wake OK,
+"way better than before"; 4 volume/brightness OK (unchanged); 5 battery
+PARTIAL: ~15 min of play seemed to take it to ~70%, and a cold boot showed
+100% again. Cause: the kernel's voltage-only `capacity` (hardware-findings
+"Battery %"), fixed in step 2. The user asked for per-core CPU/GPU profiles
+(PSX full speed, NES not) → step 2.
+
 ## M3c — ROM library: SFTP, 4 cores, ROM folders (done 2026-11-12, T3 passed)
 
 **Delivered:** Buildroot `gesftpserver` as `/usr/libexec/sftp-server`

@@ -1,14 +1,21 @@
 # M3c default ROM folders and core assignments, seeded by S91muos-runtime
 # into p3 (ROMS/<DIR>, MUOS/port/info-content/<DIR>) when the core is
 # installed and the folder has no assignment yet; the user's choice wins.
-# DIR|core file|muOS system (core.json)|launcher (mu-<core.json key>)
-NES|fceumm_libretro.so|Nintendo NES - Famicom|mu-fceumm
-GB|gambatte_libretro.so|Nintendo Game Boy|mu-gambatte
-GBC|gambatte_libretro.so|Nintendo Game Boy Color|mu-gambatte
-GBA|gpsp_libretro.so|Nintendo Game Boy Advance|mu-gpsp
-SNES|snes9x2005_plus_libretro.so|Nintendo SNES - SFC|mu-snes9x 2005 plus
-MD|picodrive_libretro.so|Sega Mega Drive - Genesis|mu-picodrive
-SMS|picodrive_libretro.so|Sega Master System|mu-picodrive
-GG|picodrive_libretro.so|Sega Game Gear|mu-picodrive
-32X|picodrive_libretro.so|Sega 32X|mu-picodrive
-PSX|pcsx_rearmed_libretro.so|Sony PlayStation|mu-pcsx rearmed
+# Governor (M3d step 2, build/logs/power-m3d): the folder's core.gov seed and
+# the system's coredb governor (image post-build), so that muOS assigns it
+# as well; users still pick per folder/game (Content Options -> Governor).
+# schedutil: 8/16-bit and GBA hold 60 fps (0-1 missed vsyncs per 45 s) at
+# 110-140 mA less than performance (~630-670 vs ~760-800 mA). performance
+# (CPU 1296 MHz, GPU/DDR pinned): PSX (schedutil misses ~420 vsyncs per
+# 45 s) and 32X (two SH-2s, not measured).
+# DIR|core file|muOS system (core.json)|launcher (mu-<core.json key>)|governor
+NES|fceumm_libretro.so|Nintendo NES - Famicom|mu-fceumm|schedutil
+GB|gambatte_libretro.so|Nintendo Game Boy|mu-gambatte|schedutil
+GBC|gambatte_libretro.so|Nintendo Game Boy Color|mu-gambatte|schedutil
+GBA|gpsp_libretro.so|Nintendo Game Boy Advance|mu-gpsp|schedutil
+SNES|snes9x2005_plus_libretro.so|Nintendo SNES - SFC|mu-snes9x 2005 plus|schedutil
+MD|picodrive_libretro.so|Sega Mega Drive - Genesis|mu-picodrive|schedutil
+SMS|picodrive_libretro.so|Sega Master System|mu-picodrive|schedutil
+GG|picodrive_libretro.so|Sega Game Gear|mu-picodrive|schedutil
+32X|picodrive_libretro.so|Sega 32X|mu-picodrive|performance
+PSX|pcsx_rearmed_libretro.so|Sony PlayStation|mu-pcsx rearmed|performance
