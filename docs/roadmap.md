@@ -99,3 +99,57 @@ STATUS.
 **Phase 6:** extend to other boards and panels only with evidence and a
 physical test. Never autodetect a panel from the SoC name. Add update
 automation only after boot and recovery are proven.
+
+## M4 proposal: first public image (2026-11-12, not started)
+
+Goal: an image anyone with an R35S/R36S **Panel 0** can flash, with none of
+the developer's identity in it, and with a clear licence position. Prerequisites:
+M3d done (p3 auto-grow on first boot, log rotation, smoothness).
+
+1. **Identity-free image.** Build a `public` variant: no Wi-Fi PSK, no
+   `authorized_keys`, no host key (the worker already creates one on first
+   boot), dropbear off until the user enables SSH. A T2 check refuses an
+   image that contains `network.conf`, keys or `seed.*`. The developer image
+   stays a separate, private build.
+2. **First-boot Wi-Fi.** Don't write a wizard: route upstream muOS's own
+   network screen (muxnetwork: SSID scan, on-screen keyboard, writes
+   `config/network/*`) to the port worker, which generates the
+   wpa_supplicant config from those values instead of the private file.
+   SSH/SFTP follow muOS's "web services" toggles (password set in muOS).
+3. **Licences** (`pending-licenses.json`), in order of risk:
+   - *Mali r13p0 userspace (Hardkernel zip, no terms): the blocker.* Find a
+     libmali build with redistribution terms that matches our kbase
+     (rockchip-linux/libmali bifrost-g31 packages), or ship without it,
+     which isn't viable for the GLES frontend.
+   - *Boot payloads* (DDR, miniloader, BL31, BL32): match each pinned file to
+     its rkbin counterpart and carry rkbin's licence notice.
+   - *GPL obligations* (kernel, U-Boot, BusyBox, Buildroot packages, the
+     GPLv3 muOS frontend, gpsp/pcsx_rearmed/gambatte): publish the pinned
+     source bundle next to the image (the build is already reproducible from
+     pinned inputs).
+   - *Non-commercial cores* (snes9x2005_plus, picodrive): fine in a free
+     image. Never in a paid bundle.
+   - *muOS name and assets:* label the image as an unofficial port and ask
+     the MustardOS team about naming and theme asset terms before publishing.
+4. **Scope statement:** Panel 0 only, with the DTB selection documented like
+   dArkOSen's. No other-panel claims without Phase 6 evidence.
+5. **Release artifacts:** image + SHA256 + source bundle + changelog;
+   flashing with any imager (the image already boots on any card ≥ 2 GiB).
+
+T3: flash the public image on a blank card, first-boot Wi-Fi from the menu,
+enable SSH from the menu, no developer key accepted.
+
+## Kernel base, reassessed 2026-11-12
+
+| Option | For | Against |
+|---|---|---|
+| **rk351 4.4.189 BSP (current)** | Everything qualified (sleep, audio, battery, Wi-Fi, panel); reproducible build | Mali r13p0 blob with unclear terms; vendor boot payloads; ext4 feature limits; no uclamp; DWC2 must be unbound around suspend; DDR devfreq not synced to the VOP (no `vop-bw-dmc-freq`) |
+| **dArkOSen 5.10 (announced, not released)** | Newer drivers, uclamp, ext4, likely better USB suspend | Still a Mali blob (newer g-series) and vendor boot chain; no RK3326 5.10 source published yet (christianhaitian/linux has only 4.4 rg351 branches; dArkOS's 5.10.226 is RK3566-only); dArkOSen itself warns it "may break clone devices" |
+| **ROCKNIX mainline (6.x)** | Panfrost + Mesa removes the Mali licence blocker; open TF-A for PX30; rtw88 8821cu in-tree; maintained R36S panel mode | Full re-qualification (rk817 audio/charger, joypad, sleep, panel, battery); DDR init blob stays; months of work |
+
+**Decision proposal:** keep 4.4 for M3d/M4-private. Don't chase 5.10: it
+keeps both licence problems and adds risk, and its source isn't public.
+Re-check when dArkOSen publishes the RK3326 5.10 source and DTBs; the trial
+kernel + trial root path can test it without a reflash. If the Mali
+licence can't be resolved in M4 step 3, the public release depends on a
+mainline/Panfrost port (an M5 candidate, ROCKNIX as the reference), not on 5.10.

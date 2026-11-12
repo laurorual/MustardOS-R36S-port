@@ -79,9 +79,20 @@ case "${1:-}" in
         [ -e "$c/core.cfg" ] && continue
         mkdir -p "$c"
         printf '%s\n%s\n%s\n0\n%s\n' "$core" "$sys" "$sys" "$launch" > "$c/core.cfg"
-        echo system > "$c/core.con"; echo schedutil > "$c/core.gov"; echo false > "$c/core.rac"
+        echo system > "$c/core.con"; echo performance > "$c/core.gov"; echo false > "$c/core.rac"
         echo "runtime: assigned $dir -> $core"
     done
+    # game-governor (M3d): M3c seeded schedutil, which idles at the 1008 MHz
+    # floor through per-frame bursts (PSX 59.1 fps, missed vsyncs); games
+    # now default to performance (muos-governor also pins GPU and DDR).
+    # Only the seeded value is replaced; any other choice stays.
+    if ! grep -qx game-governor "$mig"; then
+        for g in "$port"/info-content/core.gov "$port"/info-content/*/core.gov; do
+            [ -f "$g" ] && [ "$(tr -d ' \n' < "$g")" = schedutil ] || continue
+            echo performance > "$g"; echo "runtime: migrated ${g#"$port"/} schedutil -> performance"
+        done
+        echo game-governor >> "$mig"; sync
+    fi
     bind "$port/config" /opt/muos/config
     bind "$port/volume" /opt/muos/share/volume
     bind "$port/info-content" /opt/muos/share/info/content

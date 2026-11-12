@@ -30,13 +30,14 @@ run_child() { "$@" & child=$!; wait "$child"; rc=$?; child=; return "$rc"; }
 foreground() { muvarctl set system foreground_process "$1" >/dev/null 2>&1 || :; }
 # CPU governor, as upstream launch.sh / SET_DEFAULT_GOVERNOR: the content's
 # request (/run/muos/governor, from muOS core.gov) while it runs, the device
-# default (device/config/cpu/default) in the frontend.
-gov_path=/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+# default (device/config/cpu/default) in the frontend. muos-governor also
+# moves the GPU floor, deep CPU idle and DDR with it (upstream SYNC_*).
 set_governor() {
-    want=$1
-    grep -qw "$want" /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors 2>/dev/null || want=ondemand
-    [ "$(cat "$gov_path" 2>/dev/null)" = "$want" ] && return 0
-    printf '%s\n' "$want" > "$gov_path" 2>/dev/null && say "governor $want" || say "governor $want refused"
+    if /usr/libexec/muos-governor "$1"; then
+        say "governor $1 (dmc $(cat /sys/class/devfreq/dmc/governor 2>/dev/null))"
+    else
+        say "governor $1 refused"
+    fi
 }
 default_governor() { set_governor "$(cat /opt/muos/device/config/cpu/default 2>/dev/null || echo schedutil)"; }
 

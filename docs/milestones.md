@@ -4,6 +4,41 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M3c — ROM library: SFTP, 4 cores, ROM folders (done 2026-11-12, T3 passed)
+
+**Delivered:** Buildroot `gesftpserver` as `/usr/libexec/sftp-server`
+(dropbear SFTP; OpenSSH `scp` works without `-O`), `rom-push.sh`; S91
+seeds ROM folders (NES GB GBC GBA SNES MD SMS GG 32X PSX) and core
+assignments from `core-assign.txt` only where a folder has none;
+`build-cores.sh` builds snes9x2005_plus, gpsp, picodrive and
+pcsx_rearmed from pinned commits (offline, `-mcpu=cortex-a35`).
+Image `test128-m3c-20261112` (raw `64811ce2…`).
+
+**T2:** `t2-sftp.sh` PASS (8–9 MiB/s), regression suite PASS, fps NES
+59.90, GB 59.90, SNES 59.92, GBA 59.91, MD 59.93, PSX 59.09 (see M3d:
+schedutil). `t2-menu-cycle` no longer touches the user's GB states.
+
+**T3 (2026-11-12, user):** all four items OK:
+1. GBA, SNES, MD and PSX start from Explore with sound; the empty GBC, SMS,
+   GG and 32X folders show.
+2. Pokemon Yellow's battery save survives quit, sleep and poweroff.
+3. A ROM copied by SFTP shows up in Explore.
+4. Cold boot, NES/GB game and brightness keys: OK.
+
+Observations, all taken into M3d:
+- PSX (CTR) had severe slowdowns in its menu and intro cutscene on the
+  first run, milder after a restart (cause: schedutil at the 1008 MHz floor,
+  plus a CPU-heavy cutscene).
+- Slight slowdowns right after waking from sleep, in every game (cause:
+  the game resumed during the USB/Wi-Fi bring-up).
+- Volume/brightness judder: the user rules it out for a final build.
+- During the M3d T2 session: a bottom strip of the screen showing the top
+  rows, persisting across a warm reboot (cause: the rk351 panel timing; M3d
+  DTB).
+
+**Recovery image:** M3c since 2026-11-12, M3b kept as the previous one.
+M1 retired (its content is all in M2).
+
 ## M3b — boot chain from source, boot records, trial kernel, TRNG (done 2026-11-11, T3 passed)
 
 Image `dist/firmware/test128-m3b-20261111.img.zst` (raw `2a8fec32…`).

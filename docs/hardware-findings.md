@@ -60,6 +60,18 @@ about other R35S/R36S panels or revisions.
   - Stock dArkOSen Linux DTB (`rk3326-r36s-linux.dtb`, `5634eb3e…`):
     native-mode "60Hz" is 50 MHz, h 450/46/450, v 17/5/13 (1586×515,
     ≈61.2 Hz), plus unused "50Hz" (25.5 MHz) and "75Hz" (30.6 MHz) nodes.
+- **Bottom-rows glitch → M3d timing (2026-11-12):** with the rk351 timing
+  (v 165/2/14) the bottom rows intermittently showed the top rows; once
+  started it persisted in game and menu and across a warm reboot (panel
+  power stays on). The DRM plane/CRTC state was correct (win1 640×480 at
+  0,0, XR24), so it is panel-side: the ST7703 init (`b3 10 10 28 28 03 ff`,
+  SETRGBIF) is set up for short porches, as on stock and ROCKNIX (both
+  50 MHz, v 17/5/13). M3d DTB `d2cef0b6…`: 50 MHz, h 466/46/466,
+  v 17/5/13, htotal 1618 × vtotal 515 = **60.0046 Hz** (`device/config/screen/refresh` 60.004560, moved from the pinned inputs to the overlay) (stock h 450/46/450
+  is 61.2 Hz, ROCKNIX 450/70/450 60.3 Hz). Measured: real_clk 50000,
+  DSI link 330 × 4 Mbps; the glitch was gone in the menu right after the
+  trial boot (user-checked). The trigger was never identified, so the
+  long-run check stays a T3 item.
     compatibility-matrix.md quoted this one.
   - The U-Boot DTB is 50 MHz h 450/70/450 (see above). Keep all three
     separate.
@@ -559,6 +571,54 @@ about other R35S/R36S panels or revisions.
     is 2 (upstream default 0; debug lines from every module go to p3), and
     the port's `r35s-bringup.json` volume/brightness combos lack
     upstream's `handle_hold` (holding a key does not repeat).
+- **Frame stalls (M3d, `t2-stall.sh` + `stall-report.py`):** per-frame
+  timeline from muxretro's capture against a 10 Hz sampler (CPU/DDR/GPU
+  clocks, per-thread CPU, IRQs, card reads). ">25 ms" = a missed vsync;
+  20–25 ms frames pair with ~13 ms ones and mostly don't show.
+  - *schedutil was the main PSX cause:* the CPU sat at its 1008 MHz floor
+    (scaling_min) through per-frame bursts (PELT averages them away); CTR's
+    intro ran a 20/13/17/17 ms pattern, and `t2-nes-fps` read 59.09 fps
+    (= 1000/16.92 ms). With `performance` (1296 MHz) the intro is clean:
+    PSX cold run 540 → 152 slow frames, missed vsyncs 89 → 46.
+  - *DDR devfreq:* `dmc_ondemand` switches 528↔786 MHz without VOP sync
+    (`failed to get vop bandwidth to dmc rate`, `rockchip-drm: devfreq is
+    not set`); muOS upstream pins DDR to performance with the
+    `performance` governor (`governor.sh` SYNC_*), as dArkOSen's `perfmax`
+    does. The port now does the same (`muos-governor`).
+  - *Card reads (cold page cache) are not the PSX cause:* the remaining
+    CTR dip (~27–47 s after start, 52–58 fps with HLE) is identical warm
+    and cold. With the real BIOS (scph5501) the deep dips are gone (worst
+    5 s 58.5 fps, 21 missed vsyncs per 75 s vs 45 with HLE) but 20–24 ms
+    jitter frames remain; core p95 17.6 ms, emulation thread only ~37%
+    busy, so it waits on the GPU thread (`pcsxr-gpu`).
+  - *BIOS vs HLE* (same kernel, `performance`, `t2-nes-fps` PSX 60 s,
+    alternating runs): HLE 59.44 / 59.83, BIOS 59.79 / 59.85 fps, core
+    6.1–6.2 ms either way: no measurable speed difference. CTR's attract loop
+    dips to 54–56 fps for 5–10 s every 60–75 s (4.5 min run), with ~20
+    missed vsyncs each: scene load, not system noise.
+  - *Thermal:* sustained PSX at 1296 MHz levels off at 82–83 °C (M3c,
+    schedutil: 64 °C). The soc zone uses `power_allocator` (trips 70/85 °C
+    passive, 115 °C critical); no cooling device engaged in 4.5 min
+    (CPU stayed at 1296 MHz). The margin to 85 °C is small in a warm room.
+  - *Wake:* muxretro was resumed before the USB/Wi-Fi bring-up: DWC2 up to
+    32k IRQ/s, udevd, kworkers and the 8821cu firmware load stalled frames
+    for ~3 s (max 89 ms). All device IRQs land on CPU0. With the game
+    resumed after the radio is up: 5–10 slow frames, 2–6 missed vsyncs per
+    wake; what's left is one 80–95 ms frame ~4 s after resume while the
+    8821cu associates (`RTW_CMD_THREAD`). Moving the dwc2 IRQ to CPU3
+    doesn't change it (`taskset` isn't in the image, so muxretro pinning
+    was not tried).
+  - *Volume/brightness (still open):* unchanged by the governor (vol 44–48,
+    bright 22 slow frames per 14 s) and by priority (renice −10 of every
+    muxretro thread, SCHED_RR 5 of the main thread: no gain or worse).
+    Parts: the overlay alone ~20; `wpctl set-volume` alone 13 (2/s),
+    `wpctl get-volume` 4 (4/s); during changes the audio queue drains
+    (mean 45 → 24 ms, minimum 0). WirePlumber applies the volume in
+    software (the ALSA `Playback Volume` doesn't change). Fixing the overlay part
+    needs a muxretro source build (M3d step 2).
+  - *Test artefact:* the capture writes performance.csv to p3 on muxretro's
+    main thread every 15 s (one 35–45 ms frame); the report drops frames
+    within 0.4 s of a dump.
 - **muxretro signals:** SIGUSR1 → auto-save, then pause and write
   `/run/muos/muxretro_save_ready` (pid). SIGUSR2 → resume. Auto-save
   default `auto_save=3` (idle + quit) resumes the last state on launch.

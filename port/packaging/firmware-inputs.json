@@ -5024,13 +5024,6 @@
    "origin": "build/phase4/graphics-config/output/target/opt/muos/device/config/mux/height"
   },
   {
-   "path": "/opt/muos/device/config/screen/refresh",
-   "type": "file",
-   "mode": "644",
-   "sha256": "bfd4c65a639d256ff4e18e94a1d05aadae0e0492f8834e9f4299ce26c9158a2d",
-   "origin": "build/phase4/graphics-config/output/target/opt/muos/device/config/screen/refresh"
-  },
-  {
    "path": "/opt/muos/device/config/screen/rotate",
    "type": "file",
    "mode": "644",

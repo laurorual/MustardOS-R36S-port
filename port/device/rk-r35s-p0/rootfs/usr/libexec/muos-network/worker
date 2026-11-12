@@ -22,7 +22,7 @@ stop_pid() {
     rm -f "$state/$1.pid"
 }
 down() {
-    rm -f "$state/ready"
+    rm -f "$state/ready" "$state/radio"
     stop_pid dropbear; stop_pid dhcp; stop_pid wpa
     rm -f "$state/address"
 }
@@ -88,6 +88,9 @@ up_once() {
         [ -r "$rf/type" ] && [ "$(cat "$rf/type")" = wlan ] && printf '0\n' > "$rf/soft"
     done
     ifconfig "$found" up || return 1
+    # The costly part (USB enumeration, module, firmware) is done here:
+    # muos-suspend resumes a game only after this (M3d wake stalls).
+    touch "$state/radio"
     cp "$private/network.conf" "$state/private/network.conf"
     wpa_supplicant -i "$found" -D nl80211,wext -c "$state/private/network.conf" -C "$state/wpa" \
         > "$state/private/wpa.log" 2>&1 &

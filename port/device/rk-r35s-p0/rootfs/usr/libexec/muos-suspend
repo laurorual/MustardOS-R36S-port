@@ -4,7 +4,11 @@
 #   muxretro SIGUSR1 (save + pause, waits for muxretro_save_ready) -> backlight
 #   off -> mute -> Wi-Fi/SSH down (8821cu unloaded, DWC2 unbound: the USB host
 #   does not survive "mem" otherwise) -> /sys/power/state <- danger/state
-#   (default mem); resume in reverse, muxretro SIGUSR2.
+#   (default mem); resume in reverse, muxretro SIGUSR2 last. As upstream
+#   (module load waited for before the game resumes), the game stays paused
+#   until the Wi-Fi radio is up again (USB enumeration, 8821cu, firmware:
+#   2-3 s of IRQ/kworker load that stalled frames, M3d), at most 6 s;
+#   association and DHCP continue in the background.
 # settings/power/shutdown (upstream default 600): seconds asleep before a
 # clean poweroff through init (RTC alarm); -1 sleep until woken; 2 power
 # off instead of sleeping. Charger connected: "fake sleep" (screen off,
@@ -73,9 +77,15 @@ net_down() {
     [ -e "$dwc2/$usb" ] && echo "$usb" > "$dwc2/unbind"
 }
 net_up() {
+    rm -f /run/muos/network/radio
     [ -e "$dwc2/$usb" ] || echo "$usb" > "$dwc2/bind"
     # Close the lock fd: the daemons started here outlive this script.
     /etc/init.d/S41muos-network start >/dev/null 2>&1 9>&-
+}
+wait_radio() {
+    n=0
+    while [ "$n" -lt 60 ] && [ ! -e /run/muos/network/radio ]; do sleep 0.1; n=$((n+1)); done
+    say "radio $([ -e /run/muos/network/radio ] && echo up || echo 'not up') after $((n / 10)).$((n % 10)) s"
 }
 
 if [ "$fake" = 1 ]; then
@@ -83,7 +93,7 @@ if [ "$fake" = 1 ]; then
     pids="$(pid_of muxfrontend) $retro"
     # shellcheck disable=SC2086  # list of PIDs
     [ -z "${pids% }" ] || kill -STOP $pids
-    echo powersave > "$gov" 2>/dev/null
+    /usr/libexec/muos-governor powersave
     dev=$(grep -l '^rk8xx_pwrkey$' /sys/class/input/event*/device/name | head -n1)
     node=/dev/input/${dev#/sys/class/input/}; node=${node%/device/name}
     # struct input_event (24 B): wait for EV_KEY KEY_POWER (116) press.
@@ -116,10 +126,13 @@ else
 fi
 
 # ---- RESUME
-echo "$saved_gov" > "$gov" 2>/dev/null
+/usr/libexec/muos-governor "$saved_gov"
 echo "$bright" > "$bl"
 wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null
+if [ "$fake" != 1 ]; then
+    net_up
+    [ -z "$retro" ] || wait_radio
+fi
 [ -z "$retro" ] || kill -USR2 "$retro" 2>/dev/null
 cut -d' ' -f1 /proc/uptime > "$run/input_resume"
-[ "$fake" = 1 ] || net_up
 say "resumed"

@@ -1,0 +1,44 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-governor GOV: set the CPU governor and make the GPU, deep CPU idle
+# and DDR follow it, as upstream MustardOS script/var/governor.sh
+# (SYNC_GPU_FREQUENCY, SYNC_CPU_IDLE, SYNC_DMC_FREQUENCY; the port's
+# frontend loop does not source upstream's var scripts):
+#   performance: GPU floor = its top OPP, cpuidle states > 0 disabled,
+#                DDR (dmc) governor performance (the previous one is saved
+#                in /run/muos/dmc_governor);
+#   anything else: GPU floor = its lowest OPP, deep idle enabled, the
+#                saved DDR governor restored.
+# An unavailable governor falls back to ondemand, as upstream.
+# M3d (docs/hardware-findings.md "Frame stalls"): with schedutil the CPU
+# idles at its 1008 MHz floor through per-frame bursts and dmc_ondemand
+# switches DDR clocks mid-game; both cost vsync misses.
+gov=${1:?usage: muos-governor GOV}
+cpu=/sys/devices/system/cpu/cpu0/cpufreq
+gpu=/sys/class/devfreq/ff400000.gpu
+dmc=/sys/class/devfreq/dmc
+saved=/run/muos/dmc_governor
+grep -qw "$gov" "$cpu/scaling_available_governors" 2>/dev/null || gov=ondemand
+[ "$(cat "$cpu/scaling_governor" 2>/dev/null)" = "$gov" ] ||
+    printf '%s\n' "$gov" > "$cpu/scaling_governor" || exit 1
+
+if [ -w "$gpu/min_freq" ]; then
+    list=$(tr ' ' '\n' < "$gpu/available_frequencies" | grep . | sort -n)
+    if [ "$gov" = performance ]; then f=$(echo "$list" | tail -n1); else f=$(echo "$list" | head -n1); fi
+    [ -z "$f" ] || printf '%s\n' "$f" > "$gpu/min_freq" 2>/dev/null
+fi
+
+off=0; [ "$gov" = performance ] && off=1
+for s in /sys/devices/system/cpu/cpu[0-9]*/cpuidle/state[1-9]*/disable; do
+    [ -w "$s" ] && printf '%s\n' "$off" > "$s" 2>/dev/null
+done
+
+if [ -w "$dmc/governor" ]; then
+    if [ "$gov" = performance ]; then
+        [ -s "$saved" ] || cat "$dmc/governor" > "$saved"
+        printf 'performance\n' > "$dmc/governor"
+    elif [ -s "$saved" ]; then
+        cat "$saved" > "$dmc/governor" && rm -f "$saved"
+    fi
+fi
+exit 0

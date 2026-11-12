@@ -3,14 +3,6 @@
   "note": "Managed by port/scripts/retention.py. Paths are repo-relative. Only files listed under firmware_versions are ever deleted.",
   "maximum_firmware_versions": 5,
   "firmware_versions": {
-    "M1": {
-      "reason": "Flashable M1 image: rcS/rcK init, UI autostart, seedless; works on any card >= 2 GiB",
-      "files": [
-        "dist/recovery/test128-m1-20261110.img.zst",
-        "dist/recovery/test128-m1-20261110.img.zst.sha256",
-        "dist/recovery/test128-m1-20261110.manifest"
-      ]
-    },
     "M2": {
       "reason": "Flashable M2 image: sleep/resume, battery, headphones, writable cpufreq, NES core",
       "files": [
@@ -28,7 +20,7 @@
       ]
     },
     "M3b": {
-      "reason": "Known-good recovery image since 2026-11-11: M3b firmware (boot-records U-Boot, M3b kernel main + M2 kernel previous); T3 passed incl. a host card-reader flash",
+      "reason": "Previous recovery image (2026-11-11): M3b firmware (boot-records U-Boot, M3b kernel main + M2 kernel previous); T3 passed incl. a host card-reader flash",
       "files": [
         "dist/firmware/test128-m3b-20261111.img.zst",
         "dist/firmware/test128-m3b-20261111.img.zst.sha256",
@@ -36,7 +28,7 @@
       ]
     },
     "M3c": {
-      "reason": "Built M3c firmware: M3b + sftp-server, 4 new cores (snes9x2005_plus, gpsp, picodrive, pcsx_rearmed), ROM folders/assignments; p2 T2-passed on the card (content-identical), T3 pending",
+      "reason": "Known-good recovery image since 2026-11-12: M3c firmware (M3b boot chain + sftp-server, 4 new cores, ROM folders); T3 passed 2026-11-12 (p2 content-identical on the card); image itself not yet flashed",
       "files": [
         "dist/firmware/test128-m3c-20261112.img.zst",
         "dist/firmware/test128-m3c-20261112.img.zst.sha256",

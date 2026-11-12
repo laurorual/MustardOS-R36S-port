@@ -25,6 +25,23 @@
         display-timings {
             /delete-node/ 50Hz;
             /delete-node/ 75Hz;
+            /* M3d: the rk351 r35s timing (29 MHz, v 165/2/14) let the bottom
+             * rows show the top rows, intermittently and persisting once
+             * started (seen 2026-11-12). The ST7703 init (b3 SETRGBIF) expects short
+             * vertical porches: use the stock dArkOSen Panel 0 vertical
+             * timing and pixel clock (50 MHz, v 17/5/13, as ROCKNIX), with
+             * horizontal porches widened from 450 to 466 so that
+             * 50 MHz / (1618 x 515) = 60.0046 Hz instead of stock 61.2 Hz
+             * (device/config/screen/refresh says 60.004560 to match). */
+            60Hz {
+                clock-frequency = <50000000>;
+                hfront-porch = <466>;
+                hsync-len = <46>;
+                hback-porch = <466>;
+                vfront-porch = <17>;
+                vsync-len = <5>;
+                vback-porch = <13>;
+            };
         };
     };
 };

@@ -9,26 +9,29 @@ checklists) are in [milestones.md](milestones.md). See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M3b are done. M3b (boot chain built
-from source, boot-record U-Boot with a one-shot trial kernel, TRNG)
-passed T3 on 2026-11-11: 3 cold boots, then a flash of the M3b image
-with the host card reader. The M3b image is the recovery image. M3c
-(SFTP, 4 new cores, ROM folders) passed T0–T2 on 2026-11-12 and is on the
-card; its T3 checklist is at the end of this file.** Results: milestones.md.
+**Phase 5 (own-card firmware). M1–M3c are done. M3c (SFTP, 4 new cores,
+ROM folders) passed T3 on 2026-11-12; its image is now the recovery image.
+M3d (smoothness + robustness) started 2026-11-12: step 1 (game governor,
+wake order, panel timing, PSX BIOS) is T2-passed on the card; its T3
+checklist is at the end of this file.** Results: milestones.md.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0, test128 in slot 1, flashed with the M3b
   image on 2026-11-11 (host card reader, p3 grown to the whole card).
-  Boot records: main = M3b kernel (`Image-ab18bba307f8`,
-  `panel0-496bbe3591f8.dtb`), previous = M2 kernel (`Image`,
-  `rk3326-muos-r35s-panel0.dtb`).
+  Boot records (since 2026-11-12): main = M3b kernel `Image-ab18bba307f8`
+  + M3d DTB `panel0-d2cef0b6bd98.dtb` (panel timing; label still says
+  "60.006Hz", the rate is 60.0046 Hz), previous = M3b kernel + DTB
+  `panel0-496bbe3591f8.dtb`. The M2 kernel files are still on p1 but no
+  longer referenced.
   - p2: the M3c build `313d6a44…` (content-identical to the p2 of
     `test128-m3c-20261112`; ext4 metadata differs), written via the trial
-    root on 2026-11-12. The previous p2 (M3c step 1, `30e0f57c…`) is on p3
+    root on 2026-11-12, plus the M3d step 1 files installed with
+    `install-rootfs.sh` (originals in `/var/lib/muos-m1-backup`). The previous p2 (M3c step 1, `30e0f57c…`) is on p3
     at `MUOS/trial/p2-previous.img`.
   - ROMs on p3: GB (private, Pokemon Yellow, Super Mario Land), NES (SMB3),
-    GBA, SNES, MD, PSX (CTR) from `port/roms`; volume left at 10.
+    GBA, SNES, MD, PSX (CTR) from `port/roms`; PSX BIOS (user's) in
+    `MUOS/bios`; volume left at 10.
   - Saves: the pre-flash `pickles` were restored from
     `build/m3b/p3-backup` (byte-identical); the post-flash ones are kept
     in `build/m3b/p3-postflash`.
@@ -55,23 +58,29 @@ card; its T3 checklist is at the end of this file.** Results: milestones.md.
 The images are in `dist/recovery/` (captures) and `dist/firmware/`
 (built), each with `.sha256` and `.manifest`. **They are private:** they
 contain the Wi-Fi PSK, the SSH host key and authorized_keys. Never commit
-or share them. **Recovery image: M3b** (flashed and T3-passed
-2026-11-11). M3a.1 and M2 stay as fallbacks with the M2 U-Boot. Flashing
-any image rewrites the whole card, bootloader included.
+or share them. **Recovery image: M3c** (p2 T3-passed 2026-11-12, raw
+SHA256 re-verified from the `.zst`), M3b (flashed, T3-passed) as the
+previous one; M3a.1 and M2 stay as fallbacks with the M2 U-Boot. Flashing
+any image rewrites the whole card, bootloader included. A recovery image
+restores the M3c panel timing (old DTB): the M3d DTB is only on p1 of the
+card until the M3d image exists.
 
 | Image | Content | Boots on |
 |---|---|---|
-| `dist/firmware/test128-m3c-20261112.img.zst` (raw `64811ce2…`) | M3c: M3b + sftp-server, 4 cores, ROM folders; p2 T2-passed on the card, T3 pending | any card ≥ 2 GiB (expected) |
-| **`dist/firmware/test128-m3b-20261111.img.zst`** (raw `2a8fec32…`) | **Recovery image.** M3b: boot-record U-Boot, M3b kernel (main) + M2 kernel (previous), M3b p2 | any card ≥ 2 GiB |
+| **`dist/firmware/test128-m3c-20261112.img.zst`** (raw `64811ce2…`) | **Recovery image since 2026-11-12.** M3c: M3b boot chain + sftp-server, 4 cores, ROM folders; p2 T3-passed on the card (content-identical); the image itself not yet flashed | any card ≥ 2 GiB (expected) |
+| `dist/firmware/test128-m3b-20261111.img.zst` (raw `2a8fec32…`) | Previous recovery image. M3b: boot-record U-Boot, M3b kernel (main) + M2 kernel (previous); flashed and T3-passed | any card ≥ 2 GiB |
 | `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`) | M3a.1: M2 U-Boot and kernel, SDL2 with its pipewire driver; p2 T3-passed, image never flashed | any card ≥ 2 GiB (expected) |
-| `test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core | any card ≥ 2 GiB |
-| `test128-m1-20261110.img.zst` (raw `1c65c693…`) | M1: autostart, seedless | any card ≥ 2 GiB |
+| `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core; the last flashed image with the M2 U-Boot | any card ≥ 2 GiB |
+
+M1 was retired on 2026-11-12 (everything in it is in M2); 4/5 versions
+kept, leaving room for the M3d image. Flash commands below name M3c; if it
+ever fails to boot, flash M3b the same way.
 
 **Flash with the host card reader (primary, since 2026-11-11):**
 1. Power the device off and put its card in the USB reader on the host.
 2. `lsblk -dno NAME,TRAN,SIZE,MODEL` (the reader shows `usb`, about 119 GiB
    for test128).
-3. `port/scripts/flash-card.sh host /dev/sdX dist/firmware/test128-m3b-20261111.img.zst --grow`
+3. `port/scripts/flash-card.sh host /dev/sdX dist/firmware/test128-m3c-20261112.img.zst --grow`
    - It accepts only a whole USB/removable/MMC disk (it refuses the
      internal `sda` and `nvme0n1`, partitions, an empty reader and a
      too-small card), shows model and size, asks `y`, then asks for sudo.
@@ -84,7 +93,7 @@ any image rewrites the whole card, bootloader included.
 1. Power off. Put original32 in slot 1 and the target card in slot 2.
    Boot, join Wi-Fi, and enable Remote services (Options).
 2. On the host:
-   `port/scripts/flash-card.sh darkosen <dArkOSen-IP> dist/firmware/test128-m3b-20261111.img.zst --grow`
+   `port/scripts/flash-card.sh darkosen <dArkOSen-IP> dist/firmware/test128-m3c-20261112.img.zst --grow`
    - Enter the `ark` SSH password once and the sudo password once.
    - Same checks as above; the target is always slot 2 (`/dev/mmcblk1`).
 3. Power off. Move the card to slot 1, leave slot 2 empty, power on.
@@ -192,8 +201,11 @@ The menu is on screen about 15 s after power-on.
   warning at 25%, clean poweroff at ≤3% while discharging.
 - **Headphones:** jack in → path `HP`, out → `SPK_HP`; each output keeps
   its own volume (upstream `SWITCH_OUTPUT_VOLUME`).
-- **cpufreq:** muOS per-content governors; default `schedutil`, the menu
-  idles at 1008 MHz. No overclock (deferred by the user 2026-11-11; a
+- **cpufreq:** muOS per-content governors through `muos-governor` (GPU
+  floor, deep idle and DDR follow the CPU governor, as upstream). Menu:
+  `schedutil` (idles at 1008 MHz), dmc_ondemand. Games: `performance`
+  (M3d default; SoC ~82 °C after minutes of PSX, throttling starts near
+  85 °C). No overclock (deferred by the user 2026-11-11; a
   1512 MHz DTB from `make-dtb-opp.sh` would now go in as a trial kernel).
 
 Source lives in `port/device/rk-r35s-p0/rootfs/`; the init scripts are
@@ -260,12 +272,23 @@ charging icon; headphone path switching.
   3–8 underrun bursts per game; help WAVs inaudible.
 - **Content:** only libretro cores in `/opt/muos/share/core` (fceumm,
   gambatte, gpsp, pcsx_rearmed, picodrive, snes9x2005_plus); `ext-*`
-  launchers are refused. No BIOS files (PSX runs the HLE BIOS). ROMs go to
-  p3 `ROMS/<DIR>` by SFTP or `rom-push.sh`.
-- **In-game volume/brightness change:** 2–5 dropped frames per second
-  while the keys are pressed (59.9 → 58.5–59.7 fps), none at rest.
-  Upstream behaviour on this SoC, not a port defect (hardware-findings.md,
-  "Level-change judder"); not fixed.
+  launchers are refused. PSX uses the user's BIOS (p3 `MUOS/bios`,
+  `scph550{0,1,2}.bin`; private, never in an image). ROMs go to p3
+  `ROMS/<DIR>` by SFTP or `rom-push.sh`.
+- **Frame pacing (M3d step 1):** games run with `performance` (CPU 1296 MHz,
+  GPU floor 520 MHz, DDR performance, deep idle off; the menu keeps
+  schedutil). Waking resumes the game only after the Wi-Fi radio is up
+  (~3 s paused). Remaining:
+  - *Volume/brightness changes in game* still drop frames (vol ~45, bright
+    ~22 frames > 20 ms per 14 s; the overlay accounts for ~20, `wpctl` for
+    the rest). The user rules this out for a final build → M3d step 2
+    (muxretro from source).
+  - *Wake:* one 80–95 ms frame ~4 s after resume while the 8821cu associates
+    (`RTW_CMD_THREAD`).
+  - *PSX (CTR intro cutscene):* 56–59 fps for ~20 s, CPU/GPU-thread bound,
+    not I/O.
+  - The DDR devfreq isn't synced to the display (no `vop-bw-dmc-freq` in the
+    DT): DDR now switches only at game start/exit; watch for a flash there.
 - **U-Boot messages** (which record failed and why) go to the serial
   console and the LCD only; there is no log on the card.
 - **p1** still holds the Phase 4 `DIAG*` folders (about 1 MiB).
@@ -287,101 +310,81 @@ charging icon; headphone path switching.
 
 ## Open decisions
 
-1. **Licences / redistribution:** unchanged.
-2. **Kernel base:** rk351 4.4 BSP vs a ROCKNIX fallback. Not revisited.
-3. **Public image identity:** drop the host key and Wi-Fi config from a
-   shareable image, and add first-boot Wi-Fi setup.
+1. **Licences / redistribution** and **3. public image identity:** proposed
+   as M4 in [roadmap.md](roadmap.md#m4-proposal-first-public-image-2026-11-12-not-started)
+   (the Mali r13p0 userspace is the blocker).
+2. **Kernel base:** reassessed 2026-11-12 (roadmap.md): keep the rk351 4.4
+   BSP; dArkOSen's announced 5.10 keeps the same blobs and has no public
+   RK3326 source yet; a mainline/Panfrost port is the licence-clean path
+   (M5 candidate).
+4. **CPU overclock** (1512 MHz DTB via `make-dtb-opp.sh`, deferred by the
+   user 2026-11-11): the remaining PSX cutscene dip is CPU-bound; the user
+   decides whether to try it as a trial kernel.
 
 ## M3 plan — real usage and a reproducible boot chain
 
 M3 is split into sub-milestones; each ends with its own T3.
 
-**M3a** (reproducible image + e2fsck), **M3a.1** (audio fix) and **M3b**
-(boot chain) are done; plans and results in milestones.md.
+**M3a** (reproducible image + e2fsck), **M3a.1** (audio fix), **M3b**
+(boot chain) and **M3c** (ROM library) are done; plans and results in
+milestones.md.
 
-**M3c — ROM library** (planned 2026-11-11; steps 1–3 done and T2-passed
-2026-11-12, image `test128-m3c-20261112`; T3 pending, checklist below). Goal: the user
-adds games from the PC without the agent, and more systems play.
-1. **File transfer:** Buildroot `gesftpserver` → `/usr/libexec/sftp-server`,
-   so dropbear serves SFTP (GUI clients, `sftp`, and OpenSSH `scp`, which
-   speaks SFTP by default; today only legacy `scp -O` works). Host helper
-   `port/scripts/rom-push.sh SYSTEM FILE...` (mkdir `ROMS/<dir>`, copy,
-   sha256 check). Login stays key-only root on :2222.
-   **Done:** on the card; `t2-sftp.sh` (sftp put/ls/get/rename/rm and
-   OpenSSH scp both ways, names with spaces/brackets, SHA256-checked)
-   PASS at about 8–9 MiB/s over Wi-Fi; regression suite on the new p2
-   PASS (audio, menu cycle, 5 sleep cycles in game, headphone, NES
-   59.90 fps). `rom-push.sh` done.
-2. **ROM folders:** S91 reads `/usr/share/muos-r35s/core-assign.txt` and,
-   for each installed core, creates `ROMS/<DIR>` and writes the folder's
-   assignment (`info-content/<DIR>/core.cfg` …) only if it has none, so the
-   user's choice wins. Folders: NES GB GBC GBA SNES MD SMS GG 32X PSX.
-   **Done** (host-tested loop; on the card it added GBC SMS GG 32X).
-3. **More cores:** `port/scripts/build-cores.sh fetch|build` (pinned
-   commits, reproducible source tarballs with submodules in
-   `build/m3c/cores/cache`, offline container build with the Buildroot
-   SDK, `-mcpu=cortex-a35`, an unresolved-symbol check against the
-   target libc/libm). Pinned in `firmware-inputs.json`; licences in
-   `pending-licenses.json`. **Done**, T2 fps (title/attract, no input):
+**M3d — smoothness + robustness** (planned and started 2026-11-12). Goal: no
+visible slowdowns in normal play (the user's bar for the final build), then
+robustness for long use.
+1. **Stalls found in M3c T3** (done, T2-passed on the card; tools
+   `t2-stall.sh` + `stall-report.py`, findings in hardware-findings.md
+   "Frame stalls"):
+   - `muos-governor` (frontend loop + suspend): CPU governor plus GPU floor,
+     deep idle and DDR follow it, as upstream `governor.sh`; S91 makes
+     `performance` the game default (one-shot migration of the seeded
+     schedutil).
+   - Wake: the game resumes after the radio is up (`radio` marker from
+     the network worker, at most 6 s), as upstream.
+   - Panel timing: the M3d DTB (60.0046 Hz, stock vertical timing) fixed
+     the bottom-rows glitch; `device/config/screen/refresh` follows.
+   - PSX BIOS from the user (p3 `MUOS/bios`); BIOS vs HLE A/B in
+     milestones/hardware-findings.
+2. **Volume/brightness judder:** build muxretro from source (Buildroot
+   `muos-muxretro-provider`, patches in `port/`), add a per-frame stage
+   trace, then keep the video fast path while only the level bar shows, and
+   make the volume path one `wpctl` call. Target: vol/bright ≤ 2 missed
+   vsyncs per 14 s (`t2-level-fps.sh --max-slow`).
+3. **Remaining stalls:** the wake hitch during 8821cu association
+   (IRQ/thread affinity), the PSX cutscene (pcsx_rearmed GPU-thread mode,
+   muxretro threaded run; the overclock is the user's call).
+4. **Robustness (the original M3d):** p3 auto-grow on first boot, log
+   rotation, battery gauge calibration (incl. the SOC re-seed after a full
+   discharge), audio half-rate/underruns, the WirePlumber "no profile"
+   failure.
+5. **Long run:** 1–2 h of play, 20 reboot/poweroff cycles; M3d image;
+   recovery image → M3d.
 
-   | Folder | Core | ROM | fps | core ms |
-   |---|---|---|---|---|
-   | NES | fceumm | SMB3 | 59.90 | 7.0 |
-   | GB | gambatte | Pokemon Yellow | 59.90 | 2.9 |
-   | SNES | snes9x2005_plus | Super Mario World | 59.92 | 9.4 |
-   | GBA | gpsp (arm64 dynarec) | Minish Cap | 59.91 | 4.2 |
-   | MD | picodrive | UMK3 | 59.93 | 4.9 |
-   | PSX | pcsx_rearmed (ari64, HLE BIOS) | CTR | 59.09 | 3.6 |
+T2 hygiene: `t2-sleep-cycle.sh --game` now uses the NES test game with
+the pickles snapshot (it used to rewrite the user's `private.gb` autosave).
 
-   PSX runs a steady 59.1 (frame 16.92 ms), not a CPU limit; cause open.
-   No PSX BIOS is installed (HLE: "expect compatibility problems").
-4. **SRAM saves:** prove battery saves (`.srm`) land on p3 per system and
-   survive quit, sleep, poweroff and a power cut (T2 with a battery ROM).
-   muxretro writes `pickles/sram/<core prefix>/<rom>.srm` and flushes
-   changes every 60 s (upstream `sram_flush_seconds`), so a power cut
-   loses at most a minute. A test run of Pokemon Yellow wrote
-   `sram/gambatte/GB/<rom>.srm` + `.srm.sum` (removed again: test data).
-   The in-game save cycle is a T3 item.
-5. Deferred to after M3c: Samba, a FAT import partition (repartitioning).
+## M3d step 1 T3 checklist (for the user)
 
-T0: shellcheck, defconfig diff; T1: `sftp-server` ELF/deps, cores' ELF
-and `retro_api_version` under qemu; T2: sftp/scp round trip from the
-host, `rom-push.sh`, per-core fps (`t2-nes-fps.sh`-style), SRAM cycle.
-p2 changes go in via the trial root; a firmware image at the end.
-On the new p2: audio, 5 sleep cycles in game, headphone, SFTP, all six
-fps runs, and `t2-menu-cycle` 11/11 PASS.
-**T2 hygiene fixed in M3c:** `t2-menu-cycle` deleted and re-wrote the
-user's `private.gb` quicksave on every run (since M2); it now plays
-whichever GB game Explore opens and restores the GB states, SRAM and
-`resume.ini` from a p3 snapshot (also on failure). The user's
-`private.gb` states were restored from `build/m3b/p3-backup` (verified).
+The card already runs it (main = M3d DTB; previous = M3b). Volume: keep it
+at the current 10. Report anything that looks or sounds worse than M3c.
 
-**M3d — robustness:** p3 auto-grow on first boot, log rotation, battery
-gauge calibration (incl. the SOC re-seed after a full discharge: e.g.
-hold the displayed % while the charge current is high, or re-seed from
-an IR-compensated voltage), the audio half-rate/underruns and the WirePlumber "no
-profile" failure; then a long run (1–2 h of play, 20 reboot/poweroff
-cycles).
-
-## M3c T3 checklist (for the user)
-
-The card already runs M3c. Volume: keep it low; nothing here needs sound
-louder than the current 10.
-
-1. **New systems from the menu:** Explore → each of GBA, SNES, MD, PSX →
-   the game → play ~1 min, then Fn+Start to quit.
-   - Expected: each starts, runs smoothly, with sound. PSX (CTR) uses the
-     HLE BIOS: tell me if it hangs, has no picture, or glitches.
-   - Also: Explore shows the empty GBC, SMS, GG and 32X folders.
-2. **Battery save (Pokemon Yellow):** start a new game, save in the game
-   menu (START → SAVE), quit with Fn+Start, relaunch: "Continue" shows
-   your save. Then save again, play 2 minutes, put the console to sleep
-   with Power, wake it, quit, relaunch: the save is there. Finally save,
-   wait 1 minute, power off from the menu, power on: the save is there.
-   - Expected: the save survives quit, sleep and poweroff.
-3. **Copy a ROM from the PC (SFTP):** on the PC run
-   `port/scripts/device.sh sftp`, then `cd /userdata/ROMS/GB` and
-   `put "<a .gb file>"` (or `port/scripts/rom-push.sh GB <file>`).
-   - Expected: the file shows up in Explore → GB (re-enter the folder).
-4. **Regression:** one cold boot to the menu, a short NES or GB game,
-   brightness keys.
+1. **Screen:** after a cold boot (power off, then on), look at the bottom
+   rows during the menu and one game for ~5 min.
+   - Expected: no strip showing the top of the screen; no flicker or
+     tearing; the picture as before (same geometry and colours).
+   - Also: a short flash exactly at game start/exit is worth reporting
+     (DDR clock switch).
+2. **PSX (CTR):** start it, watch the Naughty Dog logos, the intro
+   cutscene and the menu (no need to race).
+   - Expected: logos and menu smooth. The intro cutscene may still dip
+     briefly (known, step 3). The game now uses your BIOS (scph5501): tell
+     me if anything behaves differently from before (boot, menus, sound).
+3. **Waking up in a game** (NES or GB, ~1 min each): play, press Power to
+   sleep, wait ~10 s, press Power to wake.
+   - Expected: the picture comes back paused for ~3 s, then the game runs
+     smoothly; at most one short hitch a few seconds later.
+4. **Volume/brightness in game:** a few presses each.
+   - Expected: unchanged from M3c (still some judder: step 2 targets it).
+     Just confirm it's no worse.
+5. **Battery feel:** after ~30 min of play, the battery % drop compared
+   with before (games now run at full clock).
