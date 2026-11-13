@@ -76,8 +76,8 @@ or share them. **Recovery image: M3c** (p2 T3-passed 2026-11-12, raw
 SHA256 re-verified from the `.zst`), M3b (flashed, T3-passed) as the
 previous one; M3a.1 and M2 stay as fallbacks with the M2 U-Boot. Flashing
 any image rewrites the whole card, bootloader included. A recovery image
-restores the M3c panel timing (old DTB): the M3d DTB is only on p1 of the
-card until the M3d image exists.
+restores the M3c panel timing (old DTB): the M3d DTB is on p1 of the
+card and in the M3d image.
 
 | Image | Content | Boots on |
 |---|---|---|
@@ -436,8 +436,80 @@ robustness for long use.
      discharge (low-battery shutdown, re-seed after a dead battery), the
      559 mA menu idle (backlight, Wi-Fi power save). Audio start failures
      are counted over step 6's reboots.
-6. **Long run:** 1–2 h of play, 20 reboot/poweroff cycles; M3d image
-   (includes the step 2 kernel and post-build); recovery image → M3d.
+6. **Long run** (done 2026-11-13, T2; recovery image → M3d after T3):
+   - Reboots: 51 warm reboots with `t2-audio-state.sh --reboots` (audio
+     51/51, slot main, gauge `force0`); 30 of them on kernel 0004, which
+     held the % every time. Boot 2341d3cf read the unsampled OCV (18 mV)
+     and logged `ocv 18 mV not sampled, kept dsoc 100000`, so the guard
+     worked on hardware.
+   - Power-off cycles: not possible without hands. An RK817 RTC alarm
+     (`wakealarm` +150 s) set before `device.sh poweroff` doesn't power
+     the device back on, so cold boot stays T3.
+   - Long play (`t2-long-play.sh --minutes 12`, on the trial root = M3d
+     p2): NES, SNES, GBA, MD and PSX (CTR attract) for 12 min each, all
+     PASS. Each game missed 12–14 vsyncs in ~17 s of capture per minute
+     (about 1 per minute; the capture dump itself is a likely cause). fps
+     ≥ 59.7. RSS +0–1 MiB. Max SoC 62–68 °C, PSX 78 °C. PCM ran
+     throughout.
+   - M3d image built: `dist/firmware/test128-m3d-20261113` (see the
+     image table).
 
 T2 hygiene: `t2-sleep-cycle.sh --game` now uses the NES test game with
 the pickles snapshot (it used to rewrite the user's `private.gb` autosave).
+
+## Night of 2026-11-13 — summary (autonomous)
+
+- **Battery boot jumps:** cause: the BSP force calibration ran on every
+  boot (unit mix) → kernel patch 0003. The 0% boots came from an
+  unsampled OCV register → patch 0004. Both are on the main boot record.
+  Since 0004: 30/30 reboots kept the %; the guard fired on one of them.
+- **Step 3:** muxretro is built from source. The in-game volume and
+  brightness bar is drawn by muxretro. WirePlumber no longer saves state
+  on every volume change. Volume goes through a resident `pw-cli`. Level
+  keys: 0 missed vsyncs.
+- **Step 4:** the hitch after waking is fixed: Wi-Fi runs on CPU3, the
+  game on CPU0–2 (129 → 33 ms). PSX uses the threaded core run (CTR
+  35–108 → 8–12 missed vsyncs per 75 s).
+- **Step 5:** p3 grows itself on first boot; logs are capped at 4 MiB.
+- **Step 6:** 51 reboots and 60 min of play passed. Power-off cycles need
+  hands.
+- **Image:** M3d image built (5/5 firmware versions kept). Its p2 passed
+  T2 on the trial root.
+- **Decision taken alone:** writing the M3d p2 to the card was refused by
+  the agent's permission check. The current p2 already has the same
+  files, so that write is optional (steps in "Device and bench").
+- **Host disk:** build 24G, dist 3.0G, 76G free; no significant growth.
+- **Device:** powered off; volume 10.
+
+## M3d T3 checklist (user)
+
+Test on the card as it is now (no flash needed). Expected result after
+each →.
+
+1. **Cold boot:** play a while, power off, wait ≥ 5 min, power on → the
+   battery % matches the last one before power-off (±2). Repeat with ≥ 30
+   min off.
+2. **Charging reboot:** charge a while, reboot with the charger in → the
+   % stays (±1); no jump to ~95% or to 0%.
+3. **Drain:** 30 min of play on battery → the % falls steadily (roughly
+   10–15%), no jumps.
+4. **In-game volume/brightness bar:** press volume and brightness in a
+   game → a new bar, drawn by muxretro, in the theme's colours; it fades
+   after ~1.5 s. Holding the key causes no stutter or audio crackle. The
+   pause menu still shows muOS's own bar.
+5. **Volume steps:** the first press after boot changes the volume; the
+   level survives a reboot; after sleep/wake the sound isn't muted.
+6. **CTR (PSX):** race start and the finish line are smooth. Input feels
+   OK (the threaded run can add about 1 frame of latency; if it's
+   noticeable, say so and 0003 will be revisited).
+7. **Wake in game:** Power-key sleep, then wake in a game → no freeze
+   ~4 s after waking (Wi-Fi on).
+8. **Sound:** sound on every boot during all the above.
+9. **Optional — p3 auto-grow:** flash
+   `dist/firmware/test128-m3d-20261113.img.zst` on a spare card *without*
+   `--grow`, boot → p3 fills the card (`df -h /userdata`; log in p3
+   `MUOS/log/grow-p3.log`). Or write the M3d p2 to this card (steps in
+   "Device and bench").
+10. **Decisions:** (a) try the 1512 MHz overclock as a trial kernel?
+    (b) make M3d the recovery image once 1–8 pass? (c) retire M3a.1 to
+    free the 5th firmware slot?

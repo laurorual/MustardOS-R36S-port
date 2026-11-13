@@ -17,6 +17,7 @@ set -euo pipefail
 dev=$(dirname "$0")/device.sh
 logs=$(cd "$(dirname "$0")/../.." && pwd)/build/logs; mkdir -p "$logs"
 minutes=12; [ "${1:-}" = --minutes ] && { minutes=$2; shift 2; }
+# shellcheck source=port/scripts/t2-game.lib.sh
 . "$(dirname "$0")/t2-game.lib.sh"
 log=$logs/long-play.log; : > "$log"
 
@@ -44,18 +45,19 @@ for g in "${games[@]}"; do
     sleep 20
     first=$(r "$sample"); pid0=$(sed -n 's/^pid=\([^ ]*\).*/\1/p' <<< "$first"); rss0=$(sed -n 's/.* rss=\([0-9]*\).*/\1/p' <<< "$first")
     echo "$(date -u +%T) $dir start $first" >> "$log"
-    why='' maxt=0 miss=0 fpsmin=999 n=0 pid='' rss=$rss0 temp=0 pcm='' fps=0 missed=0
+    why='' maxt=0 miss=0 fpsmin=999 n=0 pid='' rss=$rss0 temp=0 pcm='' frames=0 fps=0 missed=0
     for _ in $(seq 1 "$minutes"); do
         sleep 60
         s=$(r "$sample"); echo "$(date -u +%T) $dir $s" >> "$log"
-        read -r pid rss temp _ pcm _ _ fps missed < <(sed -n 's/^pid=\([^ ]*\) rss=\([0-9]*\) temp=\([0-9]*\) mhz=\([0-9]*\) pcm=\([^ ]*\) csvage=\([0-9-]*\) frames=\([0-9]*\) \([0-9.]*\) \([0-9]*\).*/\1 \2 \3 \4 \5 \6 \7 \8 \9/p' <<< "$s") || :
+        read -r pid rss temp _ pcm _ frames fps missed < <(sed -n 's/^pid=\([^ ]*\) rss=\([0-9]*\) temp=\([0-9]*\) mhz=\([0-9]*\) pcm=\([^ ]*\) csvage=\([0-9-]*\) frames=\([0-9]*\) \([0-9.]*\) \([0-9]*\).*/\1 \2 \3 \4 \5 \6 \7 \8 \9/p' <<< "$s") || :
         [ "${pid:-none}" = "$pid0" ] || { why+=" muxretro-gone(${pid:-none})"; break; }
         (( rss - rss0 <= 32768 )) || why+=" rss+$(( (rss - rss0) / 1024 ))MiB"
         (( temp < 85000 )) || why+=" temp=$temp"
         [ "$pcm" = RUNNING ] || why+=" pcm=$pcm"
         (( temp > maxt )) && maxt=$temp
         miss=$(( miss + ${missed:-0} )); n=$((n + 1))
-        if awk -v f="${fps:-0}" -v m="$fpsmin" 'BEGIN{exit !(f < m)}'; then fpsmin=$fps; fi
+        # frames=0: the sample caught muxretro rewriting its capture; skip it.
+        if [ "${frames:-0}" -gt 0 ] && awk -v f="${fps:-0}" -v m="$fpsmin" 'BEGIN{exit !(f < m)}'; then fpsmin=$fps; fi
     done
     game_stop
     line="$dir: ${n} min, missed ${miss}, min fps ${fpsmin}, max ${maxt%???} C, rss $(( rss0 / 1024 ))->$(( ${rss:-$rss0} / 1024 )) MiB${why:+ FAIL:$why}"

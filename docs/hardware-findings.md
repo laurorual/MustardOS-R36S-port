@@ -529,6 +529,12 @@ about other R35S/R36S panels or revisions.
   with a valid OCV jumped back. 0004 treats an OCV outside 3.0–4.5 V as no
   sample and keeps the stored SOC. Likely the cause of the first step 2
   T3 failure (0% after a reboot) too.
+  Confirmed on hardware in step 6: boot 2341d3cf read 18 mV and kept dsoc
+  100000 (`ocv 18 mV not sampled`).
+- **RTC wake from power-off:** an alarm in `/sys/class/rtc/rtc0/wakealarm`
+  (rk808-rtc on the RK817) set before `poweroff` doesn't power the R35S
+  back on (2026-11-13). Unattended power-off cycles need another way
+  (or hands).
 - **Battery current (M3d step 2, `build/logs/power-m3d`, on battery,
   volume 10, backlight as set):** menu idle 559 mA (1008 MHz); per game
   performance / schedutil: NES 759/645, GB –/625, GBA 759/633, SNES 803/664,
