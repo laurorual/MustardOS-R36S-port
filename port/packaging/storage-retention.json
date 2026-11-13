@@ -11,14 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "M3a.1": {
-      "reason": "Built M3a.1 firmware: M3a + SDL2 rebuilt with its pipewire driver (sound fix); T2-verified, written to test128 p2",
-      "files": [
-        "dist/firmware/test128-m3a1-20261111.img.zst",
-        "dist/firmware/test128-m3a1-20261111.img.zst.sha256",
-        "dist/firmware/test128-m3a1-20261111.manifest"
-      ]
-    },
     "M3b": {
       "reason": "Previous recovery image (2026-11-11): M3b firmware (boot-records U-Boot, M3b kernel main + M2 kernel previous); T3 passed incl. a host card-reader flash",
       "files": [
@@ -28,7 +20,7 @@
       ]
     },
     "M3c": {
-      "reason": "Known-good recovery image since 2026-11-12: M3c firmware (M3b boot chain + sftp-server, 4 new cores, ROM folders); T3 passed 2026-11-12 (p2 content-identical on the card); image itself not yet flashed",
+      "reason": "Previous recovery image (2026-11-12 to 2026-11-13): M3c firmware (M3b boot chain + sftp-server, 4 new cores, ROM folders); T3 passed 2026-11-12 (p2 content-identical on the card); image itself not yet flashed",
       "files": [
         "dist/firmware/test128-m3c-20261112.img.zst",
         "dist/firmware/test128-m3c-20261112.img.zst.sha256",
@@ -36,7 +28,7 @@
       ]
     },
     "M3d": {
-      "reason": "Built M3d firmware (2026-11-13): kernel 0001-0003 (fuel-gauge SOC, boot calibration fix), muxretro from source (in-game level bar, PSX threaded run), volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap; p2 T2-passed on the trial root; kernel 0004 added; T3 pending, never flashed",
+      "reason": "Recovery image since 2026-11-13: M3d firmware, kernel 0001-0004 (fuel-gauge SOC, boot calibration fix, unsampled-OCV guard), muxretro from source (in-game level bar, PSX threaded run), volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap; p2 T2-passed on the trial root; T3 items 1-8 passed 2026-11-13 on the card (same p2 files); first flash = T3 item 9",
       "files": [
         "dist/firmware/test128-m3d-20261113.img.zst",
         "dist/firmware/test128-m3d-20261113.img.zst.sha256",

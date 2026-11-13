@@ -9,13 +9,12 @@ checklists) are in [milestones.md](milestones.md). See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M3c are done; M3c's image is the
-recovery image. M3d (smoothness + robustness): steps 1–6 are done at T2
-(night of 2026-11-13, autonomous); the M3d image
-`dist/firmware/test128-m3d-20261113` is built and its p2 T2-passed on the
-trial root; the M3d T3 checklist is at the end of this file. M3d becomes
-the recovery image after that T3.** Results: milestones.md; the night's
-summary is at the end of this file.
+**Phase 5 (own-card firmware). M1–M3c are done. M3d (smoothness +
+robustness): steps 1–6 done; T3 items 1–8 passed 2026-11-13 on the card;
+the M3d image `dist/firmware/test128-m3d-20261113` is the recovery image
+since then. Open: T3 item 9 (first flash of the M3d image, without
+`--grow`, to test p3 auto-grow), then M3d moves to milestones.md.**
+Results: milestones.md; the night's summary is at the end of this file.
 
 ## Device and bench
 
@@ -72,30 +71,29 @@ summary is at the end of this file.
 The images are in `dist/recovery/` (captures) and `dist/firmware/`
 (built), each with `.sha256` and `.manifest`. **They are private:** they
 contain the Wi-Fi PSK, the SSH host key and authorized_keys. Never commit
-or share them. **Recovery image: M3c** (p2 T3-passed 2026-11-12, raw
-SHA256 re-verified from the `.zst`), M3b (flashed, T3-passed) as the
-previous one; M3a.1 and M2 stay as fallbacks with the M2 U-Boot. Flashing
+or share them. **Recovery image: M3d** (since 2026-11-13; T3 1–8 passed
+with the same p2 files on the card), M3c and M3b (flashed, T3-passed) as
+the previous ones; M2 stays as the fallback with the M2 U-Boot. Flashing
 any image rewrites the whole card, bootloader included. A recovery image
 restores the M3c panel timing (old DTB): the M3d DTB is on p1 of the
 card and in the M3d image.
 
 | Image | Content | Boots on |
 |---|---|---|
-| `dist/firmware/test128-m3d-20261113.img.zst` (raw `f2692bfa…`, p2 `fd78705a…`) | **M3d candidate**, built 2026-11-13: kernel 0001–0004, muxretro from source, volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap; p2 T2-passed on the trial root; T3 pending, never flashed | any card ≥ 2 GiB (expected; p3 grows itself) |
-| **`dist/firmware/test128-m3c-20261112.img.zst`** (raw `64811ce2…`) | **Recovery image since 2026-11-12.** M3c: M3b boot chain + sftp-server, 4 cores, ROM folders; p2 T3-passed on the card (content-identical); the image itself not yet flashed | any card ≥ 2 GiB (expected) |
+| **`dist/firmware/test128-m3d-20261113.img.zst`** (raw `f2692bfa…`, p2 `fd78705a…`) | **Recovery image since 2026-11-13.** M3d: kernel 0001–0004, muxretro from source, volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap; T3 1–8 passed (card p2 has the same files); first flash = T3 item 9 | any card ≥ 2 GiB (expected; p3 grows itself) |
+| `dist/firmware/test128-m3c-20261112.img.zst` (raw `64811ce2…`) | Previous recovery image (2026-11-12 to 11-13). M3c: M3b boot chain + sftp-server, 4 cores, ROM folders; p2 T3-passed on the card (content-identical); the image itself not yet flashed | any card ≥ 2 GiB (expected) |
 | `dist/firmware/test128-m3b-20261111.img.zst` (raw `2a8fec32…`) | Previous recovery image. M3b: boot-record U-Boot, M3b kernel (main) + M2 kernel (previous); flashed and T3-passed | any card ≥ 2 GiB |
-| `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`) | M3a.1: M2 U-Boot and kernel, SDL2 with its pipewire driver; p2 T3-passed, image never flashed | any card ≥ 2 GiB (expected) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core; the last flashed image with the M2 U-Boot | any card ≥ 2 GiB |
 
-M1 was retired on 2026-11-12 (everything in it is in M2); 5/5 versions
-kept since the M3d image (retire M3a.1 next, then M2 once M3d is T3-passed). Flash commands below name M3c; if it
-ever fails to boot, flash M3b the same way.
+M1 was retired on 2026-11-12, M3a.1 on 2026-11-13 (4/5 versions kept).
+Flash commands below name M3d; if it ever fails to boot, flash M3c the
+same way.
 
 **Flash with the host card reader (primary, since 2026-11-11):**
 1. Power the device off and put its card in the USB reader on the host.
 2. `lsblk -dno NAME,TRAN,SIZE,MODEL` (the reader shows `usb`, about 119 GiB
    for test128).
-3. `port/scripts/flash-card.sh host /dev/sdX dist/firmware/test128-m3c-20261112.img.zst --grow`
+3. `port/scripts/flash-card.sh host /dev/sdX dist/firmware/test128-m3d-20261113.img.zst --grow`
    - It accepts only a whole USB/removable/MMC disk (it refuses the
      internal `sda` and `nvme0n1`, partitions, an empty reader and a
      too-small card), shows model and size, asks `y`, then asks for sudo.
@@ -108,7 +106,7 @@ ever fails to boot, flash M3b the same way.
 1. Power off. Put original32 in slot 1 and the target card in slot 2.
    Boot, join Wi-Fi, and enable Remote services (Options).
 2. On the host:
-   `port/scripts/flash-card.sh darkosen <dArkOSen-IP> dist/firmware/test128-m3c-20261112.img.zst --grow`
+   `port/scripts/flash-card.sh darkosen <dArkOSen-IP> dist/firmware/test128-m3d-20261113.img.zst --grow`
    - Enter the `ark` SSH password once and the sudo password once.
    - Same checks as above; the target is always slot 2 (`/dev/mmcblk1`).
 3. Power off. Move the card to slot 1, leave slot 2 empty, power on.
@@ -289,9 +287,20 @@ charging icon; headphone path switching.
   guard is still unexercised on hardware). Patch 0002 still corrects dsoc vs coulomb
   disagreements > 10% at boot and logs every boot's inputs (`muos-gauge:` lines, copied to
   `/opt/muos/log/battery-port.log` by S97), and `muos-lowbattery` powers
-  off only below 3.5 V. Unverified: accuracy over a full discharge (FCC
+  off only below 3.5 V. M3d T3 (2026-11-13): cold boots after ≥ 5 and
+  ≥ 30 min off, a charging reboot and 30 min of drain all OK. The last
+  four boots' `muos-gauge` lines (saved in `build/m3d/p3-preflash-20261113`)
+  show no correction and dsoc kept every time (81% after ~50 min off with
+  the counter at 72%; 87% on the charging reboot with vsoc 99%). The
+  BSP's `off=` (pwroff_min) underreports: 5 min for ~50 min off, 1 min
+  for ~17 min; only informational now. Unverified: accuracy over a full discharge (FCC
   3380 mAh is the DT value until a full charge teaches it), the reading
   after a dead battery, and the no-sound report (below).
+- **Hotkeys:** holding volume or brightness changes one step only. Upstream
+  repeats (`handle_hold: true` in `share/hotkey/volume.json`/`bright.json`);
+  the port's pinned `r35s-bringup.json` lacks it. Fix: add it in
+  post-build (each repeat runs the in-game fast path; re-run
+  `t2-level-fps.sh`).
 - **Power:** LEDs (the R35S LED node is disabled in stock too) and rumble
   not done. No CPU overclock (deferred).
 - **Audio:** step 2 T3: no sound at the end of an agent session (charging,
@@ -367,9 +376,8 @@ charging icon; headphone path switching.
    BSP; dArkOSen's announced 5.10 keeps the same blobs and has no public
    RK3326 source yet; a mainline/Panfrost port is the licence-clean path
    (M5 candidate).
-4. **CPU overclock** (1512 MHz DTB via `make-dtb-opp.sh`, deferred by the
-   user 2026-11-11): the remaining PSX cutscene dip is CPU-bound; the user
-   decides whether to try it as a trial kernel.
+4. **CPU overclock** (1512 MHz DTB via `make-dtb-opp.sh`): deferred to the
+   end of the project as an optional user toggle (user, 2026-11-13).
 
 ## M3 plan — real usage and a reproducible boot chain
 
@@ -483,8 +491,12 @@ the pickles snapshot (it used to rewrite the user's `private.gb` autosave).
 
 ## M3d T3 checklist (user)
 
-Test on the card as it is now (no flash needed). Expected result after
-each →.
+Results 2026-11-13: 1–8 OK (4: no hold-to-repeat, see "Hotkeys"; 6:
+smooth over 3–4 CTR races; 7: one small dip on wake, to be removed later
+if possible). 10: (a) overclock stays deferred, as an optional user
+toggle near the end of the project; (b) M3d is the recovery image;
+(c) M3a.1 retired. 9 pending (flash on test128 itself; p3 logs saved to
+`build/m3d/p3-preflash-20261113`, BIOS backup = `port/roms/bios`).
 
 1. **Cold boot:** play a while, power off, wait ≥ 5 min, power on → the
    battery % matches the last one before power-off (±2). Repeat with ≥ 30
