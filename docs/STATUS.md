@@ -155,7 +155,8 @@ the M3e image. Started 2026-11-13.
    0 missed; SNES, GBA, MD ~1 missed vsync per minute (as M3d); 2/2
    in-game sleep cycles.
 3. **Battery full discharge** (running since 2026-11-13):
-   `t2-discharge.sh start` plays the NES test game at volume 10 and logs
+   `t2-discharge.sh start` plays the NES test game (`switch PSX <cue>`
+   moved it to CTR at 60%) at volume 10 and logs
    a line a minute to p3 `MUOS/log/discharge.csv`; `report` after the
    recharge.
 4. **Image hygiene** (done): p1 without `DIAGnn` / `PROBE.TXT` /
@@ -169,7 +170,9 @@ the M3e image. Started 2026-11-13.
 ## M3e T3 checklist (user)
 
 A. **Discharge run** (now): keep the charger unplugged and don't touch
-   the device; the NES test game plays at volume 10 for ~3–4 h. Expected:
+   the device; CTR (PSX, performance governor, ~720–790 mA; switched
+   from the NES test game at 60%) plays its attract loop at volume 10
+   for ~2.5 h. Expected:
    at 25% the low-battery warning appears; at ≤ 3% (below 3.5 V) the
    device powers itself off cleanly. If the screen just goes black
    without the shutdown screen, say so (power was cut instead).
