@@ -10,28 +10,39 @@ checklists) are in [milestones.md](milestones.md). See also
 ## Current phase
 
 **Phase 5 (own-card firmware). M1–M3c are done; M3c's image is the
-recovery image. M3d (smoothness + robustness): step 1 (game governor, wake
-order, panel timing, PSX BIOS) passed T3 on 2026-11-12; step 2 (battery %
-from the fuel gauge, per-system governor profiles) is done: the re-test's
-boot jumps were a BSP unit bug, fixed by kernel patch 0003 (T2-passed,
-main on the card). Steps 3–6 run autonomously on the night of
-2026-11-13; the T3 checklist is at the end of this file.** Results:
-milestones.md.
+recovery image. M3d (smoothness + robustness): steps 1–6 are done at T2
+(night of 2026-11-13, autonomous); the M3d image
+`dist/firmware/test128-m3d-20261113` is built and its p2 T2-passed on the
+trial root; the M3d T3 checklist is at the end of this file. M3d becomes
+the recovery image after that T3.** Results: milestones.md; the night's
+summary is at the end of this file.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0, test128 in slot 1, flashed with the M3b
   image on 2026-11-11 (host card reader, p3 grown to the whole card).
-  Boot records (since 2026-11-13 night): main = `Image-0563896506e7`
-  (kernel patches 0001–0003) + M3d DTB `panel0-d2cef0b6bd98.dtb`;
-  previous = `Image-84112f93c3dc` (0001+0002) + the same DTB.
-  Unreferenced on p1: `Image-48b6fc61382f` (0001), the M3b kernel
-  `Image-ab18bba307f8`, the M2 kernel, the M3b DTB `panel0-496bbe3591f8.dtb`.
+  Boot records (since 2026-11-13 night): main = `Image-3a3521e5cfb1`
+  (kernel patches 0001–0004, the M3d image's kernel) + M3d DTB
+  `panel0-d2cef0b6bd98.dtb`; previous = `Image-0563896506e7` (0001–0003)
+  + the same DTB. Unreferenced on p1: `Image-84112f93c3dc` (0001+0002),
+  `Image-48b6fc61382f` (0001), the M3b kernel `Image-ab18bba307f8`, the
+  M2 kernel, the M3b DTB `panel0-496bbe3591f8.dtb`.
   - p2: the M3c build `313d6a44…` (content-identical to the p2 of
     `test128-m3c-20261112`; ext4 metadata differs), written via the trial
     root on 2026-11-12, plus the M3d step 1–2 files installed with
-    `install-rootfs.sh` (originals in `/var/lib/muos-m1-backup`). The previous p2 (M3c step 1, `30e0f57c…`) is on p3
-    at `MUOS/trial/p2-previous.img`.
+    `install-rootfs.sh` (originals in `/var/lib/muos-m1-backup`), and
+    since the M3d night every M3d step 3–5 file too (incl. the BusyBox
+    with `taskset` and the `/usr/bin/taskset` link): functionally the M3d
+    image's p2. The previous p2 (M3c step 1, `30e0f57c…`) is on p3 at
+    `MUOS/trial/p2-previous.img`.
+  - p3 `MUOS/trial/rootfs.img` = the M3d image's p2 (`fd78705a…`),
+    T2-passed as the trial root. Writing it to p2 was denied to the agent
+    by the permission check (irreversible); to do it: arm the trial root
+    (`mount -o remount,rw / && touch /etc/muos-root-trial && mount -o
+    remount,ro /`), `device.sh reboot`, then `/usr/libexec/muos-root-trial
+    write-p2 /userdata/MUOS/trial/rootfs.img
+    fd78705ad603371546b39a910e5472005df29b6e6ba9135c42c34e62faea2a76`
+    and reboot. Not required: the current p2 has the same files.
   - ROMs on p3: GB (private, Pokemon Yellow, Super Mario Land), NES (SMB3),
     GBA, SNES, MD, PSX (CTR) from `port/roms`; PSX BIOS (user's) in
     `MUOS/bios`; volume left at 10.
@@ -70,13 +81,14 @@ card until the M3d image exists.
 
 | Image | Content | Boots on |
 |---|---|---|
+| `dist/firmware/test128-m3d-20261113.img.zst` (raw `f2692bfa…`, p2 `fd78705a…`) | **M3d candidate**, built 2026-11-13: kernel 0001–0004, muxretro from source, volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap; p2 T2-passed on the trial root; T3 pending, never flashed | any card ≥ 2 GiB (expected; p3 grows itself) |
 | **`dist/firmware/test128-m3c-20261112.img.zst`** (raw `64811ce2…`) | **Recovery image since 2026-11-12.** M3c: M3b boot chain + sftp-server, 4 cores, ROM folders; p2 T3-passed on the card (content-identical); the image itself not yet flashed | any card ≥ 2 GiB (expected) |
 | `dist/firmware/test128-m3b-20261111.img.zst` (raw `2a8fec32…`) | Previous recovery image. M3b: boot-record U-Boot, M3b kernel (main) + M2 kernel (previous); flashed and T3-passed | any card ≥ 2 GiB |
 | `dist/firmware/test128-m3a1-20261111.img.zst` (raw `112db539…`) | M3a.1: M2 U-Boot and kernel, SDL2 with its pipewire driver; p2 T3-passed, image never flashed | any card ≥ 2 GiB (expected) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: + sleep, battery, headphones, NES core; the last flashed image with the M2 U-Boot | any card ≥ 2 GiB |
 
-M1 was retired on 2026-11-12 (everything in it is in M2); 4/5 versions
-kept, leaving room for the M3d image. Flash commands below name M3c; if it
+M1 was retired on 2026-11-12 (everything in it is in M2); 5/5 versions
+kept since the M3d image (retire M3a.1 next, then M2 once M3d is T3-passed). Flash commands below name M3c; if it
 ever fails to boot, flash M3b the same way.
 
 **Flash with the host card reader (primary, since 2026-11-11):**
@@ -270,7 +282,11 @@ charging icon; headphone path switching.
   the re-test then showed +5–13% jumps on a cold boot and a charging
   reboot: the BSP's boot calibration compared % with 1/1000 % and reset
   the gauge to the OCV estimate on every boot (also the 0% cause). Patch
-  0003 fixes the units; patch 0002 still corrects dsoc vs coulomb
+  0003 fixes the units. 20 warm reboots then showed the OCV register
+  unsampled (18 mV) on 5 boots, which the BSP turned into 0% (shown for
+  two boots): patch 0004 skips the OCV calibrations outside 3.0–4.5 V (20
+  more reboots: 99% every boot; the 18 mV case didn't recur, so 0004's
+  guard is still unexercised on hardware). Patch 0002 still corrects dsoc vs coulomb
   disagreements > 10% at boot and logs every boot's inputs (`muos-gauge:` lines, copied to
   `/opt/muos/log/battery-port.log` by S97), and `muos-lowbattery` powers
   off only below 3.5 V. Unverified: accuracy over a full discharge (FCC

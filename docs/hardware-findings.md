@@ -522,6 +522,13 @@ about other R35S/R36S panels or revisions.
   min off) mixes units the same way. 0003 compares in 1/1000 %; a short
   power-off now keeps the counter (`now_cap` matches the stored cap:
   the coulomb counter persists across a reboot).
+  **Unsampled OCV (2026-11-13, patch 0004):** on 5 of 20 warm reboots the
+  OCV register read 18 mV (`muos-gauge: stored ... ocv_v=18`), the OCV SOC
+  0%, so the forced calibration set dsoc and the counter to 0; the next
+  boot looked like a halt (counter 1 vs stored 3333 mAh) and a later boot
+  with a valid OCV jumped back. 0004 treats an OCV outside 3.0–4.5 V as no
+  sample and keeps the stored SOC. Likely the cause of the first step 2
+  T3 failure (0% after a reboot) too.
 - **Battery current (M3d step 2, `build/logs/power-m3d`, on battery,
   volume 10, backlight as set):** menu idle 559 mA (1008 MHz); per game
   performance / schedutil: NES 759/645, GB –/625, GBA 759/633, SNES 803/664,
