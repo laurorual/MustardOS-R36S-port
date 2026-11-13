@@ -5,6 +5,9 @@
 # the filesystem is flagged with errors), bounded to 100 s. Any result still
 # mounts p3 so the UI comes up; the outcome is kept in p3 MUOS/log/fsck-p3.log
 # (exit 4 = needs a manual fsck, 124 = timed out).
+# First boot of a freshly written image: muos-grow-p3 grows p3 to the
+# whole card (partition before the mount, ext4 online after it; no-ops
+# afterwards; log p3 MUOS/log/grow-p3.log).
 # stop: keep the rc log on p3 (MUOS/log/rc-last.log), sync, unmount.
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 disk=/dev/disk/by-partuuid/4d554432
@@ -18,6 +21,8 @@ case "${1:-}" in
     mkdir -p "$data" /boot
     n=0; while [ ! -b "$(part 3)" ] && [ "$n" -lt 50 ]; do sleep 0.1; n=$((n+1)); done
     fsck=
+    findmnt -rn -M "$data" >/dev/null || /usr/libexec/muos-run-bounded 30 /usr/libexec/muos-grow-p3 part || :
+    n=0; while [ ! -b "$(part 3)" ] && [ "$n" -lt 50 ]; do sleep 0.1; n=$((n+1)); done
     if ! findmnt -rn -M "$data" >/dev/null && command -v e2fsck >/dev/null; then
         t0=$(cut -d' ' -f1 /proc/uptime)
         out=$(/usr/libexec/muos-run-bounded 100 e2fsck -p "$(part 3)" 2>&1); rc=$?
@@ -31,6 +36,7 @@ $out"
         mount -t vfat -o ro,nosuid,nodev,noexec "$(part 1)" /boot || echo 'data: p1 not mounted'
     mkdir -p "$data/MUOS/log" "$data/ROMS"
     [ -z "$fsck" ] || printf '%s\n' "$fsck" > "$data/MUOS/log/fsck-p3.log"
+    /usr/libexec/muos-grow-p3 fs || :
     ;;
  stop)
     if findmnt -rn -M "$data" >/dev/null; then

@@ -406,11 +406,20 @@ robustness for long use.
    33 ms; CTR 8–12 missed vsyncs per 75 s (was 35–108); 2/2 PSX in-game
    sleep cycles (`T2_GAME_DIR`/`T2_GAME_ROM` for `t2-sleep-cycle.sh`).
    Overclock: still the user's call.
-5. **Robustness (the original M3d):** p3 auto-grow on first boot, log
-   rotation, the battery gauge over a full discharge (low-battery
-   shutdown, re-seed after a dead battery), the 559 mA menu idle
-   (backlight, Wi-Fi power save), audio half-rate/underruns, the
-   WirePlumber "no profile" failure.
+5. **Robustness** (done 2026-11-13 as far as testable on the charger):
+   - p3 auto-grow on the first boot of a freshly written image
+     (`muos-grow-p3`, S89: MBR p3 end before the mount, online
+     `resize2fs` after it, log p3 `MUOS/log/grow-p3.log`; only for disk ID
+     4d554432 with three partitions). T2 on a loop-device copy of the
+     layout (64 → 640 MiB, e2fsck clean, second run no-op) and the no-op
+     path on the full card; a real first boot is T3 (flash without
+     `--grow`).
+   - Log size cap (`muos-logcap`, S97): a log over 4 MiB keeps its last
+     1 MiB as `NAME.1`; T2 with a 5 MiB test log.
+   - Not testable on the charger, left for T3/M3e: the gauge over a full
+     discharge (low-battery shutdown, re-seed after a dead battery), the
+     559 mA menu idle (backlight, Wi-Fi power save). Audio start failures
+     are counted over step 6's reboots.
 6. **Long run:** 1–2 h of play, 20 reboot/poweroff cycles; M3d image
    (includes the step 2 kernel and post-build); recovery image → M3d.
 

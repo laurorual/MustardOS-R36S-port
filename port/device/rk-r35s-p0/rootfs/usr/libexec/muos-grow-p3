@@ -1,0 +1,62 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-grow-p3 part|fs DISK: grow the data partition to the whole card on the
+# first boot of a freshly written image (M3d step 5). S89 runs `part` before
+# p3 is mounted and `fs` after; both are no-ops once p3 fills the card.
+#   part: only for the port's layout (MBR disk ID 4d554432, exactly three
+#         partitions, p3 last, >= 64 MiB free after it): rewrite p3's end in
+#         the MBR (sfdisk -N 3, start unchanged; nothing else on the card is
+#         written), then tell the kernel (partprobe: p3 isn't mounted yet).
+#         If the kernel keeps the old size, the next boot reads the new table.
+#   fs:   when p3 is >= 64 MiB larger than its ext4, grow the mounted
+#         filesystem (online resize: journaled, safe on power loss), in the
+#         background at low priority.
+# Log: p3 MUOS/log/grow-p3.log (part logs to /run first; fs moves it).
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+mode=${1:-} disk=${2:-/dev/mmcblk0}
+name=${disk##*/}
+case "$name" in *[0-9]) p=${name}p ;; *) p=$name ;; esac
+sys=/sys/block/$name
+slack=$((64 * 2048)) # sectors
+log=/run/muos-grow-p3.log
+say() { echo "$(cut -d' ' -f1 /proc/uptime) grow-p3 $*" >> "$log"; }
+
+case "$mode" in
+part)
+    [ -r "$sys/size" ] && [ -r "$sys/${p}3/start" ] || exit 0
+    [ ! -e "$sys/${p}4" ] || exit 0
+    dump=$(sfdisk -d "$disk" 2>/dev/null) || exit 0
+    printf '%s\n' "$dump" | grep -qx 'label: dos' || exit 0
+    printf '%s\n' "$dump" | grep -qx 'label-id: 0x4d554432' || exit 0
+    [ "$(printf '%s\n' "$dump" | grep -c "^$disk")" = 3 ] || exit 0
+    total=$(cat "$sys/size") start=$(cat "$sys/${p}3/start") size=$(cat "$sys/${p}3/size")
+    free=$((total - start - size))
+    [ "$free" -ge "$slack" ] || exit 0
+    say "p3 ${size} sectors, ${free} free after it: growing the partition"
+    echo ', +' | sfdisk -q --no-reread --no-tell-kernel -N 3 "$disk" >> "$log" 2>&1 || { say "sfdisk failed"; exit 1; }
+    partprobe "$disk" >> "$log" 2>&1 || :
+    n=0; while [ ! -b "/dev/${p}3" ] && [ "$n" -lt 50 ]; do sleep 0.1; n=$((n+1)); done
+    say "partition now $(cat "$sys/${p}3/size" 2>/dev/null) sectors (kernel view)" ;;
+fs)
+    dev=/dev/${p}3
+    [ -r "$sys/${p}3/size" ] || exit 0
+    dir=$(awk -v d="$dev" '$1 == d { print $2; exit }' /proc/mounts)
+    [ -n "$dir" ] || exit 0
+    if [ -s "$log" ]; then cat "$log" >> "$dir/MUOS/log/grow-p3.log" && rm -f "$log"; fi
+    log=$dir/MUOS/log/grow-p3.log
+    psize=$(cat "$sys/${p}3/size")
+    info=$(dumpe2fs -h "$dev" 2>/dev/null) || exit 0
+    blocks=$(printf '%s\n' "$info" | sed -n 's/^Block count: *//p')
+    bsize=$(printf '%s\n' "$info" | sed -n 's/^Block size: *//p')
+    [ -n "$blocks" ] && [ -n "$bsize" ] || exit 0
+    fs=$((blocks * (bsize / 512)))
+    [ $((psize - fs)) -ge "$slack" ] || exit 0
+    say "ext4 ${fs} of ${psize} sectors: online resize"
+    (
+        nice -n 10 resize2fs "$dev" >> "$log" 2>&1; rc=$?
+        say "resize2fs rc=$rc"
+    ) < /dev/null > /dev/null 2>&1 &
+    ;;
+*) echo 'Usage: muos-grow-p3 part|fs [DISK]' >&2; exit 2 ;;
+esac
+exit 0

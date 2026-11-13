@@ -1,0 +1,21 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-logcap: size cap for the boot's logs (M3d step 5). S91 keeps the
+# current boot's logs on p3 (/opt/muos/log = MUOS/log/system) and three
+# previous boots, so only a long boot grows without bound (frontend.log:
+# ~1 MB per hour of game launches with muOS debug_mode 2). Every 5 min, a
+# log over 4 MiB keeps its last 1 MiB as NAME.1 and is truncated in place
+# (the writers append: O_APPEND, so they continue at the new end).
+# Started and stopped by S97 with the other device monitors.
+cap=$((4 * 1024 * 1024)) keep=$((1024 * 1024))
+while :; do
+    for f in /opt/muos/log/*.log /run/muos-rc.log; do
+        [ -f "$f" ] || continue
+        size=$(stat -c %s "$f" 2>/dev/null) || continue
+        [ "$size" -gt "$cap" ] || continue
+        tail -c "$keep" "$f" > "$f.1.tmp" && mv -f "$f.1.tmp" "$f.1"
+        : > "$f"
+        echo "$(date '+%Y-%m-%d %H:%M:%S') muos-logcap: $f was $size bytes, tail kept in ${f##*/}.1" >> "$f"
+    done
+    sleep 300
+done
