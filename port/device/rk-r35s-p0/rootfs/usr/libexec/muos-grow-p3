@@ -6,8 +6,13 @@
 #   part: only for the port's layout (MBR disk ID 4d554432, exactly three
 #         partitions, p3 last, >= 64 MiB free after it): rewrite p3's end in
 #         the MBR (sfdisk -N 3, start unchanged; nothing else on the card is
-#         written), then tell the kernel (partprobe: p3 isn't mounted yet).
-#         If the kernel keeps the old size, the next boot reads the new table.
+#         written), then tell the kernel with util-linux `resizepart` (BLKPG,
+#         p3 only): p2 (root) is mounted, so a whole-table re-read (BLKRRPART:
+#         partprobe, sfdisk) fails with EBUSY. Then wait for udev: p3's
+#         by-partuuid link is re-probed after the write and is missing while
+#         the kernel size differs from the table. If the kernel keeps the old
+#         size, the next boot reads the new table and `fs` grows the
+#         filesystem then.
 #   fs:   when p3 is >= 64 MiB larger than its ext4, grow the mounted
 #         filesystem (online resize: journaled, safe on power loss), in the
 #         background at low priority.
@@ -34,7 +39,11 @@ part)
     [ "$free" -ge "$slack" ] || exit 0
     say "p3 ${size} sectors, ${free} free after it: growing the partition"
     echo ', +' | sfdisk -q --no-reread --no-tell-kernel -N 3 "$disk" >> "$log" 2>&1 || { say "sfdisk failed"; exit 1; }
-    partprobe "$disk" >> "$log" 2>&1 || :
+    new=$(sfdisk -d "$disk" 2>/dev/null | sed -n "s|^/dev/${p}3 :.* size= *\([0-9]*\),.*|\1|p")
+    if [ -n "$new" ] && command -v resizepart >/dev/null; then
+        resizepart "$disk" 3 "$new" >> "$log" 2>&1 || say "resizepart failed"
+    fi
+    udevadm settle -t 10 >> "$log" 2>&1 || :
     n=0; while [ ! -b "/dev/${p}3" ] && [ "$n" -lt 50 ]; do sleep 0.1; n=$((n+1)); done
     say "partition now $(cat "$sys/${p}3/size" 2>/dev/null) sectors (kernel view)" ;;
 fs)

@@ -4,7 +4,8 @@
 #
 #   build-image.sh prepare        configure build/m3a/output from firmware.defconfig
 #   build-image.sh inputs         fill the content-addressed input store
-#   build-image.sh source|build   Buildroot job (detached; source may use the network)
+#   build-image.sh source|build   Buildroot job (detached; source may use the network;
+#                                 GOAL="pkg-reconfigure" runs that first in build)
 #   build-image.sh status|stop
 #   build-image.sh image NAME     card image dist/firmware/NAME.img.zst (+ .sha256, .manifest)
 #
@@ -74,7 +75,9 @@ source|build)
     podman container exists "$name" && podman rm "$name" >/dev/null
     [ -f "$out/.config" ] || { echo 'run prepare first' >&2; exit 1; }
     cmp -s "$defconfig" "$m3a/firmware.defconfig" || { echo 'defconfig changed: run prepare' >&2; exit 1; }
-    net=none target=all
+    # GOAL: extra make goals before `all` (e.g. util-linux-reconfigure after a
+    # package option changed; Buildroot doesn't rebuild a built package).
+    net=none target="${GOAL:+$GOAL }all"
     if [ "$stage" = source ]; then net=pasta target=source; fi
     if [ "$stage" = build ]; then
         [ "$(cat "$m3a/logs/source.exit" 2>/dev/null)" = 0 ] || { echo 'run source first' >&2; exit 1; }

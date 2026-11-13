@@ -30,4 +30,8 @@ check "SDL2 audio driver pipewire ($sdl)" has "$sdl" libpipewire-0.3.so.0
 check "SDL2 video driver KMSDRM" has "$sdl" KMSDRM
 check "SDL2 audio driver alsa (fallback)" has "$sdl" libasound.so.2
 check "libpipewire-0.3.so.0 present" sh -c "debugfs -R 'stat /usr/lib/libpipewire-0.3.so.0' '$img' 2>/dev/null | grep -q Inode:"
+# p3 auto-grow (M3d item 9): BLKRRPART fails while p2 is mounted, so the
+# first boot needs util-linux resizepart (BLKPG) to resize p3 in the kernel.
+check "resizepart present (p3 auto-grow)" sh -c "debugfs -R 'stat /usr/sbin/resizepart' '$img' 2>/dev/null | grep -q Inode:"
+check "muos-grow-p3 calls resizepart" has /usr/libexec/muos-grow-p3 'command -v resizepart'
 exit $fail
