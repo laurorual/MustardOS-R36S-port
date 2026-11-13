@@ -36,7 +36,7 @@
       ]
     },
     "M3d": {
-      "reason": "Built M3d firmware (2026-11-13): kernel 0001-0003 (fuel-gauge SOC, boot calibration fix), muxretro from source (in-game level bar, PSX threaded run), volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap; T2 pending on the trial root",
+      "reason": "Built M3d firmware (2026-11-13): kernel 0001-0003 (fuel-gauge SOC, boot calibration fix), muxretro from source (in-game level bar, PSX threaded run), volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap; p2 T2-passed on the trial root; kernel 0004 added; T3 pending, never flashed",
       "files": [
         "dist/firmware/test128-m3d-20261113.img.zst",
         "dist/firmware/test128-m3d-20261113.img.zst.sha256",
