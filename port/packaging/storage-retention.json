@@ -34,6 +34,15 @@
         "dist/firmware/test128-m3d-20261113.img.zst.sha256",
         "dist/firmware/test128-m3d-20261113.manifest"
       ]
+    },
+    "M3e": {
+      "reason": "Built M3e firmware (2026-11-13): M3d + p3 auto-grow fix (resizepart), hold-to-repeat, Wi-Fi power save, 408 MHz CPU OPP, p1/muxretro metadata hygiene; T2 on the trial root pending",
+      "files": [
+        "dist/firmware/test128-m3e-20261113.img.zst",
+        "dist/firmware/test128-m3e-20261113.img.zst.sha256",
+        "dist/firmware/test128-m3e-20261113.manifest",
+        "build/m3a/test128-m3e-20261113.p2.img"
+      ]
     }
   },
   "keep": {

@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# shellcheck disable=SC2016
+# T2/T3 (M3e step 3): a logged full battery discharge, down to the
+# low-battery poweroff (muos-lowbattery: <= 3% and < 3.5 V for 3 checks)
+# or to the PMIC cutting power, whichever comes first.
+#   t2-discharge.sh start    charger must be unplugged; plays the NES test
+#                            game (r35s-flight.nes: no user saves) and logs
+#                            one line a minute to p3 MUOS/log/discharge.csv
+#                            (synced each time, survives the power loss);
+#                            volume 10 for the run (the user's level is
+#                            saved and restored by report)
+#   t2-discharge.sh status   the last log lines
+#   t2-discharge.sh report   after the user charged and powered on: pulls
+#                            the log, the battery and shutdown logs, prints
+#                            a summary, restores resume.ini and the volume
+# Columns: epoch, uptime s, capacity % (kernel), muOS capacity %, status,
+# mV, mA (negative = discharging), SoC C, CPU MHz, backlight, game alive.
+set -u
+cd "$(dirname "$0")" || exit 1
+dev=./device.sh
+logs=$(cd ../.. && pwd)/build/logs; mkdir -p "$logs"
+. ./t2-game.lib.sh
+csv=/userdata/MUOS/log/discharge.csv
+keep=/userdata/MUOS/log/discharge
+
+logger='#!/bin/sh
+B=/sys/class/power_supply/battery csv='"$csv"'
+[ -s $csv ] || echo "epoch,uptime,cap,muos_cap,status,mv,ma,soc_c,cpu_mhz,backlight,game" > $csv
+while :; do
+    g=0; for p in /proc/[0-9]*; do [ "$(readlink $p/exe)" = /opt/muos/frontend/muxretro ] && g=1 && break; done
+    echo "$(date +%s),$(cut -d" " -f1 /proc/uptime),$(cat $B/capacity),$(cat /run/muos/battery/capacity 2>/dev/null),$(cat $B/status),$(( $(cat $B/voltage_now) / 1000 )),$(( $(cat $B/current_now) / 1000 )),$(( $(cat /sys/class/thermal/thermal_zone0/temp) / 1000 )),$(( $(cat /sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq) / 1000 )),$(cat /sys/class/backlight/*/brightness | head -n1),$g" >> $csv
+    sync
+    sleep 60
+done'
+
+case "${1:-}" in
+start)
+    [ "$(r 'cat /sys/class/power_supply/battery/status')" = Discharging ] ||
+        fail 'battery not discharging: unplug the charger first'
+    [ "$(r 'cat /sys/class/power_supply/ac/online /sys/class/power_supply/usb/online' | tr -d '\n')" = 00 ] ||
+        fail 'charger still online'
+    r "pgrep -f muos-discharge-log >/dev/null" && fail 'a discharge log is already running'
+    r "mkdir -p $keep; rm -f $csv; cp -a /userdata/MUOS/pickles/resume.ini $keep/resume.ini.before 2>/dev/null; :"
+    r "cat /opt/muos/config/settings/general/volume > $keep/volume.before; export PIPEWIRE_RUNTIME_DIR=/run XDG_RUNTIME_DIR=/run; /opt/muos/script/device/audio.sh 10 >/dev/null 2>&1"
+    printf '%s\n' "$logger" | r 'cat > /run/muos-discharge-log && chmod +x /run/muos-discharge-log'
+    game_start r35s-flight.nes NES
+    r 'setsid nohup /run/muos-discharge-log > /dev/null 2>&1 < /dev/null &'
+    sleep 3
+    r "cat $csv"
+    echo "started: NES test game + discharge log ($csv)"
+    ;;
+status)
+    r "wc -l < $csv; tail -n 3 $csv"
+    ;;
+report)
+    out=$logs/discharge; rm -rf "$out"; mkdir -p "$out"
+    "$dev" scp "dev:$csv" "$out/discharge.csv" > /dev/null 2>&1 || fail 'no discharge log on p3'
+    r 'cd /userdata/MUOS/log; for d in system system.prev system.prev2 system.prev3; do [ -f $d/battery-port.log ] && { echo "== $d"; cat $d/battery-port.log; }; done; echo "== rc-last"; cat rc-last.log' > "$out/battery-and-shutdown.txt" 2>&1
+    r "[ -f $keep/resume.ini.before ] && cp -a $keep/resume.ini.before /userdata/MUOS/pickles/resume.ini; sync" || :
+    r "v=\$(cat $keep/volume.before 2>/dev/null) && export PIPEWIRE_RUNTIME_DIR=/run XDG_RUNTIME_DIR=/run && /opt/muos/script/device/audio.sh \$v >/dev/null 2>&1" || :
+    python3 -I - "$out/discharge.csv" "$out/battery-and-shutdown.txt" <<'PY'
+import csv, sys
+rows = [r for r in csv.DictReader(open(sys.argv[1])) if r["mv"]]
+if not rows:
+    sys.exit("FAIL empty log")
+first, last = rows[0], rows[-1]
+mins = (int(last["epoch"]) - int(first["epoch"])) / 60
+mah = sum(-int(r["ma"]) for r in rows if int(r["ma"]) < 0) / 60
+jumps = [(a["cap"], b["cap"], b["epoch"]) for a, b in zip(rows, rows[1:])
+         if abs(int(b["cap"]) - int(a["cap"])) > 2]
+print(f"run: {mins:.0f} min, {first['cap']}% {first['mv']} mV -> {last['cap']}% {last['mv']} mV")
+print(f"drawn: ~{mah:.0f} mAh (1-min samples), mean {mah / max(mins, 1) * 60:.0f} mA")
+print(f"% jumps > 2 between samples: {len(jumps)} {jumps[:5]}")
+for lo in (25, 10, 5, 3):
+    hit = next((r for r in rows if int(r["cap"]) <= lo), None)
+    if hit:
+        print(f"first <= {lo}%: {hit['mv']} mV after {(int(hit['epoch']) - int(first['epoch'])) / 60:.0f} min")
+txt = open(sys.argv[2]).read()
+clean = "critical battery" in txt
+print("end:", "clean low-battery poweroff (muos-lowbattery)" if clean
+      else "no low-battery poweroff logged: power was cut (PMIC) or the run was stopped")
+gauge = [l for l in txt.splitlines() if "muos-gauge: boot" in l]
+if gauge:
+    print("first boot after:", gauge[0].split("muos-gauge: ", 1)[1][:160])
+PY
+    echo "details: $out"
+    ;;
+*) echo 'usage: t2-discharge.sh start|status|report' >&2; exit 2 ;;
+esac
