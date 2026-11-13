@@ -1,0 +1,69 @@
+From: muOS R35S port
+Subject: [PATCH] power: rk817_battery: boot sanity check of the display SOC
+
+On the R35S a boot left the display SOC (dsoc) at 0% while the coulomb
+counter said 99%; the display then only crept up at the charge rate and
+the port powered off for low battery. After the BSP init, when dsoc and
+the coulomb SOC disagree by more than 10%, keep the one closer to the
+voltage estimate, and log the init inputs on every boot.
+
+SPDX-License-Identifier: GPL-2.0
+---
+--- a/drivers/power/rk817_battery.c	2026-11-12 22:08:48.943419874 -0300
++++ b/drivers/power/rk817_battery.c	2026-11-12 22:08:48.958491897 -0300
+@@ -1728,6 +1728,47 @@
+ 	INIT_DELAYED_WORK(&battery->calib_delay_work, rk817_bat_internal_calib);
+ }
+ 
++/* muOS R35S port: boot sanity check of the display SOC. The BSP init
++ * restores dsoc from PMIC registers through several paths (halt, U-Boot
++ * init, OCV/force calibration); on the R35S one of them left dsoc at 0%
++ * with the coulomb counter at 99% (2026-11-13), and the display SOC then
++ * only creeps toward it at the charge rate. When dsoc and the coulomb SOC
++ * disagree by more than 10%, trust the one closer to the voltage estimate
++ * (inflated while charging, depressed under load: only a tie-breaker).
++ * Every boot logs its inputs ("muos-gauge:") for the port's battery log.
++ */
++static void rk817_bat_boot_sanity(struct rk817_battery_device *battery)
++{
++	int vol = rk817_bat_get_battery_voltage(battery);
++	int vsoc = rk817_bat_vol_to_soc(battery, vol) * 1000;
++	int rsoc = rk817_bat_get_rsoc(battery);
++	int cap;
++
++	BAT_INFO("muos-gauge: boot first=%d off=%dmin halt=%d init=%d ocv=%d force=%d dsoc=%d rsoc=%d vsoc=%d v=%d nac=%d fcc=%d\n",
++		 battery->is_first_power_on, battery->pwroff_min,
++		 battery->is_halt, battery->is_initialized,
++		 battery->is_ocv_calib, battery->is_force_calib,
++		 battery->dsoc, rsoc, vsoc, vol, battery->nac, battery->fcc);
++	if (abs(battery->dsoc - rsoc) <= 10 * 1000)
++		return;
++	if (abs(rsoc - vsoc) <= abs(battery->dsoc - vsoc)) {
++		BAT_INFO("muos-gauge: dsoc %d -> coulomb %d\n", battery->dsoc, rsoc);
++		battery->dsoc = rsoc;
++	} else {
++		cap = battery->dsoc / 1000 * battery->fcc / 100;
++		BAT_INFO("muos-gauge: coulomb %d -> dsoc %d (%d mAh)\n",
++			 rsoc, battery->dsoc, cap);
++		rk817_bat_init_coulomb_cap(battery, cap);
++	}
++	if (battery->dsoc > 100 * 1000)
++		battery->dsoc = 100 * 1000;
++	else if (battery->dsoc < 0)
++		battery->dsoc = 0;
++	battery->rsoc = rk817_bat_get_rsoc(battery);
++	rk817_bat_save_dsoc(battery, battery->dsoc);
++	rk817_bat_save_cap(battery, battery->remain_cap / 1000);
++}
++
+ static void rk817_bat_init_fg(struct rk817_battery_device *battery)
+ {
+ 	rk817_bat_adc_init(battery);
+@@ -1739,6 +1780,7 @@
+ 	rk817_bat_init_caltimer(battery);
+ 	rk817_bat_rsoc_init(battery);
+ 	rk817_bat_init_coulomb_cap(battery, battery->nac);
++	rk817_bat_boot_sanity(battery);
+ 	DBG("rsoc%d, fcc = %d\n", battery->rsoc, battery->fcc);
+ 	rk817_bat_init_dsoc_algorithm(battery);
+ 	battery->qmax = rk817_bat_get_qmax(battery);

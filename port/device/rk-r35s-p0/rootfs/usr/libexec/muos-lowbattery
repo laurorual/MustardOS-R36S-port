@@ -4,25 +4,33 @@
 # when not charging and capacity <= settings/power/low_battery, show the
 # battery overlay (/run/muos/overlay.battery). Port addition: at or below
 # CRITICAL % (default 3) for three checks in a row while discharging, power
-# off cleanly through init (saves, p3) before the PMIC cuts power.
+# off cleanly through init (saves, p3) before the PMIC cuts power, and
+# only if the battery voltage agrees (below VOLTAGE mV, default 3500): a
+# gauge error must not power off a charged battery (M3d step 2 T3: 0% shown
+# at 4.1 V).
 run=/run/muos
 cap=$run/battery/capacity chg=$run/battery/charging ovl=$run/overlay.battery
 critical=${MUOS_BATTERY_CRITICAL:-3} interval=${MUOS_BATTERY_INTERVAL:-10}
+volt=${MUOS_BATTERY_VOLTAGE:-3500}
+bat_mv() { v=$(cat /sys/class/power_supply/battery/voltage_now 2>/dev/null); echo $(( ${v:-0} / 1000 )); }
 say() { printf '%s %s\n' "$(cut -d' ' -f1 /proc/uptime)" "$*"; }
 cfg() { v=$(cat "/opt/muos/config/$1" 2>/dev/null); echo "${v:-$2}"; }
 until [ -f "$cap" ] && [ -f "$chg" ]; do sleep 2; done
-low=0
+low=0 ignored=
 while :; do
     c=$(cat "$cap" 2>/dev/null); g=$(cat "$chg" 2>/dev/null)
     case "$c:$g" in *[!0-9:]*|:*|*:) sleep "$interval"; continue ;; esac
     if [ "$g" -ne 0 ] || [ "$c" -gt "$(cfg settings/power/low_battery 25)" ]; then
         [ ! -e "$ovl" ] || { rm -f "$ovl"; say "battery ok ($c%, charging=$g)"; }
-        low=0
+        low=0 ignored=
     else
         [ -e "$ovl" ] || { : > "$ovl"; say "low battery warning ($c%)"; }
-        if [ "$c" -le "$critical" ]; then
+        if [ "$c" -le "$critical" ] && [ "$(bat_mv)" -lt "$volt" ]; then
             low=$((low + 1))
-            [ "$low" -lt 3 ] || { say "critical battery ($c%): power off"; sync; poweroff; exit 0; }
+            [ "$low" -lt 3 ] || { say "critical battery ($c%, $(bat_mv) mV): power off"; sync; poweroff; exit 0; }
+        elif [ "$c" -le "$critical" ]; then
+            [ -n "$ignored" ] || say "critical $c% ignored: battery at $(bat_mv) mV"
+            low=0 ignored=1
         else
             low=0
         fi

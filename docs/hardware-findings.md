@@ -505,6 +505,13 @@ about other R35S/R36S panels or revisions.
   pulls dsoc toward the OCV table (seen: 66 → 58% at 3.73 V / 0.7 A, OCV
   ≈ 3.80 V ≈ 57%), so it should reach 0 at the 3.3 V cut-off; FCC learns on
   a full charge.
+  Step 2 T3 (2026-11-13): after a reboot right after unplugging at ~90%,
+  dsoc came up ~0 with the coulomb counter at 99% (remain_cap 3354 of 3380
+  mAh); the smoothing then raised dsoc only at the charge rate. No BSP
+  init message logged on the following boot; patch 0002 cross-checks dsoc
+  against the coulomb SOC at boot (`muos-gauge:` lines). Related: in
+  the BSP zero algorithm dsoc drops 1% per 15 s (`WAIT_DSOC_DROP_SEC`) and
+  is zeroed after 30 s below `power_off_thresd` − 70 mV.
 - **Battery current (M3d step 2, `build/logs/power-m3d`, on battery,
   volume 10, backlight as set):** menu idle 559 mA (1008 MHz); per game
   performance / schedutil: NES 759/645, GB –/625, GBA 759/633, SNES 803/664,
