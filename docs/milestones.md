@@ -4,6 +4,83 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M3d — smoothness + robustness (done 2026-11-13, T3 passed)
+
+Goal: no visible slowdowns in normal play (the user's bar for the final
+build), then robustness for long use. Steps 1–2 are below; steps 3–6 ran
+autonomously on the night of 2026-11-13. Image
+`dist/firmware/test128-m3d-20261113` (raw `f2692bfa…`, p2 `fd78705a…`),
+the recovery image since 2026-11-13.
+
+**Step 3 — volume/brightness judder.** muxretro built from source
+(`build-muxretro.sh`: Phase 4 provider source + `port/patches/muxretro/`,
+byte-reproducible, pinned from `build/m3d/muxretro/tree`): patch 0001
+(per-frame `slow_frames` stage trace), 0002 (in-game level bar drawn by
+muxretro: plain panel, bar and recoloured theme glyph; the pause menu keeps
+upstream's LVGL bar). WirePlumber `state.restore-props = false` on the sink
+(`core-wireplumber.conf`); volume steps through `muos-volume-step` +
+`muos-volumed` (resident `pw-cli`, started on the first press; the first
+press after boot uses upstream `audio.sh`). T2 gate `t2-level-fps.sh
+--max-slow 6 --max-missed 0`: 0 frames > 25 ms per 14 s of presses on
+NES/schedutil (was 46–53 vol / 10–35 bright).
+
+**Step 4 — remaining stalls.** Wake: the 8821cu's association busy-waits
+in the kernel (PREEMPT_VOLUNTARY) and froze a frame for 80–130 ms; the
+Wi-Fi side now runs on CPU3 (network worker, its daemons, `RTW_CMD_THREAD`;
+`muos-cpu-pin`, BusyBox `taskset`) and a resumed game on CPU0–2: worst
+frame after wake 129 → 33 ms. PSX: pcsx_rearmed on muxretro's core thread,
+overlapped with presenting (muxretro patch 0003): CTR attract 8–12 missed
+vsyncs per 75 s and 60.0 fps per 5 s window (was 35–108, 53–58 fps); about
+one frame more input latency. 2/2 PSX in-game sleep cycles
+(`T2_GAME_DIR`/`T2_GAME_ROM` for `t2-sleep-cycle.sh`).
+
+**Step 5 — robustness.** p3 auto-grow on first boot (`muos-grow-p3`, S89:
+MBR p3 end before the mount, online `resize2fs` after it, log p3
+`MUOS/log/grow-p3.log`; only for disk ID 4d554432 with three partitions);
+log size cap (`muos-logcap`, S97: a log over 4 MiB keeps its last 1 MiB as
+`NAME.1`). T2 of the grow on a loop-device copy of the layout only (see
+item 9 below for what that missed).
+
+**Step 6 — long run.** 51 warm reboots (`t2-audio-state.sh --reboots`:
+audio 51/51, slot main, gauge `force0`), 30 of them on kernel 0004, which
+held the % every time; one boot read the unsampled OCV (18 mV) and the
+guard kept dsoc. An RK817 RTC alarm doesn't power the device on, so cold
+boots are T3-only. `t2-long-play.sh --minutes 12` on NES, SNES, GBA, MD and
+PSX: all PASS, ~1 missed vsync per minute (capture dump a likely cause),
+fps ≥ 59.7, RSS +0–1 MiB, SoC 62–68 °C (PSX 78 °C), PCM throughout.
+Battery: patch 0004 (skip OCV calibrations outside 3.0–4.5 V; an
+unsampled OCV register read 18 mV on 5/20 warm reboots and became 0%).
+
+**T3 (user, 2026-11-13), items 1–8 on the card before the flash:**
+1 cold boot after ≥ 5 and ≥ 30 min off OK; 2 charging reboot OK; 3 drain
+OK (gauge logs of the last 4 boots: no correction, dsoc kept, e.g. 81%
+after ~50 min off with the counter at 72%, 87% on the charging reboot with
+vsoc 99%; saved in `build/m3d/p3-preflash-20261113`); 4 bar OK, but
+holding a key changes one step only (upstream repeats; the port's hotkey
+JSON lacks `handle_hold` → M3e); 5 volume OK; 6 CTR smooth over 3–4 races,
+input OK; 7 wake OK, one small dip left (remove late in the project if
+possible); 8 sound on every boot. Decisions: overclock deferred to the end
+as an optional user toggle; M3d is the recovery image; M3a.1 retired; from
+now on a milestone whose T3 shows no or only small problems becomes the
+recovery image without asking.
+
+**T3 item 9 — first flash, p3 auto-grow (2026-11-13): failed, fixed at
+T2.** Flashed without `--grow` (raw SHA verified). The first boot wrote
+the MBR but the kernel kept p3 at 1 GiB: BusyBox `partprobe` (BLKRRPART)
+gets EBUSY while p2 is mounted, which the loop-device test (nothing
+mounted) couldn't show. It also broke p3's fsck: udev re-probed p3 after
+the MBR write, and blkid found no table entry matching p3's old kernel
+size, so `/dev/disk/by-partuuid/4d554432-03` disappeared between S89's
+check and `e2fsck` (rc 8; S89 mounted anyway by `/dev/mmcblk0p3`). sfdisk
+2.40 only knows BLKRRPART too. Fix: Buildroot `UTIL_LINUX_PARTX`
+(`resizepart`, BLKPG_RESIZE_PARTITION, p3 only) after the MBR write, then
+`udevadm settle`. T2 on test128 (MBR p3 set back to the flashed 2097152
+sectors, ext4 untouched): partition 248561664 sectors at 6.8 s, ext4 online
+resize done at 7.6 s, link present, fsck rc 0, 118.5 GiB; the next boot
+was a no-op with a clean fsck. The M3d image itself still has the old
+script (a fresh card should reach full size on its second boot, not tested; `--grow` avoids
+it); the fix ships in the next image.
+
 ## M3d step 2 — battery % from the fuel gauge, per-system governors (done 2026-11-13)
 
 **Delivered:** kernel patches 0001 (capacity = RK817 fuel-gauge dsoc),
@@ -320,7 +397,7 @@ speaker level restored, replug → HP level restored); 15-reboot audio soak.
 Done 2026-11-11 (`03aa053`, `925c7bd`, `0154772`, `af33e99`). Image:
 `test128-m2-20261111.img.zst`.
 
-**What it added** (details in STATUS.md "Boot and runtime"): upstream
+**What it added** (details in procedures.md "Boot and runtime"): upstream
 Power-key sleep/resume, the shutdown timer, charging fake sleep, the
 battery service and low-battery poweroff, the headphone path follower,
 writable cpufreq with per-content governors. The 1512 MHz DTB was tried

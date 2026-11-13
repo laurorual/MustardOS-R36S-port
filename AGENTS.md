@@ -6,8 +6,12 @@ Develop a native AArch64 port of MustardOS (muOS) for genuine RK3326-based
 R35S/R36S handhelds. The final goal is a standalone bootable firmware, not an
 EmulationStation theme or a permanent muOS-on-dArkOSen installation.
 
-Current phase, open problems and next milestone live in `docs/STATUS.md`.
-Read it at the start of every session; update it at the end of every milestone.
+Current phase, recovery image, open problems and next milestone live in
+`docs/STATUS.md` (current state only, about 150 lines). Read it at the
+start of every session; update it at the end of every milestone.
+How-tos (flashing, building, trial root, trial kernel, boot sequence) are
+in `docs/procedures.md`; finished milestones, per-step details and T3
+results go to `docs/milestones.md`, not STATUS.
 
 ## Target Hardware
 
@@ -84,7 +88,8 @@ reproducible and logs are collected consistently.
 Because each brick costs a manual reflash (a T3 cycle) and loses SSH
 access until then:
 - Keep one known-good, flashable recovery image in dist/ (counts toward
-  the five-version limit) and document how to flash it in docs/STATUS.md.
+  the five-version limit), name it in docs/STATUS.md and keep the flash
+  steps in docs/procedures.md.
 - Before writing the bootloader, partition table or root filesystem,
   make sure the change was validated as far as possible at T0–T2 and
   that the recovery image matches the current card layout.
@@ -94,7 +99,8 @@ access until then:
 ## Repository Layout
 
 - port/   original port code (incl. port/scripts/, port/packaging/)
-- docs/   documentation (STATUS.md, decisions, hardware notes)
+- docs/   documentation (STATUS.md, procedures.md, milestones.md,
+          hardware notes)
 - build/  temporary build files (Git-ignored, compressible, disposable)
 - dist/   release artifacts (Git-ignored)
 

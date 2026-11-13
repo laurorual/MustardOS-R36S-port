@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016
 # SPDX-License-Identifier: MIT
-# Repeatable SSH access to the R35S test device (see docs/STATUS.md).
+# Repeatable SSH access to the R35S test device (see docs/procedures.md).
 #
 #   device.sh find [ip]        locate the device (DHCP IP changes) by host key
 #   device.sh run CMD...       run a shell command on the device (stdin passed)
