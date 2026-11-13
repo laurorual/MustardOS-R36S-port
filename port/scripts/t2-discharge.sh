@@ -10,10 +10,15 @@
 #                            (synced each time, survives the power loss);
 #                            volume 10 for the run (the user's level is
 #                            saved and restored by report)
+#   t2-discharge.sh switch DIR ROM   play another game during the run (e.g.
+#                            PSX "CTR - Crash Team Racing (USA).cue"): its
+#                            states and saves are backed up to p3 first
 #   t2-discharge.sh status   the last log lines
 #   t2-discharge.sh report   after the user charged and powered on: pulls
 #                            the log, the battery and shutdown logs, prints
-#                            a summary, restores resume.ini and the volume
+#                            a summary, restores resume.ini and the volume,
+#                            and puts back the switched game's states and
+#                            saves (what the run's autosave wrote is removed)
 # Columns: epoch, uptime s, capacity % (kernel), muOS capacity %, status,
 # mV, mA (negative = discharging), SoC C, CPU MHz, backlight, game alive.
 set -u
@@ -34,7 +39,23 @@ while :; do
     sleep 60
 done'
 
+# The pickles of a played game (states, SRAM) by DIR and ROM name.
+rom_paths='p=/userdata/MUOS/pickles; for d in "$p"/state/*/"$dir" "$p"/sram/*/"$dir"; do [ -d "$d" ] || continue; for f in "$d/$n" "$d/$n".*; do [ -e "$f" ] && echo "${f#/}"; done; done'
+
 case "${1:-}" in
+switch)
+    [ $# -eq 3 ] || { echo 'usage: switch DIR ROM' >&2; exit 2; }
+    r "pgrep -f muos-discharge-log >/dev/null" || fail 'no discharge run in progress'
+    d=$2 rom=$3 n=${3%.*}
+    r "test -f '/userdata/ROMS/$d/$rom'" || fail "no ROM $d/$rom"
+    # start played the NES test game (its pickles snapshot is in /run).
+    game_rom_name=${DISCHARGE_FROM:-r35s-flight} game_dir=${DISCHARGE_FROM_DIR:-NES}
+    game_stop
+    r "dir='$d' n='$n'; $rom_paths" > "$logs/discharge-switch.paths"
+    r "cd /; dir='$d' n='$n'; l=\$($rom_paths); printf '%s\t%s\n' '$d' '$n' > $keep/game; if [ -n \"\$l\" ]; then printf '%s\n' \"\$l\" | tar -cf $keep/game-before.tar -T -; else rm -f $keep/game-before.tar; fi; sync"
+    game_start "$rom" "$d"
+    echo "switched to $d/$rom (backed up: $(wc -l < "$logs/discharge-switch.paths") paths)"
+    ;;
 start)
     [ "$(r 'cat /sys/class/power_supply/battery/status')" = Discharging ] ||
         fail 'battery not discharging: unplug the charger first'
@@ -58,6 +79,7 @@ report)
     "$dev" scp "dev:$csv" "$out/discharge.csv" > /dev/null 2>&1 || fail 'no discharge log on p3'
     r 'cd /userdata/MUOS/log; for d in system system.prev system.prev2 system.prev3; do [ -f $d/battery-port.log ] && { echo "== $d"; cat $d/battery-port.log; }; done; echo "== rc-last"; cat rc-last.log' > "$out/battery-and-shutdown.txt" 2>&1
     r "[ -f $keep/resume.ini.before ] && cp -a $keep/resume.ini.before /userdata/MUOS/pickles/resume.ini; sync" || :
+    r "[ -f $keep/game ] || exit 0; IFS='	' read -r dir n < $keep/game; cd / && $rom_paths | while IFS= read -r f; do rm -rf \"/\$f\"; done; [ ! -f $keep/game-before.tar ] || tar -xf $keep/game-before.tar -C /; rm -f $keep/game; sync" || :
     r "v=\$(cat $keep/volume.before 2>/dev/null) && export PIPEWIRE_RUNTIME_DIR=/run XDG_RUNTIME_DIR=/run && /opt/muos/script/device/audio.sh \$v >/dev/null 2>&1" || :
     python3 -I - "$out/discharge.csv" "$out/battery-and-shutdown.txt" <<'PY'
 import csv, sys
