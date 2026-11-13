@@ -1,0 +1,16 @@
+From: muOS R35S port
+Subject: [PATCH] 0003-pcsx-rearmed-threaded-run
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/retro/coredef/pcsx_rearmed.c
++++ b/frontend/retro/coredef/pcsx_rearmed.c
+@@ -9,4 +9,7 @@
+     {.key = "pcsx_rearmed_spu_thread", .value = "enabled"},
+ };
+ 
+-COREDEF_CORE(pcsx_rearmed, "pcsx_rearmed", options);
++// muOS R35S port (M3d step 4): run the core on its own thread, overlapped with presenting
++// (as upstream does for yabadabadoo). On the RK3326 CTR's heavy scenes missed 35-108 vsyncs
++// per minute on one thread, 8-12 overlapped, at a cost of about one frame of latency.
++COREDEF_CORE_THREADED(pcsx_rearmed, "pcsx_rearmed", options);

@@ -5347,7 +5347,7 @@
    "path": "/opt/muos/frontend/muxretro",
    "type": "file",
    "mode": "755",
-   "sha256": "4f9266df238d4babde3856db97e3c39a356088435193e0dbbe9b3c0b409bdd54",
+   "sha256": "d55a804a06aff77a05d7dbb14592344d351170bf27eb14fc542911077791ed91",
    "origin": "build/m3d/muxretro/tree/opt/muos/frontend/muxretro"
   },
   {

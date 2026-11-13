@@ -1,0 +1,15 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-cpu-pin MASK PID...: CPU affinity (hex mask) for every thread of each
+# PID; no-op without taskset. M3d step 4: the 8821cu driver busy-waits in
+# kernel mode while it associates (PREEMPT_VOLUNTARY kernel), which froze
+# whatever shared its CPU for 80-130 ms; the Wi-Fi side runs on CPU3 and a
+# resumed game on CPU0-2 (muos-network worker, muos-suspend).
+command -v taskset > /dev/null || exit 0
+mask=$1; shift
+for pid in "$@"; do
+    for t in /proc/"$pid"/task/[0-9]*; do
+        [ -d "$t" ] && taskset -p "$mask" "${t##*/}" > /dev/null 2>&1
+    done
+done
+exit 0

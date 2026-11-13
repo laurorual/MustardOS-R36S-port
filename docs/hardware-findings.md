@@ -661,7 +661,10 @@ about other R35S/R36S panels or revisions.
     wake; what's left is one 80–95 ms frame ~4 s after resume while the
     8821cu associates (`RTW_CMD_THREAD`). Moving the dwc2 IRQ to CPU3
     doesn't change it (`taskset` isn't in the image, so muxretro pinning
-    was not tried).
+    was not tried). M3d step 4: pinning the Wi-Fi side (worker, wpa,
+    udhcpc, `RTW_CMD_THREAD`) to CPU3 and the game to CPU0–2 removes the
+    long frame (129 → 33 ms max); the dwc2 IRQ on CPU3 too adds nothing.
+    The kernel is PREEMPT_VOLUNTARY: a driver busy-wait owns its CPU.
   - *Volume/brightness (still open):* unchanged by the governor (vol 44–48,
     bright 22 slow frames per 14 s) and by priority (renice −10 of every
     muxretro thread, SCHED_RR 5 of the main thread: no gain or worse).

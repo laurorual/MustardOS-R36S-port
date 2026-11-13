@@ -88,6 +88,10 @@ up_once() {
         [ -r "$rf/type" ] && [ "$(cat "$rf/type")" = wlan ] && printf '0\n' > "$rf/soft"
     done
     ifconfig "$found" up || return 1
+    # The driver's command thread exists once the interface is up.
+    for d in /proc/[0-9]*; do
+        case "$(cat "$d/comm" 2>/dev/null)" in RTW_*) /usr/libexec/muos-cpu-pin 8 "${d#/proc/}" ;; esac
+    done
     # The costly part (USB enumeration, module, firmware) is done here:
     # muos-suspend resumes a game only after this (M3d wake stalls).
     touch "$state/radio"
@@ -118,6 +122,10 @@ up_once() {
 
 case "${1:-}" in
  up)
+    # M3d step 4: the Wi-Fi side (this worker and what it starts: modprobe,
+    # wpa_supplicant, udhcpc, dropbear) runs on CPU3, and so does the
+    # 8821cu's own thread (below): its association busy-waits in the kernel.
+    /usr/libexec/muos-cpu-pin 8 $$
     attempt=1
     while [ "$attempt" -le 3 ]; do
         echo "network: attempt $attempt"

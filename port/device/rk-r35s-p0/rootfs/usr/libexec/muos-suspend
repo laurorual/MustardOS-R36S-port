@@ -133,6 +133,8 @@ if [ "$fake" != 1 ]; then
     net_up
     [ -z "$retro" ] || wait_radio
 fi
+# The game resumes on CPU0-2, away from the 8821cu association (CPU3).
+[ -z "$retro" ] || /usr/libexec/muos-cpu-pin 7 "$retro"
 [ -z "$retro" ] || kill -USR2 "$retro" 2>/dev/null
 cut -d' ' -f1 /proc/uptime > "$run/input_resume"
 say "resumed"

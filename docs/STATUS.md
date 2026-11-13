@@ -303,10 +303,16 @@ charging icon; headphone path switching.
     upstream's LVGL bar); volume steps go through `muos-volumed` (resident
     `pw-cli`, started on the first press; the first press after boot uses
     upstream `audio.sh`).
-  - *Wake:* one 80–95 ms frame ~4 s after resume while the 8821cu associates
-    (`RTW_CMD_THREAD`).
-  - *PSX (CTR intro cutscene):* 56–59 fps for ~20 s, CPU/GPU-thread bound,
-    not I/O.
+  - *Wake* (M3d step 4): the 8821cu's association busy-waits in the
+    kernel (PREEMPT_VOLUNTARY) and froze a frame for 80–130 ms. The Wi-Fi
+    side now runs on CPU3 (network worker, its daemons, `RTW_CMD_THREAD`;
+    `muos-cpu-pin`, BusyBox `taskset` added) and a resumed game on CPU0–2:
+    the worst frame after wake is ~30–50 ms (1–2 missed vsyncs).
+  - *PSX* (M3d step 4): pcsx_rearmed runs on muxretro's core thread,
+    overlapped with presenting (patch 0003): CTR's attract sequence 8–12
+    missed vsyncs per 75 s and 60.0 fps in every 5 s window after loading
+    (was 35–108 and 53–58 fps; high run-to-run variance). About one frame
+    more input latency on PSX. Its GPU thread was already on (`auto`).
   - The DDR devfreq isn't synced to the display (no `vop-bw-dmc-freq` in the
     DT): with performance DDR switches only at game start/exit; schedutil
     games keep `dmc_ondemand`, so DDR may switch mid-game (no flash seen
@@ -394,9 +400,12 @@ robustness for long use.
    (post-build installs `core-wireplumber.conf`), `muos-volume-step` +
    `muos-volumed`. Gate: `t2-level-fps.sh --max-slow 6 --max-missed 0`
    (vol 3, bright 1, 0 missed); 2/2 in-game sleep cycles.
-4. **Remaining stalls:** the wake hitch during 8821cu association, CTR's
-   race start/end (T3) and cutscene dips (pcsx_rearmed GPU-thread mode,
-   muxretro threaded run; the overclock is the user's call).
+4. **Remaining stalls** (done 2026-11-13, T2; T3: CTR race start/end,
+   PSX input feel): wake hitch → Wi-Fi on CPU3, game on CPU0–2; PSX →
+   threaded core run (muxretro patch 0003). T2: wake worst frame 129 →
+   33 ms; CTR 8–12 missed vsyncs per 75 s (was 35–108); 2/2 PSX in-game
+   sleep cycles (`T2_GAME_DIR`/`T2_GAME_ROM` for `t2-sleep-cycle.sh`).
+   Overclock: still the user's call.
 5. **Robustness (the original M3d):** p3 auto-grow on first boot, log
    rotation, the battery gauge over a full discharge (low-battery
    shutdown, re-seed after a dead battery), the 559 mA menu idle

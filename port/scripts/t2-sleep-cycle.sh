@@ -6,7 +6,7 @@
 # the RTC via /run/muos/suspend-test-wake. Each cycle checks: suspend entered,
 # resumed, backlight restored, Wi-Fi/SSH back, frontend (or game) alive.
 #   t2-sleep-cycle.sh [--game] [CYCLES] [WAKE_SECONDS]
-# --game: launch the NES test game first (t2-game.lib.sh: content handoff,
+# --game: launch the NES test game (or $T2_GAME_ROM in ROMS/$T2_GAME_DIR) first (t2-game.lib.sh: content handoff,
 # the ROM's pickles snapshotted and restored afterwards, so the auto-save on
 # SIGUSR1 never replaces the user's); checks muxretro saved on SIGUSR1 and
 # is still running after each resume. (Before M3d it launched GB private.gb
@@ -22,7 +22,7 @@ fail() { echo "FAIL $*"; r 'tail -5 /opt/muos/log/suspend.log' || :; exit 1; }
 
 r "echo $wake > /run/muos/suspend-test-wake"
 if [ "$game" = 1 ]; then
-    game_start "$(game_rom)" NES
+    game_start "${T2_GAME_ROM:-$(game_rom)}" "${T2_GAME_DIR:-NES}"
     sleep 4
     echo "game started"
 fi
