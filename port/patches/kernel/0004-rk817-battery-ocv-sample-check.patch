@@ -1,0 +1,45 @@
+From: muOS R35S port
+Subject: [PATCH] power: rk817_battery: ignore an unsampled OCV at boot
+
+On some warm reboots the RK817's OCV register holds no sample (18 mV on
+5 of 20 reboots, 2026-11-13). rk817_bat_not_first_pwron() turned it into
+a 0% OCV estimate and forced the gauge to 0% (capacity and coulomb
+counter); the next boot then looked like a halt. Skip the OCV and forced
+calibrations when the OCV is outside 3.0-4.5 V and keep the stored SOC.
+
+SPDX-License-Identifier: GPL-2.0
+---
+--- a/drivers/power/rk817_battery.c
++++ b/drivers/power/rk817_battery.c
+@@ -1603,6 +1603,18 @@
+ 	    __func__, battery->rsoc, battery->dsoc, battery->fcc, battery->nac);
+ }
+ 
++/* muOS R35S port: on some warm reboots the PMIC's OCV register holds no
++ * sample (18 mV seen, 2026-11-13: 5 of 20 reboots), which the BSP turned
++ * into a 0% OCV estimate and a forced calibration to 0%. A real cell
++ * reads within the OCV table's range; anything outside 3.0-4.5 V is no
++ * sample. */
++static bool rk817_bat_ocv_sampled(struct rk817_battery_device *battery)
++{
++	int vol = rk817_bat_get_ocv_voltage(battery);
++
++	return vol >= 3000 && vol <= 4500;
++}
++
+ static void rk817_bat_not_first_pwron(struct rk817_battery_device *battery)
+ {
+ 	int now_cap, pre_soc, pre_cap, ocv_cap, ocv_soc, ocv_vol;
+@@ -1636,6 +1648,12 @@
+ 		/* uboot initialized */
+ 		BAT_INFO("initialized yet..\n");
+ 		goto finish;
++	} else if ((battery->is_ocv_calib || battery->pwroff_min > 0) &&
++		   !rk817_bat_ocv_sampled(battery)) {
++		/* muOS R35S port: no OCV sample (warm reboot): keep the
++		 * stored SOC and capacity. */
++		BAT_INFO("muos-gauge: ocv %d mV not sampled, kept dsoc %d\n",
++			 rk817_bat_get_ocv_voltage(battery), pre_soc);
+ 	} else if (battery->is_ocv_calib) {
+ 		/* not initialized and poweroff_cnt above 30 min */
+ 		ocv_vol = rk817_bat_get_ocv_voltage(battery);

@@ -7,6 +7,8 @@
 #   sdlopen=<driver@rate of a fresh SDL client (muos-sdl-audio-probe)>
 #   path=<n> vol=<l,r> regs=<RK817 codec 0x12..0x4f hex>
 #   PASS|FAIL audio <reasons>
+# Since M3d step 6 also slot=<boot record> root=<ro|rw> gauge=<force,dsoc>
+# cap=<battery %>; FAIL unless slot=main and the gauge kept its SOC.
 # Healthy with the UI (menu or game) up: the frontend's SDL_mixer device or
 # muxretro holds a PipeWire output stream, so hw:0,0 is RUNNING and hw_ptr
 # advances at about 44100/s. About half that is the "half-rate after
@@ -42,7 +44,13 @@ sdl=$(awk -F"[][]" "{u=\$2+0} u<p {ok=0; bad=0} {p=u} /SDL Init Success/ {ok++} 
 # A fresh SDL client with the frontend environment (silence, 1 s).
 o=$(XDG_RUNTIME_DIR=/run PIPEWIRE_RUNTIME_DIR=/run SDL_AUDIODRIVER=pipewire /usr/libexec/muos-sdl-audio-probe 1 2>&1 | grep -E "^(OK|FAIL)")
 case "$o" in OK*) sdlopen=$(echo "$o" | sed -n "s/.*driver=\([^ ]*\) freq=\([0-9]*\).*/\1@\2/p");; *) sdlopen=fail;; esac
-echo "boot=$(cut -c1-8 /proc/sys/kernel/random/boot_id) up=$(cut -d. -f1 /proc/uptime) s95=$s95 att=$att pcm=$st rate=$rate streams=${streams:-none} sdl=$sdl sdlopen=$sdlopen path=$path vol=$vol regs=$regs"'
+# M3d step 6 (reboot cycles): boot slot, root mode, the gauge boot decision
+# (kernel patch 0003: force=1 means the OCV reset) and the battery %.
+slot=$(tr " " "\n" < /proc/cmdline | sed -n "s/^muos_slot=//p")
+root=$(awk "\$2 == \"/\" {split(\$4, o, \",\"); print o[1]}" /proc/mounts)
+gauge=$(dmesg | sed -n "s/.*muos-gauge: boot .* force=\([0-9]*\) dsoc=\([0-9]*\).*/force\1,dsoc\2/p" | head -n1)
+cap=$(cat /sys/class/power_supply/battery/capacity)
+echo "boot=$(cut -c1-8 /proc/sys/kernel/random/boot_id) up=$(cut -d. -f1 /proc/uptime) slot=$slot root=$root gauge=$gauge cap=$cap s95=$s95 att=$att pcm=$st rate=$rate streams=${streams:-none} sdl=$sdl sdlopen=$sdlopen path=$path vol=$vol regs=$regs"'
 diag='
 . /opt/muos/script/var/audio.sh >/dev/null 2>&1
 echo "--- diag $(cut -c1-8 /proc/sys/kernel/random/boot_id)"
@@ -59,6 +67,8 @@ verdict() { # the probe line -> PASS/FAIL with every failed criterion
     v=$(sed -n 's/.* streams=\([^ ]*\).*/\1/p' <<< "$1"); [ "$v" != none ] || why+=" no-stream"
     v=$(sed -n 's/.* sdl=\([^ ]*\).*/\1/p' <<< "$1"); [ "$v" = ok ] || why+=" sdl=$v"
     v=$(sed -n 's/.* sdlopen=\([^ ]*\).*/\1/p' <<< "$1"); [ "$v" = pipewire@44100 ] || why+=" sdlopen=${v:-?}"
+    v=$(sed -n 's/.* slot=\([^ ]*\).*/\1/p' <<< "$1"); [ "$v" = main ] || why+=" slot=${v:-?}"
+    v=$(sed -n 's/.* gauge=\([^ ]*\).*/\1/p' <<< "$1"); case "$v" in force0,*) ;; *) why+=" gauge=${v:-?}" ;; esac
     if [ -z "$why" ]; then echo 'PASS audio'; else echo "FAIL audio:$why"; return 1; fi
 }
 # On a failed sample, collect the evidence before the next reboot loses it.
