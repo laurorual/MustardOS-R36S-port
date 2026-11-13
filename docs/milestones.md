@@ -4,6 +4,25 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M3d step 2 — battery % from the fuel gauge, per-system governors (done 2026-11-13)
+
+**Delivered:** kernel patches 0001 (capacity = RK817 fuel-gauge dsoc),
+0002 (boot sanity check dsoc vs coulomb, `muos-gauge:` log), 0003 (BSP
+unit fix in the boot calibration); per-system governors (PSX/32X
+performance, the rest schedutil); `muos-boost` for volume/brightness keys;
+`muos-lowbattery` voltage guard (< 3.5 V). Commits 91c7ff5, 5386632 and
+the 0003 commit.
+
+**T3 (user, 2026-11-13, first run):** items 4–6 OK; battery failed (0%
+after a reboot, low-battery poweroff) → 0002 + guard.
+**Re-test (user, 2026-11-13 night):** 3 (done first) cold boot raised the
+% from ~75 to ~80; 2 > 1 h idle in the menu 100% → 81% (~19%/h, matches
+the ~560 mA menu draw); 1 (after 3) reboot kept the %; 4 charged to 85%,
+rebooted with the charger in → ~95%; 5 sound OK the whole time. Cause of
+both jumps: the BSP's force calibration fired on every boot (unit mix,
+hardware-findings "Battery %"); fixed by 0003 (T2: a charging reboot keeps
+dsoc 99010 with `force=0`; the counter persists). Cold boot is T3-only.
+
 ## M3d step 1 — game governor, wake order, panel timing, PSX BIOS (done 2026-11-12, T3 passed)
 
 **Delivered:** `muos-governor` (CPU governor + GPU floor, deep idle, DDR

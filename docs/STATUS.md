@@ -12,20 +12,21 @@ checklists) are in [milestones.md](milestones.md). See also
 **Phase 5 (own-card firmware). M1–M3c are done; M3c's image is the
 recovery image. M3d (smoothness + robustness): step 1 (game governor, wake
 order, panel timing, PSX BIOS) passed T3 on 2026-11-12; step 2 (battery %
-from the fuel gauge, per-system governor profiles) failed T3 on the battery
-(0% after a reboot); the fix (kernel patch 0002 + low-battery voltage
-guard) is T2-tested on the card; the re-test checklist is at the end of
-this file.** Results: milestones.md.
+from the fuel gauge, per-system governor profiles) is done: the re-test's
+boot jumps were a BSP unit bug, fixed by kernel patch 0003 (T2-passed,
+main on the card). Steps 3–6 run autonomously on the night of
+2026-11-13; the T3 checklist is at the end of this file.** Results:
+milestones.md.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0, test128 in slot 1, flashed with the M3b
   image on 2026-11-11 (host card reader, p3 grown to the whole card).
-  Boot records (since 2026-11-13): main = `Image-84112f93c3dc` (kernel
-  patches 0001+0002) + M3d DTB `panel0-d2cef0b6bd98.dtb`; previous =
-  `Image-48b6fc61382f` (0001 only) + the same DTB. Unreferenced on p1: the
-  M3b kernel `Image-ab18bba307f8`, the M2 kernel, the M3b DTB
-  `panel0-496bbe3591f8.dtb`.
+  Boot records (since 2026-11-13 night): main = `Image-0563896506e7`
+  (kernel patches 0001–0003) + M3d DTB `panel0-d2cef0b6bd98.dtb`;
+  previous = `Image-84112f93c3dc` (0001+0002) + the same DTB.
+  Unreferenced on p1: `Image-48b6fc61382f` (0001), the M3b kernel
+  `Image-ab18bba307f8`, the M2 kernel, the M3b DTB `panel0-496bbe3591f8.dtb`.
   - p2: the M3c build `313d6a44…` (content-identical to the p2 of
     `test128-m3c-20261112`; ext4 metadata differs), written via the trial
     root on 2026-11-12, plus the M3d step 1–2 files installed with
@@ -266,8 +267,11 @@ charging icon; headphone path switching.
   "Battery %"). Step 2 T3: one reboot (charger just removed, ~90%) came up
   at 0% with the coulomb counter full; the port's low-battery service
   powered off. The boot path is unknown (that boot's dmesg was lost);
-  patch 0002 now corrects dsoc vs coulomb disagreements > 10% at boot and
-  logs every boot's inputs (`muos-gauge:` lines, copied to
+  the re-test then showed +5–13% jumps on a cold boot and a charging
+  reboot: the BSP's boot calibration compared % with 1/1000 % and reset
+  the gauge to the OCV estimate on every boot (also the 0% cause). Patch
+  0003 fixes the units; patch 0002 still corrects dsoc vs coulomb
+  disagreements > 10% at boot and logs every boot's inputs (`muos-gauge:` lines, copied to
   `/opt/muos/log/battery-port.log` by S97), and `muos-lowbattery` powers
   off only below 3.5 V. Unverified: accuracy over a full discharge (FCC
   3380 mAh is the DT value until a full charge teaches it), the reading
@@ -350,8 +354,8 @@ robustness for long use.
 1. **Stalls found in M3c T3** (done, T3 passed 2026-11-12; milestones.md):
    `muos-governor` (CPU governor + GPU floor, deep idle, DDR), wake after
    the radio is up, panel timing 60.0046 Hz, the user's PSX BIOS.
-2. **Battery % + per-system profiles** (T3 2026-11-13: 4–6 OK, battery
-   failed → fix T2-passed, re-test pending):
+2. **Battery % + per-system profiles** (done 2026-11-13: 4–6 OK; battery
+   re-test: boot jumps → patch 0003, T2-passed; cold boot left for T3):
    - Kernel `port/patches/kernel/0001` (applied by `build-boot.sh kernel`
      to a reflinked `build/m3b/linux-src`): `capacity` = the RK817 fuel
      gauge instead of the voltage-only hack (hardware-findings "Battery %").
@@ -392,28 +396,3 @@ robustness for long use.
 
 T2 hygiene: `t2-sleep-cycle.sh --game` now uses the NES test game with
 the pickles snapshot (it used to rewrite the user's `private.gb` autosave).
-
-## M3d step 2 T3 re-test (for the user)
-
-The card runs the fix (main = patches 0001+0002). The battery reads 100%
-(Full) on the charger now, which matches the coulomb counter. Items 4–6
-passed and need no re-test.
-
-1. **Unplug + reboot (the failing case):** unplug the charger, reboot from
-   the menu.
-   - Expected: about the same % as before the reboot (100% or just below),
-     no low-battery warning, no shutdown.
-2. **About 30 min of play on battery:** note the % and the time at the start
-   and the end.
-   - Expected: a steady fall, about 1% every 3 min in NES/GB/SNES/GBA and
-     every ~2.5 min in PSX; no jumps. Near 55–60% it may fall a little
-     faster for a while (gauge correcting to the voltage table).
-3. **Cold boot:** power off, wait ~1 min, power on.
-   - Expected: the same % (±1), not 100% and not 0%.
-4. **Charger:** plug it in for a few minutes, then reboot once with it in.
-   - Expected: the % rises gradually and is the same after the reboot.
-5. **Sound** after any of the reboots, at volume 10: the menu sounds/game
-   audio are audible (quiet).
-
-If anything is off, just tell me which step: each boot's gauge decision
-is now in `/opt/muos/log/battery-port.log`.

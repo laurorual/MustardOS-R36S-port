@@ -1,0 +1,79 @@
+From: muOS R35S port
+Subject: [PATCH] power: rk817_battery: fix SOC units in the boot calibration
+
+rk817_bat_not_first_pwron() compares the OCV SOC (in %) with the stored
+display SOC (in 1/1000 %). The force-calibration test "abs(ocv_soc -
+pre_soc) >= 80" was therefore true on every boot after a short power-off
+(reboot, cold boot), so the counted SOC was replaced by the OCV voltage
+estimate: +5-13% after a rest or with the charger in (R35S, 2026-11-13:
+"dsoc force calib: 85020 -> 98"), and dsoc was set to a % value read as
+1/1000 %, i.e. 0% (the M3d step 2 failure). Compare and assign in
+1/1000 %, fix the same mix in the max_soc_offset test, derive the halt
+path's dsoc from the live counter, and log the stored inputs.
+
+SPDX-License-Identifier: GPL-2.0
+---
+--- a/drivers/power/rk817_battery.c
++++ b/drivers/power/rk817_battery.c
+@@ -1616,6 +1616,9 @@
+ 	battery->halt_cnt = rk817_bat_get_halt_cnt(battery);
+ 	battery->is_initialized = is_rk817_bat_initialized(battery);
+ 	battery->is_ocv_calib = is_rk817_bat_ocv_valid(battery);
++	BAT_INFO("muos-gauge: stored dsoc=%d cap=%d now_cap=%d ocv_v=%d off=%dmin\n",
++		 pre_soc, pre_cap, now_cap, rk817_bat_get_ocv_voltage(battery),
++		 battery->pwroff_min);
+ 
+ 	if (battery->is_halt) {
+ 		BAT_INFO("system halt last time... cap: pre=%d, now=%d\n",
+@@ -1624,7 +1627,10 @@
+ 			now_cap = 0;
+ 		rk817_bat_init_coulomb_cap(battery, now_cap);
+ 		pre_cap = now_cap;
+-		pre_soc = battery->rsoc;
++		/* muOS R35S port: battery->rsoc is not set yet here; derive
++		 * the display SOC (1/1000 %) from the live counter. */
++		pre_soc = battery->fcc > 0 ?
++			  now_cap * 100 * 1000 / battery->fcc : 0;
+ 		goto finish;
+ 	} else if (battery->is_initialized) {
+ 		/* uboot initialized */
+@@ -1638,13 +1644,15 @@
+ 		pre_cap = ocv_cap;
+ 		battery->ocv_pre_dsoc = pre_soc;
+ 		battery->ocv_new_dsoc = ocv_soc;
+-		if (abs(ocv_soc - pre_soc) >= battery->pdata->max_soc_offset) {
++		/* muOS R35S port: ocv_soc is in %, pre_soc in 1/1000 %. */
++		if (abs(ocv_soc * 1000 - pre_soc) >=
++		    battery->pdata->max_soc_offset * 1000) {
+ 			battery->ocv_pre_dsoc = pre_soc;
+ 			battery->ocv_new_dsoc = ocv_soc;
+ 			battery->is_max_soc_offset = true;
+ 			BAT_INFO("trigger max soc offset, dsoc: %d -> %d\n",
+-				 pre_soc, ocv_soc);
+-			pre_soc = ocv_soc;
++				 pre_soc, ocv_soc * 1000);
++			pre_soc = ocv_soc * 1000;
+ 		}
+ 		BAT_INFO("OCV calib: cap=%d, rsoc=%d\n", ocv_cap, ocv_soc);
+ 	} else if (battery->pwroff_min > 0) {
+@@ -1653,11 +1661,17 @@
+ 		ocv_cap = rk817_bat_vol_to_cap(battery, ocv_vol);
+ 		battery->force_pre_dsoc = pre_soc;
+ 		battery->force_new_dsoc = ocv_soc;
+-		if (abs(ocv_soc - pre_soc) >= 80) {
++		/* muOS R35S port: ocv_soc is in %, pre_soc in 1/1000 %, so
++		 * the BSP's "80" fired on every boot after a short power-off
++		 * and replaced the counted SOC by the OCV estimate (+5-13%
++		 * after a rest or with the charger in; a % value read as
++		 * 1/1000 % gave 0%). A short power-off keeps the counter;
++		 * only a gross (80 points) disagreement recalibrates. */
++		if (abs(ocv_soc * 1000 - pre_soc) >= 80 * 1000) {
+ 			battery->is_force_calib = true;
+ 			BAT_INFO("dsoc force calib: %d -> %d\n",
+-				 pre_soc, ocv_soc);
+-			pre_soc = ocv_soc;
++				 pre_soc, ocv_soc * 1000);
++			pre_soc = ocv_soc * 1000;
+ 			pre_cap = ocv_cap;
+ 		}
+ 	}

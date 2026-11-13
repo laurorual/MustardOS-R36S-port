@@ -512,6 +512,16 @@ about other R35S/R36S panels or revisions.
   against the coulomb SOC at boot (`muos-gauge:` lines). Related: in
   the BSP zero algorithm dsoc drops 1% per 15 s (`WAIT_DSOC_DROP_SEC`) and
   is zeroed after 30 s below `power_off_thresd` − 70 mV.
+  **Root cause of the boot jumps (2026-11-13, patch 0003):**
+  `rk817_bat_not_first_pwron()` compares `ocv_soc` (%) with the stored
+  dsoc (1/1000 %): `abs(ocv_soc - pre_soc) >= 80` is true on every boot
+  with `pwroff_min > 0` (a reboot counts ~2 min), so the counted SOC was
+  replaced by the power-on OCV estimate (`dsoc force calib: 85020 -> 98`
+  with the charger in; 75 → 81 after a 1-min rest) and dsoc was set to a
+  % value read as 1/1000 % (the 0% boot). The max_soc_offset test (≥ 30
+  min off) mixes units the same way. 0003 compares in 1/1000 %; a short
+  power-off now keeps the counter (`now_cap` matches the stored cap:
+  the coulomb counter persists across a reboot).
 - **Battery current (M3d step 2, `build/logs/power-m3d`, on battery,
   volume 10, backlight as set):** menu idle 559 mA (1008 MHz); per game
   performance / schedutil: NES 759/645, GB –/625, GBA 759/633, SNES 803/664,
