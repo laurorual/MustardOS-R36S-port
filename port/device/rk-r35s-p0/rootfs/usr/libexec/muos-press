@@ -6,7 +6,10 @@
 #                             l1 r1 l2 r2 fn volup voldown, or fn+KEY for
 #                             a chord (fn+volup = brightness up);
 #                             "wait" sleeps 1 s; "power" / "power-long"
-#                             (1 s hold) go to the rk8xx_pwrkey node.
+#                             (1 s hold) go to the rk8xx_pwrkey node;
+#                             hold:KEY or hold:fn+KEY keeps KEY down for
+#                             $MUOS_PRESS_HOLD s (default 2; muOS repeats
+#                             a held key after its repeat delay).
 # Private char nodes in /dev (/run is nodev) for the hidden physical nodes.
 node_for() { # NODE INPUT_NAME
     [ -c "$1" ] && return 0
@@ -37,6 +40,9 @@ for k in "$@"; do
         wait) sleep 1 ;;
         power) key 116 1 "$pwr"; sleep 0.15; key 116 0 "$pwr"; sleep 0.5 ;;
         power-long) key 116 1 "$pwr"; sleep 1; key 116 0 "$pwr"; sleep 0.5 ;;
+        hold:fn+*) f=$(code fn) c=$(code "${k#hold:fn+}") || exit 1
+              key "$f" 1; sleep 0.1; key "$c" 1; sleep "${MUOS_PRESS_HOLD:-2}"; key "$c" 0; sleep 0.1; key "$f" 0; sleep 0.5 ;;
+        hold:*) c=$(code "${k#hold:}") || exit 1; key "$c" 1; sleep "${MUOS_PRESS_HOLD:-2}"; key "$c" 0; sleep 0.5 ;;
         fn+*) f=$(code fn) c=$(code "${k#fn+}") || exit 1
               key "$f" 1; sleep 0.1; key "$c" 1; sleep 0.15; key "$c" 0; sleep 0.1; key "$f" 0; sleep 0.5 ;;
         *) c=$(code "$k") || exit 1; key "$c" 1; sleep 0.15; key "$c" 0; sleep 0.5 ;;

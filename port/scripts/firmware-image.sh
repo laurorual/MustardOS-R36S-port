@@ -86,6 +86,13 @@ mcopy -o -i "$p1" "$kimg" "::$kin"
 mcopy -o -i "$p1" "$kdtb" "::$kdn"
 mcopy -n -i "$p1" "::$kin" "$work/chk.img"; mcopy -n -i "$p1" "::$kdn" "$work/chk.dtb"
 cmp "$kimg" "$work/chk.img" && cmp "$kdtb" "$work/chk.dtb"
+# Phase 4 leftovers on the M2 base's p1 (M3e): the DIAGnn log folders,
+# PROBE.TXT and the empty tools folder. Nothing in the boot chain reads
+# them (U-Boot loads only the files the boot records name). DIAG.ID stays
+# (Phase 4 tooling checks it).
+for f in $(mdir -b -i "$p1" :: | sed -n 's|^::/\([^/]*\)/\{0,1\}$|\1|p' | grep -E '^(DIAG[0-9]+|PROBE\.TXT|tools)$'); do
+    mdeltree -i "$p1" "::$f" 2>/dev/null || mdel -i "$p1" "::$f"
+done
 dd if="$img" of="$work/p1.img" bs=512 skip=$p1_start count=$p1_sectors status=none
 fsck.fat -n "$work/p1.img" > "$work/fsck-p1.txt" 2>&1 || { cat "$work/fsck-p1.txt"; echo 'p1 fsck failed' >&2; exit 1; }
 rm -f "$work/p1.img" "$work/chk.img" "$work/chk.dtb"

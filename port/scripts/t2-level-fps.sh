@@ -11,7 +11,9 @@
 #   t2-level-fps.sh [--diag | --phases "P..."] [--max-drop PCT] [--max-slow N]
 #                   [--max-missed N] [LABEL]
 # Phases: base (no input), vol (Vol+/Vol- presses via muos-press, i.e.
-# muhotkey -> audio.sh -> wpctl, plus the overlay), bright (Menu+Vol).
+# muhotkey -> audio.sh -> wpctl, plus the overlay), bright (Menu+Vol);
+# vol-hold / bright-hold (M3e: the key held 1 s down, then 1 s up, so
+# muhotkey repeats; gated like vol/bright; levels restored at the end).
 # --diag adds: vol-script (audio.sh's wpctl calls alone) and bright-script
 # (bright.sh transient: no config write), both without the overlay;
 # vol-osd / bright-osd (the overlay alone: the config value written, no
@@ -68,6 +70,8 @@ scr=/opt/muos/script/device
 # Alternate up/down so the level stays where it was.
 p_vol='/usr/libexec/muos-press volup voldown'
 p_bright='/usr/libexec/muos-press fn+volup fn+voldown'
+p_vol_hold='MUOS_PRESS_HOLD=1 /usr/libexec/muos-press hold:voldown hold:volup'
+p_bright_hold='MUOS_PRESS_HOLD=1 /usr/libexec/muos-press hold:fn+voldown hold:fn+volup'
 wp='export PIPEWIRE_RUNTIME_DIR=/run XDG_RUNTIME_DIR=/run; wpctl get-volume @DEFAULT_AUDIO_SINK@ >/dev/null; wpctl set-volume @DEFAULT_AUDIO_SINK@'
 p_vol_script="v=\$(cat $cfg/volume); $wp \$((v+5))%; wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; sleep 0.5; $wp \$v%; wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; sleep 0.5"
 p_bright_script="$scr/bright.sh U transient; sleep 0.5; $scr/bright.sh D transient; sleep 0.5"
@@ -80,6 +84,7 @@ action() {
     case ${1%[0-9]} in
         base) echo 'sleep 1' ;;
         vol) echo "$p_vol" ;; bright) echo "$p_bright" ;;
+        vol-hold) echo "$p_vol_hold" ;; bright-hold) echo "$p_bright_hold" ;;
         # audio.sh writes the volume config itself, so vol-script runs its
         # wpctl calls (the costly part) directly instead.
         vol-script) echo "$p_vol_script" ;; bright-script) echo "$p_bright_script" ;;
@@ -98,6 +103,9 @@ sleep 8
 out=$logs/level-fps.phases; : > "$out"
 for p in $phases; do phase "$p" "$(action "$p")" >> "$out"; done
 game_stop
+# Hold phases drift the levels: put back what was there before.
+read -r v0 b0 < "$logs/level-fps.before"
+r "export PIPEWIRE_RUNTIME_DIR=/run XDG_RUNTIME_DIR=/run; $scr/audio.sh $v0; $scr/bright.sh $b0" > /dev/null 2>&1 || :
 # Each phase's capture (with muxretro's slow_frames stage trace): host copy
 # and a per-phase summary of what the slow frames spent their time on.
 rm -rf "$logs/level-fps"; mkdir -p "$logs/level-fps"
@@ -111,9 +119,9 @@ summary=$(awk -v label="$label" -v maxdrop="$maxdrop" -v slowmax="$maxslow" -v m
   { fps[$1]=$2; slow[$1]=$5; miss[$1]=$8; line=line sprintf(" %s=%.1ffps(p95 %.1f max %.0f slow %d missed %d cpu %d%% retro %d%%)", $1, $2, $3, $4, $5, $8, $6, $7) }
   END {
     if (bad != "" || !fps["base"]) { printf "FAIL level-fps %s: phases without data:%s\n", label, bad; exit }
-    r="PASS"; for (p in fps) if ((p=="vol" || p=="bright") && fps[p] < fps["base"]*(1-maxdrop/100)) r="FAIL"
-    if (slowmax != "") for (p in slow) if ((p=="vol" || p=="bright") && slow[p] > slowmax+0) r="FAIL"
-    if (missmax != "") for (p in miss) if ((p=="vol" || p=="bright") && miss[p] > missmax+0) r="FAIL"
+    r="PASS"; for (p in fps) if ((p ~ /^(vol|bright)(-hold)?$/) && fps[p] < fps["base"]*(1-maxdrop/100)) r="FAIL"
+    if (slowmax != "") for (p in slow) if ((p ~ /^(vol|bright)(-hold)?$/) && slow[p] > slowmax+0) r="FAIL"
+    if (missmax != "") for (p in miss) if ((p ~ /^(vol|bright)(-hold)?$/) && miss[p] > missmax+0) r="FAIL"
     printf "%s level-fps %s:%s\n", r, label, line }' "$out")
 { date -u +%FT%TZ; echo "$summary"; cat "$out"; } >> "$logs/level-fps.log"
 echo "$summary"
