@@ -23,9 +23,12 @@ T3 checklists in [milestones.md](milestones.md). See also
   `--grow`; p3 grown on boot, 118.5 GiB).
   - Boot records: main = `Image-3a3521e5cfb1` (kernel patches 0001–0004)
     + `panel0-d2cef0b6bd98.dtb`; previous = the M2 `Image` + its DTB.
-  - p2 = the M3d image's p2 plus `usr/sbin/resizepart` and the fixed
-    `usr/libexec/muos-grow-p3` (`install-rootfs.sh`; originals in
-    `/var/lib/muos-m1-backup`).
+  - p2 = the M3d image's p2 plus (`install-rootfs.sh`; originals in
+    `/var/lib/muos-m1-backup`): `usr/sbin/resizepart` and the fixed
+    `usr/libexec/muos-grow-p3` (M3d item 9); M3e so far: the hotkey map
+    with hold (`opt/muos/share/hotkey/r35s-bringup.json`, staged in
+    `build/m3e/tree`), `usr/libexec/muos-press` (hold:KEY) and
+    `etc/modprobe.d/8821cu-power.conf`.
   - p3: ROMs from `port/roms` (GB, NES, SNES, GBA, MD, PSX CTR) plus the
     image's `private.gb` and NES test game; the user's PSX BIOS
     (`MUOS/bios`, backup in `port/roms/bios`); saves restored from
@@ -72,16 +75,16 @@ reader. p3 auto-grow on first boot: fixed version T2-passed on test128
 
 ## Open problems
 
-- **Hotkeys:** holding volume or brightness changes one step only.
-  Upstream repeats (`handle_hold: true` in `share/hotkey/volume.json` /
-  `bright.json`); the port's pinned `r35s-bringup.json` lacks it.
 - **Battery, unverified:** accuracy over a full discharge (FCC 3380 mAh
   is the DT value until a full charge teaches it), the low-battery
   poweroff on real hardware (`muos-lowbattery`: ≤ 3% and < 3.5 V), and
   the reading after a dead battery. The BSP's `off=` (pwroff_min)
   underreports the time off (5 min for ~50); informational only.
-- **Power:** about 560 mA idle in the menu (~19%/h); backlight and Wi-Fi
-  power save not tuned. LEDs (the R35S LED node is disabled in stock too)
+- **Power:** menu idle 454 mA with Wi-Fi power save (M3e; was 546 mA,
+  ~19%/h; Wi-Fi off 397 mA; brightness 70 → 35 saves ~38 mA). The vendor
+  R35S DTS deletes the BSP's 408/600/816 MHz CPU OPPs, so the CPU idles
+  at 1008 MHz / 1.175 V; restoring 408 MHz (0.95 V, `opp-suspend` in
+  px30.dtsi; ROCKNIX keeps it) is a trial-kernel experiment. LEDs (the R35S LED node is disabled in stock too)
   and rumble not done.
 - **Audio:** one unexplained no-sound report (M3d step 2, cleared by a
   reboot); the WirePlumber "no profile" start failure is retried, not
@@ -129,18 +132,24 @@ Taken:
 Goal: close the remaining M3 items that need no user decision, and ship
 the M3e image (it carries the item 9 fix). Started 2026-11-13.
 
-1. **Hold-to-repeat** for volume and brightness: the port's hotkey JSON
-   with `handle_hold`, installed by post-build; re-run
-   `t2-level-fps.sh` with held keys (each repeat takes the in-game fast
-   path).
-2. **Menu idle power:** measure `current_now` per factor (backlight
-   level, Wi-Fi power save, CPU idle states, DDR) and apply the safe
-   savings; T2 numbers before/after.
+1. **Hold-to-repeat** (done, T2): post-build sets `handle_hold` on the
+   level combos (as upstream). Menu: a 2 s hold moves the level about
+   10 steps; brightness 0 blanks the screen as upstream (the next
+   brightness-up restores it). In game (`t2-level-fps.sh` vol-hold /
+   bright-hold): 60.0 fps, 0 missed vsyncs.
+2. **Menu idle power** (Wi-Fi part done, T2): `rtw_power_mgnt=1
+   rtw_ips_mode=1` (`etc/modprobe.d/8821cu-power.conf`): 546 → 454 mA.
+   Costs: ping avg 12 ms / max 92 ms; 20 MB push 3.5 s; in game 60.0 fps,
+   0 missed; 2/2 in-game sleep cycles, the option survives the wake
+   reload. Next: the 408 MHz CPU OPP as a trial kernel (needs the user
+   nearby in case a trial boot hangs).
 3. **Battery full discharge:** a logged run on battery (capacity,
    voltage and current every minute to p3) down to the low-battery
    poweroff; the agent runs it; the user only charges and powers on
    (T3).
-4. **Image hygiene:** drop the `DIAG*` folders from p1, fix muxretro's
-   `provenance.json`, check the help WAVs.
+4. **Image hygiene** (done at T1, lands in the image): the image stage
+   drops p1's `DIAGnn`, `PROBE.TXT`, `tools/` (~3.5 MB); post-build
+   records muxretro's source build in its provenance and recomputes
+   `payload.sha256`. Left: the inaudible help WAVs.
 5. **M3e image:** build, T2 on the trial root, then the user flashes it
    (T3: hold-to-repeat, the idle power level, the discharge run, sound).
