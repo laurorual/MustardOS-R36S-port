@@ -296,10 +296,13 @@ charging icon; headphone path switching.
   Per folder or game: muOS Content Options → Governor. Volume/brightness
   keys boost for 2 s (`muos-boost`). Waking resumes the game only after
   the Wi-Fi radio is up (~3 s paused). Remaining:
-  - *Volume changes in game* still drop frames (NES, schedutil + boost:
-    ~55 frames > 20 ms per 14 s of presses, 59.0–59.3 fps; brightness
-    ~10–30, 59.8 fps; the overlay accounts for ~20, `wpctl` for the rest). The user rules this out for a final build → M3d step 3
-    (muxretro from source).
+  - *Volume/brightness in game* (fixed in M3d step 3, T2): 0 frames
+    > 25 ms per 14 s of presses on NES/schedutil (vol 3–6 at 20–23 ms,
+    bright 0–2); was 46–53 / 10–35. In game muxretro draws its own level
+    bar (plain panel, bar and recoloured theme glyph; the pause menu keeps
+    upstream's LVGL bar); volume steps go through `muos-volumed` (resident
+    `pw-cli`, started on the first press; the first press after boot uses
+    upstream `audio.sh`).
   - *Wake:* one 80–95 ms frame ~4 s after resume while the 8821cu associates
     (`RTW_CMD_THREAD`).
   - *PSX (CTR intro cutscene):* 56–59 fps for ~20 s, CPU/GPU-thread bound,
@@ -311,8 +314,14 @@ charging icon; headphone path switching.
 - **U-Boot messages** (which record failed and why) go to the serial
   console and the LCD only; there is no log on the card.
 - **p1** still holds the Phase 4 `DIAG*` folders (about 1 MiB).
-- **Pinned, not rebuilt:** the muOS frontend binaries, muxretro, the
-  cores, kernel modules and the tuned `/opt/muos` config are prebuilt
+- **muxretro** is built from source since M3d step 3
+  (`port/scripts/build-muxretro.sh`: the Phase 4 provider source +
+  `port/patches/muxretro/*.patch`, against the M3a sysroot; reproducible
+  byte for byte) and pinned as an input from `build/m3d/muxretro/tree`.
+  The provider's `provenance.json` in the image still describes the
+  Phase 4 binary.
+- **Pinned, not rebuilt:** the muOS frontend binaries (libui, libmuxcom
+  and the modules), the cores, kernel modules and the tuned `/opt/muos` config are prebuilt
   inputs (`firmware-inputs.json`), copied byte-identical from the live
   p2's host build outputs; Buildroot rebuilds the rest. The kernel
   modules are pinned too; `build-boot.sh kernel` proves them valid
@@ -378,11 +387,13 @@ robustness for long use.
      frame misses", state save: `scaling_governor` → performance for a
      while); `muos-governor` records the port profile in
      `/run/muos/governor.active` so `muos-boost` isn't confused by it.
-3. **Volume/brightness judder:** build muxretro from source (Buildroot
-   `muos-muxretro-provider`, patches in `port/`), add a per-frame stage
-   trace, keep the video fast path while only the level bar shows, make the
-   volume path one `wpctl` call. Target: vol/bright ≤ 2 missed vsyncs per
-   14 s (`t2-level-fps.sh --max-slow`) on schedutil systems too.
+3. **Volume/brightness judder** (done 2026-11-13, T2; T3: the bar's look):
+   muxretro from source (`build-muxretro.sh`), patches 0001 (per-frame
+   `slow_frames` stage trace) and 0002 (in-game level bar drawn by
+   muxretro), WirePlumber `state.restore-props = false` on the sink
+   (post-build installs `core-wireplumber.conf`), `muos-volume-step` +
+   `muos-volumed`. Gate: `t2-level-fps.sh --max-slow 6 --max-missed 0`
+   (vol 3, bright 1, 0 missed); 2/2 in-game sleep cycles.
 4. **Remaining stalls:** the wake hitch during 8821cu association, CTR's
    race start/end (T3) and cutscene dips (pcsx_rearmed GPU-thread mode,
    muxretro threaded run; the overclock is the user's call).

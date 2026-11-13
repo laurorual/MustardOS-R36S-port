@@ -1,0 +1,37 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-volume-step U|D: upstream audio.sh STEP_CURRENT (same limits, step,
+# overdrive, saved and per-output volume) without wpctl: the current level
+# is the saved one (audio.sh keeps it equal to the sink's), and the sink is
+# set through muos-volumed (one Props update with unmute: upstream unmutes
+# a muted sink on a step, and an unmuted one stays unmuted). Exit 1 without
+# any change when muos-volumed is not ready: the caller runs upstream.
+. /opt/muos/script/var/audio.sh
+
+mkdir -p "$MUOS_RUN_DIR"
+exec 9>"$MUOS_RUN_DIR/volume.lock"
+flock -x 9
+
+MIN=$(GET_VAR "device" "audio/min")
+MAX=$(GET_VAR "device" "audio/max")
+[ -n "$MIN" ] || MIN=0
+[ -n "$MAX" ] || MAX=100
+INC=$(GET_VAR "config" "settings/advanced/incvolume")
+OVD=$(GET_VAR "config" "settings/advanced/overdrive")
+[ -n "$INC" ] || INC=1
+[ "$OVD" = "1" ] && MAX=200
+
+CUR=$(GET_SAVED_AUDIO_VOLUME)
+case "${1:-}" in
+    U) VALUE=$((CUR + INC)) ;;
+    D) VALUE=$((CUR - INC)) ;;
+    *) exit 2 ;;
+esac
+[ "$VALUE" -lt "$MIN" ] && VALUE=$MIN
+[ "$VALUE" -gt "$MAX" ] && VALUE=$MAX
+
+# fd 9 (the lock) must not leak into the resident client it may start.
+/usr/libexec/muos-volumed set "$VALUE" 9>&- || exit 1
+SET_SAVED_AUDIO_VOLUME "$VALUE"
+[ "${MUOS_VOLUME_RESTORE:-0}" = "1" ] || SAVE_SINK_VOLUME
+exit 0

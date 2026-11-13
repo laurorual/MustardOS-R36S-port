@@ -5347,8 +5347,8 @@
    "path": "/opt/muos/frontend/muxretro",
    "type": "file",
    "mode": "755",
-   "sha256": "cd67ce605cfa406f6084c7348ebf27d475b73340edd981c1343f07b00a995e9d",
-   "origin": "build/phase4/muxretro-provider/build.f9a1ac69/output/build/muos-muxretro-provider-1/frontend/bin/muxretro"
+   "sha256": "4f9266df238d4babde3856db97e3c39a356088435193e0dbbe9b3c0b409bdd54",
+   "origin": "build/m3d/muxretro/tree/opt/muos/frontend/muxretro"
   },
   {
    "path": "/opt/muos/script/device",

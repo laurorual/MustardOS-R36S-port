@@ -1,0 +1,80 @@
+From: muOS R35S port
+Subject: [PATCH] 0001-perf-slow-frame-trace
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/retro/core/perf.c
++++ b/frontend/retro/core/perf.c
+@@ -48,6 +48,17 @@
+ static perf_series netplay_series[netplay_metric_count];
+ static perf_series cheevo_series[cheevo_metric_count];
+ static uint64_t frame_start;
++
++/* muOS R35S port: per-frame stage totals, kept for the slow frames only
++ * (dumped as "slow_frames"), to attribute a missed vsync to a stage. */
++#define SLOW_FRAME_MS 20.0
++#define SLOW_FRAME_ROWS 256
++static float frame_stage_ms[perf_stage_count];
++static struct {
++    uint32_t ticks;
++    float stage_ms[perf_stage_count];
++} slow_rows[SLOW_FRAME_ROWS];
++static unsigned slow_next, slow_count;
+ static uint64_t input_change_start;
+ static uint64_t last_present;
+ static unsigned batch_iterations;
+@@ -122,6 +133,7 @@
+ }
+ 
+ static void push(perf_series *s, const double ms) {
++    if (s >= series && s < series + perf_stage_count) frame_stage_ms[s - series] += (float) ms;
+     if (s->count == PERF_HISTORY) {
+         s->sum -= s->samples[s->next];
+     } else {
+@@ -171,6 +183,7 @@
+ 
+ static void reset(void) {
+     memset(series, 0, sizeof(series));
++    slow_next = slow_count = 0;
+     memset(netplay_series, 0, sizeof(netplay_series));
+     memset(cheevo_series, 0, sizeof(cheevo_series));
+     frame_start = SDL_GetPerformanceCounter();
+@@ -366,6 +379,12 @@
+         } else {
+             push(&series[perf_stage_frame], frame_ms);
+             frames_observed++;
++            if (frame_ms > SLOW_FRAME_MS) {
++                slow_rows[slow_next].ticks = SDL_GetTicks();
++                memcpy(slow_rows[slow_next].stage_ms, frame_stage_ms, sizeof(frame_stage_ms));
++                slow_next = (slow_next + 1) % SLOW_FRAME_ROWS;
++                if (slow_count < SLOW_FRAME_ROWS) slow_count++;
++            }
+             const unsigned bucket = frame_ms < 12.0   ? 0
+                                     : frame_ms < 15.0 ? 1
+                                     : frame_ms < 18.5 ? 2
+@@ -386,6 +405,7 @@
+     }
+     if (record && exclude_current_frame) excluded_interaction_frames++;
+     exclude_current_frame = 0;
++    memset(frame_stage_ms, 0, sizeof(frame_stage_ms));
+     frame_start = now;
+ }
+ 
+@@ -674,6 +694,17 @@
+         );
+     }
+ 
++    /* muOS R35S port: slow frames (> 20 ms): SDL ticks at the frame end,
++     * then every stage with time in that frame as name=ms. */
++    fprintf(f, "\nslow_frames now=%u\n", SDL_GetTicks());
++    for (unsigned r = 0; r < slow_count; r++) {
++        const unsigned at = (slow_next + SLOW_FRAME_ROWS - slow_count + r) % SLOW_FRAME_ROWS;
++        fprintf(f, "%u", slow_rows[at].ticks);
++        for (int i = 0; i < perf_stage_count; i++)
++            if (slow_rows[at].stage_ms[i] >= 0.05f) fprintf(f, " %s=%.2f", names[i], slow_rows[at].stage_ms[i]);
++        fputc('\n', f);
++    }
++
+     fputs("\nframe_interval_ms\n", f);
+     const perf_series *frames = &series[perf_stage_frame];
+     const unsigned oldest = frames->count == PERF_HISTORY ? frames->next : 0;

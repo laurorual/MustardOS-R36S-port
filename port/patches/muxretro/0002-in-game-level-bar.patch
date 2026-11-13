@@ -1,0 +1,268 @@
+From: muOS R35S port
+Subject: [PATCH] 0002-in-game-level-bar
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- /dev/null
++++ b/frontend/retro/input/level_osd.c
+@@ -0,0 +1,182 @@
++#include <unistd.h>
++#include <SDL2/SDL.h>
++#include <SDL2/SDL_image.h>
++#include <common/base/options.h>
++#include <common/display/theme.h>
++#include <common/platform/device.h>
++#include <common/platform/display.h>
++#include <common/platform/sysinfo.h>
++#include <common/runtime/init.h>
++#include <common/storage/fileio.h>
++#include <common/ui/common.h>
++#include "../core/muxretro.h"
++#include "level_osd.h"
++
++/* Upstream hides the panel at the second status tick after the last change
++ * (TIMER_STATUS 1024 ms, progress_onscreen), then fades it over 200 ms. */
++#define OSD_HOLD_MS 1500
++#define OSD_FADE_MS 200
++
++static enum level_osd_kind osd_kind;
++static int osd_percent;
++static uint32_t osd_shown;
++static int osd_registered;
++static SDL_Texture *glyphs[2][4];
++static int glyph_w[2][4], glyph_h[2][4];
++static int glyph_failed[2][4];
++
++static int glyph_level(const int percent) {
++    return percent > 70 ? 3 : percent > 35 ? 2 : percent > 0 ? 1 : 0;
++}
++
++/* The theme's SVG glyph at libui's default size (3/4 of a list item),
++ * recoloured to the bar icon colour as LVGL's img_recolor does. Loaded once
++ * per kind and level, on first use. */
++static SDL_Texture *glyph(SDL_Renderer *renderer, const enum level_osd_kind kind, const int level) {
++    if (glyphs[kind][level] || glyph_failed[kind][level]) return glyphs[kind][level];
++    glyph_failed[kind][level] = 1;
++
++    char name[16], path[MAX_BUFFER_SIZE], embed[MAX_BUFFER_SIZE];
++    snprintf(name, sizeof(name), "%s_%d", kind == level_osd_volume ? "volume" : "bright", level);
++    if (!generate_image_embed(mux_dim, "bar", name, path, sizeof(path), embed, sizeof(embed))) return NULL;
++
++    int size = theme.mux.item.height * 3 / 4;
++    if (size <= 0 || size > theme.bar.panel_height) size = theme.bar.panel_height - 8;
++    if (size <= 0) return NULL;
++
++    SDL_RWops *rw = SDL_RWFromFile(path, "rb");
++    if (!rw) return NULL;
++    SDL_Surface *loaded = IMG_isSVG(rw) ? IMG_LoadSizedSVG_RW(rw, size, size) : IMG_Load_RW(rw, 0);
++    SDL_RWclose(rw);
++    if (!loaded) return NULL;
++
++    SDL_Surface *s = SDL_ConvertSurfaceFormat(loaded, SDL_PIXELFORMAT_ARGB8888, 0);
++    SDL_FreeSurface(loaded);
++    if (!s) return NULL;
++
++    const uint32_t rgb = theme.bar.icon & 0xFFFFFFu;
++    const int opa = theme.bar.icon_alpha;
++    if (SDL_LockSurface(s) == 0) {
++        for (int y = 0; y < s->h; y++) {
++            uint32_t *row = (uint32_t *) ((uint8_t *) s->pixels + y * s->pitch);
++            for (int x = 0; x < s->w; x++) {
++                const uint32_t a = (row[x] >> 24) * (uint32_t) opa / 255u;
++                row[x] = a << 24 | rgb;
++            }
++        }
++        SDL_UnlockSurface(s);
++    }
++
++    SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);
++    glyph_w[kind][level] = s->w;
++    glyph_h[kind][level] = s->h;
++    SDL_FreeSurface(s);
++    if (!t) return NULL;
++
++    SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
++    glyph_failed[kind][level] = 0;
++    glyphs[kind][level] = t;
++    return t;
++}
++
++static void fill(SDL_Renderer *renderer, const SDL_Rect *r, const uint32_t rgb, const int alpha) {
++    SDL_SetRenderDrawColor(renderer, rgb >> 16 & 0xFF, rgb >> 8 & 0xFF, rgb & 0xFF, (uint8_t) alpha);
++    SDL_RenderFillRect(renderer, r);
++}
++
++static void osd_draw(SDL_Renderer *renderer) {
++    const uint32_t age = SDL_GetTicks() - osd_shown;
++    if (age >= OSD_HOLD_MS + OSD_FADE_MS || pause_menu_is_active()) {
++        level_osd_hide();
++        return;
++    }
++    const int fade = age <= OSD_HOLD_MS ? 255 : 255 - (int) ((age - OSD_HOLD_MS) * 255 / OSD_FADE_MS);
++#define A(x) ((int) (x) * fade / 255)
++
++    const int pw = theme.bar.panel_width, ph = theme.bar.panel_height;
++    const SDL_Rect panel = {(device.mux.width - pw) / 2, theme.bar.y_pos, pw, ph};
++
++    SDL_BlendMode old_mode;
++    SDL_GetRenderDrawBlendMode(renderer, &old_mode);
++    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
++
++    fill(renderer, &panel, theme.bar.panel_background, A(theme.bar.panel_background_alpha));
++    const SDL_Rect edges[4] = {
++        {panel.x, panel.y, pw, 2}, {panel.x, panel.y + ph - 2, pw, 2},
++        {panel.x, panel.y + 2, 2, ph - 4}, {panel.x + pw - 2, panel.y + 2, 2, ph - 4},
++    };
++    for (int i = 0; i < 4; i++) fill(renderer, &edges[i], theme.bar.panel_border, A(theme.bar.panel_border_alpha));
++
++    /* LVGL flex row, space evenly: icon, then the bar. */
++    const int level = glyph_level(osd_percent);
++    SDL_Texture *icon = glyph(renderer, osd_kind, level);
++    const int iw = icon ? glyph_w[osd_kind][level] : 0, ih = icon ? glyph_h[osd_kind][level] : 0;
++    const int bw = theme.bar.progress_width, bh = theme.bar.progress_height;
++    int gap = (pw - iw - bw) / 3;
++    if (gap < 0) gap = 0;
++
++    if (icon) {
++        const SDL_Rect dst = {panel.x + gap, panel.y + (ph - ih) / 2, iw, ih};
++        SDL_SetTextureAlphaMod(icon, (uint8_t) fade);
++        SDL_RenderCopy(renderer, icon, NULL, &dst);
++    }
++
++    const SDL_Rect bar = {panel.x + gap + iw + gap, panel.y + (ph - bh) / 2, bw, bh};
++    fill(renderer, &bar, theme.bar.progress_main_background, A(theme.bar.progress_main_background_alpha));
++    const int pct = osd_percent < 0 ? 0 : osd_percent > 100 ? 100 : osd_percent;
++    const SDL_Rect on = {bar.x, bar.y, bw * pct / 100, bh};
++    if (on.w > 0) fill(renderer, &on, theme.bar.progress_active_background, A(theme.bar.progress_active_background_alpha));
++#undef A
++
++    SDL_SetRenderDrawBlendMode(renderer, old_mode);
++}
++
++void level_osd_show(const enum level_osd_kind kind, const int percent) {
++    osd_kind = kind;
++    osd_percent = percent;
++    osd_shown = SDL_GetTicks();
++    if (!osd_registered) {
++        display_set_video_overlay(osd_draw);
++        osd_registered = 1;
++    }
++}
++
++void level_osd_hide(void) {
++    if (!osd_registered) return;
++    display_clear_video_overlay();
++    osd_registered = 0;
++}
++
++static int woke_recently(void) {
++    return access(RUN_PATH "recent_wake", F_OK) == 0;
++}
++
++int level_osd_tick(void) {
++    if (pause_menu_is_active()) return 0;
++
++    static unsigned volume_seen = 1, brightness_seen = 1;
++    if (brightness_config_changes != brightness_seen) {
++        brightness_seen = brightness_config_changes;
++        const int v = read_line_int_from(CONF_CONFIG_PATH "settings/general/brightness", 1);
++        if (v >= 0 && v <= device.screen.bright && v != current_brightness) {
++            current_brightness = v;
++            if (!woke_recently()) level_osd_show(level_osd_brightness, brightness_to_percent(v));
++        }
++    }
++    if (volume_config_changes != volume_seen) {
++        volume_seen = volume_config_changes;
++        const int v = read_line_int_from(CONF_CONFIG_PATH "settings/general/volume", 1);
++        if (v >= 0 && v <= device.audio.max && v != current_volume) {
++            current_volume = v;
++            if (!woke_recently()) level_osd_show(level_osd_volume, volume_to_percent(v));
++        }
++    }
++    return 1;
++}
++
++int level_osd_key(const enum level_osd_kind kind) {
++    if (pause_menu_is_active()) return 0;
++    level_osd_show(kind, kind == level_osd_volume ? volume_to_percent(current_volume)
++                                                  : brightness_to_percent(current_brightness));
++    return 1;
++}
+--- /dev/null
++++ b/frontend/retro/input/level_osd.h
+@@ -0,0 +1,23 @@
++#pragma once
++
++/* muOS R35S port: in-game volume/brightness level bar drawn by muxretro
++ * itself (display video overlay hook: SDL fills plus a cached glyph
++ * texture) instead of libui's LVGL panel. The LVGL panel makes the UI layer
++ * visible, so every frame goes through lv_refr_now and a UI render target,
++ * and each level change re-renders the SVG glyph: one or two missed vsyncs
++ * per change on the RK3326 (M3d step 3). The pause menu keeps upstream's. */
++
++enum level_osd_kind { level_osd_volume = 0, level_osd_brightness = 1 };
++
++void level_osd_show(enum level_osd_kind kind, int percent);
++
++void level_osd_hide(void);
++
++/* In game (pause menu closed): read the level files on a change notice and
++ * show the bar. Returns 0 when the pause menu is open (caller runs upstream's
++ * ui_common_progress_tick). */
++int level_osd_tick(void);
++
++/* A volume/brightness key in game: show the current level (as upstream's
++ * ui_common_handle_*). Returns 0 when the pause menu is open. */
++int level_osd_key(enum level_osd_kind kind);
+--- a/frontend/retro/input/hotkeys.c
++++ b/frontend/retro/input/hotkeys.c
+@@ -16,6 +16,7 @@
+ #include "../core/phase4-diagnostic-exit.h"
+ #include "../core/muxretro.h"
+ #include "nav_repeat.h"
++#include "level_osd.h"
+ #include "../settings/settings.h"
+ 
+ #define TOAST_FOCUS_MS 1200
+@@ -483,6 +484,7 @@
+     if (deadline && !SDL_TICKS_PASSED(now, deadline)) return;
+     deadline = now + IDLE_MS;
+     inotify_check(level_ino);
++    if (level_osd_tick()) return; /* muOS R35S port: in game, muxretro's own bar */
+     if (ui_pnl_progress_volume && ui_pnl_progress_brightness) ui_common_progress_tick();
+ }
+ 
+@@ -497,18 +499,18 @@
+ 
+     if (nav_repeat_step(&rpt_vol_up, vol_up_now && !prev_vol_up, vol_up_now, 1, now)) {
+         if (bright_mod) {
+-            ui_common_handle_bright_up();
++            if (!level_osd_key(level_osd_brightness)) ui_common_handle_bright_up();
+         } else {
+-            ui_common_handle_volume_up();
++            if (!level_osd_key(level_osd_volume)) ui_common_handle_volume_up();
+         }
+         if (menu_held) menu_combo_consumed = 1;
+     }
+ 
+     if (nav_repeat_step(&rpt_vol_down, vol_down_now && !prev_vol_down, vol_down_now, 1, now)) {
+         if (bright_mod) {
+-            ui_common_handle_bright_down();
++            if (!level_osd_key(level_osd_brightness)) ui_common_handle_bright_down();
+         } else {
+-            ui_common_handle_volume_down();
++            if (!level_osd_key(level_osd_volume)) ui_common_handle_volume_down();
+         }
+         if (menu_held) menu_combo_consumed = 1;
+     }
+--- a/frontend/retro/Makefile
++++ b/frontend/retro/Makefile
+@@ -21,7 +21,7 @@
+        video/image_writer.c video/ui_videosettings.c video/ui_imagecorrections.c video/hw_render.c video/egl_proc.c \
+        video/filters/filters.c \
+        audio/audio.c audio/ui_soundsettings.c \
+-       input/input_bridge.c input/rumble.c input/hotkeys.c input/ui_hotkeys.c \
++       input/input_bridge.c input/rumble.c input/hotkeys.c input/ui_hotkeys.c input/level_osd.c \
+        input/ui_inputsettings.c input/ui_controlleroptions.c input/ui_inputport.c \
+        input/ui_buttonmapping.c input/nav_repeat.c input/core_input_meta.c \
+        input/deck.c \

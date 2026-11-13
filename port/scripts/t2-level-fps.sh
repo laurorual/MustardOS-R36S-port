@@ -8,18 +8,22 @@
 # before the dump, i.e. while the phase's action ran. Per phase: fps
 # (frames / time), p95 and max frame interval, frames > 20 ms, the whole-SoC
 # CPU busy % (4 cores = 400) and muxretro's own CPU %.
-#   t2-level-fps.sh [--diag | --phases "P..."] [--max-drop PCT] [--max-slow N] [LABEL]
+#   t2-level-fps.sh [--diag | --phases "P..."] [--max-drop PCT] [--max-slow N]
+#                   [--max-missed N] [LABEL]
 # Phases: base (no input), vol (Vol+/Vol- presses via muos-press, i.e.
 # muhotkey -> audio.sh -> wpctl, plus the overlay), bright (Menu+Vol).
 # --diag adds: vol-script (audio.sh's wpctl calls alone) and bright-script
 # (bright.sh transient: no config write), both without the overlay;
 # vol-osd / bright-osd (the overlay alone: the config value written, no
 # script, no hardware change). --phases only: vol-sh (audio.sh run from the
-# shell, overlay included, no key event). A trailing digit repeats a phase.
+# shell, overlay included, no key event); custom (the device shell action
+# in $LEVEL_CUSTOM, for experiments). A trailing digit repeats a phase.
 # Findings (M3b, docs/hardware-findings.md): base 0 frames > 20 ms; the
 # overlay alone ~1 dropped frame per change; vol 30-70 per phase, noisy.
 # FAIL when vol or bright is more than --max-drop % (default 3) below base,
-# or has more than --max-slow frames > 20 ms (unset: not checked).
+# or has more than --max-slow frames > 20 ms or --max-missed frames > 25 ms
+# (1.5 refresh periods: a frame shown twice; unset: not checked). M3d step 3
+# gate: --max-slow 6 --max-missed 0 (options in this order).
 # Summary on stdout; details in build/logs/level-fps.log.
 set -euo pipefail
 dev=$(dirname "$0")/device.sh
@@ -29,6 +33,7 @@ phases="base vol bright"
 [ "${1:-}" = --phases ] && { phases=$2; shift 2; }
 maxdrop=3; [ "${1:-}" = --max-drop ] && { maxdrop=$2; shift 2; }
 maxslow=; [ "${1:-}" = --max-slow ] && { maxslow=$2; shift 2; }
+maxmiss=; [ "${1:-}" = --max-missed ] && { maxmiss=$2; shift 2; }
 label=${1:-run}
 . "$(dirname "$0")/t2-game.lib.sh"
 
@@ -52,10 +57,11 @@ phase() { # NAME ACTION
            -v retro="$(awk -v a=$r0 -v b=$r1 -v t0=$t0 -v t1=$t1 "BEGIN{printf \"%d\", (b-a)/(t1-t0)}")" "
          /^frame_interval_ms/ {on=1; next} on && !NF {on=0} on {f[n++]=\$1}
          END { t=0; k=0
-           for (i=n-1; i>=0; i--) { t+=f[i]; if (t<1000) continue; if (t>14500) break; v[k++]=f[i]; s+=f[i]; if (f[i]>20) slow++; if (f[i]>mx) mx=f[i] }
+           for (i=n-1; i>=0; i--) { t+=f[i]; if (t<1000) continue; if (t>14500) break; v[k++]=f[i]; s+=f[i]; if (f[i]>20) slow++; if (f[i]>25) miss++; if (f[i]>mx) mx=f[i] }
            if (!k) { print name, \"no-frames\"; exit }
            for (i=0;i<k;i++) for (j=i+1;j<k;j++) if (v[j]<v[i]) { x=v[i]; v[i]=v[j]; v[j]=x }
-           printf \"%s %.2f %.2f %.2f %d %d %d\\n\", name, k*1000/s, v[int(k*0.95)], mx, slow, busy, retro }" $csv'
+           printf \"%s %.2f %.2f %.2f %d %d %d %d\\n\", name, k*1000/s, v[int(k*0.95)], mx, slow, busy, retro, miss }" $csv
+       cp $csv /run/level-fps-'"$1"'.csv'
 }
 cfg=/opt/muos/config/settings/general
 scr=/opt/muos/script/device
@@ -79,6 +85,7 @@ action() {
         vol-script) echo "$p_vol_script" ;; bright-script) echo "$p_bright_script" ;;
         vol-sh) echo "$p_vol_sh" ;;
         vol-osd) echo "$p_vol_osd" ;; bright-osd) echo "$p_bright_osd" ;;
+        custom) [ -n "${LEVEL_CUSTOM:-}" ] && echo "$LEVEL_CUSTOM" ;;
         *) return 1 ;;
     esac
 }
@@ -91,15 +98,22 @@ sleep 8
 out=$logs/level-fps.phases; : > "$out"
 for p in $phases; do phase "$p" "$(action "$p")" >> "$out"; done
 game_stop
+# Each phase's capture (with muxretro's slow_frames stage trace): host copy
+# and a per-phase summary of what the slow frames spent their time on.
+rm -rf "$logs/level-fps"; mkdir -p "$logs/level-fps"
+r 'cd /run && tar -cf - level-fps-*.csv' | tar -xf - -C "$logs/level-fps" || :
+r 'rm -f /run/level-fps-*.csv'
+python3 "$(dirname "$0")/slow-frames.py" "$logs/level-fps"/*.csv > "$logs/level-fps/slow-frames.txt" 2>&1 || :
 r "echo \$(cat $cfg/volume) \$(cat $cfg/brightness)" > "$logs/level-fps.after"
 cmp -s "$logs/level-fps.before" "$logs/level-fps.after" || echo "WARN volume/brightness changed: $(cat "$logs/level-fps.before") -> $(cat "$logs/level-fps.after")"
-summary=$(awk -v label="$label" -v maxdrop="$maxdrop" -v slowmax="$maxslow" '
+summary=$(awk -v label="$label" -v maxdrop="$maxdrop" -v slowmax="$maxslow" -v missmax="$maxmiss" '
   $2 !~ /^[0-9.]+$/ { bad=bad " " $1 "=" $2; next }
-  { fps[$1]=$2; slow[$1]=$5; line=line sprintf(" %s=%.1ffps(p95 %.1f max %.0f slow %d cpu %d%% retro %d%%)", $1, $2, $3, $4, $5, $6, $7) }
+  { fps[$1]=$2; slow[$1]=$5; miss[$1]=$8; line=line sprintf(" %s=%.1ffps(p95 %.1f max %.0f slow %d missed %d cpu %d%% retro %d%%)", $1, $2, $3, $4, $5, $8, $6, $7) }
   END {
     if (bad != "" || !fps["base"]) { printf "FAIL level-fps %s: phases without data:%s\n", label, bad; exit }
     r="PASS"; for (p in fps) if ((p=="vol" || p=="bright") && fps[p] < fps["base"]*(1-maxdrop/100)) r="FAIL"
     if (slowmax != "") for (p in slow) if ((p=="vol" || p=="bright") && slow[p] > slowmax+0) r="FAIL"
+    if (missmax != "") for (p in miss) if ((p=="vol" || p=="bright") && miss[p] > missmax+0) r="FAIL"
     printf "%s level-fps %s:%s\n", r, label, line }' "$out")
 { date -u +%FT%TZ; echo "$summary"; cat "$out"; } >> "$logs/level-fps.log"
 echo "$summary"

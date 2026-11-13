@@ -603,6 +603,18 @@ about other R35S/R36S panels or revisions.
     so small stalls miss vsync. The scripts, `muxretro` and the overlay
     are upstream code (same on upstream's RK3326 GKD Pixel 2); not a port
     defect. A fix would be an upstream muxretro change.
+  - *Fixed in M3d step 3* (muxretro patch 0001 `slow_frames` stage trace
+    + `slow-frames.py`): per change, the LVGL bar cost one 22–30 ms frame
+    in `present` (glyph + bar redraw through the UI render target); the
+    level steps' cost was not the wpctl clients but WirePlumber's
+    `node/store-stream-props` hook reacting to the sink's Props change (12
+    slow frames per 14 s of `pw-cli` sets, 1 with WirePlumber stopped).
+    Fixes: muxretro draws the in-game bar itself (patch 0002, video
+    overlay hook, the LVGL layer stays hidden), `state.restore-props =
+    false` on the sink, and `muos-volume-step`/`muos-volumed` (one Props
+    write through a resident `pw-cli`). Result on NES (schedutil): vol 3–6
+    frames of 20–23 ms and 0 > 25 ms per 14 s (was 46–53 up to 33 ms),
+    bright 0–2 (was 10–35).
   - Port differences seen on the way, left as they are: `system/debug_mode`
     is 2 (upstream default 0; debug lines from every module go to p3), and
     the port's `r35s-bringup.json` volume/brightness combos lack

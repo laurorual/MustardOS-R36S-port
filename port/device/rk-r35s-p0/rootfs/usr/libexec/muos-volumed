@@ -1,0 +1,61 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-volumed start|stop|status|set PCT: a resident PipeWire client for
+# volume steps (M3d step 3). Each wpctl call is a new PipeWire client
+# (~60 ms of CPU on the RK3326) and upstream audio.sh U/D runs two per key
+# press, which drops frames in game. This keeps one pw-cli reading commands
+# from /run/muos/volume.fifo; `set` writes one Props update (volume, cubic as
+# wpctl, plus unmute) to the default sink. `set` fails (exit 1) whenever the
+# client isn't healthy, and starts it in the background for the next press:
+# callers then fall back to upstream audio.sh.
+run=/run/muos fifo=/run/muos/volume.fifo info=/run/muos/volume.sink
+export PIPEWIRE_RUNTIME_DIR=/run XDG_RUNTIME_DIR=/run
+
+# Healthy: the FIFO exists, the recorded pipewire is still the running one
+# (a restarted daemon renumbers nodes) and our pw-cli is alive.
+healthy() {
+    [ -p "$fifo" ] && read -r sink chans pw cli < "$info" 2>/dev/null && [ -n "$cli" ] &&
+        [ "$(cat "/proc/$pw/comm" 2>/dev/null)" = pipewire ] &&
+        [ "$(cat "/proc/$cli/comm" 2>/dev/null)" = pw-cli ]
+}
+
+stop() {
+    if read -r _ _ _ cli < "$info" 2>/dev/null && [ "$(cat "/proc/$cli/comm" 2>/dev/null)" = pw-cli ]; then
+        kill "$cli" 2>/dev/null
+    fi
+    rm -f "$fifo" "$info"
+}
+
+case "${1:-}" in
+start)
+    healthy && exit 0
+    stop
+    mkdir -p "$run"
+    pw=$(pidof pipewire | cut -d' ' -f1)
+    [ -n "$pw" ] || exit 1
+    sink=$(wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null | sed -n '1s/^id \([0-9]*\),.*/\1/p')
+    [ -n "$sink" ] || exit 1
+    chans=$(pw-dump "$sink" 2>/dev/null | sed -n 's/.*"channelVolumes": \[ \(.*\) \].*/\1/p' | head -n1 | tr -cd , | wc -c)
+    chans=$((chans + 1))
+    mkfifo -m 600 "$fifo" || exit 1
+    # Read-write open: writers never block, pw-cli never sees EOF.
+    setsid pw-cli <> "$fifo" > /dev/null 2>&1 9>&- &
+    echo "$sink $chans $pw $!" > "$info.tmp" && mv "$info.tmp" "$info" ;;
+stop) stop ;;
+status) healthy ;;
+set)
+    pct=${2:-}
+    case "$pct" in ''|*[!0-9]*) exit 2 ;; esac
+    if ! healthy; then
+        setsid "$0" start < /dev/null > /dev/null 2>&1 9>&- &
+        exit 1
+    fi
+    # (pct / 100)^3 in millionths: shell arithmetic (BusyBox awk has no pow).
+    n=$((pct * pct * pct))
+    v=$(printf '%d.%06d' $((n / 1000000)) $((n % 1000000)))
+    vols=$v i=1
+    while [ "$i" -lt "$chans" ]; do vols="$vols, $v"; i=$((i + 1)); done
+    # Read-write open again: never blocks even if pw-cli just died.
+    printf 's %s Props { mute: false, channelVolumes: [ %s ] }\n' "$sink" "$vols" 1<> "$fifo" ;;
+*) echo 'Usage: muos-volumed start|stop|status|set PCT' >&2; exit 2 ;;
+esac
