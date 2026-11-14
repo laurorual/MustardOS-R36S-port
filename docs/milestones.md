@@ -24,7 +24,8 @@ night of 2026-11-14.
    address) plus the developer `network.conf`. DHCP or the static address
    runs from a `wpa_cli -a` hook; no configured network → radio off
    (`/run/muos/network/idle`, muos-suspend accepts it). Connect reports
-   upstream's status file and exit codes. T2 (test128): connect good key
+   upstream's status file and exit codes. T2 (test128, repeatable with
+   `port/scripts/t2-wifi.sh`, PASS on the final p2): connect good key
    0 (8 s), wrong key 2 INVALID_PASSWORD (10 s), absent AP 3 AP_NOT_FOUND
    (23 s), each failure back on the previous network in 1–5 s; boot
    autoconnect from the profile; UI driven by `muos-press`: launcher →
