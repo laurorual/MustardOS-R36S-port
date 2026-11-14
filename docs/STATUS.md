@@ -105,6 +105,11 @@ host card reader; p3 auto-grow on the first boot.
   the charger; voltage estimate only at low or discharge current. (c) M4a adds a "Battery empty" splash (visibility: T3
   item 8). The BSP's `off=` underreports the time off (47 min for ~7 h)
   and stays set across warm reboots.
+- **Web services (found in M4a T3, 2026-11-14):** SSH/SFTP switched on
+  from the menu run dropbear in the UI's process group
+  (`service.sh apply` → worker), so `S99muos-ui stop` kills them too
+  (the public image lost SSH after the item 8 splash demo). Fix (M4b):
+  start them detached (`setsid`) or hand them to the S41 worker.
 - **Power:** menu idle ~409 mA (M3e: Wi-Fi power save 546 → 454 mA, the
   408 MHz CPU OPP → 409 mA; Wi-Fi off would be 397 − 45 mA; brightness
   70 → 35 saves ~38 mA). LEDs (the R35S LED node is disabled in stock too)
@@ -222,6 +227,8 @@ Taken:
 8. **Battery-empty splash** (any image ≥ M4a): seen at the end of a full
    discharge, or ask the agent to show it (`S99muos-ui stop;
    muos-splash`): "Battery empty" picture, readable, not rotated.
+   **Passed 2026-11-14** (shown on the public image; it stopped the
+   menu-enabled SSH too, see Open problems).
 9. **Back to the developer image:** flash `test128-m4a-20261114`, check
    SSH via `device.sh` and Wi-Fi as before. If 1–9 pass: the developer
    M4a image becomes the recovery image, M3c is retired.
