@@ -11,12 +11,9 @@ T3 checklists in [milestones.md](milestones.md). See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M3d are done (M3d T3 passed
-2026-11-13). M3e (below): steps 1–4 done at T2, the M3e image
-`dist/firmware/test128-m3e-20261113` built and T2-passed on the trial
-root; the battery full-discharge run (step 3) passed 2026-11-14 and
-exposed a 0%-after-recharge gauge bug, fixed by kernel patch 0005 (step
-6, image rebuilt); next the M3e flash and T3 items C–D.**
+**Phase 5 (own-card firmware). M1–M3e are done (M3e T3 passed
+2026-11-14; results in milestones.md). Next: the proposal at the end
+(M4a), waiting for the user's go.**
 
 ## Device and bench
 
@@ -44,45 +41,43 @@ bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m3e-20261113.img.zst` (raw `7b7c4a66…`, p2 `fd547220…`, rootfs `e7c12aa1…`; rebuilt 2026-11-14 with kernel `b486b712`) | **M3e candidate:** M3d + p3 grow fix (`resizepart`), hold-to-repeat, Wi-Fi power save, 408 MHz CPU OPP, gauge patch 0005, p1 without the Phase 4 `DIAGnn` folders, muxretro provenance | rootfs T2-passed on the trial root, kernel T2-passed on the device; never flashed (T3 below) |
-| **`dist/firmware/test128-m3d-20261113.img.zst`** (raw `f2692bfa…`, p2 `fd78705a…`) | **Recovery image since 2026-11-13.** M3d: kernel 0001–0004, muxretro from source, volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap | Flashed and T3-passed. Its grow script lacks the item 9 fix: without `--grow` p3 reaches full size only on the second boot (expected; first-boot fsck may log rc 8) |
-| `dist/firmware/test128-m3c-20261112.img.zst` (raw `64811ce2…`) | M3c: M3b boot chain + sftp-server, 4 cores, ROM folders | Previous recovery image; p2 T3-passed, image never flashed |
-| `dist/firmware/test128-m3b-20261111.img.zst` (raw `2a8fec32…`) | M3b: boot-record U-Boot, M3b kernel + M2 kernel | Flashed and T3-passed |
-| `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | Fallback |
+| **`dist/firmware/test128-m3e-20261113.img.zst`** (raw `7b7c4a66…`, p2 `fd547220…`) | **Recovery image since 2026-11-14.** M3e: kernel 0001–0005, p3 grow fix, hold-to-repeat, Wi-Fi power save, 408 MHz CPU OPP | Flashed and T3-passed (p3 grows on the first boot) |
+| `dist/firmware/test128-m3d-20261113.img.zst` (raw `f2692bfa…`) | M3d: kernel 0001–0004, muxretro from source, p3 auto-grow (second boot) | Previous recovery image; flashed and T3-passed |
+| `dist/firmware/test128-m3c-20261112.img.zst` (raw `64811ce2…`) | M3c: M3b boot chain + sftp-server, 4 cores, ROM folders | p2 T3-passed, image never flashed |
+| `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build** (`build-image.sh`): bootloader blobs, M2 kernel, identity; never retire while used |
 
-5/5 firmware versions kept (`port/packaging/storage-retention.json`; M1
-retired 2026-11-12, M3a.1 2026-11-13; retire M2 when M3e passes T3). If M3d fails to boot, flash M3c
-the same way. Rule (user, 2026-11-13): a milestone whose T0–T3 show no
-or only small problems becomes the recovery image, and the oldest kept
-version is retired.
+4/5 firmware versions kept (`port/packaging/storage-retention.json`;
+retired: M1, M3a.1, M3b 2026-11-14). If M3e fails to boot, flash M3d the
+same way. Rule (user, 2026-11-13): a milestone whose T0–T3 show no or
+only small problems becomes the recovery image, and the oldest kept
+version except the M2 base is retired.
 
 ## What works (T3-confirmed)
 
 Display (panel timing 60.0046 Hz), all controls, frontend and submenus;
-volume and brightness with muxretro's in-game bar; speaker audio on every
-boot; Wi-Fi + SSH/SFTP; prefs persistence; GB, NES, SNES, GBA, MD and PSX
-(CTR smooth over full races, user's BIOS) with saves and states;
-per-system governors; autostart, menu reboot/shutdown, hard power-cut
-recovery; Power-key sleep/resume in menu and game (one small dip on
-wake), shutdown timer, charging fake sleep; battery %, icon and charging
-icon from the RK817 fuel gauge (cold boots, charging reboot and drain
-hold the %); headphone path switching; flashing with the host card
-reader. p3 auto-grow on first boot: fixed version T2-passed on test128
-(T3 with the M3e image).
+volume and brightness with muxretro's in-game bar and hold-to-repeat;
+speaker audio on every boot; Wi-Fi (power save) + SSH/SFTP; prefs
+persistence; GB, NES, SNES, GBA, MD and PSX (CTR smooth over full races,
+user's BIOS) with saves and states; per-system governors, 408 MHz menu
+idle; autostart, menu reboot/shutdown, hard power-cut recovery;
+Power-key sleep/resume in menu and game (one small dip on wake),
+shutdown timer, charging fake sleep; battery %, icon and charging icon
+from the RK817 fuel gauge (cold boots, charging reboot, a full discharge
+with a clean low-battery poweroff at 3%, and the boot after a dead
+battery hold a plausible %); headphone path switching; flashing with the
+host card reader; p3 auto-grow on the first boot.
 
 ## Open problems
 
-- **Battery:** the discharge run (step 3) passed; open: (a) the FCC
-  (3380 mAh, DT value) is probably too large: the counter still held
-  974 mAh at 3%, the % below 3.85 V follows the voltage (BSP zero
-  algorithm), so above 3.85 V it may fall too slowly and speed up later;
-  a 100% → 0% run would measure it. (b) Patch 0005's lost-counter path
-  was seen once (old kernel) and is fixed by review plus the stale-OCV
-  and sanity paths, which were T2-tested; the cold boot after a dead
-  battery is re-checked in T3. (c) The low-battery poweroff shows no
-  shutdown screen (black screen; cosmetic). The BSP's `off=` (pwroff_min)
-  underreports the time off (47 min for ~7 h) and stays set across warm
-  reboots.
+- **Battery:** (a) the FCC (3380 mAh, DT value) is probably too large:
+  the counter still held 974 mAh at 3%; below 3.85 V the % follows the
+  voltage (BSP zero algorithm), so above it the % may fall too slowly and
+  speed up later. A 100% → 0% `t2-discharge.sh` run would measure it.
+  (b) Patch 0005's lost-counter branch is verified by review only (seen
+  once, with the old kernel); its stale-OCV and sanity branches were
+  T2-tested. (c) The low-battery poweroff shows no shutdown screen
+  (cosmetic). The BSP's `off=` underreports the time off (47 min for
+  ~7 h) and stays set across warm reboots.
 - **Power:** menu idle ~409 mA (M3e: Wi-Fi power save 546 → 454 mA, the
   408 MHz CPU OPP → 409 mA; Wi-Fi off would be 397 − 45 mA; brightness
   70 → 35 saves ~38 mA). LEDs (the R35S LED node is disabled in stock too)
@@ -93,9 +88,8 @@ reader. p3 auto-grow on first boot: fixed version T2-passed on test128
   `info_close.wav` are bass-heavy and inaudible on the speaker
   (hardware-findings; a high-passed copy as for `navigate.wav` would fix
   it, cosmetic).
-- **Frame pacing:** one level-fps run on the M3e trial root had one
-  29 ms frame (a late page flip) in a volume phase; the rerun and four
-  other runs that day had 0 missed vsyncs.
+- **Frame pacing:** one level-fps run (M3e) had one 29 ms frame (a late
+  page flip); the rerun and four other runs had 0 missed vsyncs.
 - **Headphones (hardware, deprioritized by the user):** the jack isn't
   detected with the plug fully in, so the speaker keeps playing; a
   contact problem, not software (hardware-findings).
@@ -104,9 +98,7 @@ reader. p3 auto-grow on first boot: fixed version T2-passed on test128
   project if possible.
 - **DDR devfreq** isn't synced to the display (no `vop-bw-dmc-freq` in
   the DT); schedutil games may switch DDR mid-game (no flash seen).
-- **Image hygiene:** p1 still holds the Phase 4 `DIAG*` folders (about
-  1 MiB); muxretro's `provenance.json` still describes the Phase 4
-  binary; U-Boot messages go to serial/LCD only (no log on the card).
+- **U-Boot log:** messages go to serial/LCD only (no log on the card).
 - **Pinned, not rebuilt:** the muOS frontend binaries, the cores, the
   kernel modules and the tuned `/opt/muos` config (`firmware-inputs.json`);
   idbloader and trust come from the M2 image (vendor blobs).
@@ -134,59 +126,24 @@ Taken:
   the end of the project, as an optional toggle for the user (2026-11-13).
 - **Recovery image promotion** after a passed T3: automatic (2026-11-13).
 
-## Current milestone: M3e — daily-use polish
+## Next milestone (proposal): M4a — public-image foundations
 
-Goal: close the remaining M3 items that need no user decision and ship
-the M3e image. Started 2026-11-13.
-
-1. **Hold-to-repeat** (T2 done): post-build sets `handle_hold` on the
-   level combos (as upstream). A 2 s hold moves the level ~10 steps;
-   brightness 0 blanks the screen as upstream (the next brightness-up
-   restores it). In game: 60.0 fps, 0 missed vsyncs (`t2-level-fps.sh`
-   vol-hold / bright-hold).
-2. **Menu idle power** (T2 done): Wi-Fi power save (`rtw_power_mgnt=1
-   rtw_ips_mode=1`, `etc/modprobe.d/8821cu-power.conf`) 546 → 454 mA;
-   ping avg 12 ms / max 92 ms, 20 MB push 3.5 s. The BSP's 408 MHz
-   CPU OPP (0.95 V; the vendor DTS deleted it) 454 → 409 mA, 88% of
-   menu idle at 408 MHz; games stay ≥ 1008 MHz. T2: NES gate 60.0 fps /
-   0 missed; SNES, GBA, MD ~1 missed vsync per minute (as M3d); 2/2
-   in-game sleep cycles.
-3. **Battery full discharge** (passed 2026-11-14, logs in
-   `build/m3e/discharge-20261114`): NES test game, then CTR from 60%
-   (`t2-discharge.sh switch`), volume 10. 64% → 4% in 95 min, ~1150 mAh
-   (mean 721 mA), no % jumps; 25% at 3441 mV, 10% at 3368 mV; clean
-   `critical battery (3%, 3335 mV): power off` (muos-lowbattery).
-4. **Image hygiene** (done): p1 without `DIAGnn` / `PROBE.TXT` /
-   `tools`; muxretro's provenance and `payload.sha256` describe the
-   source build.
-5. **M3e image** (T2 done on the trial root): audio before/after PASS,
-   level-fps PASS on rerun (see "Frame pacing"), 2/2 in-game sleep
-   cycles, long play 2 min each NES/SNES/GBA/MD/PSX PASS (2–3 missed
-   vsyncs per game, fps ≥ 59.77, PSX 77 °C).
-6. **Gauge after a dead battery** (T2 done, 2026-11-14): after ~7 h of
-   charging while off, the boot showed 0% on a full battery: the
-   counter came back invalid (0 vs 974 mAh), which the BSP took for a
-   halt. The PMIC's OCV sample (3751 mV, from the charger plug-in) was
-   stale, and the off timer stays set, so warm reboots recalibrated to
-   48%. Kernel patch 0005 adds a current-corrected voltage estimate
-   (V − I·bat_res). With it, a lost counter starts from the estimate, and
-   an OCV more than 30 points away from it is skipped. Boot sanity resets
-   to the estimate when dsoc and the counter are both more than 40 points
-   away. T2: the trial boot went 49% → 97% (4.16 V, tail charge), stable
-   over 2 reboots on main; audio PASS. Image rebuilt (same rootfs).
-
-## M3e T3 checklist (user)
-
-A. **Discharge run:** done 2026-11-14. Clean poweroff at 3%; the black
-   screen is the missing shutdown screen (cosmetic).
-B. **After the recharge:** booted, but showed 0% on a full battery.
-   Fixed by patch 0005 (step 6): now 97%. Saves backed up to
-   `build/m3e/p3-backup-20261114`; volume 55 restored.
-C. **Flash M3e:** done 2026-11-14; p3 grew on the first boot (item 9
-   fixed); BIOS, ROMs and saves restored.
-D. **On the flashed M3e:** menu navigation feels as smooth as before
-   (the CPU now idles at 408 MHz); holding Vol+/Vol− and Menu+Vol
-   changes the level continuously, in the menu and in a game, without
-   stutter or crackle; Wi-Fi and SFTP work (slightly higher latency is
-   expected); sleep/wake in a game OK; sound on every boot; battery %
-   plausible after a power-off and a cold boot (no 0%, no jump).
+M4 (roadmap.md) needs the user for naming and the licence position, but
+its technical half doesn't. M4a builds that half; nothing is published.
+1. **Public build variant** (`build-image.sh image --public`): no Wi-Fi
+   PSK, no authorized_keys, no host key (generated on first boot),
+   dropbear off by default; a check refuses a public image holding keys,
+   `network.conf` or seeds. The developer image stays as it is.
+2. **First-boot Wi-Fi:** upstream muxnetwork (scan, on-screen keyboard)
+   writes `config/network/*`; the port's network worker generates the
+   wpa_supplicant config from it. SSH/SFTP follow muOS's web-services
+   toggles.
+3. **Cosmetics:** a "battery empty" splash before the low-battery
+   poweroff; high-passed `info_open/close.wav`.
+4. **Licence groundwork:** match the pinned boot blobs to rkbin and
+   survey libmali bifrost-g31 builds with redistribution terms (report
+   only).
+T3: flash the public image on test128 (developer image as recovery),
+join Wi-Fi from the menu, enable SSH from the menu, the developer key
+is refused. Optional, whenever the device can sit idle: a 100% → 0%
+discharge to measure the real battery capacity.

@@ -4,6 +4,64 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M3e — daily-use polish (done 2026-11-14, T3 passed)
+
+Goal: close the M3 items that need no user decision and ship the M3e
+image. Image `dist/firmware/test128-m3e-20261113` (raw `7b7c4a66…`, p2
+`fd547220…`, rootfs `e7c12aa1…`, kernel `Image-b486b7126df2` = patches
+0001–0005), the recovery image since 2026-11-14 (M3b retired; M2 kept as
+the image-build base).
+
+1. **Hold-to-repeat** (T2 done): post-build sets `handle_hold` on the
+   level combos (as upstream). A 2 s hold moves the level ~10 steps;
+   brightness 0 blanks the screen as upstream (the next brightness-up
+   restores it). In game: 60.0 fps, 0 missed vsyncs (`t2-level-fps.sh`
+   vol-hold / bright-hold).
+2. **Menu idle power** (T2 done): Wi-Fi power save (`rtw_power_mgnt=1
+   rtw_ips_mode=1`, `etc/modprobe.d/8821cu-power.conf`) 546 → 454 mA;
+   ping avg 12 ms / max 92 ms, 20 MB push 3.5 s. The BSP's 408 MHz
+   CPU OPP (0.95 V; the vendor DTS deleted it) 454 → 409 mA, 88% of
+   menu idle at 408 MHz; games stay ≥ 1008 MHz. T2: NES gate 60.0 fps /
+   0 missed; SNES, GBA, MD ~1 missed vsync per minute (as M3d); 2/2
+   in-game sleep cycles.
+3. **Battery full discharge** (passed 2026-11-14, logs in
+   `build/m3e/discharge-20261114`): NES test game, then CTR from 60%
+   (`t2-discharge.sh switch`), volume 10. 64% → 4% in 95 min, ~1150 mAh
+   (mean 721 mA), no % jumps; 25% at 3441 mV, 10% at 3368 mV; clean
+   `critical battery (3%, 3335 mV): power off` (muos-lowbattery).
+4. **Image hygiene** (done): p1 without `DIAGnn` / `PROBE.TXT` /
+   `tools`; muxretro's provenance and `payload.sha256` describe the
+   source build.
+5. **M3e image** (T2 done on the trial root): audio before/after PASS,
+   level-fps PASS on rerun (see "Frame pacing"), 2/2 in-game sleep
+   cycles, long play 2 min each NES/SNES/GBA/MD/PSX PASS (2–3 missed
+   vsyncs per game, fps ≥ 59.77, PSX 77 °C).
+6. **Gauge after a dead battery** (T2 done, 2026-11-14): after ~7 h of
+   charging while off, the boot showed 0% on a full battery: the
+   counter came back invalid (0 vs 974 mAh), which the BSP took for a
+   halt. The PMIC's OCV sample (3751 mV, from the charger plug-in) was
+   stale, and the off timer stays set, so warm reboots recalibrated to
+   48%. Kernel patch 0005 adds a current-corrected voltage estimate
+   (V − I·bat_res). With it, a lost counter starts from the estimate, and
+   an OCV more than 30 points away from it is skipped. Boot sanity resets
+   to the estimate when dsoc and the counter are both more than 40 points
+   away. T2: the trial boot went 49% → 97% (4.16 V, tail charge), stable
+   over 2 reboots on main; audio PASS. Image rebuilt (same rootfs).
+
+**T3 (2026-11-14, all passed).**
+- A. Discharge run: clean low-battery poweroff at 3%. The screen just
+  goes black, because `muos-lowbattery` calls `poweroff` without the
+  frontend's shutdown message (cosmetic).
+- B. Boot after the recharge: 0% on a full battery with the old kernel;
+  fixed by patch 0005 (step 6).
+- C. Flashed without `--grow`: p3 grew on the first boot (116.6 GiB,
+  resize2fs rc 0 at 7.1 s), so M3d item 9 is fixed. BIOS, ROMs and saves
+  were restored and are checksum-identical. The gauge kept 97% across the
+  flash.
+- D. Menu at 408 MHz idle as smooth as before; hold-to-repeat in the menu
+  and in game; Wi-Fi + SFTP; sleep/wake in game; sound on every boot;
+  battery % stable over a power-off and cold boot.
+
 ## M3d — smoothness + robustness (done 2026-11-13, T3 passed)
 
 Goal: no visible slowdowns in normal play (the user's bar for the final
