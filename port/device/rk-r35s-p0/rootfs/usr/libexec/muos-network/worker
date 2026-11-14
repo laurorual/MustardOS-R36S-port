@@ -239,7 +239,8 @@ host_key() {
     k=/userdata/MUOS/port/ssh/dropbear_ed25519_host_key
     if [ ! -s "$k" ]; then
         mkdir -p "${k%/*}" || return 1
-        dropbearkey -t ed25519 -f "$k.tmp" > /dev/null 2>&1 && mv "$k.tmp" "$k" && sync || return 1
+        dropbearkey -t ed25519 -f "$k.tmp" > /dev/null 2>&1 && mv "$k.tmp" "$k" || return 1
+        rm -f "$k.tmp.pub"; sync
     fi
     echo "$k"
 }

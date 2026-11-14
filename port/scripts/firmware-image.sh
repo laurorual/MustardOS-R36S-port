@@ -80,8 +80,8 @@ for p in "${private[@]}"; do
     printf 'cd %s\nrm %s\nwrite %s %s\ncd /\nsif %s mode 0100%s\nsif %s uid 0\nsif %s gid 0\n' \
         "$d" "${p##*/}" "$f" "${p##*/}" "$p" "$mode" "$p" "$p" >> "$cmds"
 done
-rm -f "$work"/priv.*
 [ ${#private[@]} = 0 ] || debugfs -w -f "$cmds" "$work/p2.img" >/dev/null 2>&1
+rm -f "$work"/priv.*
 for p in "${private[@]}"; do
     a=$(debugfs -R "cat $p" "$work/base-p2.img" 2>/dev/null | sha256sum)
     b=$(debugfs -R "cat $p" "$work/p2.img" 2>/dev/null | sha256sum)

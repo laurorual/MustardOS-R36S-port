@@ -24,7 +24,7 @@ esac
 fail=0
 check() { local d=$1; shift; if "$@"; then echo "ok   $d"; else echo "FAIL $d" >&2; fail=1; fi; }
 part() { # N -> start size (sectors)
-    sfdisk -d "$img" 2>/dev/null | awk -v n="$1" '$1 ~ "[^0-9]" n "$" { gsub(/[a-z=, ]+/, " "); split($0, a, " "); print a[2], a[3] }'
+    sfdisk -d "$img" 2>/dev/null | sed -n "s|^.*[^0-9]$1 : start= *\([0-9]*\), size= *\([0-9]*\),.*|\1 \2|p"
 }
 read -r s2 n2 < <(part 2); read -r s3 n3 < <(part 3)
 dd if="$img" of="$work/p2.img" bs=512 skip="$s2" count="$n2" conv=sparse status=none
