@@ -7,8 +7,9 @@
 #   (default mem); resume in reverse, muxretro SIGUSR2 last. As upstream
 #   (module load waited for before the game resumes), the game stays paused
 #   until the Wi-Fi radio is up again (USB enumeration, 8821cu, firmware:
-#   2-3 s of IRQ/kworker load that stalled frames, M3d), at most 6 s;
-#   association and DHCP continue in the background.
+#   2-3 s of IRQ/kworker load that stalled frames, M3d), at most 6 s, and
+#   not at all while the dongle settles in CD-ROM mode (M4b); association
+#   and DHCP continue in the background.
 # settings/power/shutdown (upstream default 600): seconds asleep before a
 # clean poweroff through init (RTC alarm); -1 sleep until woken; 2 power
 # off instead of sleeping. Charger connected: "fake sleep" (screen off,
@@ -83,10 +84,16 @@ net_up() {
     /etc/init.d/S41muos-network start >/dev/null 2>&1 9>&-
 }
 wait_radio() {
-    n=0
+    n=0 why=
     # idle: no Wi-Fi network configured, the worker leaves the radio off.
-    while [ "$n" -lt 60 ] && [ ! -e /run/muos/network/radio ] && [ ! -e /run/muos/network/idle ]; do sleep 0.1; n=$((n+1)); done
-    say "radio $([ -e /run/muos/network/radio ] && echo up || { [ -e /run/muos/network/idle ] && echo idle; } || echo 'not up') after $((n / 10)).$((n % 10)) s"
+    # M4b: "mem" cuts the dongle's power; back in CD-ROM mode it must settle
+    # ~10 s before the switch (worker), so waiting gains nothing: the game
+    # resumes now (the later bring-up costs ~0.7 s of slow frames, CPU3).
+    while [ "$n" -lt 60 ] && [ ! -e /run/muos/network/radio ] && [ ! -e /run/muos/network/idle ]; do
+        grep -qx 1a2b /sys/bus/usb/devices/*/idProduct 2>/dev/null && { why=' (dongle settling)'; break; }
+        sleep 0.1; n=$((n+1))
+    done
+    say "radio $([ -e /run/muos/network/radio ] && echo up || { [ -e /run/muos/network/idle ] && echo idle; } || echo 'not up') after $((n / 10)).$((n % 10)) s$why"
 }
 
 if [ "$fake" = 1 ]; then

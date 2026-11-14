@@ -12,7 +12,7 @@ case "${1:-}" in
  start)
     mkdir -p "$state"
     start-stop-daemon -S -b -m -p "$state/worker.pid" -x /bin/sh -- \
-        -c "exec $worker up > $state/worker.log 2>&1"
+        -c "exec $worker up >> $state/worker.log 2>&1"
     ;;
  stop)
     start-stop-daemon -K -q -p "$state/worker.pid" 2>/dev/null || :

@@ -36,6 +36,15 @@ $out"
         mount -t vfat -o ro,nosuid,nodev,noexec "$(part 1)" /boot || echo 'data: p1 not mounted'
     mkdir -p "$data/MUOS/log" "$data/ROMS"
     [ -z "$fsck" ] || printf '%s\n' "$fsck" > "$data/MUOS/log/fsck-p3.log"
+    # M4b: an oops/panic of the previous boot (ramoops, kept across the warm
+    # reboot that panic=10 does) goes to p3 MUOS/log/pstore/<time>/.
+    if mount -t pstore pstore /sys/fs/pstore 2>/dev/null || findmnt -rn /sys/fs/pstore >/dev/null; then
+        set -- /sys/fs/pstore/dmesg-*
+        if [ -e "$1" ]; then
+            d=$data/MUOS/log/pstore/$(date +%Y%m%d-%H%M%S)
+            mkdir -p "$d" && cp "$@" "$d/" && rm -f "$@" && echo "data: kernel crash log saved to $d"
+        fi
+    fi
     /usr/libexec/muos-grow-p3 fs || :
     ;;
  stop)

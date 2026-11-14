@@ -1,0 +1,60 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M4b: udev hook for the Wi-Fi dongle (rules.d/90-muos-wifi-dongle.rules).
+#   hotplug add|remove   returns at once (udev), the work runs detached
+# Before M4b the worker kept its radio state in /run until a reboot, so a
+# replugged dongle stayed in CD-ROM mode and scans came back empty.
+#   add:    restart the network service (worker up: settle, switch, radio
+#           if a network is configured, else idle)
+#   remove: if no dongle is back 2 s later and nothing else owns it, stop
+#           the network service and forget the radio state
+# Ignored while something else owns the dongle: sleep/resume (muos-suspend
+# holds suspend.lock and restarts the service itself), the boot or a
+# previous restart (worker up running), a menu command (worker lock; its
+# own CD-ROM switch and USB reset re-enumerate the dongle).
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+state=/run/muos/network
+s41=/etc/init.d/S41muos-network
+case "${1:-}" in
+ add|remove)
+    setsid "$0" "run-$1" < /dev/null >> /run/muos-hotplug.log 2>&1 &
+    exit 0 ;;
+ run-add|run-remove) ;;
+ *) echo 'Usage: hotplug add|remove' >&2; exit 2 ;;
+esac
+say() { echo "$(cut -d' ' -f1 /proc/uptime) hotplug ${1#run-}: $2"; }
+busy() {
+    [ -s "$state/worker.pid" ] || { echo 'before S41'; return 0; }
+    kill -0 "$(cat "$state/worker.pid")" 2>/dev/null && { echo 'worker up running'; return 0; }
+    [ ! -e /run/muos/suspend.lock ] || flock -n /run/muos/suspend.lock true || { echo 'sleep/resume'; return 0; }
+    [ ! -e "$state/lock" ] || flock -n "$state/lock" true || { echo 'menu command'; return 0; }
+    return 1
+}
+dongle() {
+    for d in /sys/bus/usb/devices/*; do
+        [ -r "$d/idVendor" ] || continue
+        case "$(cat "$d/idVendor"):$(cat "$d/idProduct" 2>/dev/null)" in 0bda:1a2b|0bda:c820) return 0 ;; esac
+    done
+    return 1
+}
+# One handler at a time; an add right after a remove waits for it.
+exec 9> /run/muos-hotplug.lock; flock -w 30 9 || exit 0
+case "$1" in
+ run-add)
+    sleep 1
+    if why=$(busy); then say "$1" "ignored ($why)"; exit 0; fi
+    # Our own switch or USB reset: the radio is already being brought up.
+    [ ! -e "$state/radio" ] || [ ! -e "/sys/class/net/$(cat "$state/interface" 2>/dev/null)" ] || { say "$1" 'ignored (radio up)'; exit 0; }
+    say "$1" 'restart the network service'
+    "$s41" stop > /dev/null 2>&1; rm -f "$state/usb-done"
+    "$s41" start 9>&- ;;
+ run-remove)
+    sleep 2
+    dongle && { say "$1" 'ignored (dongle back: re-enumeration)'; exit 0; }
+    # A worker that is still bringing the radio up fails on its own and
+    # clears its state (down after each attempt).
+    if why=$(busy); then say "$1" "ignored ($why)"; exit 0; fi
+    say "$1" 'dongle gone: network service stopped'
+    "$s41" stop > /dev/null 2>&1
+    rm -f "$state/usb-done" "$state/interface" ;;
+esac

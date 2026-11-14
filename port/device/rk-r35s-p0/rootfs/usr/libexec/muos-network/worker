@@ -29,7 +29,9 @@
 # 2022) as root. Host key: the private one, else p3 MUOS/port/ssh (created
 # on first use). Warm-reboot note: btusb stays blacklisted (modprobe.d
 # wifi-only); without it the dongle's EP0 times out after a warm reboot
-# (hardware-findings.md).
+# (hardware-findings.md). Every daemon runs in its own session (setsid), so
+# stopping the UI (S99 kills its process group) never takes Wi-Fi or SSH
+# down with it. Hotplug: udev runs ./hotplug (M4b).
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 state=/run/muos/network
 private=/var/lib/muos-network
@@ -110,6 +112,11 @@ gen_conf() {
 # ---- radio
 # Find the dongle; switch CD-ROM mode 1a2b to Wi-Fi c820, or reset a c820
 # kept across a warm reboot so the new kernel probes it again.
+# M4b: a dongle that has just been powered (plugged in, or after a "mem"
+# sleep, which cuts its power) must stay in CD-ROM mode for a while: ejected
+# 0.27 s after power-up its firmware failed the BT-coex H2C and the radio
+# stayed deaf until a power cycle; 10 s worked every time (M4a T3).
+settle_ms=10000
 usb_mode() {
     candidate=; n=0
     while [ "$n" -lt 100 ]; do
@@ -132,6 +139,12 @@ usb_mode() {
     fi
     if [ -r "$candidate/idProduct" ] && [ "$(cat "$candidate/idProduct")" = 1a2b ]; then
         bus=$(cat "$candidate/busnum"); device=$(cat "$candidate/devnum")
+        on=$(cat "$candidate/power/connected_duration" 2>/dev/null || echo 0)
+        case "$on" in ''|*[!0-9]*) on=0 ;; esac
+        if [ "$on" -lt "$settle_ms" ]; then
+            say "dongle powered $((on / 1000)) s ago: settle before the switch"
+            sleep $(( (settle_ms - on + 999) / 1000 ))
+        fi
         usb_modeswitch -K -v 0bda -p 1a2b -b "$bus" -g "$device" > "$state/private/usb-switch.log" 2>&1 || :
     fi
     n=0
@@ -157,6 +170,10 @@ usb_mode() {
 # Radio, wpa_supplicant (with the current config) and the wpa_cli action
 # hook that runs DHCP or the static address on every association.
 radio() {
+    # The dongle went away under us (unplugged, or hotplug missed): start over.
+    if [ -e "$state/radio" ] && [ ! -e "/sys/class/net/$(iface)" ]; then
+        say "$(iface) gone: radio reset"; down; rm -f "$state/usb-done"
+    fi
     if [ ! -e "$state/radio" ]; then
         usb_mode || return 1
         found=; n=0
@@ -183,13 +200,13 @@ radio() {
     fi
     if ! alive wpa; then
         [ -s "$conf" ] || gen_conf > /dev/null
-        wpa_supplicant -i "$(iface)" -D nl80211,wext -c "$conf" > "$state/private/wpa.log" 2>&1 7>&- 8>&- &
+        setsid wpa_supplicant -i "$(iface)" -D nl80211,wext -c "$conf" > "$state/private/wpa.log" 2>&1 7>&- 8>&- &
         echo $! > "$state/wpa.pid"
         n=0; while [ "$n" -lt 50 ] && [ ! -S "$ctrl/$(iface)" ]; do sleep 0.1; n=$((n+1)); done
         [ -S "$ctrl/$(iface)" ] || { say 'wpa_supplicant did not start'; stop_pid wpa; return 1; }
     fi
     if ! alive action; then
-        wpa_cli -p "$ctrl" -i "$(iface)" -a "$lib/worker" > "$state/private/action.log" 2>&1 7>&- 8>&- &
+        setsid wpa_cli -p "$ctrl" -i "$(iface)" -a "$lib/worker" > "$state/private/action.log" 2>&1 7>&- 8>&- &
         echo $! > "$state/action.pid"
     fi
 }
@@ -198,7 +215,7 @@ radio() {
 dhcp_start() {
     exec 7> "$state/dhcp.lock"; flock -w 10 7
     stop_pid dhcp
-    udhcpc -f -i "$(iface)" -s "$lib/dhcp" -t 10 -T 3 -A 5 > "$state/private/dhcp.log" 2>&1 7>&- 8>&- &
+    setsid udhcpc -f -i "$(iface)" -s "$lib/dhcp" -t 10 -T 3 -A 5 > "$state/private/dhcp.log" 2>&1 7>&- 8>&- &
     echo $! > "$state/dhcp.pid"
     exec 7>&-
 }
@@ -265,7 +282,7 @@ service() { # KEY: dev | sshd | sftp
             port=$(get web/sftp_port); case "$port" in ''|*[!0-9]*) port=2022 ;; esac
             set -- -c /usr/libexec/sftp-server -p "0.0.0.0:$port" ;;
     esac
-    dropbear -F -E -j -k -m -r "$key" -P "$state/$pidn.dbpid" -K 30 "$@" >> "$state/private/$pidn.log" 2>&1 7>&- 8>&- &
+    setsid dropbear -F -E -j -k -m -r "$key" -P "$state/$pidn.dbpid" -K 30 "$@" >> "$state/private/$pidn.log" 2>&1 7>&- 8>&- &
     echo $! > "$state/$pidn.pid"
     sleep 0.5
     alive "$pidn" || { say "$pidn did not start"; return 1; }
@@ -367,7 +384,8 @@ case "${1:-}" in
     while [ "$attempt" -le 3 ]; do
         say "attempt $attempt"
         up_once && exit 0
-        down
+        # Retry from the USB side: reset the dongle, probe the driver again.
+        down; rm -f "$state/usb-done"; rmmod 8821cu 2>/dev/null
         attempt=$((attempt+1))
         sleep 5
     done
