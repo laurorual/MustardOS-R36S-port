@@ -59,8 +59,9 @@ M4 publication waits for the "Decisions for the user".**
 
 ## Recovery image
 
-The images are **private** (Wi-Fi PSK, SSH host key, authorized_keys):
-never commit or share them. Flashing any image rewrites the whole card,
+The developer images are **private** (Wi-Fi PSK, SSH host key,
+authorized_keys): never commit or share them. The public variant holds
+none of that but isn't cleared for publication (decisions 1–4). Flashing any image rewrites the whole card,
 bootloader included; steps in procedures.md.
 
 | Image | Content | State |
@@ -75,8 +76,7 @@ bootloader included; steps in procedures.md.
 5/5 firmware versions kept (`port/packaging/storage-retention.json`;
 M4a = one version with both variants; retired: M1, M3a.1, M3b
 2026-11-14). After the M4a T3: promote the developer M4a image, retire
-M3c. If M3e fails to boot, flash M3d the
-same way. Rule (user, 2026-11-13): a milestone whose T0–T3 show no or
+M3c. If M3e fails to boot, flash M3d the same way. Rule (user, 2026-11-13): a milestone whose T0–T3 show no or
 only small problems becomes the recovery image, and the oldest kept
 version except the M2 base is retired.
 
@@ -104,9 +104,9 @@ host card reader; p3 auto-grow on the first boot.
   night summary).
   (b) Patch 0005's lost-counter branch is verified by review only (seen
   once, with the old kernel); its stale-OCV and sanity branches were
-  T2-tested. (c) M4a adds a "Battery empty" splash (its visibility is
-  unverified: T3 item 8). The BSP's `off=` underreports the time off (47 min for
-  ~7 h) and stays set across warm reboots.
+  T2-tested. (c) M4a adds a "Battery empty" splash (visibility: T3
+  item 8). The BSP's `off=` underreports the time off (47 min for ~7 h)
+  and stays set across warm reboots.
 - **Power:** menu idle ~409 mA (M3e: Wi-Fi power save 546 → 454 mA, the
   408 MHz CPU OPP → 409 mA; Wi-Fi off would be 397 − 45 mA; brightness
   70 → 35 saves ~38 mA). LEDs (the R35S LED node is disabled in stock too)
@@ -139,6 +139,9 @@ host card reader; p3 auto-grow on the first boot.
   addresses are implemented but untested. Web services other than SSH
   and SFTP (dashboard, mDNS, NTP, Syncthing, virtual terminal) are not
   ported: their toggles do nothing.
+- **Public image first boot** (M4a) is untested: an empty p3 (only the
+  data marker) was never booted; S89–S91 create and seed what they need,
+  but that path has only run on cards with content. T3 item 1.
 - **SFTP (M4a)** runs as root with the whole filesystem (upstream jails
   user `muos` to the storage with `musftpjail`, which the pinned
   frontend lacks).
