@@ -20,6 +20,7 @@
     "SONAME/strip modifications"
    ],
    "reference": "docs/archive/phase4/hardkernel-r13-license-request.md",
+   "request": "revised 2026-11-14 (decision 2 = a); to be sent by the user to odroid@hardkernel.com, forum.odroid.com as fallback; not sent yet",
    "m4a_survey_2026_11_14": {
     "rockchip-linux/libmali": "repository gone (HTTP 404)",
     "mirror": "https://github.com/JeffyCN/mirrors/tree/libmali: only libmali-bifrost-g31-g24p0-* for aarch64 (needs a g24p0 kbase; the 4.4 BSP has r13p0)",

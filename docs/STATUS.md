@@ -27,15 +27,10 @@ check) is running: `t2-discharge.sh log-start` + CTR, started at 96%.
    CTR's test state.
 2. **M4c T3 checklist** (below). No flash needed: the card already has
    M4c (same files as `dist/firmware/test128-m4c-20261114`).
-3. **Decision 2 (a):** send the drafted Hardkernel request
-   (`docs/archive/phase4/hardkernel-r13-license-request.md`; contacting
-   them is yours), or ask the agent to revise it first.
-4. **Decision 3, confirm:** "rkbin files are acceptable" read as: keep
-   DDR/miniloader/BL32 (= rkbin) and replace BL31 with rkbin's v1.14
-   (trust-image rebuild = bootloader write + one T3 cycle, planned before
-   the public build).
-5. `build/m3a/test128-m3c-20261112.p2.img` (175 MiB on disk) belongs to
-   the retired M3c and isn't in retention: delete it? (yes/no)
+3. **Decision 2 (a):** send the revised Hardkernel request
+   (`docs/archive/phase4/hardkernel-r13-license-request.md`, revised
+   2026-11-14: to `odroid@hardkernel.com`, forum fallback; fill in the
+   GitHub URL and your name).
 
 ## Evening of 2026-11-14 (M4c, details: milestones.md M4c)
 
@@ -129,8 +124,8 @@ card reader; p3 auto-grow; `panic=10` reboots after a kernel panic.
   addresses untested; NTP not ported (no clock source).
 - **SFTP** runs as root with the whole filesystem (decision 6: port
   upstream's jail before the public build).
-- **Licences:** Mali r13p0 (decision 2 (a) pending the request), BL31
-  (decision 3), the dirty U-Boot, Gambatte and BT firmware are
+- **Licences:** Mali r13p0 (decision 2 (a): request ready, not sent),
+  BL31 (decision 3: replace with rkbin's, M4d), the dirty U-Boot, Gambatte and BT firmware are
   private-only (`port/packaging/pending-licenses.json`).
 
 ## Decisions
@@ -138,9 +133,11 @@ card reader; p3 auto-grow; `panic=10` reboots after a kernel panic.
 Answered by the user 2026-11-14 (evening):
 1. **Name:** "muOS for R36S/R35S (unofficial port)"; the user contacts
    the MustardOS team before publication.
-2. **Mali:** (a), request r13p0 terms from Hardkernel (user sends it).
-3. **Boot payloads:** rkbin files acceptable (BL31 → rkbin: confirm,
-   "When you're back" 4).
+2. **Mali:** (a), request r13p0 terms from Hardkernel (user sends the
+   revised request).
+3. **Boot payloads:** rkbin files acceptable: keep DDR/miniloader/BL32
+   (= rkbin) and replace BL31 with rkbin's v1.14 (confirmed; trust-image
+   rebuild = bootloader write + one T3 cycle, M4d).
 4. **GPL source offer:** on GitHub.
 5. **Public root password:** as upstream (`root`).
 6. **SFTP:** port upstream's jailed `muos` user later, before the final
