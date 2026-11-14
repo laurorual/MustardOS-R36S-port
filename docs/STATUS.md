@@ -20,10 +20,11 @@ M4 publication waits for the "Decisions for the user".**
 
 - **Discharge run (optional battery measurement):** started 06:21 UTC at
   94% (gauge counter 3172 mAh), idle menu, ~360 mA, volume 10 (the
-  user's 25 is saved). At 07:30 UTC: 84%, 2797 mAh. The logger is a p3
-  user-init script, so it survived the 8 reboots of the night. Expected
-  to end with the low-battery poweroff (3%) around 13:00–15:00 UTC; the
-  device was left on. **After recharging and powering on:**
+  user's 25 is saved). At 07:30 UTC (end of the session): 81%, counter
+  2716 mAh (456 mAh in 69 min incl. the T2 runs), 3892 mV, 361 mA idle.
+  The logger is a p3 user-init script, so it survived the 8 reboots of
+  the night. Expected to end with the low-battery poweroff (3%) around
+  14:00–16:00 UTC; the device was left on, menu idle, backlight 40. **After recharging and powering on:**
   `port/scripts/t2-discharge.sh report` (pulls `MUOS/log/discharge.csv`
   to `build/logs/discharge/`, restores volume 25), then
   `t2-discharge.sh log-stop`. Columns `cc_mah` (coulomb counter),
