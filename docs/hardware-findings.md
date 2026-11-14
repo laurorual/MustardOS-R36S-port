@@ -551,6 +551,15 @@ about other R35S/R36S panels or revisions.
   cut-off; the zero algorithm (< 3850 mV) makes dsoc fall ~45% faster
   below ~3.82 V (0.20 → 0.29 %/min at constant load). Loaded-step
   resistance ~200 mΩ (1-min samples, includes polarisation).
+- **Wi-Fi dongle power (M4a T3 / M4b, 2026-11-14):** the RTL8821CU
+  (`0bda:1a2b` CD-ROM mode → `0bda:c820`) loses power in "mem" sleep,
+  also on the charger, and returns in CD-ROM mode; a DWC2 unbind/bind
+  keeps it powered (no software power cycle). Switched 0.27 s after
+  power-up its firmware failed `_btmpoper_cmd: Didn't get H2C Rsp
+  Event!` and scans stayed empty until a power cycle; ≥ 10 s worked in
+  19/19 wakes. `power/connected_duration` (ms) gives the powered time.
+- **Battery effective resistance (2026-11-14):** ~197 mΩ from 1-min load
+  steps, ~217 mΩ at charge start (DT `bat_res` says 100).
 - **RTC wake from power-off:** an alarm in `/sys/class/rtc/rtc0/wakealarm`
   (rk808-rtc on the RK817) set before `poweroff` doesn't power the R35S
   back on (2026-11-13). Unattended power-off cycles need another way

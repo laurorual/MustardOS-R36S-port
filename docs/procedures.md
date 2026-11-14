@@ -105,6 +105,12 @@ snapshots.
    it saves the old p2 to `MUOS/trial/p2-previous.img`, writes and reads
    back. Reboot into the new p2.
 4. To go back: the same with `p2-previous.img` and its `.sha256`.
+- Unattended: re-arming must happen on the main root (on the trial root
+  `/` is the read-only loop image). A p3 user-init guard
+  (`MUOS/init/zz-trial-guard.sh`, `user_init=1`) reboots a trial root or
+  trial kernel that has no Wi-Fi after 6 min (both fall back).
+- Robustness T2 for Wi-Fi: `port/scripts/t2-wifi-robust.sh` (menu SSH
+  vs UI kill, simulated unplug/replug); sleep: `t2-sleep-cycle.sh`.
 
 ## Update the kernel or DTB via a trial kernel
 

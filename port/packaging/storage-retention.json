@@ -11,14 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "M3c": {
-      "reason": "Previous recovery image (2026-11-12 to 2026-11-13): M3c firmware (M3b boot chain + sftp-server, 4 new cores, ROM folders); T3 passed 2026-11-12 (p2 content-identical on the card); image itself not yet flashed",
-      "files": [
-        "dist/firmware/test128-m3c-20261112.img.zst",
-        "dist/firmware/test128-m3c-20261112.img.zst.sha256",
-        "dist/firmware/test128-m3c-20261112.manifest"
-      ]
-    },
     "M3d": {
       "reason": "Previous recovery image (2026-11-13 to 2026-11-14): M3d firmware, kernel 0001-0004 (fuel-gauge SOC, boot calibration fix, unsampled-OCV guard), muxretro from source (in-game level bar, PSX threaded run), volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap; p2 T2-passed on the trial root; T3 items 1-8 passed 2026-11-13 on the card (same p2 files); first flash = T3 item 9",
       "files": [
@@ -47,6 +39,15 @@
         "dist/firmware/public-m4a-20261114.img.zst.sha256",
         "dist/firmware/public-m4a-20261114.manifest",
         "build/m3a/public-m4a-20261114.p2.img"
+      ]
+    },
+    "m4b-20261114": {
+      "reason": "M4b: Wi-Fi robustness (settle, hotplug, setsid), public boot -30 s, panic=10 + pstore, quiet console, gauge estimate 200 mOhm, DT capacity 2500/2550",
+      "files": [
+        "dist/firmware/test128-m4b-20261114.img.zst",
+        "dist/firmware/test128-m4b-20261114.img.zst.sha256",
+        "dist/firmware/test128-m4b-20261114.manifest",
+        "build/m3a/test128-m4b-20261114.p2.img"
       ]
     }
   },

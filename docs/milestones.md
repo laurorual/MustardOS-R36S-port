@@ -4,7 +4,52 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M4a — public-image foundations + Wi-Fi menu (T2 done 2026-11-14, T3 pending)
+## M4b — Wi-Fi robustness, crash capture, battery capacity (T2 done 2026-11-14, not installed)
+
+Built unattended in the afternoon of 2026-11-14 from the M4a T3 findings.
+Image `dist/firmware/test128-m4b-20261114` (raw `3737c893…`, p2
+`a45a3c4a…`; kernel `4f866b8b`, DTB `bc04b6f8`). Logs `build/logs/m4b/`.
+1. **Dongle settle** (worker `usb_mode`): a dongle in CD-ROM mode that was
+   powered < 10 s ago (`power/connected_duration`) waits before
+   `usb_modeswitch -K`. "mem" sleep cuts its power (it returns as
+   `0bda:1a2b` after every wake, also on the charger); a DWC2 unbind/bind
+   does not (returns as `c820`). T2: 17/17 wakes with Wi-Fi back, no H2C
+   error.
+2. **Hotplug** (`usr/libexec/muos-network/hotplug`, udev
+   `90-muos-wifi-dongle.rules`): add of `1a2b`/`c820` restarts S41, a
+   removal with no dongle back 2 s later stops it and clears the radio
+   state; ignored while sleep/resume (suspend.lock), `worker up` or a menu
+   command (worker lock) owns the dongle. The worker also resets a radio
+   whose interface vanished; retries reset the dongle (rmmod, USB reset).
+   T2 `t2-wifi-robust.sh hotplug` (software unplug via `1-1/remove`,
+   re-add via DWC2 rebind): stopped, then Wi-Fi back in 18 s.
+3. **Own sessions:** wpa_supplicant, wpa_cli, udhcpc and dropbear start
+   under `setsid`, so `S99muos-ui stop` (kills the UI's process group)
+   no longer takes menu-started SSH/SFTP down. T2 `t2-wifi-robust.sh
+   services`.
+4. **Wake in a game:** `muos-suspend` resumes the game at once while the
+   dongle settles (0.6 s instead of 6 s); the later bring-up costs ~0.7 s
+   of slow frames (`t2-stall.sh --wake`, worst 52 ms).
+5. **Boot/crash:** S85 waits for a host key only on developer images
+   (public boots −30 s); `etc/sysctl.d/90-muos.conf`: `kernel.panic=10`,
+   `kernel.printk = 4 4 1 7` (no driver dumps on the screen); S89 mounts
+   pstore and moves `dmesg-ramoops-*` to p3 `MUOS/log/pstore/<time>/`;
+   S41 appends to `worker.log`.
+6. **Battery:** patch 0005's estimate uses 200 mΩ (measured) instead of
+   DT `bat_res` 100; DTS `design_capacity` 2500, `design_qmax` 2550 (the
+   BSP clamps the stored FCC 3380 to qmax at boot). T1 only.
+7. **T2 on the trial root** (all PASS): `t2-wifi-robust.sh`,
+   `t2-sleep-cycle.sh 4` and `--game 2`, `t2-wifi.sh`,
+   `t2-audio-state.sh`, `t2-menu-cycle.sh`; menu at 16.5 s. Unattended
+   guard: p3 user init `zz-trial-guard.sh` (trial root/kernel without
+   Wi-Fi for 6 min → reboot = fallback).
+8. **Not done:** `write-p2` and the trial kernel were refused by the
+   agent's permission check (boot/root writes need the user). A forced
+   panic (`sysrq c`, 14:47) to test `panic=10` + pstore left the device
+   unreachable: either no reboot on panic or a deaf dongle after the
+   warm reboot (STATUS "When you're back").
+
+## M4a — public-image foundations + Wi-Fi menu (done 2026-11-14, T3 passed, item 6 partial → M4b)
 
 Goal: the technical half of M4 (no publication) plus Wi-Fi management
 from muOS's own settings menu. Images (version `m4a-20261114` in
@@ -88,7 +133,9 @@ night of 2026-11-14.
    bat_res 100 mΩ vs ~200 mΩ effective at charge onset, and the stored
    dsoc 2999 was ignored.
 9. **T3 (user, 2026-11-14, public image):** items 0–5, 7, 8 OK; 6
-   (sleep/wake with Wi-Fi) PARTIAL; 9 pending. Wi-Fi dongle findings
+   (sleep/wake with Wi-Fi) PARTIAL (→ M4b); 9 OK (developer image
+   reflashed, SSH and Wi-Fi checked by the agent). M4a developer image
+   promoted to recovery, M3c retired. Wi-Fi dongle findings
    and the +30 s public boot: STATUS "Open problems". Debug aids used
    (temporary, /run only): `wifi-rec.sh` recorder (kernel lines + network
    state to p3 every 2 s; copy in `build/logs/wifi-m4a/`), `panic=10`,

@@ -11,43 +11,77 @@ T3 checklists in [milestones.md](milestones.md). See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M3e are done. M4a (public-image
-foundations + Wi-Fi from the settings menu) was built autonomously in
-the night of 2026-11-14: T0–T2 passed, T3 pending (checklist below).
-M4 publication waits for the "Decisions for the user".**
+**Phase 5 (own-card firmware). M1–M4a done (M4a T3 2026-11-14: items
+0–5 and 7–9 OK, 6 = sleep/wake with Wi-Fi partial, fixed in M4b). M4b
+(Wi-Fi robustness, public boot −30 s, crash capture, quiet console,
+battery capacity) was built and T2-passed on the trial root in the
+afternoon of 2026-11-14, unattended. It is not on the card yet: writing
+p2 and installing the kernel/DTB were refused by the agent's permission
+check and need the user. The device has been unreachable since the last
+test (a forced kernel panic, 14:47 local).** M4 publication waits for the
+"Decisions for the user".
 
-## Night of 2026-11-14 (summary)
+## When you're back (user)
 
-- **Discharge run (done, reported 2026-11-14):** 94% → 3% in 345 min
-  at menu idle (389 mA), clean low-battery poweroff at 3364 mV.
-  **Real capacity ~2530 mAh** (±10%; 2209 mAh counted over ~87 OCV
-  points), not the 3380 mAh FCC. Report pulled to
-  `build/logs/discharge/`, volume 25 restored, logger removed
-  (`user_init` back to 0). Details: milestones.md M4a item 8.
-- **M4a done (commits `a3d80de`…):** Wi-Fi menu + SSH/SFTP toggles,
-  user init scripts, public build variant + leak check, battery-empty
-  splash, high-passed info sounds, licence survey. Details:
-  [milestones.md](milestones.md#m4a--public-image-foundations--wi-fi-menu-t2-done-2026-11-14-t3-pending).
-- **test128 now runs the M4a developer p2** (trial-root boot, then
-  `write-p2`, read-back verified). Rollback without reflash: p3
-  `MUOS/trial/p2-previous.img` (the M3e p2 + tonight's installs, sha
-  `c053c985…`) through the trial-root procedure.
-- The public image was never booted (as instructed): T0/T1 only.
+1. **Device unreachable** since 14:47 (forced panic to test `panic=10`;
+   it didn't come back within 15 min, no ARP reply). Nothing on p1 or
+   the main p2 was written: the main p2 is still M4a and the trial-root
+   marker was consumed, so the next boot is plain M4a. Look at the screen,
+   tell the agent what it showed, then power-cycle (hold Power ~8 s,
+   press again):
+   - **menu visible:** it rebooted, but the dongle stayed deaf after the
+     panic's warm reboot (like case (d) below) → `panic=10` works;
+   - **frozen / black / kernel text:** the panic did not reboot →
+     `panic=10` doesn't help on this BSP (photo if there is text).
+   Expected afterwards: M4a boots, `device.sh` finds it. If it doesn't
+   boot: flash the recovery image `dist/firmware/test128-m4a-20261114`
+   (procedures.md).
+2. **Approve the M4b install** (pick one): (a) the agent writes p2 from
+   the trial root (`write-p2`, old p2 saved to p3) and installs the
+   kernel + DTB as a trial kernel, then promotes it (both have automatic
+   fallbacks); (b) you flash `dist/firmware/test128-m4b-20261114.img.zst`
+   (raw `3737c893…`, p2 `a45a3c4a…`) with the card reader (wipes p3).
+   For (a) while you are away, allow those commands in the agent's
+   permission settings; otherwise do it while you're there.
+3. Answers to the "Decisions for the user".
+4. The M4b T3 checklist (below), after the install.
+
+## Afternoon of 2026-11-14 (M4b, unattended)
+
+- **Fixes** (details: milestones.md M4b): settle a freshly powered dongle
+  ≥ 10 s before the CD-ROM switch (`connected_duration`); udev hotplug
+  hook (`usr/libexec/muos-network/hotplug`); stale-interface reset;
+  retries reset the dongle; every network daemon in its own session
+  (`setsid`); `muos-suspend` resumes a game at once while the dongle
+  settles; S85 waits for a host key only on developer images; sysctl
+  `kernel.panic=10`, console printk 4; S89 saves ramoops oops dumps to
+  p3 `MUOS/log/pstore/`; gauge estimate with 200 mΩ (patch 0005); DT
+  `design_capacity` 2500 / `design_qmax` 2550.
+- **T2 on the trial root, all PASS:** `t2-wifi-robust.sh` (menu SSH
+  survives a UI kill; simulated unplug/replug, Wi-Fi back in 18 s),
+  sleep cycles 6/6 (bind-mounted) + 4/4 menu + 2/2 + 3/3 + 2/2 in game,
+  `t2-wifi.sh`, `t2-audio-state.sh`, `t2-menu-cycle.sh`; boot to menu
+  16.5 s. The dongle returns in CD-ROM mode after every "mem" sleep, also
+  on the charger; no H2C error with the settle. A DWC2 unbind/bind does
+  **not** power-cycle the dongle (no software power cycle exists).
+- **Not tested on the device:** the new kernel/DTB (T1 only: DTB values,
+  `Module.symvers` = reference); a real replug (T3); `panic=10` (see 1.).
+- M4a developer image promoted to recovery; M3c retired.
+- Device-side leftovers: p3 `MUOS/trial/rootfs.img` (M4b p2),
+  `MUOS/init/zz-trial-guard.sh` with `user_init=1` (reboots a trial root or
+  trial kernel without Wi-Fi after 6 min; inert on main; remove after the
+  install, `MUOS/trial/user_init.before` = 0). The user's volume 55 is set
+  to 10 for the tests (restore after).
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
-  test128 in slot 1. Flashed with the M3e image on 2026-11-14; p2 is the
-  M4a developer p2 since 2026-11-14 07:20 UTC (`write-p2`).
-  - Boot records: main = `Image-b486b7126df2` (kernel patches
-    0001–0005) + `panel0-c7b3551ce101.dtb` (408 MHz OPP); previous = the
-    M2 kernel.
-  - p3: ROMs from `port/roms`, the user's PSX BIOS, saves; Wi-Fi profile
-    `MUOS/network/Home.ini` (made from the private `network.conf` for
-    T2: private like the image); `MUOS/init/zz-discharge-log.sh` and
-    `settings/advanced/user_init=1` until `log-stop`;
-    `MUOS/trial/p2-previous.img`.
-  - Volume 10 during the run (the user's 25 restored by `report`).
+  test128 in slot 1, reflashed by the user with the M4a developer image
+  on 2026-11-14 (after the public-image T3); on the charger.
+  - Boot records: main = `Image-b486b7126df2` (kernel patches 0001–0005)
+    + `panel0-c7b3551ce101.dtb` (408 MHz OPP); previous = the M2 kernel.
+  - p3: ROMs from `port/roms`, Wi-Fi profile `MUOS/network/Home.ini`;
+    the M4b leftovers above.
 - **original32 (stock dArkOSen):** the flasher station (slot 1, target
   in slot 2). Never write it.
 - Device access, identity and card layout: procedures.md.
@@ -56,24 +90,25 @@ M4 publication waits for the "Decisions for the user".**
 
 The developer images are **private** (Wi-Fi PSK, SSH host key,
 authorized_keys): never commit or share them. The public variant holds
-none of that but isn't cleared for publication (decisions 1–4). Flashing any image rewrites the whole card,
-bootloader included; steps in procedures.md.
+none of that but isn't cleared for publication (decisions 1–4). Flashing
+any image rewrites the whole card, bootloader included; steps in
+procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m4a-20261114.img.zst` (raw `deef0ab2…`, p2 `d61fd490…`) | M4a developer image (Wi-Fi menu, user init, splash, info sounds) | p2 T2-passed on test128 (trial root, then written); never flashed as a whole |
-| `dist/firmware/public-m4a-20261114.img.zst` (raw `193c520f…`, p2 `05d01396…`) | M4a **public** variant: no identity, SSH off, root password `root`, empty p3 | T0/T1 only (`check-public-image.sh` 18/18); not private, but not for publication yet |
-| **`dist/firmware/test128-m3e-20261113.img.zst`** (raw `7b7c4a66…`, p2 `fd547220…`) | **Recovery image since 2026-11-14.** M3e: kernel 0001–0005, p3 grow fix, hold-to-repeat, Wi-Fi power save, 408 MHz CPU OPP | Flashed and T3-passed (p3 grows on the first boot) |
-| `dist/firmware/test128-m3d-20261113.img.zst` (raw `f2692bfa…`) | M3d: kernel 0001–0004, muxretro from source, p3 auto-grow (second boot) | Previous recovery image; flashed and T3-passed |
-| `dist/firmware/test128-m3c-20261112.img.zst` (raw `64811ce2…`) | M3c: M3b boot chain + sftp-server, 4 cores, ROM folders | p2 T3-passed, image never flashed |
-| `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build** (`build-image.sh`): bootloader blobs, M2 kernel, identity; never retire while used |
+| `dist/firmware/test128-m4b-20261114.img.zst` (raw `3737c893…`, p2 `a45a3c4a…`) | M4b developer image: M4a + Wi-Fi robustness, crash capture, kernel `4f866b8b` (0005 at 200 mΩ) + DTB `bc04b6f8` (capacity 2500/2550) | p2 T2-passed on the trial root; kernel/DTB T1 only; never flashed |
+| **`dist/firmware/test128-m4a-20261114.img.zst`** (raw `deef0ab2…`, p2 `d61fd490…`) | **Recovery image since 2026-11-14 (afternoon).** M4a developer image (Wi-Fi menu, user init, splash, info sounds) | Flashed and T3-passed (with the public variant) |
+| `dist/firmware/public-m4a-20261114.img.zst` (raw `193c520f…`, p2 `05d01396…`) | M4a **public** variant: no identity, SSH off, root password `root`, empty p3 | T3 by the user 2026-11-14 (items 1–8); not for publication yet |
+| `dist/firmware/test128-m3e-20261113.img.zst` (raw `7b7c4a66…`, p2 `fd547220…`) | M3e: kernel 0001–0005, p3 grow fix, hold-to-repeat, Wi-Fi power save, 408 MHz CPU OPP | Previous recovery image; flashed and T3-passed |
+| `dist/firmware/test128-m3d-20261113.img.zst` (raw `f2692bfa…`) | M3d: kernel 0001–0004, muxretro from source, p3 auto-grow | Flashed and T3-passed |
+| `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build** (`build-image.sh`); never retire while used |
 
 5/5 firmware versions kept (`port/packaging/storage-retention.json`;
-M4a = one version with both variants; retired: M1, M3a.1, M3b
-2026-11-14). After the M4a T3: promote the developer M4a image, retire
-M3c. If M3e fails to boot, flash M3d the same way. Rule (user, 2026-11-13): a milestone whose T0–T3 show no or
-only small problems becomes the recovery image, and the oldest kept
-version except the M2 base is retired.
+M4a = one version with both variants; retired: M1, M3a.1, M3b, M3c
+2026-11-14). After the M4b T3: promote M4b, retire M3d. Rule (user,
+2026-11-13): a milestone whose T0–T3 show no or only small problems
+becomes the recovery image, and the oldest kept version except the M2
+base is retired.
 
 ## What works (T3-confirmed)
 
@@ -92,46 +127,24 @@ host card reader; p3 auto-grow on the first boot.
 
 ## Open problems
 
-- **Battery:** (a) the FCC (3380 mAh) is ~33% too large: measured
-  ~2530 mAh (2026-11-14). The % falls at the 3380 rate above ~3.82 V,
-  then ~45% faster (zero algorithm); rsoc still reads 28% at the
-  cut-off. Fix: FCC/design capacity ~2500 in the DT or gauge (M4b).
-  (b) Patch 0005's lost-counter branch fired on the charge boot after
-  the run (plugged in and powered on at once, 2.8 h after the 3%
-  poweroff): 33% from the voltage while charging at 1.6 A, real ~3–5%.
-  V − I·bat_res (100 mΩ) under-corrects at charge onset (~200 mΩ
-  effective), and the branch ignores the valid stored dsoc (2999).
-  Fix (M4b): keep a plausible stored dsoc when the counter is lost on
-  the charger; voltage estimate only at low or discharge current. (c) M4a adds a "Battery empty" splash (visibility: T3
-  item 8). The BSP's `off=` underreports the time off (47 min for ~7 h)
-  and stays set across warm reboots.
+- **Battery:** (a) FCC 3380 mAh vs ~2530 measured (2026-11-14): M4b sets
+  DT `design_capacity` 2500 / `design_qmax` 2550, so the BSP clamps the
+  stored FCC to 2550 at the next boot (it never learns FCC). Expect one
+  % jump on that boot; consistent after a full charge (T3 + a discharge
+  run). (b) Patch 0005's lost-counter estimate read 33% on a ~4% battery
+  while charging at 1.6 A (V − I·100 mΩ); M4b uses 200 mΩ (measured),
+  not tested on the device yet. (c) The BSP's `off=` underreports the
+  time off (47 min for ~7 h) and stays set across warm reboots.
 - **Wi-Fi dongle (RTL8821CU, M4a T3 2026-11-14; logs
-  `build/logs/wifi-m4a/`):** (a) **wake:** sleep cuts the dongle's
-  power, so it returns in mass-storage mode (`0bda:1a2b`); the worker
-  ejected it 0.27 s after enumeration, the firmware then failed the
-  BT-coex H2C (`_btmpoper_cmd: Didn't get H2C Rsp Event!`) and scans
-  stayed empty until a cold boot. A 10 s settle before the eject
-  (bind-mounted test worker) fixed 2/2 wakes (Wi-Fi back ~20 s after
-  wake). (b) **hotplug:** the worker caches `radio`/`usb-done` in /run
-  and never notices a replug: the new dongle stays in mass-storage mode
-  until a reboot. (c) a failed connect clears `network/active`, so the
-  next boot doesn't reconnect. (d) one warm reboot after (a)+(b) stayed
-  deaf until a cold boot (not captured: no kernel log). (e) the
-  user's "bootloop with hex" photo matches an arm64 oops stack dump;
-  with `oops=panic panic=0` the kernel hangs. Not reproduced. All
-  kernel messages reach the screen (`console=tty0 loglevel=7`).
-  Fix (M4b): settle before eject, hotplug handling (udev or worker
-  poll), keep `active` on failure, `panic=10` (ramoops keeps the oops),
-  quiet console loglevel.
-- **Public boot +30 s:** `S85muos-root-ro` waits 30 s for the developer
-  host key in `/var/lib/muos-network/`; the public image keeps its key
-  on p3, so every boot times out (menu at 46 s vs 16 s). Fix (M4b):
-  skip the wait in the public variant.
-- **Web services (found in M4a T3, 2026-11-14):** SSH/SFTP switched on
-  from the menu run dropbear in the UI's process group
-  (`service.sh apply` → worker), so `S99muos-ui stop` kills them too
-  (the public image lost SSH after the item 8 splash demo). Fix (M4b):
-  start them detached (`setsid`) or hand them to the S41 worker.
+  `build/logs/wifi-m4a/`, M4b T2 `build/logs/m4b/`):** a "mem" sleep cuts
+  the dongle's power; switched out of CD-ROM mode 0.27 s after power-up
+  its firmware failed the BT-coex H2C and stayed deaf until a power
+  cycle. M4b: ≥ 10 s settle (T2 17/17 wakes), udev hotplug, stale-state
+  reset. Open: (d) one warm reboot after a deaf dongle stayed deaf until
+  a cold boot (cause unknown); a deaf dongle has no software recovery
+  (replug or cold boot); (e) the "bootloop with hex" (an oops) was never
+  reproduced; M4b reboots on panic (if `panic=10` works, see "When
+  you're back") and saves the dump to p3.
 - **Power:** menu idle ~409 mA (M3e: Wi-Fi power save 546 → 454 mA, the
   408 MHz CPU OPP → 409 mA; Wi-Fi off would be 397 − 45 mA; brightness
   70 → 35 saves ~38 mA). LEDs (the R35S LED node is disabled in stock too)
@@ -145,8 +158,9 @@ host card reader; p3 auto-grow on the first boot.
 - **Headphones (hardware, deprioritized by the user):** the jack isn't
   detected with the plug fully in, so the speaker keeps playing; a
   contact problem, not software (hardware-findings).
-- **Wake:** one small dip remains (Wi-Fi association on CPU3, game on
-  CPU0–2; worst frame ~30–50 ms). The user wants it gone late in the
+- **Wake:** M4b resumes a game 0.6 s after wake (was 6 s); the Wi-Fi
+  bring-up ~13 s later costs ~0.7 s of slow frames (worst 52 ms,
+  `build/logs/m4b/stall-wake.log`). The user wants dips gone late in the
   project if possible.
 - **DDR devfreq** isn't synced to the display (no `vop-bw-dmc-freq` in
   the DT); schedutil games may switch DDR mid-game (no flash seen).
@@ -222,44 +236,29 @@ Taken:
   the end of the project, as an optional toggle for the user (2026-11-13).
 - **Recovery image promotion** after a passed T3: automatic (2026-11-13).
 
-## M4a T3 checklist (user)
+## M4b T3 checklist (user, after the install)
 
-0. ~~Discharge report + log-stop~~ done 2026-11-14 (clean 3% poweroff
-   logged; p3 may now be wiped). For item 8: tell whether you saw the
-   battery-empty splash if you were there.
-1. **Flash the public image** `dist/firmware/public-m4a-20261114.img.zst`
-   on test128 with the host card reader (procedures.md); recovery =
-   `test128-m4a-20261114` (or M3e). Boot: menu in ~15–20 s (first boot
-   grows p3), no Wi-Fi icon in the header.
-2. **Join Wi-Fi from the menu:** Configuration → Connectivity → Wi-Fi
-   Network → X (scan) → pick your network → Password (on-screen
-   keyboard) → Connect. Expected: status goes Associating/Authenticating
-   → Connected with an IP within ~15 s; Wi-Fi icon in the header.
-   A wrong password shows "invalid password" (optional).
-3. **Reboot:** reconnects by itself (icon back within ~30 s of the menu).
-4. **Enable SSH:** Connectivity → Web Services → SSH on. From the PC:
-   `ssh root@<ip>` with password `root` works. The developer key is
-   refused: `port/scripts/device.sh find <ip>` fails (no :2222, other
-   host key).
-5. **Enable SFTP:** `sftp -P 2022 root@<ip>` (password `root`) lists
-   `/`; a file copy works. Turn SSH/SFTP off again: the ports close.
-6. **Sleep/wake with Wi-Fi on:** Power short press, wake: Wi-Fi back.
-7. **Info sounds:** open a help box (the menu's info/help key) and close
-   it: both sounds audible now (were inaudible before).
-8. **Battery-empty splash** (any image ≥ M4a): seen at the end of a full
-   discharge, or ask the agent to show it (`S99muos-ui stop;
-   muos-splash`): "Battery empty" picture, readable, not rotated.
-   **Passed 2026-11-14** (shown on the public image; it stopped the
-   menu-enabled SSH too, see Open problems).
-9. **Back to the developer image:** flash `test128-m4a-20261114`, check
-   SSH via `device.sh` and Wi-Fi as before. If 1–9 pass: the developer
-   M4a image becomes the recovery image, M3c is retired.
+1. **Boot:** menu in ~17 s; no driver text scrolls over the screen.
+2. **Battery % on the first M4b boot:** note the % before the install
+   and after the first boot (one jump expected, FCC 3380 → 2550); then
+   charge to full: 100% when the charge ends, not earlier.
+3. **Sleep/wake with Wi-Fi, 3 times** (menu and in a game): Wi-Fi icon
+   back ~15 s after waking; in a game: back in the game within ~1 s,
+   maybe one short hitch ~13 s later.
+4. **Replug the dongle** with Wi-Fi on: unplug, 10 s, plug back: Wi-Fi
+   back within ~30 s, no reboot needed. Then scan in Wi-Fi settings:
+   networks listed.
+5. **Unplug the dongle and scan:** no networks (no hang); plug back in:
+   item 4 again.
+6. **Charger boot after a flat battery** (when convenient): plug in and
+   power on at once: a low % (not ~33%).
+7. **Public image (optional, flash the M4b public variant later):** boot
+   in ~17 s instead of 46 s; SSH survives the splash demo.
 
 ## Next milestone (proposal)
 
-Depends on the decisions above. Without them, **M4b — daily-use and
-power**: Wi-Fi radio off when unused (menu toggle), the real FCC
-(~2500 mAh, measured 2026-11-14) in the DT, LEDs/rumble,
-NTP for the clock, and the hidden web-service toggles if decision 7
-says so. With decision 2 = (c), M5 (mainline + Panfrost) planning
-replaces it.
+After the M4b install and T3: **M4c — daily-use and power**: Wi-Fi
+radio off when unused (menu toggle), LEDs/rumble, NTP for the clock, the
+hidden web-service toggles if decision 7 says so, and an overnight
+discharge run to validate the new capacity. With decision 2 = (c), M5
+(mainline + Panfrost) planning replaces it.
