@@ -543,6 +543,14 @@ about other R35S/R36S panels or revisions.
   T3 failure (0% after a reboot) too.
   Confirmed on hardware in step 6: boot 2341d3cf read 18 mV and kept dsoc
   100000 (`ocv 18 mV not sampled`).
+  **Real capacity (2026-11-14, idle run 94% → 3%, milestones.md M4a
+  item 8):** ~2530 mAh (±10%), not the 3380 mAh FCC: 2209 mAh counted
+  (host-integrated current agrees within 1%) over ~87 OCV-table points.
+  Usable from full to the 3% / 3.36 V cut-off ≈ 2450 mAh, ~6.3 h at
+  menu idle (389 mA). With FCC 3380, rsoc still reads 28% at the
+  cut-off; the zero algorithm (< 3850 mV) makes dsoc fall ~45% faster
+  below ~3.82 V (0.20 → 0.29 %/min at constant load). Loaded-step
+  resistance ~200 mΩ (1-min samples, includes polarisation).
 - **RTC wake from power-off:** an alarm in `/sys/class/rtc/rtc0/wakealarm`
   (rk808-rtc on the RK817) set before `poweroff` doesn't power the R35S
   back on (2026-11-13). Unattended power-off cycles need another way

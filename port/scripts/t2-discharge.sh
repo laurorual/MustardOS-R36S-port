@@ -109,7 +109,9 @@ log-start)
     echo "started: idle discharge log ($csv), restarted at every boot by $init"
     ;;
 log-stop)
-    r "pkill -f '[z]z-discharge-log'; rm -f $init; cp $keep/user_init.before $ui 2>/dev/null || echo 0 > $ui; echo 0 > /sys/module/rk817_battery/parameters/dbg_level; sync"
+    # pkill in its own call: a command line naming $init would match too
+    r "pkill -f '[z]z-discharge-log'" || :
+    r "rm -f $init; cp $keep/user_init.before $ui 2>/dev/null || echo 0 > $ui; echo 0 > /sys/module/rk817_battery/parameters/dbg_level; sync"
     echo stopped
     ;;
 status)

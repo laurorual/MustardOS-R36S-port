@@ -70,6 +70,22 @@ night of 2026-11-14.
    2/2 in-game sleep cycles, audio PASS), then written to p2 (read-back
    verified; the previous p2 is in p3 `MUOS/trial/p2-previous.img`);
    `t2-menu-cycle.sh` all PASS on it.
+8. **Idle discharge run** (2026-11-14 06:21–12:06 UTC, log in
+   `build/logs/discharge/`, `t2-discharge.sh log-start`): menu idle,
+   backlight 40, mean 389 mA, 94% → 3% in 345 min, survived 6 reboots
+   (logger as p3 user init). Clean `critical battery (3%, 3364 mV):
+   power off`. Coulomb counter 3172 → 963 mAh = 2209 mAh, host-integrated
+   current 2234 mAh (1% apart: the counter is trustworthy). dsoc tracked
+   rsoc down to ~3.82 V, then the zero algorithm pulled it ahead (rsoc
+   28.5% at the 3% poweroff). **Real capacity ~2530 mAh** (OCV via the
+   DT table, start ~88–92%, end ~1–5% for bat_res 100–200 mΩ: 87 points
+   = 2209 mAh, ±10% since the table isn't measured for this cell); the
+   DT/PMIC FCC 3380 is ~33% too large. Next charge boot: patch 0005's
+   lost-counter branch fired (`coulomb counter lost (now=0): dsoc 33000
+   cap 1115 from the voltage`, charging at 1.6 A), first sighting with
+   the 0005 kernel. Bug found: `log-stop`'s `pkill -f` killed its own
+   remote shell (the command line named the init script), so the script
+   stayed installed; fixed (pkill in its own call), cleanup done by hand.
 
 ## M3e — daily-use polish (done 2026-11-14, T3 passed)
 

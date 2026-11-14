@@ -18,18 +18,12 @@ M4 publication waits for the "Decisions for the user".**
 
 ## Night of 2026-11-14 (summary)
 
-- **Discharge run (optional battery measurement):** started 06:21 UTC at
-  94% (gauge counter 3172 mAh), idle menu, ~360 mA, volume 10 (the
-  user's 25 is saved). At 07:30 UTC (end of the session): 81%, counter
-  2716 mAh (456 mAh in 69 min incl. the T2 runs), 3892 mV, 361 mA idle.
-  The logger is a p3 user-init script, so it survived the 8 reboots of
-  the night. Expected to end with the low-battery poweroff (3%) around
-  14:00–16:00 UTC; the device was left on, menu idle, backlight 40. **After recharging and powering on:**
-  `port/scripts/t2-discharge.sh report` (pulls `MUOS/log/discharge.csv`
-  to `build/logs/discharge/`, restores volume 25), then
-  `t2-discharge.sh log-stop`. Columns `cc_mah` (coulomb counter),
-  `rsoc`, `dsoc`, `fcc` give the real capacity: counter at 94% minus the
-  counter at 3%, plus the integrated current.
+- **Discharge run (done, reported 2026-11-14):** 94% → 3% in 345 min
+  at menu idle (389 mA), clean low-battery poweroff at 3364 mV.
+  **Real capacity ~2530 mAh** (±10%; 2209 mAh counted over ~87 OCV
+  points), not the 3380 mAh FCC. Report pulled to
+  `build/logs/discharge/`, volume 25 restored, logger removed
+  (`user_init` back to 0). Details: milestones.md M4a item 8.
 - **M4a done (commits `a3d80de`…):** Wi-Fi menu + SSH/SFTP toggles,
   user init scripts, public build variant + leak check, battery-empty
   splash, high-passed info sounds, licence survey. Details:
@@ -98,13 +92,13 @@ host card reader; p3 auto-grow on the first boot.
 
 ## Open problems
 
-- **Battery:** (a) the FCC (3380 mAh, DT value) is probably too large:
-  the counter still held 974 mAh at 3%; below 3.85 V the % follows the
-  voltage (BSP zero algorithm), so above it the % may fall too slowly and
-  speed up later. The 94% → 3% run of 2026-11-14 measures it (see the
-  night summary).
-  (b) Patch 0005's lost-counter branch is verified by review only (seen
-  once, with the old kernel); its stale-OCV and sanity branches were
+- **Battery:** (a) the FCC (3380 mAh) is ~33% too large: measured
+  ~2530 mAh (2026-11-14). The % falls at the 3380 rate above ~3.82 V,
+  then ~45% faster (zero algorithm); rsoc still reads 28% at the
+  cut-off. Fix: FCC/design capacity ~2500 in the DT or gauge (M4b).
+  (b) Patch 0005's lost-counter branch fired on the charge boot after
+  the run (33% from the voltage while charging at 1.6 A; plausible,
+  exact value unverifiable); its stale-OCV and sanity branches were
   T2-tested. (c) M4a adds a "Battery empty" splash (visibility: T3
   item 8). The BSP's `off=` underreports the time off (47 min for ~7 h)
   and stays set across warm reboots.
@@ -200,11 +194,9 @@ Taken:
 
 ## M4a T3 checklist (user)
 
-0. **Before anything else:** charge test128 (it may have powered itself
-   off at 3% — expected) and power it on; ask the agent to run
-   `t2-discharge.sh report` and `log-stop`: flashing wipes p3 and the
-   log with it. Expected: a clean low-battery poweroff logged, and
-   (item 8) whether you saw the splash if you were there.
+0. ~~Discharge report + log-stop~~ done 2026-11-14 (clean 3% poweroff
+   logged; p3 may now be wiped). For item 8: tell whether you saw the
+   battery-empty splash if you were there.
 1. **Flash the public image** `dist/firmware/public-m4a-20261114.img.zst`
    on test128 with the host card reader (procedures.md); recovery =
    `test128-m4a-20261114` (or M3e). Boot: menu in ~15–20 s (first boot
@@ -234,8 +226,8 @@ Taken:
 ## Next milestone (proposal)
 
 Depends on the decisions above. Without them, **M4b — daily-use and
-power**: Wi-Fi radio off when unused (menu toggle), the real FCC from
-tonight's discharge in the DT (if the run confirms it), LEDs/rumble,
+power**: Wi-Fi radio off when unused (menu toggle), the real FCC
+(~2500 mAh, measured 2026-11-14) in the DT, LEDs/rumble,
 NTP for the clock, and the hidden web-service toggles if decision 7
 says so. With decision 2 = (c), M5 (mainline + Panfrost) planning
 replaces it.
