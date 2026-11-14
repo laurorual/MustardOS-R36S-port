@@ -83,7 +83,10 @@ night of 2026-11-14.
    DT/PMIC FCC 3380 is ~33% too large. Next charge boot: patch 0005's
    lost-counter branch fired (`coulomb counter lost (now=0): dsoc 33000
    cap 1115 from the voltage`, charging at 1.6 A), first sighting with
-   the 0005 kernel. Bug found: `log-stop`'s `pkill -f` killed its own
+   the 0005 kernel: **wrong**, real ~3–5% (the user plugged in and
+   powered on at once; 7 min later 36% shown vs ~10% real). Cause:
+   bat_res 100 mΩ vs ~200 mΩ effective at charge onset, and the stored
+   dsoc 2999 was ignored. Bug found: `log-stop`'s `pkill -f` killed its own
    remote shell (the command line named the init script), so the script
    stayed installed; fixed (pkill in its own call), cleanup done by hand.
 

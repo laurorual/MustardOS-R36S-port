@@ -97,9 +97,12 @@ host card reader; p3 auto-grow on the first boot.
   then ~45% faster (zero algorithm); rsoc still reads 28% at the
   cut-off. Fix: FCC/design capacity ~2500 in the DT or gauge (M4b).
   (b) Patch 0005's lost-counter branch fired on the charge boot after
-  the run (33% from the voltage while charging at 1.6 A; plausible,
-  exact value unverifiable); its stale-OCV and sanity branches were
-  T2-tested. (c) M4a adds a "Battery empty" splash (visibility: T3
+  the run (plugged in and powered on at once, 2.8 h after the 3%
+  poweroff): 33% from the voltage while charging at 1.6 A, real ~3–5%.
+  V − I·bat_res (100 mΩ) under-corrects at charge onset (~200 mΩ
+  effective), and the branch ignores the valid stored dsoc (2999).
+  Fix (M4b): keep a plausible stored dsoc when the counter is lost on
+  the charger; voltage estimate only at low or discharge current. (c) M4a adds a "Battery empty" splash (visibility: T3
   item 8). The BSP's `off=` underreports the time off (47 min for ~7 h)
   and stays set across warm reboots.
 - **Power:** menu idle ~409 mA (M3e: Wi-Fi power save 546 → 454 mA, the
