@@ -105,6 +105,28 @@ host card reader; p3 auto-grow on the first boot.
   the charger; voltage estimate only at low or discharge current. (c) M4a adds a "Battery empty" splash (visibility: T3
   item 8). The BSP's `off=` underreports the time off (47 min for ~7 h)
   and stays set across warm reboots.
+- **Wi-Fi dongle (RTL8821CU, M4a T3 2026-11-14; logs
+  `build/logs/wifi-m4a/`):** (a) **wake:** sleep cuts the dongle's
+  power, so it returns in mass-storage mode (`0bda:1a2b`); the worker
+  ejected it 0.27 s after enumeration, the firmware then failed the
+  BT-coex H2C (`_btmpoper_cmd: Didn't get H2C Rsp Event!`) and scans
+  stayed empty until a cold boot. A 10 s settle before the eject
+  (bind-mounted test worker) fixed 2/2 wakes (Wi-Fi back ~20 s after
+  wake). (b) **hotplug:** the worker caches `radio`/`usb-done` in /run
+  and never notices a replug: the new dongle stays in mass-storage mode
+  until a reboot. (c) a failed connect clears `network/active`, so the
+  next boot doesn't reconnect. (d) one warm reboot after (a)+(b) stayed
+  deaf until a cold boot (not captured: no kernel log). (e) the
+  user's "bootloop with hex" photo matches an arm64 oops stack dump;
+  with `oops=panic panic=0` the kernel hangs. Not reproduced. All
+  kernel messages reach the screen (`console=tty0 loglevel=7`).
+  Fix (M4b): settle before eject, hotplug handling (udev or worker
+  poll), keep `active` on failure, `panic=10` (ramoops keeps the oops),
+  quiet console loglevel.
+- **Public boot +30 s:** `S85muos-root-ro` waits 30 s for the developer
+  host key in `/var/lib/muos-network/`; the public image keeps its key
+  on p3, so every boot times out (menu at 46 s vs 16 s). Fix (M4b):
+  skip the wait in the public variant.
 - **Web services (found in M4a T3, 2026-11-14):** SSH/SFTP switched on
   from the menu run dropbear in the UI's process group
   (`service.sh apply` → worker), so `S99muos-ui stop` kills them too

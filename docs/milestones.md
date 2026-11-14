@@ -86,7 +86,13 @@ night of 2026-11-14.
    the 0005 kernel: **wrong**, real ~3–5% (the user plugged in and
    powered on at once; 7 min later 36% shown vs ~10% real). Cause:
    bat_res 100 mΩ vs ~200 mΩ effective at charge onset, and the stored
-   dsoc 2999 was ignored. Bug found: `log-stop`'s `pkill -f` killed its own
+   dsoc 2999 was ignored.
+9. **T3 (user, 2026-11-14, public image):** items 0–5, 7, 8 OK; 6
+   (sleep/wake with Wi-Fi) PARTIAL; 9 pending. Wi-Fi dongle findings
+   and the +30 s public boot: STATUS "Open problems". Debug aids used
+   (temporary, /run only): `wifi-rec.sh` recorder (kernel lines + network
+   state to p3 every 2 s; copy in `build/logs/wifi-m4a/`), `panic=10`,
+   a worker with a 10 s settle bind-mounted over the original. Bug found: `log-stop`'s `pkill -f` killed its own
    remote shell (the command line named the init script), so the script
    stayed installed; fixed (pkill in its own call), cleanup done by hand.
 
