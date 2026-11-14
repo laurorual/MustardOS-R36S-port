@@ -139,9 +139,10 @@ host card reader; p3 auto-grow on the first boot.
   addresses are implemented but untested. Web services other than SSH
   and SFTP (dashboard, mDNS, NTP, Syncthing, virtual terminal) are not
   ported: their toggles do nothing.
-- **Public image first boot** (M4a) is untested: an empty p3 (only the
-  data marker) was never booted; S89–S91 create and seed what they need,
-  but that path has only run on cards with content. T3 item 1.
+- **Public image first boot** (M4a): the empty-p3 path (S90, S91
+  seeding, S98, worker idle) passes in a qemu container
+  (`t1-fresh-p3.sh`); S89's real mount, p3 growth and the UI on an empty
+  p3 are T3 item 1.
 - **SFTP (M4a)** runs as root with the whole filesystem (upstream jails
   user `muos` to the storage with `musftpjail`, which the pinned
   frontend lacks).

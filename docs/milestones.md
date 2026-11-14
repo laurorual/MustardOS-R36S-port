@@ -49,7 +49,9 @@ night of 2026-11-14.
    fresh empty p3 with the base p3's ext4 features and the data marker,
    `private=no`. `check-public-image.sh` (18 checks incl. grepping the raw
    image for the developer's Wi-Fi/SSH values): public passes; the
-   developer image fails 6 checks (negative test).
+   developer image fails 6 checks (negative test). `t1-fresh-p3.sh`
+   (PASS): the empty-p3 first boot (S90, S91 seeding, S98, worker idle)
+   in a rootless qemu container on the Buildroot target.
 5. **Cosmetics** (T2 partly): low-battery poweroff stops the UI, writes a
    "Battery empty" picture (`make-battery-splash.py`, raw XRGB in
    `usr/share/muos-r35s/battery-empty.fb.gz`) to `/dev/fb0` via
