@@ -13,6 +13,13 @@
 #   t2-discharge.sh switch DIR ROM   play another game during the run (e.g.
 #                            PSX "CTR - Crash Team Racing (USA).cue"): its
 #                            states and saves are backed up to p3 first
+#   t2-discharge.sh log-start   idle variant (M4a night run): no game; the
+#                            logger is a p3 user init script (MUOS/init,
+#                            settings/advanced/user_init = 1), so it
+#                            restarts after every reboot; extra columns:
+#                            boot id, the gauge's coulomb counter (mAh),
+#                            rsoc, dsoc and FCC (dbg_level for 6 s a minute)
+#   t2-discharge.sh log-stop    removes the init script, restores user_init
 #   t2-discharge.sh status   the last log lines
 #   t2-discharge.sh report   after the user charged and powered on: pulls
 #                            the log, the battery and shutdown logs, prints
@@ -38,6 +45,25 @@ while :; do
     sync
     sleep 60
 done'
+
+# Idle logger, started by S98muos-user-init on every boot (one instance).
+plogger='#!/bin/sh
+exec 9> /run/muos-discharge-log.lock
+flock -n 9 || exit 0
+B=/sys/class/power_supply/battery csv='"$csv"' D=/sys/module/rk817_battery/parameters/dbg_level
+[ -s $csv ] || echo "epoch,uptime,cap,muos_cap,status,mv,ma,soc_c,cpu_mhz,backlight,game,boot,cc_mah,rsoc,dsoc,fcc" > $csv
+boot=$(cut -c1-8 /proc/sys/kernel/random/boot_id)
+g() { dmesg | sed -n "s/.*rk817-bat: info: $1 = \\(-*[0-9]*\\).*/\\1/p" | tail -n 1; }
+while :; do
+    echo 1 > $D; sleep 6; echo 0 > $D
+    cc=$(g remain_cap); [ -z "$cc" ] || cc=$((cc / 1000))
+    gm=0; for p in /proc/[0-9]*; do [ "$(readlink $p/exe)" = /opt/muos/frontend/muxretro ] && gm=1 && break; done
+    echo "$(date +%s),$(cut -d" " -f1 /proc/uptime),$(cat $B/capacity),$(cat /run/muos/battery/capacity 2>/dev/null),$(cat $B/status),$(( $(cat $B/voltage_now) / 1000 )),$(( $(cat $B/current_now) / 1000 )),$(( $(cat /sys/class/thermal/thermal_zone0/temp) / 1000 )),$(( $(cat /sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq) / 1000 )),$(cat /sys/class/backlight/*/brightness | head -n1),$gm,$boot,$cc,$(g rsoc),$(g dsoc),$(g FCC)" >> $csv
+    sync
+    sleep 54
+done'
+init=/userdata/MUOS/init/zz-discharge-log.sh
+ui=/opt/muos/config/settings/advanced/user_init
 
 # The pickles of a played game (states, SRAM) by DIR and ROM name.
 rom_paths='p=/userdata/MUOS/pickles; for d in "$p"/state/*/"$dir" "$p"/sram/*/"$dir"; do [ -d "$d" ] || continue; for f in "$d/$n" "$d/$n".*; do [ -e "$f" ] && echo "${f#/}"; done; done'
@@ -70,6 +96,21 @@ start)
     sleep 3
     r "cat $csv"
     echo "started: NES test game + discharge log ($csv)"
+    ;;
+log-start)
+    [ "$(r 'cat /sys/class/power_supply/battery/status')" = Discharging ] ||
+        fail 'battery not discharging: unplug the charger first'
+    r "pgrep -f '[m]uos-discharge-log|[z]z-discharge-log' >/dev/null" && fail 'a discharge log is already running'
+    r "mkdir -p $keep /userdata/MUOS/init; rm -f $csv; cat $ui > $keep/user_init.before 2>/dev/null || echo 0 > $keep/user_init.before"
+    printf '%s\n' "$plogger" | r "cat > $init.tmp && mv $init.tmp $init && echo 1 > $ui && sync"
+    r "setsid sh $init < /dev/null > /dev/null 2>&1 &"
+    sleep 9
+    r "cat $csv"
+    echo "started: idle discharge log ($csv), restarted at every boot by $init"
+    ;;
+log-stop)
+    r "pkill -f '[z]z-discharge-log'; rm -f $init; cp $keep/user_init.before $ui 2>/dev/null || echo 0 > $ui; echo 0 > /sys/module/rk817_battery/parameters/dbg_level; sync"
+    echo stopped
     ;;
 status)
     r "wc -l < $csv; tail -n 3 $csv"

@@ -1,0 +1,23 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muOS "User Init Scripts" (Advanced settings, settings/advanced/user_init):
+# as upstream internal/script/system/user_init.sh, every MUOS/init/*.sh on
+# p3 (/run/muos/storage/init) is started in the background at boot; the
+# list goes to p3 MUOS/log/user_init.log. Off by default (upstream too).
+export PATH=/opt/muos/bin:/usr/sbin:/usr/bin:/sbin:/bin
+dir=/run/muos/storage/init
+log=/userdata/MUOS/log/user_init.log
+case "${1:-}" in
+ start)
+    [ "$(cat /opt/muos/config/settings/advanced/user_init 2>/dev/null)" = 1 ] || exit 0
+    [ -d "$dir" ] || exit 0
+    : > "$log"
+    for s in "$dir"/*.sh; do
+        [ -f "$s" ] || continue
+        echo "[$(date '+%F %T')] $s" >> "$log"
+        setsid sh "$s" < /dev/null > /dev/null 2>&1 &
+    done
+    echo "user-init: $(grep -c . "$log") script(s)" ;;
+ stop|status) : ;;
+ *) echo 'Usage: S98muos-user-init start|stop|status' >&2; exit 2 ;;
+esac
