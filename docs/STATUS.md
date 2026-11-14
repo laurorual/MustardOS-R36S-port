@@ -12,8 +12,20 @@ T3 checklists in [milestones.md](milestones.md). See also
 ## Current phase
 
 **Phase 5 (own-card firmware). M1–M3e are done (M3e T3 passed
-2026-11-14; results in milestones.md). Next: the proposal at the end
-(M4a), waiting for the user's go.**
+2026-11-14; results in milestones.md). M4a in progress (autonomous night
+2026-11-14, see "M4a progress" below).**
+
+## M4a progress (night of 2026-11-14, checkpoint)
+
+- Discharge run started 06:21 UTC at 94% (idle menu, ~360 mA):
+  `t2-discharge.sh log-start`, logger restarted on every boot through
+  the new user init scripts (S98, p3 `MUOS/init`). Status:
+  `t2-discharge.sh status`; after recharging: `t2-discharge.sh report`
+  then `log-stop`.
+- Done + T2: Wi-Fi from muOS's Connectivity menu (profiles, scan,
+  SSH/SFTP toggles), installed on test128 with `install-rootfs.sh`.
+  A guard (`MUOS/init/aa-net-guard.sh`, backup in `MUOS/m4a-guard`)
+  restores the M3e worker if the network isn't ready 4 min after boot.
 
 ## Device and bench
 
