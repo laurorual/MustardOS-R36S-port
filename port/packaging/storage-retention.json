@@ -35,6 +35,19 @@
         "dist/firmware/test128-m3e-20261113.manifest",
         "build/m3a/test128-m3e-20261113.p2.img"
       ]
+    },
+    "m4a-20261114": {
+      "reason": "M4a: developer image (Wi-Fi menu, user init, splash) + first public variant (T3 candidate)",
+      "files": [
+        "dist/firmware/test128-m4a-20261114.img.zst",
+        "dist/firmware/test128-m4a-20261114.img.zst.sha256",
+        "dist/firmware/test128-m4a-20261114.manifest",
+        "build/m3a/test128-m4a-20261114.p2.img",
+        "dist/firmware/public-m4a-20261114.img.zst",
+        "dist/firmware/public-m4a-20261114.img.zst.sha256",
+        "dist/firmware/public-m4a-20261114.manifest",
+        "build/m3a/public-m4a-20261114.p2.img"
+      ]
     }
   },
   "keep": {

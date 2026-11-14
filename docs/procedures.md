@@ -76,6 +76,12 @@ incrementally; rootfs in `build/m3a/output`, boot chain in `build/m3b`):
    `check-rootfs-contract.sh` on the p2 image). The boot chain comes from
    `build/m3b/boot`: U-Boot at 16384, the kernel on p1 under content
    names, records main = it, previous = the M2 kernel.
+   - `image <name> --public` (M4a): the public variant, no developer
+     identity (no Wi-Fi config, host key, authorized key; root password
+     `MUOS_PUBLIC_ROOT_PASSWORD`, default `root`; empty p3). It runs
+     `check-public-image.sh` against the base p2's secrets and refuses to
+     finish if anything leaks. Never boot it on the bench device unless
+     the user can reflash: it has no SSH until enabled in the menu.
 3. `port/scripts/retention.py add <name> "<reason>" <files>`
 
 Prebuilt inputs are pinned in `port/packaging/firmware-inputs.json` and
@@ -135,7 +141,7 @@ init, which runs `/usr/libexec/muos-rc start`:
 | Step | Service | What it does |
 |---|---|---|
 | 1 | stock `seedrng`, syslog, sysctl, `udev`, D-Bus | standard Buildroot services; the TRNG has the RNG ready at 2.6 s |
-| 2 | S41muos-network | Wi-Fi and dropbear on :2222 in the background; up at about 20 s |
+| 2 | S41muos-network | Wi-Fi and SSH in the background (waits for p3's profiles); up at about 20 s |
 | 3 | S85 | root ro |
 | 4 | S89 | `e2fsck -p` on p3 (≤ 100 s; log p3 `MUOS/log/fsck-p3.log`), p3 rw at `/userdata`, p1 ro at `/boot` |
 | 5 | S90 | muOS storage binds |
@@ -143,7 +149,8 @@ init, which runs `/usr/libexec/muos-rc start`:
 | 7 | S95 | audio (retried up to 3× within 25 s) + muinput; audio failure is non-fatal |
 | 8 | S96 | input mapping |
 | 9 | S97 | battery (`mubattery`, `muos-lowbattery`), headphones (`muos-headphone`) |
-| 10 | S99 | UI frontend loop (+ `muos-hotkey`) |
+| 10 | S98 | user init scripts (p3 `MUOS/init`, only with `user_init=1`) |
+| 11 | S99 | UI frontend loop (+ `muos-hotkey`) |
 
 The menu is on screen about 15 s after power-on.
 
@@ -159,7 +166,8 @@ The menu is on screen about 15 s after power-on.
   charger in: fake sleep (screen off). Presses are ignored 6 s after
   waking.
 - **Battery:** the RK817 gauge's `capacity` drives the status bar; a
-  warning at 25%, clean poweroff at ≤3% while discharging.
+  warning at 25%, clean poweroff at ≤3% while discharging, with a
+  "Battery empty" splash on the framebuffer (`muos-splash`) for 3 s.
 - **Headphones:** jack in → path `HP`, out → `SPK_HP`; each output keeps
   its own volume (upstream `SWITCH_OUTPUT_VOLUME`).
 - **cpufreq:** muOS per-content governors through `muos-governor` (GPU
@@ -171,6 +179,21 @@ The menu is on screen about 15 s after power-on.
   Volume/brightness keys boost CPU/GPU floors for 2 s (`muos-boost`). No
   overclock (deferred to the end of the project as a user toggle; a
   1512 MHz DTB from `make-dtb-opp.sh` would go in as a trial kernel).
+- **Wi-Fi and SSH (M4a):** muOS's Connectivity menu (Wi-Fi Network:
+  X scans, a profile connects; Web Services: SSH/SFTP) drives
+  `usr/libexec/muos-network/worker` through adapters at upstream's script
+  paths. Profiles: p3 `MUOS/network/<name>.ini`. Developer images also
+  load the private `network.conf` and run key-only dropbear on :2222.
+  No network configured → the radio stays off. `worker status` shows
+  radio, wpa state, address, active profile and SSH services; logs in
+  `/run/muos/network/private/` (never print `network.conf`).
+- **User init scripts:** p3 `MUOS/init/*.sh` run at boot (S98) when
+  `settings/advanced/user_init` is 1 (upstream feature, default off).
+- **Unattended discharge log:** `t2-discharge.sh log-start` (idle, no
+  game) installs `MUOS/init/zz-discharge-log.sh` and sets `user_init=1`,
+  so the log (`MUOS/log/discharge.csv`, one line a minute incl. the
+  gauge's coulomb counter `cc_mah`) survives reboots; `status`, `report`
+  (after recharging), `log-stop`.
 - **T2 hygiene:** `t2-sleep-cycle.sh --game` uses the NES test game with a
   pickles snapshot (never the user's saves); keep the volume at 10 during
   T2 runs at night.

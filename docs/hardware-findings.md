@@ -82,6 +82,9 @@ about other R35S/R36S panels or revisions.
   - musplash/mmap also triggered `Bad page map` / `Bad rss-counter` on the
     stock kernel, so that path stays excluded.
   - muxretro leaves its last frame on the framebuffer after exit.
+  - M4a: once the UI has stopped, a raw 640×480 BGRX write to `/dev/fb0`
+    (plain `write`, no mmap) lands byte for byte (`muos-splash`); fbcon
+    is on `tty0` (`console=tty0`), so the cursor is hidden first.
   - (phase2-display-input.md, phase3-storage-stop.md,
     phase4-launcher-retro-cycle.md)
 - **Backlight:**
@@ -471,10 +474,19 @@ about other R35S/R36S panels or revisions.
 - **Network stack:**
   - Dropbear 2026.93, wpa_supplicant 2.12, libnl 3.11.0, usb_modeswitch
     2.6.1, BusyBox udhcpc, all from the pinned Buildroot SDK.
-  - LAN only, no DNS.
+  - LAN only until M4a; since M4a the DHCP hook writes the resolver
+    (`/etc/resolv.conf` → `/tmp/resolv.conf`).
+  - wpa_supplicant 2.12 keeps counting network ids across `reconfigure`
+    (ids 11+ after a few), so "the first network in the file" is the
+    first id in `list_networks`, not id 0 (M4a).
+  - Daemons started by a script that holds a `flock` fd inherit it: an
+    SSH session from such a dropbear kept the worker's lock held (M4a);
+    the worker closes fds 7/8 for every daemon.
   - (phase4-network-ssh.md)
 - **SSH:**
-  - Port 2222, root, key only. The host key is generated on the device after
+  - Developer images: port 2222, root, key only. M4a adds muOS's web
+    services: password SSH on `web/sshd_port` (22) and SFTP-only on
+    `web/sftp_port` (2022), both off by default. The host key is generated on the device after
     the RNG is ready.
   - Use `port/scripts/device.sh` (find/run/sh/push/pull/reboot/capture).
     It finds the device by the pinned fingerprint below, because DHCP

@@ -102,6 +102,12 @@ automation only after boot and recovery are proven.
 
 ## M4 proposal: first public image (2026-11-12, not started)
 
+**Status 2026-11-14:** the technical half (steps 1–2, the public build
+variant and Wi-Fi/SSH from the menu) is M4a (T2 done, see
+milestones.md); step 3's survey results are in
+`port/packaging/pending-licenses.json`; the decisions are listed in
+STATUS.md.
+
 Goal: an image anyone with an R35S/R36S **Panel 0** can flash, with none of
 the developer's identity in it, and with a clear licence position. Prerequisites:
 M3d done (p3 auto-grow on first boot, log rotation, smoothness).

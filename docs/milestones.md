@@ -4,6 +4,70 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M4a — public-image foundations + Wi-Fi menu (T2 done 2026-11-14, T3 pending)
+
+Goal: the technical half of M4 (no publication) plus Wi-Fi management
+from muOS's own settings menu. Images (version `m4a-20261114` in
+`storage-retention.json`): developer `dist/firmware/test128-m4a-20261114`
+(raw `deef0ab2…`, p2 `d61fd490…`, private) and public
+`dist/firmware/public-m4a-20261114` (raw `193c520f…`, p2 `05d01396…`,
+`private=no`). Kernel and boot chain as M3e. Built autonomously in the
+night of 2026-11-14.
+
+1. **Wi-Fi from the Connectivity menu** (T2 done): `board/network=1`
+   (post-build overrides the pinned 0) shows Configuration →
+   Connectivity. Port adapters at upstream's script paths
+   (`script/init/async/S02network.sh`, `script/web/{ssid,password,
+   service}.sh`) call `usr/libexec/muos-network/worker`, which builds
+   wpa_supplicant's config from muOS profiles on p3 (`MUOS/network/*.ini`,
+   PSK hex as muxnetprofile saves it, priority, autoconnect, static
+   address) plus the developer `network.conf`. DHCP or the static address
+   runs from a `wpa_cli -a` hook; no configured network → radio off
+   (`/run/muos/network/idle`, muos-suspend accepts it). Connect reports
+   upstream's status file and exit codes. T2 (test128): connect good key
+   0 (8 s), wrong key 2 INVALID_PASSWORD (10 s), absent AP 3 AP_NOT_FOUND
+   (23 s), each failure back on the previous network in 1–5 s; boot
+   autoconnect from the profile; UI driven by `muos-press`: launcher →
+   Configuration → Connectivity → Wi-Fi (muxnetwork) → X scan
+   (muxnetscan, 11 SSIDs) → profile (muxnetprofile); 3/3 sleep cycles.
+   Bugs found and fixed on the way: daemons inherited the command lock
+   (fd 8; an SSH session from such a dropbear kept the lock held),
+   network ids keep counting across `reconfigure` (select the first
+   listed id), COMPLETED must be on the selected id.
+2. **SSH/SFTP toggles** (T2 done): muxwebserv's `service.sh apply` →
+   dropbear on `web/sshd_port` (22, password, root) and `web/sftp_port`
+   (2022, forced `sftp-server`); host key from the private store, else
+   created on p3 `MUOS/port/ssh` on first use (T2 with an isolated worker
+   copy). Developer images keep key-only :2222.
+3. **User init scripts** (T2 done): `S98muos-user-init` runs p3
+   `MUOS/init/*.sh` when `settings/advanced/user_init=1` (upstream
+   `user_init.sh`; default off). Used tonight for the discharge logger.
+4. **Public variant** (T0/T1 done; never booted on purpose): `build-image.sh
+   image NAME --public` → no Wi-Fi config, host key or authorized key,
+   root password hash (`MUOS_PUBLIC_ROOT_PASSWORD`, default `root`), a
+   fresh empty p3 with the base p3's ext4 features and the data marker,
+   `private=no`. `check-public-image.sh` (18 checks incl. grepping the raw
+   image for the developer's Wi-Fi/SSH values): public passes; the
+   developer image fails 6 checks (negative test).
+5. **Cosmetics** (T2 partly): low-battery poweroff stops the UI, writes a
+   "Battery empty" picture (`make-battery-splash.py`, raw XRGB in
+   `usr/share/muos-r35s/battery-empty.fb.gz`) to `/dev/fb0` via
+   `muos-splash`, waits 3 s; `muos-rc stop` redraws it. T2: fb0 holds the
+   picture byte for byte after the UI stopped (visibility is T3).
+   `info_open/close.wav` high-passed (`wav-highpass.py`, 400 Hz 4th
+   order, peak 30000) in post-build (audibility is T3).
+6. **Licence groundwork** (report, `pending-licenses.json`): DDR v1.10,
+   miniloader v1.12 and BL32 v1.10 are byte-identical to rkbin commits;
+   BL31 v1.14 is not. rkbin's LICENSE allows use/copy/distribution.
+   libmali: rockchip-linux/libmali is gone; the mirror has only
+   bifrost-g31 g24p0 (needs a newer kbase than the 4.4 BSP's r13p0) under
+   ARM's Mali EULA (redistribution allowed with the EULA). No
+   redistributable userspace for our kbase found.
+7. **On test128:** the M4a developer p2 was booted as trial root (T2:
+   2/2 in-game sleep cycles, audio PASS), then written to p2 (read-back
+   verified; the previous p2 is in p3 `MUOS/trial/p2-previous.img`);
+   `t2-menu-cycle.sh` all PASS on it.
+
 ## M3e — daily-use polish (done 2026-11-14, T3 passed)
 
 Goal: close the M3 items that need no user decision and ship the M3e
