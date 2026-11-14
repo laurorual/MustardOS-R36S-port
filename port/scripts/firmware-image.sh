@@ -2,7 +2,15 @@
 # SPDX-License-Identifier: MIT
 # M3a image stage (called by build-image.sh image NAME):
 #
-#   firmware-image.sh ROOTFS.ext4 BASE.img.zst BASE_RAW_PREFIX OUT.img.zst BOOT_DIR
+#   firmware-image.sh ROOTFS.ext4 BASE.img.zst BASE_RAW_PREFIX OUT.img.zst BOOT_DIR [public]
+#
+# public (M4a): no developer identity at all. p2 gets no Wi-Fi config, host
+# key or authorized key (dropbear stays off until the user enables SSH in
+# muOS; the host key is created on p3 then), root gets a password hash
+# (MUOS_PUBLIC_ROOT_PASSWORD, default "root" like upstream muOS: a decision
+# for the user, see STATUS.md), p3 is a fresh empty MUOSDATA with only the
+# data marker, and check-public-image.sh must pass (also against the base
+# p2's secrets). The manifest says private=no.
 #
 # The card image is the base recovery image (bootloader at 64/16384/24576,
 # p1 FAT, the MBR and a 1 GiB p3) with p2 replaced by the Buildroot rootfs.
@@ -16,8 +24,10 @@
 # dosfstools, zstd). The output is PRIVATE: never commit or share it.
 set -euo pipefail
 export LC_ALL=C
-[ $# -eq 5 ] || { sed -n '4p' "$0"; exit 2; }
+[ $# -eq 5 ] || [ $# -eq 6 ] || { sed -n '4p' "$0"; exit 2; }
 rootfs=$(realpath "$1") base=$(realpath "$2") base_raw=$3 out=$(realpath -m "$4") bootd=$(realpath "$5")
+variant=${6:-developer}
+case "$variant" in developer|public) ;; *) echo "variant $variant" >&2; exit 2 ;; esac
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 p2_start=262144 p2_sectors=1048576 p1_start=32768 p1_sectors=204800
 m2_image=780935823cb8c86e4330c8c8157ebb4005fb5580e68e72c4b0c4e480bab42d2f
@@ -38,9 +48,25 @@ zstd -q -dc --long=27 "$base" | dd of="$img" bs=1M conv=sparse status=none
 grep -q "^raw_sha256=$(sha256sum "$img" | cut -d' ' -f1)" "${base%.img.zst}.manifest"
 dd if="$img" of="$work/base-p2.img" bs=512 skip=$p2_start count=$p2_sectors status=none
 
-echo "== p2 from $(basename "$rootfs") + device identity"
 cp --reflink=auto "$rootfs" "$work/p2.img"
 cmds=$work/debugfs.cmds; : > "$cmds"
+if [ "$variant" = public ]; then
+    echo "== p2 from $(basename "$rootfs"), public: no identity, root password set"
+    salt=$(od -An -tx1 -N8 /dev/urandom | tr -d ' \n')
+    hash=$(openssl passwd -6 -salt "$salt" "${MUOS_PUBLIC_ROOT_PASSWORD:-root}")
+    debugfs -R 'cat /etc/shadow' "$work/p2.img" 2>/dev/null |
+        awk -F: -v OFS=: -v h="$hash" '$1 == "root" { $2 = h } { print }' > "$work/shadow"
+    grep -q "^root:[\$]6[\$]" "$work/shadow" || { echo 'no root line in /etc/shadow' >&2; exit 1; }
+    printf 'cd /etc\nrm shadow\nwrite %s shadow\ncd /\nsif /etc/shadow mode 0100600\nsif /etc/shadow uid 0\nsif /etc/shadow gid 0\n' "$work/shadow" > "$cmds"
+    debugfs -w -f "$cmds" "$work/p2.img" >/dev/null 2>&1
+    rm -f "$work/shadow"; : > "$cmds"
+    for p in "${private[@]}"; do
+        ! debugfs -R "stat $p" "$work/p2.img" 2>/dev/null | grep -q '^Inode:' || { echo "rootfs holds $p" >&2; exit 1; }
+    done
+    private=()
+else
+    echo "== p2 from $(basename "$rootfs") + device identity"
+fi
 for p in "${private[@]}"; do
     st=$(debugfs -R "stat $p" "$work/base-p2.img" 2>/dev/null)
     mode=$(sed -n 's/.*Mode: *\([0-7]*\).*/\1/p' <<< "$st" | head -1)
@@ -54,8 +80,8 @@ for p in "${private[@]}"; do
     printf 'cd %s\nrm %s\nwrite %s %s\ncd /\nsif %s mode 0100%s\nsif %s uid 0\nsif %s gid 0\n' \
         "$d" "${p##*/}" "$f" "${p##*/}" "$p" "$mode" "$p" "$p" >> "$cmds"
 done
-debugfs -w -f "$cmds" "$work/p2.img" >/dev/null 2>&1
 rm -f "$work"/priv.*
+[ ${#private[@]} = 0 ] || debugfs -w -f "$cmds" "$work/p2.img" >/dev/null 2>&1
 for p in "${private[@]}"; do
     a=$(debugfs -R "cat $p" "$work/base-p2.img" 2>/dev/null | sha256sum)
     b=$(debugfs -R "cat $p" "$work/p2.img" 2>/dev/null | sha256sum)
@@ -109,6 +135,33 @@ cmp -s <(cat "$work/main.rec" "$work/prev.rec" "$work/trial.rec") <(dd if="$img"
 uboot_sum=$(sha "$bootd/uboot.img")
 echo "main: $kin + $kdn ($klabel); previous: Image + rk3326-muos-r35s-panel0.dtb (m2)"
 
+if [ "$variant" = public ]; then
+    echo "== p3: fresh MUOSDATA (same features as the base p3), data marker only"
+    p3_start=1310720 p3_sectors=2097152
+    dd if="$img" of="$work/base-p3.img" bs=512 skip=$p3_start count=$p3_sectors conv=sparse status=none
+    h=$(dumpe2fs -h "$work/base-p3.img" 2>/dev/null)
+    v() { sed -n "s/^$1: *//p" <<< "$h"; }
+    feat=$(v 'Filesystem features' | tr ' ' ',')
+    [ "$(v 'Filesystem volume name')" = MUOSDATA ] || { echo 'base p3 is not MUOSDATA' >&2; exit 1; }
+    rm -f "$work/base-p3.img"
+    truncate -s $((p3_sectors * 512)) "$work/p3.img"
+    mke2fs -q -F -t ext4 -O "none,$feat" -b "$(v 'Block size')" -I "$(v 'Inode size')" -N "$(v 'Inode count')" \
+        -m 0 -L MUOSDATA -U "$(v 'Filesystem UUID')" "$work/p3.img"
+    printf 'MUOS-R35S-DATA-V1\n' > "$work/marker"
+    printf 'write %s .muos-r35s-data-v1\nsif /.muos-r35s-data-v1 mode 0100600\nsif /.muos-r35s-data-v1 uid 0\nsif /.muos-r35s-data-v1 gid 0\n' \
+        "$work/marker" > "$cmds"
+    debugfs -w -f "$cmds" "$work/p3.img" >/dev/null 2>&1
+    h2=$(dumpe2fs -h "$work/p3.img" 2>/dev/null)
+    for k in 'Filesystem features' 'Block size' 'Inode size' 'Inode count' 'Filesystem UUID' 'Reserved GDT blocks'; do
+        [ "$(sed -n "s/^$k: *//p" <<< "$h2")" = "$(v "$k")" ] || { echo "p3 $k differs from the base" >&2; exit 1; }
+    done
+    e2fsck -fn "$work/p3.img" > "$work/fsck3.txt" 2>&1 || { cat "$work/fsck3.txt"; echo 'p3 fsck failed' >&2; exit 1; }
+    dd if="$work/p3.img" of="$img" bs=512 seek=$p3_start conv=notrunc,sparse status=none
+    rm -f "$work/p3.img" "$work/marker"
+    echo "== public check"
+    bash "$repo/port/scripts/check-public-image.sh" "$img" "$work/base-p2.img" || { echo 'public check failed' >&2; exit 1; }
+fi
+
 echo "== compress"
 raw_sum=$(sha256sum "$img" | cut -d' ' -f1)
 zstd -q -T0 -12 --long=27 -f "$img" -o "$out"
@@ -127,6 +180,6 @@ p2_features=$(tr ' ' ',' <<< "$features")
 uboot_sha256=$uboot_sum
 boot_main=$kin,$kdn,$(sha "$kimg"),$(sha "$kdtb")
 boot_previous=Image,rk3326-muos-r35s-panel0.dtb,$m2_image,$m2_dtb
-private=yes  # contains Wi-Fi PSK, SSH host key and authorized_keys
+$([ "$variant" = public ] && echo 'private=no  # public variant: check-public-image.sh passed' || echo 'private=yes  # contains Wi-Fi PSK, SSH host key and authorized_keys')
 EOF
 echo "OK $out raw_sha256=$raw_sum p2_sha256=$p2_sum size=$(stat -c %s "$out")"

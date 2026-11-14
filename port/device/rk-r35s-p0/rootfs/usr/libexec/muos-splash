@@ -1,0 +1,12 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Show a raw 640x480 XRGB8888 image (gzip) on the framebuffer console once
+# the UI has released the display (M4a: the low-battery poweroff splash,
+# usr/share/muos-r35s/battery-empty.fb.gz, made by make-battery-splash.py).
+#   muos-splash [FILE.fb.gz]
+f=${1:-/usr/share/muos-r35s/battery-empty.fb.gz}
+[ -c /dev/fb0 ] && [ -f "$f" ] || exit 1
+# No blinking text cursor over the picture.
+echo 0 > /sys/class/graphics/fbcon/cursor_blink 2>/dev/null
+printf '\033[?25l' > /dev/tty0 2>/dev/null
+gzip -dc "$f" > /dev/fb0

@@ -38,5 +38,8 @@ for script in $list; do
     printf '%s %s %s rc=%s (started %s)\n' "$(cut -d' ' -f1 /proc/uptime)" \
         "${script##*/}" "$action" "$rc" "$t0" >> "$log"
 done
+# Low-battery poweroff (muos-lowbattery): the splash again, over whatever
+# the console printed while the services stopped.
+[ "$action" != stop ] || [ ! -e /run/muos/battery-empty ] || /usr/libexec/muos-splash || :
 printf '%s rc %s done\n' "$(cut -d' ' -f1 /proc/uptime)" "$action" >> "$log"
 exit 0

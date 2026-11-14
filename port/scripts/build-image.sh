@@ -7,7 +7,9 @@
 #   build-image.sh source|build   Buildroot job (detached; source may use the network;
 #                                 GOAL="pkg-reconfigure" runs that first in build)
 #   build-image.sh status|stop
-#   build-image.sh image NAME     card image dist/firmware/NAME.img.zst (+ .sha256, .manifest)
+#   build-image.sh image NAME [--public]
+#                                 card image dist/firmware/NAME.img.zst (+ .sha256, .manifest);
+#                                 --public: no developer identity (firmware-image.sh)
 #
 # Buildroot runs in the phase4-rootfs container with build/phase4 read-only
 # (only its download cache is writable) and the port tree read-only. Prebuilt
@@ -122,13 +124,15 @@ status)
     ;;
 stop) podman stop --time=30 "$name" ;;
 image)
-    [ $# -eq 2 ] || { echo 'usage: image NAME' >&2; exit 2; }
+    variant=developer
+    [ "${3:-}" = --public ] && variant=public
+    [ $# -eq 2 ] || [ "$variant" = public ] || { echo 'usage: image NAME [--public]' >&2; exit 2; }
     ctr_opts
     podman run --rm --network=none "${opts[@]}" "$(iid)" sh -c "$sdl_check" ||
         { echo 'SDL2 lacks the pipewire audio driver: rebuild' >&2; exit 1; }
     [ -f "$repo/build/m3b/boot/SHA256SUMS" ] || { echo 'run build-boot.sh all first' >&2; exit 1; }
     exec bash "$repo/port/scripts/firmware-image.sh" "$out/images/rootfs.ext4" "$base_img" "$base_raw" \
-        "$repo/dist/firmware/$2.img.zst" "$repo/build/m3b/boot"
+        "$repo/dist/firmware/$2.img.zst" "$repo/build/m3b/boot" "$variant"
     ;;
 *) sed -n '3,10p' "$0"; exit 2 ;;
 esac
