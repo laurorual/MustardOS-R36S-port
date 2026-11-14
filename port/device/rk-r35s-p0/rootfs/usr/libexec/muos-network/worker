@@ -16,6 +16,12 @@
 #   worker scan          SSIDs (strongest first) to /tmp/net_scan, "[!]" if none
 #   worker service [KEY] start/stop SSH (web/sshd) and SFTP (web/sftp) per the
 #                        muOS web-services toggles; no KEY = all, off = stop
+#   worker radio on|off  the menu's Wi-Fi toggle (M4c, settings/network/radio,
+#                        missing = on): off stops everything, unloads the
+#                        driver and keeps the radio down at boot, wake and
+#                        hotplug; on brings it up as at boot
+#   worker adapter       refresh /run/muos/network/adapter (a supported
+#                        dongle is plugged in: the menu's Wi-Fi row is usable)
 #   worker event IF EV   wpa_cli action hook (CONNECTED: DHCP or static IP)
 #   worker status
 #
@@ -32,6 +38,9 @@
 # (hardware-findings.md). Every daemon runs in its own session (setsid), so
 # stopping the UI (S99 kills its process group) never takes Wi-Fi or SSH
 # down with it. Hotplug: udev runs ./hotplug (M4b).
+# Wake (M4c): the channel of the last association is kept in $state/freq;
+# the next bring-up scans that channel only (wpa_supplicant freq_list) and
+# falls back to a full scan after 5 s without an association.
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 state=/run/muos/network
 private=/var/lib/muos-network
@@ -64,6 +73,22 @@ stop_pid() {
 }
 alive() { [ -s "$state/$1.pid" ] && kill -0 "$(cat "$state/$1.pid")" 2>/dev/null; }
 
+radio_on() { [ "$(get settings/network/radio)" != 0 ]; }
+# Path of the plugged-in dongle (CD-ROM or Wi-Fi mode), if any.
+dongle() {
+    for path in /sys/bus/usb/devices/*; do
+        [ -r "$path/idVendor" ] && [ -r "$path/idProduct" ] || continue
+        # 2>/dev/null: the dongle may re-enumerate under us (CD-ROM switch).
+        case "$(cat "$path/idVendor" 2>/dev/null):$(cat "$path/idProduct" 2>/dev/null)" in
+            0bda:1a2b|0bda:c820) echo "$path"; return 0 ;;
+        esac
+    done
+    return 1
+}
+adapter() {
+    if dongle > /dev/null; then : > "$state/adapter"; else rm -f "$state/adapter"; return 1; fi
+}
+
 down() {
     rm -f "$state/ready" "$state/radio" "$state/idle"
     for s in dropbear sshd sftp action dhcp wpa; do stop_pid "$s"; done
@@ -94,6 +119,8 @@ block() {
 gen_conf() {
     {
         printf 'ctrl_interface=%s\nupdate_config=0\nap_scan=1\n' "$ctrl"
+        f=$(cat "$state/freq-hint" 2>/dev/null)
+        case "$f" in [1-9][0-9][0-9][0-9]) printf 'freq_list=%s\n' "$f" ;; esac
         [ -z "${1:-}" ] || block "$1" 100
         for f in "$profiles"/*.ini; do
             [ -f "$f" ] || continue
@@ -115,18 +142,16 @@ gen_conf() {
 # M4b: a dongle that has just been powered (plugged in, or after a "mem"
 # sleep, which cuts its power) must stay in CD-ROM mode for a while: ejected
 # 0.27 s after power-up its firmware failed the BT-coex H2C and the radio
-# stayed deaf until a power cycle; 10 s worked every time (M4a T3).
-settle_ms=10000
+# stayed deaf until a power cycle; 10 s worked every time (M4a T3). M4c
+# (t2-wake-wifi.sh, 2026-11-14): 5, 3 and 2 s passed 3/3 wakes each with no
+# H2C error, so 4 s (twice the shortest passing value) is the default.
+# T2 hook: /run/muos/network-settle-ms overrides it (settle experiments).
+settle_ms=$(cat /run/muos/network-settle-ms 2>/dev/null)
+case "$settle_ms" in ''|*[!0-9]*) settle_ms=4000 ;; esac
 usb_mode() {
     candidate=; n=0
     while [ "$n" -lt 100 ]; do
-        for path in /sys/bus/usb/devices/*; do
-            [ -r "$path/idVendor" ] && [ -r "$path/idProduct" ] || continue
-            case "$(cat "$path/idVendor"):$(cat "$path/idProduct")" in
-                0bda:1a2b|0bda:c820) candidate=$path; break ;;
-            esac
-        done
-        [ -z "$candidate" ] || break
+        candidate=$(dongle) && break
         sleep 0.1; n=$((n+1))
     done
     [ -n "$candidate" ] || { say 'USB dongle absent'; return 1; }
@@ -170,6 +195,7 @@ usb_mode() {
 # Radio, wpa_supplicant (with the current config) and the wpa_cli action
 # hook that runs DHCP or the static address on every association.
 radio() {
+    radio_on || { say 'Wi-Fi radio is off (menu)'; return 1; }
     # The dongle went away under us (unplugged, or hotplug missed): start over.
     if [ -e "$state/radio" ] && [ ! -e "/sys/class/net/$(iface)" ]; then
         say "$(iface) gone: radio reset"; down; rm -f "$state/usb-done"
@@ -227,6 +253,8 @@ addr_clear() {
 on_connected() {
     p=${WPA_ID_STR:-}
     put network/active "$p"
+    f=$(wcli status | sed -n 's/^freq=//p')
+    [ -z "$f" ] || printf '%s\n' "$f" > "$state/freq"
     if [ -n "$p" ] && [ "$(ini "$profiles/$p.ini" type)" = static ]; then
         stop_pid dhcp
         a=$(ini "$profiles/$p.ini" address) m=$(ini "$profiles/$p.ini" subnet)
@@ -350,20 +378,45 @@ scan() {
     mv "$out.tmp" "$out"
 }
 
+# Lift the channel restriction (running wpa_supplicant and the config file).
+unhint() {
+    rm -f "$state/freq-hint"; wcli set freq_list 0 > /dev/null; gen_conf > /dev/null
+}
+
 up_once() {
     # Profiles live on p3 (S89 mounts it, S90 binds MUOS/network, S91 the
-    # muOS config); wait for them, but never longer than 150 s.
-    n=0; while [ "$n" -lt 300 ] && [ ! -e /run/muos/storage/mount_ready ]; do sleep 0.5; n=$((n + 1)); done
+    # muOS config); wait for them, but never longer than 150 s. M4c: also
+    # for S91 (runtime/ready): before its bind, /opt/muos/config is p2's
+    # default and the Wi-Fi toggle (and network/boot) read as "on".
+    n=0; while [ "$n" -lt 300 ] && { [ ! -e /run/muos/storage/mount_ready ] || [ ! -e /run/muos/runtime/ready ]; }; do sleep 0.5; n=$((n + 1)); done
     [ -e /run/muos/storage/mount_ready ] || say 'p3 not ready: private networks only'
+    [ -e /run/muos/runtime/ready ] || say 'muOS config not ready: Wi-Fi toggle read from the default config'
+    adapter || :
+    if ! radio_on; then
+        touch "$state/idle"; say 'Wi-Fi radio off (menu)'
+        return 0
+    fi
+    rm -f "$state/freq-hint"
     nets=$(gen_conf)
     [ "$(get settings/network/boot)" != 0 ] || [ -s "$private/network.conf" ] || nets=0
     if [ "$nets" = 0 ]; then
         touch "$state/idle"; say 'no Wi-Fi network configured: radio off'
         return 0
     fi
-    radio || return 1
+    # After a sleep: scan the last channel first (see the header).
+    if [ -s "$state/freq" ] && [ "${hint:-1}" != 0 ]; then
+        cp "$state/freq" "$state/freq-hint"; gen_conf > /dev/null
+    fi
+    radio || { rm -f "$state/freq-hint"; gen_conf > /dev/null; return 1; }
     n=0
-    while [ "$n" -lt 90 ] && [ ! -s "$state/address" ]; do sleep 1; n=$((n+1)); done
+    while [ "$n" -lt 90 ] && [ ! -s "$state/address" ]; do
+        if [ "$n" = 5 ] && [ -e "$state/freq-hint" ] && [ "$(wstate)" != COMPLETED ]; then
+            say "nothing on $(cat "$state/freq-hint") MHz: full scan"
+            unhint; wcli scan > /dev/null
+        fi
+        sleep 1; n=$((n+1))
+    done
+    [ ! -e "$state/freq-hint" ] || unhint
     if [ ! -s "$state/address" ]; then
         # An empty scan means the radio is broken: retry from the USB side.
         wcli scan_results | awk 'NR > 1 { f = 1 } END { exit !f }' || { say 'radio sees no access point'; return 1; }
@@ -386,6 +439,7 @@ case "${1:-}" in
         up_once && exit 0
         # Retry from the USB side: reset the dongle, probe the driver again.
         down; rm -f "$state/usb-done"; rmmod 8821cu 2>/dev/null
+        hint=0
         attempt=$((attempt+1))
         sleep 5
     done
@@ -393,6 +447,20 @@ case "${1:-}" in
  down) down ;;
  load) lock && radio ;;
  connect) [ -n "${2:-}" ] || exit 1; /usr/libexec/muos-cpu-pin 8 $$; connect "$2" ;;
+ radio)
+    case "${2:-}" in
+        off)
+            put settings/network/radio 0
+            start-stop-daemon -K -q -p "$state/worker.pid" 2>/dev/null || :
+            lock 30 || :
+            down; rmmod 8821cu 2>/dev/null; rm -f "$state/usb-done" "$state/freq"
+            touch "$state/idle"; say 'radio off (menu)' ;;
+        on)
+            put settings/network/radio 1
+            alive worker || exec /etc/init.d/S41muos-network start ;;
+        *) exit 2 ;;
+    esac ;;
+ adapter) adapter ;;
  restart|start)
     lock || exit 1
     [ "$(gen_conf)" != 0 ] || { say 'no Wi-Fi network configured'; exit 1; }
@@ -413,13 +481,13 @@ case "${1:-}" in
         *) exit 0 ;;
     esac ;;
  status)
-    echo "radio=$([ -e "$state/radio" ] && echo up || echo off) wpa=$(wstate) address=$(cat "$state/address" 2>/dev/null) active=$(get network/active)"
+    echo "radio=$([ -e "$state/radio" ] && echo up || echo off) wpa=$(wstate) address=$(cat "$state/address" 2>/dev/null) active=$(get network/active) setting=$(radio_on && echo on || echo off) adapter=$([ -e "$state/adapter" ] && echo yes || echo no)"
     for s in dropbear sshd sftp; do alive "$s" && echo "$s=up"; done; : ;;
  # wpa_cli -a ACTION: IFACE CONNECTED|DISCONNECTED (WPA_ID_STR = profile)
  *)
     case "${2:-}" in
         CONNECTED) on_connected >> "$state/private/action.log" 2>&1 ;;
         DISCONNECTED) addr_clear; put network/active '' ;;
-        *) echo 'Usage: worker up|down|load|connect NAME|restart|disconnect|scan|service [KEY]|status' >&2; exit 2 ;;
+        *) echo 'Usage: worker up|down|load|connect NAME|restart|disconnect|scan|service [KEY]|radio on|off|adapter|status' >&2; exit 2 ;;
     esac ;;
 esac

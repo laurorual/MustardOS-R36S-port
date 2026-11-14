@@ -557,7 +557,15 @@ about other R35S/R36S panels or revisions.
   keeps it powered (no software power cycle). Switched 0.27 s after
   power-up its firmware failed `_btmpoper_cmd: Didn't get H2C Rsp
   Event!` and scans stayed empty until a power cycle; ≥ 10 s worked in
-  19/19 wakes. `power/connected_duration` (ms) gives the powered time.
+  19/19 wakes, and in M4c 5, 3 and 2 s passed 3/3 each (default now 4 s,
+  6/6). `power/connected_duration` (ms) gives the powered time. A deaf
+  dongle recovers with the next "mem" sleep (power cut, CD-ROM mode
+  again), not with a warm reboot or a USB reset.
+- **Wi-Fi dongle after a warm reboot (M4c, 2026-11-14):** it stays in
+  `c820` mode, so udev autoloaded 8821cu at ~6 s; the worker's USB reset
+  under the bound driver made the firmware fail H2C (45 errors, no AP).
+  With autoload blacklisted (reset first, then `modprobe`): 5/5 clean.
+  Wi-Fi off (driver unloaded) saves ~76 mA in CTR (737 → 661 mA).
 - **Battery effective resistance (2026-11-14):** ~197 mΩ from 1-min load
   steps, ~217 mΩ at charge start (DT `bat_res` says 100).
 - **RTC wake from power-off:** an alarm in `/sys/class/rtc/rtc0/wakealarm`

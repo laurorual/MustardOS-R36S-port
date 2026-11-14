@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# M4c: build the muOS frontend libraries (libui, libmuxcom, libmuxmod,
+# libplutosvg) from source with the port's frontend patches.
+#
+#   build-frontend-libs.sh [build]   incremental build -> build/m4c/frontend-libs/tree/opt/muos/frontend/lib/
+#   build-frontend-libs.sh check     unpatched rebuild == the pinned libmuxmod.so
+#   build-frontend-libs.sh clean     drop the patched tree (next build starts over)
+#   build-frontend-libs.sh mkpatch NAME FILE...   write port/patches/frontend/NAME
+#                               from the edits in src (FILE relative to src,
+#                               e.g. frontend/module/muxconnect.c)
+#
+# Source: the Phase 4 C65 source (build/phase4/frontend-libs/source: the
+# frontend at the pinned commit with patches 0003 and 0006, mojibake, the
+# library makefile), reflinked to build/m4c/frontend-libs/src with
+# port/patches/frontend/*.patch applied (redone when the patch set changes).
+# Built with the Phase 4 graphics toolchain and sysroot (graphics-config)
+# at the C65 build path, so an unpatched build reproduces the pinned
+# libmuxmod.so byte for byte (`check`; libui and libmuxcom link their
+# objects in `find` order, which differs on the reflinked tree). Only
+# libmuxmod.so is taken: the patches may only touch module code, since the
+# lang/config/device structs in libmuxcom are shared with muxfrontend and
+# muxretro, which are not rebuilt here.
+# The image takes the result as a pinned input (firmware-inputs.json);
+# for a quick test: `install-rootfs.sh --tree build/m4c/frontend-libs/tree
+# opt/muos/frontend/lib/libmuxmod.so`.
+set -euo pipefail
+shopt -s nullglob
+repo=$(cd "$(dirname "$0")/../.." && pwd)
+base=$repo/build/phase4/frontend-libs/source
+gfx=$repo/build/phase4/graphics-config
+area=$repo/build/m4c/frontend-libs
+src=$area/src stamp=$area/src.patches out=$area/tree/opt/muos/frontend/lib
+patches=$repo/port/patches/frontend
+iid=$(cat "$repo/build/phase4/rootfs-container.iid")
+log=$repo/build/logs/frontend-libs-build.log
+# The C65 package build directory (debug paths, -ffile-prefix-map=/work=.).
+site=/work/frontend-libs/build.84o1r4aj/output/build/muos-frontend-libs-1
+mkdir -p "$area" "$out" "$patches" "$repo/build/logs"
+
+prepare() { # [PATCHDIR]: a patch set other than the port's (check: none)
+    local dir=${1:-$patches} want
+    want=$dir:$(cat /dev/null "$dir"/*.patch | sha256sum | cut -d" " -f1)
+    [ -d "$src" ] && [ "$(cat "$stamp" 2>/dev/null)" = "$want" ] && return 0
+    rm -rf "$src" "$stamp"
+    cp -a --reflink=always "$base" "$src"
+    for p in "$dir"/*.patch; do
+        git -C "$src" apply --whitespace=nowarn "$p" || { echo "frontend patch failed: $p" >&2; rm -rf "$src"; exit 1; }
+    done
+    echo "$want" > "$stamp"
+}
+
+compile() {
+    podman run --rm --network=none --read-only --cap-drop=all --security-opt=no-new-privileges \
+        --userns=keep-id --memory=6g --pids-limit=1024 --tmpfs /tmp:rw,nosuid,nodev,size=1g \
+        -v "$gfx/output/host:/work/graphics-config/output/host:ro,z" -v "$src:$site:rw,z" -w "$site" "$iid" sh -euc '
+        h=/work/graphics-config/output/host
+        sh '"$site"'/build-libs.sh "$h/bin/aarch64-buildroot-linux-gnu-gcc" "$h/bin/aarch64-buildroot-linux-gnu-ar" \
+            "$h/bin/pkg-config" "$h/aarch64-buildroot-linux-gnu/sysroot" '"$site"' "-O2 -mcpu=cortex-a35" ""
+        ' > "$log" 2>&1 || { tail -30 "$log" >&2; exit 1; }
+}
+
+case "${1:-build}" in
+build)
+    prepare
+    compile
+    l=$out/libmuxmod.so
+    cp "$src/frontend-bin/lib/libmuxmod.so" "$l.tmp" && mv "$l.tmp" "$l"
+    echo "frontend-libs: warnings=$(grep -c ' warning: ' "$log" || :) (log $log)"
+    echo "libmuxmod.so: $(sha256sum "$l" | cut -c1-16) ($(stat -c %s "$l") bytes)" ;;
+check)
+    # An unpatched rebuild must equal the pinned libmuxmod.so.
+    empty=$area/no-patches; mkdir -p "$empty"
+    prepare "$empty"; compile
+    want=bfd909c6eae5d6d692025e8a0b489840c9a552d3ad22e902183b6265d700ae17
+    got=$(sha256sum "$src/frontend-bin/lib/libmuxmod.so" | cut -d' ' -f1)
+    rm -rf "$src" "$stamp"
+    if [ "$got" = "$want" ]; then echo 'same libmuxmod.so'; else echo "DIFF libmuxmod.so $got != $want"; exit 1; fi ;;
+clean) rm -rf "$src" "$stamp" ;;
+mkpatch)
+    name=$2; shift 2
+    { printf 'From: muOS R35S port\nSubject: [PATCH] %s\n\nSPDX-License-Identifier: GPL-3.0\n---\n' "${name%.patch}"
+      for f in "$@"; do
+          if [ -e "$base/$f" ]; then old=$base/$f lbl=a/$f; else old=/dev/null lbl=/dev/null; fi
+          diff -u --label "$lbl" --label "b/$f" "$old" "$src/$f" || [ $? = 1 ]
+      done
+    } > "$patches/$name.tmp"
+    mv "$patches/$name.tmp" "$patches/$name"
+    echo "$patches:$(cat /dev/null "$patches"/*.patch | sha256sum | cut -d" " -f1)" > "$stamp"
+    echo "wrote port/patches/frontend/$name ($(grep -c '^@@' "$patches/$name") hunks)" ;;
+*) sed -n '3,10p' "$0"; exit 2 ;;
+esac

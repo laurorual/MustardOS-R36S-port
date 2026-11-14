@@ -4,7 +4,68 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M4b — Wi-Fi robustness, crash capture, battery capacity (T2 done 2026-11-14, not installed)
+## M4c — Wi-Fi toggle, faster Wi-Fi after wake, warm-reboot fix (done 2026-11-14, T2 passed, installed)
+
+Built in the evening of 2026-11-14 while the user ran the M4b discharge.
+Image `dist/firmware/test128-m4c-20261114` (raw `ab60ef13…`, p2
+`70f7ae82…`; kernel/DTB = M4b); the same files are on the card
+(`install-rootfs.sh`, p3 kept). Logs `build/logs/m4c/`.
+1. **Frontend from source** (`port/scripts/build-frontend-libs.sh`): the
+   C65 frontend source (`build/phase4/frontend-libs/source`) + patches in
+   `port/patches/frontend/`, built with the Phase 4 graphics toolchain at
+   the C65 path; an unpatched build reproduces the pinned `libmuxmod.so`
+   byte for byte (`check`). Only `libmuxmod.so` is taken (module code;
+   the lang/config structs in libmuxcom stay pinned).
+2. **Wi-Fi toggle** (frontend 0001, worker `radio on|off`,
+   `S02network.sh radio`, `settings/network/radio`, missing = on): a
+   "Wi-Fi" row first in Connectivity (Enabled/Disabled, left/right/A).
+   Without a dongle it reads "Unavailable", dimmed, and can't change
+   (`/run/muos/network/adapter`, kept by the worker and the udev hook;
+   polled every second). Off: worker down, 8821cu unloaded, Wi-Fi Network
+   dimmed and closed; boot, wake and hotplug leave the radio down. CTR:
+   737 → 661 mA with Wi-Fi off. Frontend 0003: back from Wi-Fi Network
+   lands on its row (not on the toggle).
+3. **Web Services** (frontend 0002): only SSH and SFTP are listed
+   (decision 7: hide the unported dashboard, mDNS, terminal, Syncthing).
+4. **Wi-Fi after wake 18 → 9 s:** CD-ROM settle 10 → 4 s (5, 3 and 2 s
+   passed 3/3 wakes each, no H2C error; 4 s = twice the shortest passing
+   value; the recorder in `t2-wake-wifi.sh` power-cycles a deaf dongle with
+   another sleep); the first scan after a wake covers only the last
+   association's channel (`freq_list`, lifted with `set freq_list 0`
+   after the association or 5 s; scan 3.9 → 0.5 s). 6/6 wakes in CTR at
+   8.5–9.2 s from wake to address.
+5. **Warm reboot** (`etc/modprobe.d/8821cu-no-autoload.conf`): after a
+   warm reboot the dongle is still `c820`; udev bound 8821cu at ~6 s,
+   before the worker's USB reset, and the reset under the bound driver left
+   the firmware failing H2C (no AP, recovered by the second attempt after
+   90 s; likely the open case (d)). Blacklisted (the worker's explicit
+   `modprobe` still loads it): 5/5 warm reboots with Wi-Fi on the first
+   attempt, driver at 10.2 s, address at ~20 s uptime, no H2C error.
+6. **Boot order:** the worker also waits for S91 (`runtime/ready`):
+   before its bind `/opt/muos/config` is p2's default, so the toggle (and
+   `network/boot`) read "on" (seen at the first off-at-boot test).
+7. **In-game Wi-Fi glyph** (muxretro 0004, M4b T3 item 3): the pause
+   menu redraws it each time it opens (it was drawn once at game start).
+8. **T2 (all PASS on the card):** `t2-wifi-radio.sh` (off, wake while
+   off, unplug/replug while off, on: back in 7 s), menu toggle through
+   button injection (left off / A on dimmed Wi-Fi Network blocked / right
+   on in 10 s / no adapter: no change), Web Services rows (SFTP toggled
+   from the menu), radio off across a reboot (then on: 10 s),
+   `t2-wake-wifi.sh` 6/6, 5 warm reboots, `t2-wifi.sh`,
+   `t2-wifi-robust.sh`. Shellcheck clean; libmuxmod ELF imports and
+   NEEDED as before.
+
+## M4b — Wi-Fi robustness, crash capture, battery capacity (done 2026-11-14, flashed by the user, T3 items 1–5 passed)
+
+**T3 (user, 2026-11-14 evening, after flashing the image):** 1 boot OK;
+2 battery 100% before and after the flash (no jump visible at full
+charge; FCC reads 2550 on the device); 3 sleep/wake with Wi-Fi OK (the
+in-game Wi-Fi glyph stayed "connected" across the reconnect → M4c item
+7); 4 replug OK; 5 unplug + scan OK; 6 (charger boot after a flat
+battery) and 7 (public image) pending, during the M4b discharge run
+(`t2-discharge.sh log-start` + CTR from 96%). The forced panic of the
+afternoon: the menu was showing (rebooted by `panic=10`, the dongle deaf
+after the warm reboot → M4c item 5).
 
 Built unattended in the afternoon of 2026-11-14 from the M4a T3 findings.
 Image `dist/firmware/test128-m4b-20261114` (raw `3737c893…`, p2

@@ -1,0 +1,17 @@
+From: muOS R35S port
+Subject: [PATCH] 0003-muxnetwork-back-focus
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/muxnetwork.c
++++ b/frontend/module/muxnetwork.c
+@@ -334,6 +334,9 @@
+     }
+ 
+     play_sound(snd_back);
++    /* R35S port: back on the Wi-Fi Network row of Connectivity (without a
++       hint the first row, the Wi-Fi radio toggle, took the focus). */
++    write_text_to_file(MUOS_PDI_LOAD, "w", CHAR, "network");
+     mux_input_stop();
+ }
+ 

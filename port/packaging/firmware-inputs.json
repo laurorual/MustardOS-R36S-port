@@ -5298,8 +5298,8 @@
    "path": "/opt/muos/frontend/lib/libmuxmod.so",
    "type": "file",
    "mode": "644",
-   "sha256": "bfd909c6eae5d6d692025e8a0b489840c9a552d3ad22e902183b6265d700ae17",
-   "origin": "build/phase4/graphics-config/output/target/opt/muos/frontend/lib/libmuxmod.so"
+   "sha256": "875cfd8d9e01d9ae62dd50c841942963772742136cacc374cb525ffdfb0faa78",
+   "origin": "build/m4c/frontend-libs/tree/opt/muos/frontend/lib/libmuxmod.so"
   },
   {
    "path": "/opt/muos/frontend/lib/libplutosvg.so",
@@ -5347,7 +5347,7 @@
    "path": "/opt/muos/frontend/muxretro",
    "type": "file",
    "mode": "755",
-   "sha256": "d55a804a06aff77a05d7dbb14592344d351170bf27eb14fc542911077791ed91",
+   "sha256": "d51260ea9e99999cbc969aa14df33e2a8c55e2301a434514f625813d647b1e28",
    "origin": "build/m3d/muxretro/tree/opt/muos/frontend/muxretro"
   },
   {

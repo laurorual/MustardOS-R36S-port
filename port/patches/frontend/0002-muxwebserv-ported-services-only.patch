@@ -1,0 +1,70 @@
+From: muOS R35S port
+Subject: [PATCH] 0002-muxwebserv-ported-services-only
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/muxwebserv.c
++++ b/frontend/module/muxwebserv.c
+@@ -52,6 +52,11 @@
+ 
+ static mux_dialogue save_dlg;
+ 
++/* R35S port: only the services the port runs are listed (SSH, SFTP); the
++   dashboard, mDNS, terminal and Syncthing toggles did nothing here. */
++static const enum web_service shown_services[] = {web_service_sshd, web_service_sftp};
++enum { shown_count = sizeof(shown_services) / sizeof(shown_services[0]) };
++
+ static const char *service_key(const enum web_service service) {
+     static const char *keys[web_service_count] = {"mdns", "landing", "sshd", "sftp", "ttyd", "syncthing"};
+     return service >= 0 && service < web_service_count ? keys[service] : "";
+@@ -199,21 +204,17 @@
+     editing_field = web_field_none;
+ 
+     lv_label_set_text(ui_lbl_title, lang.muxwebserv.title);
+-    set_row(0, lang.muxwebserv.mdns, "mdns", config.web.mdns ? lang.generic.enabled : lang.generic.disabled, "mdns");
+-    set_row(
+-        1, lang.muxwebserv.landing, "landing", config.web.landing ? lang.generic.enabled : lang.generic.disabled,
+-        "landing"
+-    );
+-    set_row(2, lang.muxwebserv.sshd, "sshd", config.web.sshd ? lang.generic.enabled : lang.generic.disabled, "sshd");
+-    set_row(3, lang.muxwebserv.sftp, "sftp", config.web.sftp ? lang.generic.enabled : lang.generic.disabled, "sftp");
+-    set_row(4, lang.muxwebserv.ttyd, "ttyd", config.web.ttyd ? lang.generic.enabled : lang.generic.disabled, "ttyd");
+-    set_row(
+-        5, lang.muxwebserv.syncthing, "syncthing", config.web.syncthing ? lang.generic.enabled : lang.generic.disabled,
+-        "syncthing"
+-    );
++    for (int i = 0; i < shown_count; i++) {
++        const enum web_service service = shown_services[i];
++        const int16_t *enabled = service_enabled(service);
++        set_row(
++            i, service_title(service), service_key(service),
++            enabled && *enabled ? lang.generic.enabled : lang.generic.disabled, service_key(service)
++        );
++    }
+ 
+     setup_service_nav();
+-    rebuild_groups(web_service_count, main_service_index);
++    rebuild_groups(shown_count, main_service_index);
+ }
+ 
+ static void load_service_values(void) {
+@@ -399,7 +400,8 @@
+ 
+ static void show_detail_view(const enum web_service service) {
+     selected_service = service;
+-    main_service_index = service;
++    for (int i = 0; i < shown_count; i++)
++        if (shown_services[i] == service) main_service_index = i;
+     fields_modified = 0;
+     editing_field = web_field_none;
+     load_service_values();
+@@ -750,7 +752,8 @@
+ static void handle_confirm(void) {
+     if (selected_service == web_service_none) {
+         play_sound(snd_confirm);
+-        show_detail_view((enum web_service) current_item_index);
++        if (current_item_index < 0 || current_item_index >= shown_count) return;
++        show_detail_view(shown_services[current_item_index]);
+         return;
+     }
+ 

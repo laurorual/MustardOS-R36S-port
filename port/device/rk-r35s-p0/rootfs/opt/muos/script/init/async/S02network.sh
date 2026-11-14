@@ -10,5 +10,6 @@ case "${1:-}" in
     stop|unload) exec /etc/init.d/S41muos-network stop ;;
     load) exec "$w" load ;;
     status) exec "$w" status ;;
-    *) echo "Usage: $0 {start|connect <profile>|stop|disconnect|restart|load|unload|status}" >&2; exit 1 ;;
+    radio) exec "$w" radio "${2:-}" ;; # port: the Connectivity menu's Wi-Fi toggle (on|off)
+    *) echo "Usage: $0 {start|connect <profile>|stop|disconnect|restart|load|unload|status|radio on|off}" >&2; exit 1 ;;
 esac

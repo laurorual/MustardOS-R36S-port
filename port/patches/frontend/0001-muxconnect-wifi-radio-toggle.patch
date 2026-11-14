@@ -1,0 +1,222 @@
+From: muOS R35S port
+Subject: [PATCH] 0001-muxconnect-wifi-radio-toggle
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/muxconnect.c
++++ b/frontend/module/muxconnect.c
+@@ -3,15 +3,96 @@
+ #include "ui/ui_muxconnect.h"
+ 
+ #define CONNECT(NAME, UDATA) 1,
+-enum { ui_count_dynamic = E_SIZE(CONNECT_ELEMENTS) };
++enum { ui_count_dynamic = E_SIZE(CONNECT_ELEMENTS) + 1 };
+ #undef CONNECT
+ 
++/* R35S port: Wi-Fi radio toggle. The port's network backend keeps
++   RADIO_ADAPTER while a supported USB dongle is plugged in (udev hotplug)
++   and honours RADIO_SETTING (missing = on) at boot, wake and hotplug;
++   S02network.sh radio on|off applies a change at once. */
++#define RADIO_SETTING CONF_CONFIG_PATH "settings/network/radio"
++#define RADIO_ADAPTER RUN_PATH "network/adapter"
++#define RADIO_POLL_MS 1000
++
++static int radio_shown_available = -1;
++static int radio_shown_enabled = -1;
++static uint32_t radio_polled_ms;
++
++static int radio_available(void) {
++    return file_exist(RADIO_ADAPTER);
++}
++
++static int radio_enabled(void) {
++    return !file_exist(RADIO_SETTING) || read_line_int_from(RADIO_SETTING, 1) != 0;
++}
++
++static void dim_row(lv_obj_t *label, lv_obj_t *value, lv_obj_t *glyph, const int dim) {
++    const lv_opa_t opa = dim ? LV_OPA_50 : LV_OPA_COVER;
++    lv_obj_set_style_text_opa(label, opa, MU_OBJ_MAIN_DEFAULT);
++    lv_obj_set_style_text_opa(value, opa, MU_OBJ_MAIN_DEFAULT);
++    lv_obj_set_style_img_opa(glyph, opa, MU_OBJ_MAIN_DEFAULT);
++}
++
++/* Redraw the radio row (and dim Wi-Fi Network while the radio is off)
++   when the adapter or the setting changed. */
++static void radio_refresh(void) {
++    const int available = radio_available();
++    const int enabled = radio_enabled();
++    if (available == radio_shown_available && enabled == radio_shown_enabled) return;
++
++    if (available) {
++        add_drop_down_options(ui_dro_radio_connect, disabled_enabled, 2);
++        lv_dropdown_set_selected(ui_dro_radio_connect, enabled ? 1 : 0);
++    } else {
++        char *unavailable[] = {lang.muxnetprofile.status.internet_unavailable};
++        add_drop_down_options(ui_dro_radio_connect, unavailable, 1);
++        lv_dropdown_set_selected(ui_dro_radio_connect, 0);
++    }
++    apply_option_value_long_dot(ui_dro_radio_connect);
++    dim_row(ui_lbl_radio_connect, ui_dro_radio_connect, ui_ico_radio_connect, !available);
++    dim_row(ui_lbl_network_connect, ui_dro_network_connect, ui_ico_network_connect, !enabled);
++
++    radio_shown_available = available;
++    radio_shown_enabled = enabled;
++}
++
++static void radio_set(const int on) {
++    if (!radio_available()) {
++        play_sound(snd_error);
++        return;
++    }
++    if (on == radio_enabled()) return;
++
++    move_option(ui_dro_radio_connect, on ? +1 : -1);
++    write_text_to_file_atomic(RADIO_SETTING, INT, on);
++
++    const char *args[] = {OPT_PATH "script/init/async/S02network.sh", "radio", on ? "on" : "off", NULL};
++    run_exec(args, A_SIZE(args), 1, 0, NULL, NULL);
++
++    radio_refresh();
++}
++
++static int radio_focused(void) {
++    return lv_group_get_focused(ui_group) == ui_lbl_radio_connect;
++}
++
++static void connect_refresh_task(lv_timer_t *timer) {
++    ui_gen_refresh_task(timer);
++
++    const uint32_t now = lv_tick_get();
++    if (now - radio_polled_ms < RADIO_POLL_MS) return;
++    radio_polled_ms = now;
++    radio_refresh();
++}
++
+ #define CONNECT(NAME, UDATA) static int NAME##_original;
+ CONNECT_ELEMENTS
+ #undef CONNECT
+ 
+ static void show_help(void) {
+     const struct help_msg help_messages[] = {
++        {"radio", "Turns the Wi-Fi radio on or off.\n\nOff saves battery and keeps the adapter idle until turned back on. "
++                  "Unavailable while no Wi-Fi adapter is plugged in."},
+ #define CONNECT(NAME, UDATA) {UDATA, lang.muxconnect.help.NAME},
+         CONNECT_ELEMENTS
+ #undef CONNECT
+@@ -57,6 +138,7 @@
+     static lv_obj_t *ui_objects_glyph[ui_count_dynamic];
+     static lv_obj_t *ui_objects_panel[ui_count_dynamic];
+ 
++    INIT_OPTION_ITEM(-1, connect, radio, lang.muxnetprofile.wifi, "network", disabled_enabled, 2);
+     INIT_OPTION_ITEM(-1, connect, network, lang.muxconnect.network, "network", NULL, 0);
+     INIT_OPTION_ITEM(-1, connect, net_adv, lang.muxconnect.net_adv, "netadv", NULL, 0);
+     INIT_OPTION_ITEM(-1, connect, proxy, lang.muxconnect.proxy, "net_proxy", NULL, 0);
+@@ -69,6 +151,7 @@
+     add_ui_groups(ui_objects, ui_objects_value, ui_objects_glyph, ui_objects_panel, 1);
+ 
+     if (!visible_network_opt()) {
++        HIDE_OPTION_ITEM(connect, radio);
+         HIDE_OPTION_ITEM(connect, network);
+         HIDE_OPTION_ITEM(connect, net_adv);
+         HIDE_OPTION_ITEM(connect, proxy);
+@@ -89,12 +172,22 @@
+ static void handle_option_prev(void) {
+     if (msgbox_active) return;
+ 
++    if (radio_focused()) {
++        radio_set(0);
++        return;
++    }
++
+     move_option(lv_group_get_focused(ui_group_value), -1);
+ }
+ 
+ static void handle_option_next(void) {
+     if (msgbox_active) return;
+ 
++    if (radio_focused()) {
++        radio_set(1);
++        return;
++    }
++
+     move_option(lv_group_get_focused(ui_group_value), +1);
+ }
+ 
+@@ -116,6 +209,7 @@
+     } menu_entry;
+ 
+     static const menu_entry entries[ui_count_dynamic] = {
++        {"radio", &kiosk.config.network, menu_option, visible_network_opt},
+         {"net_profile", &kiosk.config.network, menu_general, visible_network_opt},
+         {"netadv", &kiosk.config.net_settings, menu_general, visible_network_opt},
+         {"net_proxy", &kiosk.config.proxy, menu_general, visible_network_opt},
+@@ -129,6 +223,21 @@
+ 
+     if (strcmp(entry->mux_name, "btall") == 0 && !bluetooth_ready()) return;
+ 
++    if (strcmp(entry->mux_name, "radio") == 0) {
++        if (is_ksk(*entry->kiosk_flag)) {
++            kiosk_denied();
++            return;
++        }
++        radio_set(!radio_enabled());
++        return;
++    }
++
++    /* Wi-Fi Network needs the radio: dimmed and closed while it is off. */
++    if (strcmp(entry->mux_name, "net_profile") == 0 && !radio_enabled()) {
++        play_sound(snd_error);
++        return;
++    }
++
+     switch (entry->action) {
+         case menu_general:
+             if (is_ksk(*entry->kiosk_flag)) {
+@@ -184,6 +293,7 @@
+                                   {ui_lbl_nav_b, lang.generic.back, 0},
+                                   {NULL, NULL, 0}});
+ 
++    lv_obj_set_user_data(ui_lbl_radio_connect, "radio");
+ #define CONNECT(NAME, UDATA) lv_obj_set_user_data(ui_lbl_##NAME##_connect, UDATA);
+     CONNECT_ELEMENTS
+ #undef CONNECT
+@@ -209,7 +319,10 @@
+ 
+     init_dropdown_settings();
+ 
+-    init_timer(ui_gen_refresh_task, NULL);
++    radio_shown_available = radio_shown_enabled = -1;
++    radio_refresh();
++    radio_polled_ms = lv_tick_get();
++    init_timer(connect_refresh_task, NULL);
+ 
+     mux_input_options input_opts = {
+         .swap_axis = theme.misc.navigation_type == 1,
+--- a/frontend/module/ui/ui_muxconnect.c
++++ b/frontend/module/ui/ui_muxconnect.c
+@@ -10,7 +10,14 @@
+ CONNECT_ELEMENTS
+ #undef CONNECT
+ 
++/* R35S port: Wi-Fi radio on/off row, first in the list. */
++lv_obj_t *ui_pnl_radio_connect;
++lv_obj_t *ui_lbl_radio_connect;
++lv_obj_t *ui_ico_radio_connect;
++lv_obj_t *ui_dro_radio_connect;
++
+ void init_muxconnect(lv_obj_t *ui_pnl_content) {
++    CREATE_OPTION_ITEM(connect, radio);
+ #define CONNECT(NAME, UDATA) CREATE_OPTION_ITEM(connect, NAME);
+     CONNECT_ELEMENTS
+ #undef CONNECT
+--- a/frontend/module/ui/ui_muxconnect.h
++++ b/frontend/module/ui/ui_muxconnect.h
+@@ -13,3 +13,8 @@
+ 
+ CONNECT_ELEMENTS
+ #undef CONNECT
++
++extern lv_obj_t *ui_pnl_radio_connect;
++extern lv_obj_t *ui_lbl_radio_connect;
++extern lv_obj_t *ui_ico_radio_connect;
++extern lv_obj_t *ui_dro_radio_connect;

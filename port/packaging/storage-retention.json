@@ -11,16 +11,8 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "M3d": {
-      "reason": "Previous recovery image (2026-11-13 to 2026-11-14): M3d firmware, kernel 0001-0004 (fuel-gauge SOC, boot calibration fix, unsampled-OCV guard), muxretro from source (in-game level bar, PSX threaded run), volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap; p2 T2-passed on the trial root; T3 items 1-8 passed 2026-11-13 on the card (same p2 files); first flash = T3 item 9",
-      "files": [
-        "dist/firmware/test128-m3d-20261113.img.zst",
-        "dist/firmware/test128-m3d-20261113.img.zst.sha256",
-        "dist/firmware/test128-m3d-20261113.manifest"
-      ]
-    },
     "M3e": {
-      "reason": "Recovery image since 2026-11-14: M3e firmware = M3d + p3 auto-grow fix (resizepart), hold-to-repeat, Wi-Fi power save, 408 MHz CPU OPP, kernel 0005 (lost counter / stale OCV), p1/muxretro metadata hygiene; flashed and T3-passed 2026-11-14",
+      "reason": "Recovery image 2026-11-14 (morning): M3e firmware = M3d + p3 auto-grow fix (resizepart), hold-to-repeat, Wi-Fi power save, 408 MHz CPU OPP, kernel 0005 (lost counter / stale OCV), p1/muxretro metadata hygiene; flashed and T3-passed 2026-11-14",
       "files": [
         "dist/firmware/test128-m3e-20261113.img.zst",
         "dist/firmware/test128-m3e-20261113.img.zst.sha256",
@@ -29,7 +21,7 @@
       ]
     },
     "m4a-20261114": {
-      "reason": "M4a: developer image (Wi-Fi menu, user init, splash) + first public variant (T3 candidate)",
+      "reason": "M4a: developer image (Wi-Fi menu, user init, splash) + first public variant; recovery image 2026-11-14 (afternoon), T3 passed except Wi-Fi after sleep",
       "files": [
         "dist/firmware/test128-m4a-20261114.img.zst",
         "dist/firmware/test128-m4a-20261114.img.zst.sha256",
@@ -42,12 +34,21 @@
       ]
     },
     "m4b-20261114": {
-      "reason": "M4b: Wi-Fi robustness (settle, hotplug, setsid), public boot -30 s, panic=10 + pstore, quiet console, gauge estimate 200 mOhm, DT capacity 2500/2550",
+      "reason": "M4b: Wi-Fi robustness (settle, hotplug, setsid), public boot -30 s, panic=10 + pstore, quiet console, gauge estimate 200 mOhm, DT capacity 2500/2550; flashed by the user 2026-11-14, T3 items 1-5 passed: recovery image since 2026-11-14 (evening)",
       "files": [
         "dist/firmware/test128-m4b-20261114.img.zst",
         "dist/firmware/test128-m4b-20261114.img.zst.sha256",
         "dist/firmware/test128-m4b-20261114.manifest",
         "build/m3a/test128-m4b-20261114.p2.img"
+      ]
+    },
+    "m4c-20261114": {
+      "reason": "M4c: Wi-Fi toggle in Connectivity (grey without a dongle), wake Wi-Fi 18 -> 9 s (settle 4 s + last-channel scan), no 8821cu autoload (warm-reboot H2C), Web Services = SSH/SFTP only, in-game Wi-Fi glyph refresh; installed on the card with install-rootfs.sh 2026-11-14",
+      "files": [
+        "dist/firmware/test128-m4c-20261114.img.zst",
+        "dist/firmware/test128-m4c-20261114.img.zst.sha256",
+        "dist/firmware/test128-m4c-20261114.manifest",
+        "build/m3a/test128-m4c-20261114.p2.img"
       ]
     }
   },

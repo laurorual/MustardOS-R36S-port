@@ -1,0 +1,17 @@
+From: muOS R35S port
+Subject: [PATCH] 0004-pause-network-glyph-refresh
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/retro/ui/ui_pause.c
++++ b/frontend/retro/ui/ui_pause.c
+@@ -797,6 +797,9 @@
+     lv_label_set_text(ui_lbl_datetime, get_datetime());
+     update_battery_capacity(ui_sta_capacity, &theme);
+     update_battery_percent_label(ui_lbl_battery_percent, &theme);
++    /* R35S port: the Wi-Fi glyph was drawn once at game start, so after a
++       sleep (radio down and back) it kept showing the old state. */
++    update_network_status(ui_sta_network, &theme, 0);
+ }
+ 
+ void pause_menu_update_header(void) {

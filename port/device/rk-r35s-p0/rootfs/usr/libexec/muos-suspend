@@ -85,10 +85,12 @@ net_up() {
 }
 wait_radio() {
     n=0 why=
-    # idle: no Wi-Fi network configured, the worker leaves the radio off.
+    # idle: no Wi-Fi network configured or the menu's Wi-Fi toggle off, the
+    # worker leaves the radio off.
     # M4b: "mem" cuts the dongle's power; back in CD-ROM mode it must settle
-    # ~10 s before the switch (worker), so waiting gains nothing: the game
-    # resumes now (the later bring-up costs ~0.7 s of slow frames, CPU3).
+    # before the switch (worker, 4 s since M4c), so waiting gains nothing:
+    # the game resumes now (the later bring-up costs ~0.7 s of slow frames,
+    # CPU3).
     while [ "$n" -lt 60 ] && [ ! -e /run/muos/network/radio ] && [ ! -e /run/muos/network/idle ]; do
         grep -qx 1a2b /sys/bus/usb/devices/*/idProduct 2>/dev/null && { why=' (dongle settling)'; break; }
         sleep 0.1; n=$((n+1))

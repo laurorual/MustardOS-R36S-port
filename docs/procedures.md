@@ -110,7 +110,10 @@ snapshots.
   (`MUOS/init/zz-trial-guard.sh`, `user_init=1`) reboots a trial root or
   trial kernel that has no Wi-Fi after 6 min (both fall back).
 - Robustness T2 for Wi-Fi: `port/scripts/t2-wifi-robust.sh` (menu SSH
-  vs UI kill, simulated unplug/replug); sleep: `t2-sleep-cycle.sh`.
+  vs UI kill, simulated unplug/replug); sleep: `t2-sleep-cycle.sh`;
+  wake timing: `t2-wake-wifi.sh [CYCLES] [SETTLE_MS]` (timeline from
+  wake to address; a deaf dongle is power-cycled by another sleep);
+  the menu's Wi-Fi toggle backend: `t2-wifi-radio.sh` (M4c).
 
 ## Update the kernel or DTB via a trial kernel
 
@@ -207,7 +210,20 @@ The menu is on screen about 15 s after power-on.
 Source lives in `port/device/rk-r35s-p0/rootfs/`; the init scripts are
 symlinks to the files Buildroot also uses. Deploy with
 `port/scripts/install-rootfs.sh [paths]` (atomic; keeps the first original
-in `/var/lib/muos-m1-backup`; `--restore` undoes).
+in `/var/lib/muos-m1-backup`; `--restore` undoes). Build outputs:
+`--tree DIR path` (e.g. `build/m4c/frontend-libs/tree`,
+`build/m3d/muxretro/tree`). A path with a bind mount on it fails with
+EBUSY (unmount test binds first); for frontend files stop the UI first,
+and restart `S97muos-battery` (mubattery maps `libmuxmod.so`), or `/`
+stays rw until the next boot.
+
+**Frontend libraries (M4c):** `port/scripts/build-frontend-libs.sh`
+builds `libmuxmod.so` from the C65 source + `port/patches/frontend/`
+(`check`: an unpatched build equals the pinned one; `mkpatch NAME FILE…`
+as in `build-muxretro.sh`). Patches touch module code only. Pin a new
+build in `firmware-inputs.json` (sha256 + origin) and run
+`firmware-inputs.py store port/packaging/firmware-inputs.json
+build/m3a/inputs` before `build-image.sh build`.
 
 **Safe mode:** create `/boot/muos-noui` on the FAT partition; the UI is
 skipped, SSH still comes up.
