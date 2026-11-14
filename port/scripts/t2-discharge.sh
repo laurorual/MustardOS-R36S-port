@@ -108,5 +108,5 @@ if gauge:
 PY
     echo "details: $out"
     ;;
-*) echo 'usage: t2-discharge.sh start|status|report' >&2; exit 2 ;;
+*) echo 'usage: t2-discharge.sh start|switch DIR ROM|status|report' >&2; exit 2 ;;
 esac

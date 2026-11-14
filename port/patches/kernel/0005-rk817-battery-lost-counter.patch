@@ -1,0 +1,125 @@
+From: muOS R35S port
+Subject: [PATCH] power: rk817_battery: lost counter and stale OCV at boot
+
+After a low-battery poweroff and hours on the charger while off
+(2026-11-14) the RK817 coulomb counter read 0 mAh (invalid) against a
+stored 974 mAh: rk817_bat_not_first_pwron() took it for a halt and set
+0% on a full battery. The PMIC's OCV sample (3751 mV, 48%) dated from
+the charger plug-in, and the off timer (47 min) stays set across warm
+reboots, so every reboot recalibrated to it.
+
+- A current-corrected voltage estimate (V - I * bat_res) as reference.
+- An invalid or zero counter is no halt: start from the estimate.
+- Skip OCV and forced calibrations whose OCV is > 30 points from it.
+- Boot sanity: when dsoc and the counter are both > 40 points from it,
+  take the estimate; the dsoc/counter tie-breaker uses it too.
+
+SPDX-License-Identifier: GPL-2.0
+---
+--- a/drivers/power/rk817_battery.c
++++ b/drivers/power/rk817_battery.c
+@@ -1615,16 +1615,36 @@
+ 	return vol >= 3000 && vol <= 4500;
+ }
+ 
++/* muOS R35S port: SOC (1/1000 %) from the battery voltage corrected for
++ * the load or charge current (V - I * bat_res). Coarse (10-20 points in
++ * the flat part of the curve): only to catch gross gauge errors. */
++static int rk817_bat_est_soc(struct rk817_battery_device *battery)
++{
++	int vol = rk817_bat_get_battery_voltage(battery);
++	int cur = rk817_bat_get_avg_current(battery);
++
++	vol -= cur * (int)battery->pdata->bat_res / 1000;
++	return rk817_bat_vol_to_soc(battery, vol) * 1000;
++}
++
+ static void rk817_bat_not_first_pwron(struct rk817_battery_device *battery)
+ {
+-	int now_cap, pre_soc, pre_cap, ocv_cap, ocv_soc, ocv_vol;
++	int now_cap, pre_soc, pre_cap, ocv_cap, ocv_soc, ocv_vol, est_soc;
++	bool counter_lost;
+ 
+ 	battery->fcc = rk817_bat_get_fcc(battery);
+ 	pre_soc = rk817_bat_get_prev_dsoc(battery);
+ 	pre_cap = rk817_bat_get_prev_cap(battery);
+ 	now_cap = rk817_bat_get_capacity_mah(battery);
+ 	battery->remain_cap = pre_cap * 1000;
+-	battery->is_halt = is_rk817_bat_last_halt(battery);
++	est_soc = rk817_bat_est_soc(battery);
++	/* muOS R35S port: after a low-battery poweroff and hours on the
++	 * charger while off (2026-11-14) the coulomb counter read 0 mAh
++	 * (invalid) against a stored 974 mAh; the BSP took the jump for a
++	 * halt, trusted the counter and showed 0% on a full battery. A lost
++	 * counter is no halt: start from the voltage estimate. */
++	counter_lost = !rk817_bat_remain_cap_is_valid(battery) || now_cap <= 0;
++	battery->is_halt = !counter_lost && is_rk817_bat_last_halt(battery);
+ 	battery->halt_cnt = rk817_bat_get_halt_cnt(battery);
+ 	battery->is_initialized = is_rk817_bat_initialized(battery);
+ 	battery->is_ocv_calib = is_rk817_bat_ocv_valid(battery);
+@@ -1632,7 +1652,13 @@
+ 		 pre_soc, pre_cap, now_cap, rk817_bat_get_ocv_voltage(battery),
+ 		 battery->pwroff_min);
+ 
+-	if (battery->is_halt) {
++	if (counter_lost) {
++		pre_soc = est_soc;
++		pre_cap = est_soc / 10 * battery->fcc / 10000;
++		BAT_INFO("muos-gauge: coulomb counter lost (now=%d): dsoc %d cap %d from the voltage\n",
++			 now_cap, pre_soc, pre_cap);
++		goto finish;
++	} else if (battery->is_halt) {
+ 		BAT_INFO("system halt last time... cap: pre=%d, now=%d\n",
+ 			 pre_cap, now_cap);
+ 		if (now_cap < 0)
+@@ -1654,6 +1680,17 @@
+ 		 * stored SOC and capacity. */
+ 		BAT_INFO("muos-gauge: ocv %d mV not sampled, kept dsoc %d\n",
+ 			 rk817_bat_get_ocv_voltage(battery), pre_soc);
++	} else if ((battery->is_ocv_calib || battery->pwroff_min > 0) &&
++		   abs(rk817_bat_vol_to_soc(battery,
++				rk817_bat_get_ocv_voltage(battery)) * 1000 -
++		       est_soc) > 30 * 1000) {
++		/* muOS R35S port: the OCV sample dates from the PMIC's
++		 * power-up; after charging while off it is stale (3751 mV,
++		 * 48%, on a full battery) and the off timer stays set across
++		 * warm reboots, so every reboot recalibrated to it. Skip an
++		 * OCV that the corrected voltage contradicts. */
++		BAT_INFO("muos-gauge: ocv %d mV stale (voltage says %d), kept dsoc %d\n",
++			 rk817_bat_get_ocv_voltage(battery), est_soc, pre_soc);
+ 	} else if (battery->is_ocv_calib) {
+ 		/* not initialized and poweroff_cnt above 30 min */
+ 		ocv_vol = rk817_bat_get_ocv_voltage(battery);
+@@ -1773,17 +1810,28 @@
+ {
+ 	int vol = rk817_bat_get_battery_voltage(battery);
+ 	int vsoc = rk817_bat_vol_to_soc(battery, vol) * 1000;
++	int esoc = rk817_bat_est_soc(battery);
+ 	int rsoc = rk817_bat_get_rsoc(battery);
+ 	int cap;
+ 
+-	BAT_INFO("muos-gauge: boot first=%d off=%dmin halt=%d init=%d ocv=%d force=%d dsoc=%d rsoc=%d vsoc=%d v=%d nac=%d fcc=%d\n",
++	BAT_INFO("muos-gauge: boot first=%d off=%dmin halt=%d init=%d ocv=%d force=%d dsoc=%d rsoc=%d vsoc=%d esoc=%d v=%d i=%d nac=%d fcc=%d\n",
+ 		 battery->is_first_power_on, battery->pwroff_min,
+ 		 battery->is_halt, battery->is_initialized,
+ 		 battery->is_ocv_calib, battery->is_force_calib,
+-		 battery->dsoc, rsoc, vsoc, vol, battery->nac, battery->fcc);
+-	if (abs(battery->dsoc - rsoc) <= 10 * 1000)
++		 battery->dsoc, rsoc, vsoc, esoc, vol,
++		 rk817_bat_get_avg_current(battery), battery->nac, battery->fcc);
++	/* muOS R35S port: both far from the current-corrected voltage (0%
++	 * shown on a full battery, 2026-11-14): take the voltage. */
++	if (abs(battery->dsoc - esoc) > 40 * 1000 &&
++	    abs(rsoc - esoc) > 40 * 1000) {
++		cap = esoc / 10 * battery->fcc / 10000;
++		BAT_INFO("muos-gauge: dsoc %d and coulomb %d contradict the voltage %d: reset (%d mAh)\n",
++			 battery->dsoc, rsoc, esoc, cap);
++		rk817_bat_init_coulomb_cap(battery, cap);
++		battery->dsoc = esoc;
++	} else if (abs(battery->dsoc - rsoc) <= 10 * 1000) {
+ 		return;
+-	if (abs(rsoc - vsoc) <= abs(battery->dsoc - vsoc)) {
++	} else if (abs(rsoc - esoc) <= abs(battery->dsoc - esoc)) {
+ 		BAT_INFO("muos-gauge: dsoc %d -> coulomb %d\n", battery->dsoc, rsoc);
+ 		battery->dsoc = rsoc;
+ 	} else {

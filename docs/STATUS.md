@@ -14,17 +14,18 @@ T3 checklists in [milestones.md](milestones.md). See also
 **Phase 5 (own-card firmware). M1–M3d are done (M3d T3 passed
 2026-11-13). M3e (below): steps 1–4 done at T2, the M3e image
 `dist/firmware/test128-m3e-20261113` built and T2-passed on the trial
-root; the battery full-discharge run (step 3) started 2026-11-13; then
-the M3e T3 (checklist at the end).**
+root; the battery full-discharge run (step 3) passed 2026-11-14 and
+exposed a 0%-after-recharge gauge bug, fixed by kernel patch 0005 (step
+6, image rebuilt); next the M3e flash and T3 items C–D.**
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1. Flashed with the M3d image on 2026-11-13 (without
   `--grow`; p3 grown on boot, 118.5 GiB).
-  - Boot records (since 2026-11-13, M3e): main = `Image-3a3521e5cfb1`
-    (kernel patches 0001–0004) + `panel0-c7b3551ce101.dtb` (408 MHz
-    OPP); previous = the same Image + the M3d DTB `panel0-d2cef0b6bd98.dtb`.
+  - Boot records (since 2026-11-14): main = `Image-b486b7126df2`
+    (kernel patches 0001–0005) + `panel0-c7b3551ce101.dtb` (408 MHz
+    OPP); previous = `Image-3a3521e5cfb1` (0001–0004) + the same DTB.
   - p2 = the M3d image's p2 plus (`install-rootfs.sh`; originals in
     `/var/lib/muos-m1-backup`): `usr/sbin/resizepart` and the fixed
     `usr/libexec/muos-grow-p3` (M3d item 9); M3e so far: the hotkey map
@@ -53,7 +54,7 @@ bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m3e-20261113.img.zst` (raw `08f03da8…`, p2 `6554ac33…`) | **M3e candidate:** M3d + p3 grow fix (`resizepart`), hold-to-repeat, Wi-Fi power save, 408 MHz CPU OPP, p1 without the Phase 4 `DIAGnn` folders, muxretro provenance | T2-passed on the trial root; never flashed (T3 below) |
+| `dist/firmware/test128-m3e-20261113.img.zst` (raw `7b7c4a66…`, p2 `fd547220…`, rootfs `e7c12aa1…`; rebuilt 2026-11-14 with kernel `b486b712`) | **M3e candidate:** M3d + p3 grow fix (`resizepart`), hold-to-repeat, Wi-Fi power save, 408 MHz CPU OPP, gauge patch 0005, p1 without the Phase 4 `DIAGnn` folders, muxretro provenance | rootfs T2-passed on the trial root, kernel T2-passed on the device; never flashed (T3 below) |
 | **`dist/firmware/test128-m3d-20261113.img.zst`** (raw `f2692bfa…`, p2 `fd78705a…`) | **Recovery image since 2026-11-13.** M3d: kernel 0001–0004, muxretro from source, volume fast path, Wi-Fi on CPU3, p3 auto-grow, log cap | Flashed and T3-passed. Its grow script lacks the item 9 fix: without `--grow` p3 reaches full size only on the second boot (expected; first-boot fsck may log rc 8) |
 | `dist/firmware/test128-m3c-20261112.img.zst` (raw `64811ce2…`) | M3c: M3b boot chain + sftp-server, 4 cores, ROM folders | Previous recovery image; p2 T3-passed, image never flashed |
 | `dist/firmware/test128-m3b-20261111.img.zst` (raw `2a8fec32…`) | M3b: boot-record U-Boot, M3b kernel + M2 kernel | Flashed and T3-passed |
@@ -81,11 +82,17 @@ reader. p3 auto-grow on first boot: fixed version T2-passed on test128
 
 ## Open problems
 
-- **Battery, unverified:** accuracy over a full discharge (FCC 3380 mAh
-  is the DT value until a full charge teaches it), the low-battery
-  poweroff on real hardware (`muos-lowbattery`: ≤ 3% and < 3.5 V), and
-  the reading after a dead battery. The BSP's `off=` (pwroff_min)
-  underreports the time off (5 min for ~50); informational only.
+- **Battery:** the discharge run (step 3) passed; open: (a) the FCC
+  (3380 mAh, DT value) is probably too large: the counter still held
+  974 mAh at 3%, the % below 3.85 V follows the voltage (BSP zero
+  algorithm), so above 3.85 V it may fall too slowly and speed up later;
+  a 100% → 0% run would measure it. (b) Patch 0005's lost-counter path
+  was seen once (old kernel) and is fixed by review plus the stale-OCV
+  and sanity paths, which were T2-tested; the cold boot after a dead
+  battery is re-checked in T3. (c) The low-battery poweroff shows no
+  shutdown screen (black screen; cosmetic). The BSP's `off=` (pwroff_min)
+  underreports the time off (47 min for ~7 h) and stays set across warm
+  reboots.
 - **Power:** menu idle ~409 mA (M3e: Wi-Fi power save 546 → 454 mA, the
   408 MHz CPU OPP → 409 mA; Wi-Fi off would be 397 − 45 mA; brightness
   70 → 35 saves ~38 mA). LEDs (the R35S LED node is disabled in stock too)
@@ -154,11 +161,11 @@ the M3e image. Started 2026-11-13.
    menu idle at 408 MHz; games stay ≥ 1008 MHz. T2: NES gate 60.0 fps /
    0 missed; SNES, GBA, MD ~1 missed vsync per minute (as M3d); 2/2
    in-game sleep cycles.
-3. **Battery full discharge** (running since 2026-11-13):
-   `t2-discharge.sh start` plays the NES test game (`switch PSX <cue>`
-   moved it to CTR at 60%) at volume 10 and logs
-   a line a minute to p3 `MUOS/log/discharge.csv`; `report` after the
-   recharge.
+3. **Battery full discharge** (passed 2026-11-14, logs in
+   `build/m3e/discharge-20261114`): NES test game, then CTR from 60%
+   (`t2-discharge.sh switch`), volume 10. 64% → 4% in 95 min, ~1150 mAh
+   (mean 721 mA), no % jumps; 25% at 3441 mV, 10% at 3368 mV; clean
+   `critical battery (3%, 3335 mV): power off` (muos-lowbattery).
 4. **Image hygiene** (done): p1 without `DIAGnn` / `PROBE.TXT` /
    `tools`; muxretro's provenance and `payload.sha256` describe the
    source build.
@@ -166,22 +173,26 @@ the M3e image. Started 2026-11-13.
    level-fps PASS on rerun (see "Frame pacing"), 2/2 in-game sleep
    cycles, long play 2 min each NES/SNES/GBA/MD/PSX PASS (2–3 missed
    vsyncs per game, fps ≥ 59.77, PSX 77 °C).
+6. **Gauge after a dead battery** (T2 done, 2026-11-14): after ~7 h of
+   charging while off, the boot showed 0% on a full battery: the
+   counter came back invalid (0 vs 974 mAh), which the BSP took for a
+   halt. The PMIC's OCV sample (3751 mV, from the charger plug-in) was
+   stale, and the off timer stays set, so warm reboots recalibrated to
+   48%. Kernel patch 0005 adds a current-corrected voltage estimate
+   (V − I·bat_res). With it, a lost counter starts from the estimate, and
+   an OCV more than 30 points away from it is skipped. Boot sanity resets
+   to the estimate when dsoc and the counter are both more than 40 points
+   away. T2: the trial boot went 49% → 97% (4.16 V, tail charge), stable
+   over 2 reboots on main; audio PASS. Image rebuilt (same rootfs).
 
 ## M3e T3 checklist (user)
 
-A. **Discharge run** (now): keep the charger unplugged and don't touch
-   the device; CTR (PSX, performance governor, ~720–790 mA; switched
-   from the NES test game at 60%) plays its attract loop at volume 10
-   for ~2.5 h. Expected:
-   at 25% the low-battery warning appears; at ≤ 3% (below 3.5 V) the
-   device powers itself off cleanly. If the screen just goes black
-   without the shutdown screen, say so (power was cut instead).
-B. **After the poweroff:** plug the charger in with the device off and
-   charge to full (several hours; overnight is fine), then power on.
-   Expected: boots normally; the % is plausible for a full charge (about
-   95–100%, not 0% and not a jump later); sound on. Tell me, and I run
-   `t2-discharge.sh report`, back up the saves and restore your volume.
-C. **Flash M3e** (after B): `flash-card.sh host /dev/sdX
+A. **Discharge run:** done 2026-11-14. Clean poweroff at 3%; the black
+   screen is the missing shutdown screen (cosmetic).
+B. **After the recharge:** booted, but showed 0% on a full battery.
+   Fixed by patch 0005 (step 6): now 97%. Saves backed up to
+   `build/m3e/p3-backup-20261114`; volume 55 restored.
+C. **Flash M3e:** `flash-card.sh host /dev/sdX
    dist/firmware/test128-m3e-20261113.img.zst` *without* `--grow`.
    Expected: the first boot fills the card (I check `df` and
    `grow-p3.log`), I restore BIOS, ROMs and saves.
@@ -189,4 +200,5 @@ D. **On the flashed M3e:** menu navigation feels as smooth as before
    (the CPU now idles at 408 MHz); holding Vol+/Vol− and Menu+Vol
    changes the level continuously, in the menu and in a game, without
    stutter or crackle; Wi-Fi and SFTP work (slightly higher latency is
-   expected); sleep/wake in a game OK; sound on every boot.
+   expected); sleep/wake in a game OK; sound on every boot; battery %
+   plausible after a power-off and a cold boot (no 0%, no jump).
