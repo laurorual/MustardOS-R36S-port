@@ -18,19 +18,24 @@ SPDX-License-Identifier: GPL-2.0
 ---
 --- a/drivers/power/rk817_battery.c
 +++ b/drivers/power/rk817_battery.c
-@@ -1615,16 +1615,36 @@
+@@ -1615,16 +1615,41 @@
  	return vol >= 3000 && vol <= 4500;
  }
  
 +/* muOS R35S port: SOC (1/1000 %) from the battery voltage corrected for
-+ * the load or charge current (V - I * bat_res). Coarse (10-20 points in
-+ * the flat part of the curve): only to catch gross gauge errors. */
++ * the load or charge current (V - I * R). Coarse (10-20 points in the flat
++ * part of the curve): only to catch gross gauge errors. R is the cell's
++ * effective resistance measured on the R35S (2026-11-14: ~197 mOhm in
++ * 1-min load steps, ~217 mOhm at charge start), not the DT bat_res
++ * (100): with it a boot on the charger at 1.6 A read 33% on a ~4%
++ * battery. */
++#define MUOS_EST_RES_MOHM 200
 +static int rk817_bat_est_soc(struct rk817_battery_device *battery)
 +{
 +	int vol = rk817_bat_get_battery_voltage(battery);
 +	int cur = rk817_bat_get_avg_current(battery);
 +
-+	vol -= cur * (int)battery->pdata->bat_res / 1000;
++	vol -= cur * MUOS_EST_RES_MOHM / 1000;
 +	return rk817_bat_vol_to_soc(battery, vol) * 1000;
 +}
 +

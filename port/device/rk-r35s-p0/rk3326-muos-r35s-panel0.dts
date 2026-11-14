@@ -53,12 +53,15 @@
 
 &rk817 {
     battery {
-        /* These describe the reference DTB, not a measured cell capacity. */
+        /* OCV table: the reference DTB's. Capacity: measured on the R35S
+         * (2026-11-14, 94% -> 3% idle run): ~2530 mAh, not the reference
+         * 3140/3454. The BSP never learns FCC; it clamps the stored one
+         * (3380 from older firmware) to design_qmax at every boot. */
         ocv_table = <3400 3442 3494 3537 3574 3604 3633
                      3666 3697 3726 3760 3790 3812 3842
                      3886 3928 3955 3990 4036 4105 4177>;
-        design_capacity = <3140>;
-        design_qmax = <3454>;
+        design_capacity = <2500>;
+        design_qmax = <2550>;
     };
     charger {
         /delete-property/ bat_low_gpio;
