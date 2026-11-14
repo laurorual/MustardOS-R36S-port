@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
-# Wi-Fi (Realtek 0bda:1a2b -> 0bda:c820, 8821cu) + dropbear SSH on :2222.
+# Wi-Fi (Realtek 0bda:1a2b -> 0bda:c820, 8821cu), SSH and SFTP: see the
+# worker (muOS network profiles on p3, the web-services toggles).
 # start returns at once; usr/libexec/muos-network/worker runs in background
 # so the UI never waits for the network. Private state: /var/lib/muos-network
 # (network.conf = wpa_supplicant config, dropbear host key; both 0600).

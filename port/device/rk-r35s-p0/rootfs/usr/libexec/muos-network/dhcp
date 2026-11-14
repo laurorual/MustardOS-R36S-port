@@ -1,7 +1,8 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
-# shellcheck disable=SC2154  # interface/ip/subnet/router come from udhcpc
-# udhcpc hook: address (+ default route) only; no resolver changes.
+# shellcheck disable=SC2154  # interface/ip/subnet/router/dns come from udhcpc
+# udhcpc hook: address, default route and the resolver (/etc/resolv.conf
+# is a link to /tmp/resolv.conf).
 state=/run/muos/network
 case "${1:-}" in
     deconfig)
@@ -12,6 +13,9 @@ case "${1:-}" in
         if [ -n "${router:-}" ]; then
             while route del default gw 0.0.0.0 dev "$interface" 2>/dev/null; do :; done
             route add default gw "${router%% *}" dev "$interface" 2>/dev/null || :
+        fi
+        if [ -n "${dns:-}" ]; then
+            for d in $dns; do echo "nameserver $d"; done > /tmp/resolv.conf.tmp && mv /tmp/resolv.conf.tmp /tmp/resolv.conf
         fi
         printf '%s\n' "$ip" > "$state/address.tmp" && mv "$state/address.tmp" "$state/address" ;;
 esac

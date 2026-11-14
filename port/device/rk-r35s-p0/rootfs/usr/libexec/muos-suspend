@@ -77,15 +77,16 @@ net_down() {
     [ -e "$dwc2/$usb" ] && echo "$usb" > "$dwc2/unbind"
 }
 net_up() {
-    rm -f /run/muos/network/radio
+    rm -f /run/muos/network/radio /run/muos/network/idle
     [ -e "$dwc2/$usb" ] || echo "$usb" > "$dwc2/bind"
     # Close the lock fd: the daemons started here outlive this script.
     /etc/init.d/S41muos-network start >/dev/null 2>&1 9>&-
 }
 wait_radio() {
     n=0
-    while [ "$n" -lt 60 ] && [ ! -e /run/muos/network/radio ]; do sleep 0.1; n=$((n+1)); done
-    say "radio $([ -e /run/muos/network/radio ] && echo up || echo 'not up') after $((n / 10)).$((n % 10)) s"
+    # idle: no Wi-Fi network configured, the worker leaves the radio off.
+    while [ "$n" -lt 60 ] && [ ! -e /run/muos/network/radio ] && [ ! -e /run/muos/network/idle ]; do sleep 0.1; n=$((n+1)); done
+    say "radio $([ -e /run/muos/network/radio ] && echo up || { [ -e /run/muos/network/idle ] && echo idle; } || echo 'not up') after $((n / 10)).$((n % 10)) s"
 }
 
 if [ "$fake" = 1 ]; then

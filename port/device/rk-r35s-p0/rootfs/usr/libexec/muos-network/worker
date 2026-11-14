@@ -1,14 +1,53 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
-# muos-network worker: up (bounded retries) | down. See S41muos-network.
-# Warm-reboot note: btusb stays blacklisted (modprobe.d wifi-only); without
-# it the dongle's EP0 times out after a warm reboot (hardware-findings.md).
+# muos-network worker: the port's Wi-Fi + SSH backend (Realtek 8821cu dongle).
+#
+#   worker up            boot (S41, background): wait for p3, then bring the
+#                        radio up if any network is configured, start the
+#                        services; bounded retries for radio failures
+#   worker down          stop everything (S41 stop, muos-suspend)
+#   worker load          radio + wpa_supplicant only (scan, connect)
+#   worker connect NAME  connect MUOS/network/NAME.ini (upstream muxnetprofile
+#                        contract: /run/muos/network/NAME.status, exit codes
+#                        0 ok, 2 bad password, 3 AP not found, 4 auth timeout,
+#                        5 DHCP failed, 7 wpa_supplicant failed, 1 other)
+#   worker restart       re-read the profiles, reconnect (best one wins)
+#   worker disconnect    drop the association, keep the radio
+#   worker scan          SSIDs (strongest first) to /tmp/net_scan, "[!]" if none
+#   worker service [KEY] start/stop SSH (web/sshd) and SFTP (web/sftp) per the
+#                        muOS web-services toggles; no KEY = all, off = stop
+#   worker event IF EV   wpa_cli action hook (CONNECTED: DHCP or static IP)
+#   worker status
+#
+# Networks: upstream muOS profiles on p3 (MUOS/network/*.ini, [network]
+# ssid, pass = PSK hex as muxnetprofile saves it, type dhcp|static, address,
+# subnet, gateway, dns, autoconnect, priority 1 = first) plus, on developer
+# images, the private /var/lib/muos-network/network.conf. Without any
+# network the radio stays off (state "idle"). SSH: developer images run
+# dropbear key-only on :2222 (/etc/muos-network-authorized_key); muOS's web
+# services add password SSH (web/sshd_port, 22) and SFTP-only (web/sftp_port,
+# 2022) as root. Host key: the private one, else p3 MUOS/port/ssh (created
+# on first use). Warm-reboot note: btusb stays blacklisted (modprobe.d
+# wifi-only); without it the dongle's EP0 times out after a warm reboot
+# (hardware-findings.md).
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 state=/run/muos/network
 private=/var/lib/muos-network
 lib=/usr/libexec/muos-network
+cfg=/opt/muos/config
+profiles=/run/muos/storage/network
+ctrl=/run/wpa_supplicant
+conf=$state/private/network.conf
 umask 077
-mkdir -p "$state/private" "$state/auth" "$state/wpa"
+mkdir -p "$state/private" "$state/auth"
+
+say() { echo "network: $*"; }
+get() { head -n1 "$cfg/$1" 2>/dev/null; }
+put() { [ -d "$cfg/network" ] || return 0; printf '%s\n' "$2" > "$cfg/$1.tmp" && mv "$cfg/$1.tmp" "$cfg/$1"; }
+iface() { cat "$state/interface" 2>/dev/null || echo wlan0; }
+wcli() { wpa_cli -p "$ctrl" -i "$(iface)" "$@" 2>/dev/null; }
+wstate() { wcli status | sed -n 's/^wpa_state=//p'; }
+lock() { exec 8> "$state/lock"; flock -w "${1:-90}" 8; }
 
 stop_pid() {
     [ -f "$state/$1.pid" ] || return 0
@@ -21,12 +60,54 @@ stop_pid() {
     fi
     rm -f "$state/$1.pid"
 }
+alive() { [ -s "$state/$1.pid" ] && kill -0 "$(cat "$state/$1.pid")" 2>/dev/null; }
+
 down() {
-    rm -f "$state/ready" "$state/radio"
-    stop_pid dropbear; stop_pid dhcp; stop_pid wpa
+    rm -f "$state/ready" "$state/radio" "$state/idle"
+    for s in dropbear sshd sftp action dhcp wpa; do stop_pid "$s"; done
     rm -f "$state/address"
 }
 
+# ---- profiles -> wpa_supplicant config
+ini() { # FILE KEY: [network] KEY=value (muOS mini format)
+    awk -v k="$2" '/^[ \t]*\[/ { s = ($0 ~ /^[ \t]*\[network\]/); next }
+        s { i = index($0, "="); if (!i) next; key = substr($0, 1, i - 1); gsub(/[ \t]/, "", key)
+            if (key != k) next; v = substr($0, i + 1); sub(/\r$/, "", v); print v; exit }' "$1"
+}
+hex() { printf '%s' "$1" | od -An -tx1 | tr -d ' \n'; }
+# One network block; $1 = profile name, $2 = wpa priority.
+block() {
+    ssid=$(ini "$profiles/$1.ini" ssid) pass=$(ini "$profiles/$1.ini" pass)
+    [ -n "$ssid" ] || return 0
+    case "$pass" in *'"'*) say "profile $1: unusable passphrase"; return 0 ;; esac
+    printf 'network={\n\tssid=%s\n\tscan_ssid=1\n' "$(hex "$ssid")"
+    if [ -z "$pass" ]; then printf '\tkey_mgmt=NONE\n'
+    elif [ "${#pass}" = 64 ] && [ -z "$(printf '%s' "$pass" | tr -d '0-9a-fA-F')" ]; then printf '\tpsk=%s\n' "$pass"
+    else printf '\tpsk="%s"\n' "$pass"; fi
+    printf '\tpriority=%s\n\tid_str="%s"\n}\n' "$2" "$1"
+}
+# gen_conf [FIRST]: FIRST (if given) leads with priority 100; then every
+# autoconnect profile (priority 10 - muOS priority), then the private config.
+# Prints the number of networks.
+gen_conf() {
+    {
+        printf 'ctrl_interface=%s\nupdate_config=0\nap_scan=1\n' "$ctrl"
+        [ -z "${1:-}" ] || block "$1" 100
+        for f in "$profiles"/*.ini; do
+            [ -f "$f" ] || continue
+            n=${f##*/}; n=${n%.ini}
+            [ "$n" != "${1:-}" ] || continue
+            [ "$(ini "$f" autoconnect)" != 0 ] || continue
+            p=$(ini "$f" priority); case "$p" in [1-9]) ;; *) p=5 ;; esac
+            block "$n" $((10 - p))
+        done
+        [ ! -s "$private/network.conf" ] || awk '/^[ \t]*network=\{/ { b = 1 } b { print } /^[ \t]*\}/ { b = 0 }' "$private/network.conf"
+    } > "$conf.tmp"
+    mv "$conf.tmp" "$conf"
+    grep -c '^[ \t]*network={' "$conf"
+}
+
+# ---- radio
 # Find the dongle; switch CD-ROM mode 1a2b to Wi-Fi c820, or reset a c820
 # kept across a warm reboot so the new kernel probes it again.
 usb_mode() {
@@ -41,7 +122,7 @@ usb_mode() {
         [ -z "$candidate" ] || break
         sleep 0.1; n=$((n+1))
     done
-    [ -n "$candidate" ] || { echo 'network: USB dongle absent'; return 1; }
+    [ -n "$candidate" ] || { say 'USB dongle absent'; return 1; }
     bus=$(cat "$candidate/busnum"); device=$(cat "$candidate/devnum")
     reset_done=0
     if [ "$(cat "$candidate/idProduct")" = c820 ] && [ ! -e "$state/usb-done" ]; then
@@ -58,7 +139,7 @@ usb_mode() {
         [ -r "$candidate/idProduct" ] && [ "$(cat "$candidate/idVendor"):$(cat "$candidate/idProduct")" = 0bda:c820 ] && break
         sleep 0.1; n=$((n+1))
     done
-    [ "$n" -lt 300 ] || { echo 'network: dongle did not return as 0bda:c820'; return 1; }
+    [ "$n" -lt 300 ] || { say 'dongle did not return as 0bda:c820'; return 1; }
     udevadm settle --timeout=10 || :
     modprobe 8821cu || return 1
     if [ "$reset_done" = 1 ]; then
@@ -72,52 +153,207 @@ usb_mode() {
     touch "$state/usb-done"
 }
 
-up_once() {
-    usb_mode || return 1
-    found=; n=0
-    while [ "$n" -lt 100 ]; do
-        for path in /sys/class/net/*; do
-            [ "$(basename "$(readlink -f "$path/device/driver/module")")" = 8821cu ] && found=${path##*/}
+# Daemons started here close fds 7/8 (the dhcp and command locks).
+# Radio, wpa_supplicant (with the current config) and the wpa_cli action
+# hook that runs DHCP or the static address on every association.
+radio() {
+    if [ ! -e "$state/radio" ]; then
+        usb_mode || return 1
+        found=; n=0
+        while [ "$n" -lt 100 ]; do
+            for path in /sys/class/net/*; do
+                [ "$(basename "$(readlink -f "$path/device/driver/module")")" = 8821cu ] && found=${path##*/}
+            done
+            [ -z "$found" ] || break
+            sleep 0.1; n=$((n+1))
         done
-        [ -z "$found" ] || break
-        sleep 0.1; n=$((n+1))
-    done
-    [ -n "$found" ] || { echo 'network: no 8821cu interface'; return 1; }
-    printf '%s\n' "$found" > "$state/interface"
-    for rf in /sys/class/rfkill/rfkill*; do
-        [ -r "$rf/type" ] && [ "$(cat "$rf/type")" = wlan ] && printf '0\n' > "$rf/soft"
-    done
-    ifconfig "$found" up || return 1
-    # The driver's command thread exists once the interface is up.
-    for d in /proc/[0-9]*; do
-        case "$(cat "$d/comm" 2>/dev/null)" in RTW_*) /usr/libexec/muos-cpu-pin 8 "${d#/proc/}" ;; esac
-    done
-    # The costly part (USB enumeration, module, firmware) is done here:
-    # muos-suspend resumes a game only after this (M3d wake stalls).
-    touch "$state/radio"
-    cp "$private/network.conf" "$state/private/network.conf"
-    wpa_supplicant -i "$found" -D nl80211,wext -c "$state/private/network.conf" -C "$state/wpa" \
-        > "$state/private/wpa.log" 2>&1 &
-    echo $! > "$state/wpa.pid"
-    udhcpc -f -i "$found" -s "$lib/dhcp" -t 10 -T 3 -A 5 > "$state/private/dhcp.log" 2>&1 &
+        [ -n "$found" ] || { say 'no 8821cu interface'; return 1; }
+        printf '%s\n' "$found" > "$state/interface"
+        for rf in /sys/class/rfkill/rfkill*; do
+            [ -r "$rf/type" ] && [ "$(cat "$rf/type")" = wlan ] && printf '0\n' > "$rf/soft"
+        done
+        ifconfig "$found" up || return 1
+        # The driver's command thread exists once the interface is up.
+        for d in /proc/[0-9]*; do
+            case "$(cat "$d/comm" 2>/dev/null)" in RTW_*) /usr/libexec/muos-cpu-pin 8 "${d#/proc/}" ;; esac
+        done
+        # The costly part (USB enumeration, module, firmware) is done here:
+        # muos-suspend resumes a game only after this (M3d wake stalls).
+        rm -f "$state/idle"; touch "$state/radio"
+    fi
+    if ! alive wpa; then
+        [ -s "$conf" ] || gen_conf > /dev/null
+        wpa_supplicant -i "$(iface)" -D nl80211,wext -c "$conf" > "$state/private/wpa.log" 2>&1 7>&- 8>&- &
+        echo $! > "$state/wpa.pid"
+        n=0; while [ "$n" -lt 50 ] && [ ! -S "$ctrl/$(iface)" ]; do sleep 0.1; n=$((n+1)); done
+        [ -S "$ctrl/$(iface)" ] || { say 'wpa_supplicant did not start'; stop_pid wpa; return 1; }
+    fi
+    if ! alive action; then
+        wpa_cli -p "$ctrl" -i "$(iface)" -a "$lib/worker" > "$state/private/action.log" 2>&1 7>&- 8>&- &
+        echo $! > "$state/action.pid"
+    fi
+}
+
+# ---- addresses (from the wpa_cli hook)
+dhcp_start() {
+    exec 7> "$state/dhcp.lock"; flock -w 10 7
+    stop_pid dhcp
+    udhcpc -f -i "$(iface)" -s "$lib/dhcp" -t 10 -T 3 -A 5 > "$state/private/dhcp.log" 2>&1 7>&- 8>&- &
     echo $! > "$state/dhcp.pid"
+    exec 7>&-
+}
+addr_clear() {
+    stop_pid dhcp
+    ifconfig "$(iface)" 0.0.0.0 2>/dev/null || :
+    rm -f "$state/address"
+}
+on_connected() {
+    p=${WPA_ID_STR:-}
+    put network/active "$p"
+    if [ -n "$p" ] && [ "$(ini "$profiles/$p.ini" type)" = static ]; then
+        stop_pid dhcp
+        a=$(ini "$profiles/$p.ini" address) m=$(ini "$profiles/$p.ini" subnet)
+        g=$(ini "$profiles/$p.ini" gateway) d=$(ini "$profiles/$p.ini" dns)
+        case "$m" in *.*) ;; ''|*[!0-9]*) m=24 ;; *) m=$(cidr "$m") ;; esac
+        ifconfig "$(iface)" "$a" netmask "$m" up || return 1
+        [ -z "$g" ] || { while route del default dev "$(iface)" 2>/dev/null; do :; done; route add default gw "$g" dev "$(iface)"; }
+        [ -z "$d" ] || printf 'nameserver %s\n' "$d" > /tmp/resolv.conf
+        printf '%s\n' "$a" > "$state/address.tmp" && mv "$state/address.tmp" "$state/address"
+    else
+        dhcp_start
+    fi
+}
+cidr() { # prefix length -> dotted mask
+    b=$1 o='' i=0
+    while [ "$i" -lt 4 ]; do
+        if [ "$b" -ge 8 ]; then v=255; b=$((b - 8)); else v=$(( (256 - (1 << (8 - b))) & 255 )); b=0; fi
+        o=$o${o:+.}$v; i=$((i + 1))
+    done
+    echo "$o"
+}
+
+# ---- SSH / SFTP
+host_key() {
+    k=$private/dropbear_ed25519_host_key
+    [ -s "$k" ] && { echo "$k"; return 0; }
+    k=/userdata/MUOS/port/ssh/dropbear_ed25519_host_key
+    if [ ! -s "$k" ]; then
+        mkdir -p "${k%/*}" || return 1
+        dropbearkey -t ed25519 -f "$k.tmp" > /dev/null 2>&1 && mv "$k.tmp" "$k" && sync || return 1
+    fi
+    echo "$k"
+}
+service() { # KEY: dev | sshd | sftp
+    case "$1" in
+        dev) on=0; [ -s /etc/muos-network-authorized_key ] && on=1; pidn=dropbear ;;
+        sshd|sftp) on=$(get "web/$1"); pidn=$1 ;;
+        *) return 0 ;;
+    esac
+    stop_pid "$pidn"
+    [ "$on" = 1 ] || return 0
+    key=$(host_key) || { say 'no SSH host key'; return 1; }
+    case "$1" in
+        dev)
+            cp /etc/muos-network-authorized_key "$state/auth/authorized_keys"
+            chmod 600 "$state/auth/authorized_keys"
+            set -- -s -D "$state/auth" -p 0.0.0.0:2222 ;;
+        sshd)
+            port=$(get web/sshd_port); case "$port" in ''|*[!0-9]*) port=22 ;; esac
+            set -- -p "0.0.0.0:$port" ;;
+        sftp)
+            port=$(get web/sftp_port); case "$port" in ''|*[!0-9]*) port=2022 ;; esac
+            set -- -c /usr/libexec/sftp-server -p "0.0.0.0:$port" ;;
+    esac
+    dropbear -F -E -j -k -m -r "$key" -P "$state/$pidn.dbpid" -K 30 "$@" >> "$state/private/$pidn.log" 2>&1 7>&- 8>&- &
+    echo $! > "$state/$pidn.pid"
+    sleep 0.5
+    alive "$pidn" || { say "$pidn did not start"; return 1; }
+}
+services() { service dev; service sshd; service sftp; }
+
+# ---- connect
+status_file() { [ -z "$cur" ] || { mkdir -p "$state"; printf '%s' "$1" > "$state/$cur.status"; }; }
+fail() { status_file "$2"; say "connect $cur: $2"; restore; exit "$1"; }
+restore() { gen_conf > /dev/null; wcli reconfigure > /dev/null; }
+connect() {
+    cur=$1
+    [ -f "$profiles/$cur.ini" ] || { say "no profile $cur"; exit 1; }
+    lock || exit 1
+    status_file ASSOCIATING
+    radio || fail 7 WPA_START_FAILED
+    gen_conf "$cur" > /dev/null
+    addr_clear
+    wcli reconfigure > /dev/null
+    # Network ids keep counting across reconfigure: ours is the first listed.
+    id=$(wcli list_networks | awk -F'\t' 'NR == 2 { print $1 }')
+    [ -n "$id" ] || fail 7 WPA_START_FAILED
+    wcli select_network "$id" > /dev/null
+    ssid=$(ini "$profiles/$cur.ini" ssid) hs=0 n=0
+    while [ "$n" -lt 40 ]; do
+        sleep 0.5; n=$((n + 1))
+        st=$(wcli status); s=$(printf '%s\n' "$st" | sed -n 's/^wpa_state=//p')
+        # COMPLETED counts only on the selected network, not on the
+        # association that was up before reconfigure.
+        [ "$s" != COMPLETED ] || printf '%s\n' "$st" | grep -qx "id=$id" || s=SWITCHING
+        case "$s" in
+            COMPLETED) break ;;
+            4WAY_HANDSHAKE|GROUP_HANDSHAKE) hs=1; status_file AUTHENTICATING ;;
+            *) status_file ASSOCIATING ;;
+        esac
+        wcli list_networks | awk -F'\t' -v i="$id" '$1 == i' | grep -q TEMP-DISABLED && fail 2 INVALID_PASSWORD
+    done
+    if [ "$s" != COMPLETED ]; then
+        [ "$hs" = 1 ] && fail 2 INVALID_PASSWORD
+        wcli scan_results | awk -F'\t' -v s="$ssid" '$5 == s { f = 1 } END { exit !f }' || fail 3 AP_NOT_FOUND
+        fail 4 AUTH_TIMEOUT
+    fi
+    status_file WAITING_IP
+    # Same BSS as before: wpa_supplicant may not report a new association.
+    sleep 1; alive dhcp || [ -s "$state/address" ] || WPA_ID_STR=$cur on_connected >> "$state/private/action.log" 2>&1
+    n=0; while [ "$n" -lt 40 ] && [ ! -s "$state/address" ]; do sleep 0.5; n=$((n + 1)); done
+    [ -s "$state/address" ] || fail 5 DHCP_FAILED
+    wcli enable_network all > /dev/null
+    put network/active "$cur"
+    status_file CONNECTED
+    services
+    touch "$state/ready"
+    say "connected $cur $(cat "$state/address")"
+}
+
+scan() {
+    out=/tmp/net_scan; rm -f "$out"
+    lock || exit 1
+    radio || { printf '[!]' > "$out"; exit 0; }
+    wcli scan > /dev/null
+    n=0; while [ "$n" -lt 16 ]; do sleep 0.5; n=$((n + 1)); [ "$n" -lt 6 ] || [ "$(wcli scan_results | wc -l)" -le 1 ] || break; done
+    wcli scan_results | awk -F'\t' 'NR > 1 && $5 != "" && $5 !~ /^\\x00/ { print $3 "\t" $5 }' |
+        sort -k1,1nr | awk -F'\t' '!seen[$2]++ { print $2 }' > "$out.tmp"
+    [ -s "$out.tmp" ] || printf '[!]' > "$out.tmp"
+    mv "$out.tmp" "$out"
+}
+
+up_once() {
+    # Profiles live on p3 (S89 mounts it, S90 binds MUOS/network, S91 the
+    # muOS config); wait for them, but never longer than 150 s.
+    n=0; while [ "$n" -lt 300 ] && [ ! -e /run/muos/storage/mount_ready ]; do sleep 0.5; n=$((n + 1)); done
+    [ -e /run/muos/storage/mount_ready ] || say 'p3 not ready: private networks only'
+    nets=$(gen_conf)
+    [ "$(get settings/network/boot)" != 0 ] || [ -s "$private/network.conf" ] || nets=0
+    if [ "$nets" = 0 ]; then
+        touch "$state/idle"; say 'no Wi-Fi network configured: radio off'
+        return 0
+    fi
+    radio || return 1
     n=0
     while [ "$n" -lt 90 ] && [ ! -s "$state/address" ]; do sleep 1; n=$((n+1)); done
-    [ -s "$state/address" ] || { echo 'network: no DHCP lease'; return 1; }
-    # First boot of a fresh image: create the host key (may wait for the RNG).
-    if [ ! -s "$private/dropbear_ed25519_host_key" ]; then
-        dropbearkey -t ed25519 -f "$private/dropbear_ed25519_host_key.tmp" > /dev/null 2>&1 &&
-            mv "$private/dropbear_ed25519_host_key.tmp" "$private/dropbear_ed25519_host_key" || return 1
+    if [ ! -s "$state/address" ]; then
+        # An empty scan means the radio is broken: retry from the USB side.
+        wcli scan_results | awk 'NR > 1 { f = 1 } END { exit !f }' || { say 'radio sees no access point'; return 1; }
+        say 'no DHCP lease yet (wpa_supplicant keeps trying)'
     fi
-    cp /etc/muos-network-authorized_key "$state/auth/authorized_keys"
-    chmod 600 "$state/auth/authorized_keys"
-    dropbear -F -E -s -j -k -m -r "$private/dropbear_ed25519_host_key" -D "$state/auth" \
-        -p 0.0.0.0:2222 -P "$state/dropbear.pid" -K 30 > "$state/private/dropbear.log" 2>&1 &
-    echo $! > "$state/dropbear.pid"
-    sleep 1
-    kill -0 "$(cat "$state/dropbear.pid")" || return 1
+    services || return 1
     touch "$state/ready"
-    echo "network: ready $(cat "$state/address") on $found"
+    say "ready $(cat "$state/address" 2>/dev/null) on $(iface)"
 }
 
 case "${1:-}" in
@@ -128,7 +364,7 @@ case "${1:-}" in
     /usr/libexec/muos-cpu-pin 8 $$
     attempt=1
     while [ "$attempt" -le 3 ]; do
-        echo "network: attempt $attempt"
+        say "attempt $attempt"
         up_once && exit 0
         down
         attempt=$((attempt+1))
@@ -136,5 +372,35 @@ case "${1:-}" in
     done
     exit 1 ;;
  down) down ;;
- *) echo 'Usage: worker up|down' >&2; exit 2 ;;
+ load) lock && radio ;;
+ connect) [ -n "${2:-}" ] || exit 1; /usr/libexec/muos-cpu-pin 8 $$; connect "$2" ;;
+ restart|start)
+    lock || exit 1
+    [ "$(gen_conf)" != 0 ] || { say 'no Wi-Fi network configured'; exit 1; }
+    radio || exit 7
+    wcli reconfigure > /dev/null
+    n=0; while [ "$n" -lt 60 ] && [ ! -s "$state/address" ]; do sleep 0.5; n=$((n + 1)); done
+    [ -s "$state/address" ] || exit 6
+    services; touch "$state/ready" ;;
+ disconnect)
+    lock || exit 1
+    wcli disconnect > /dev/null; addr_clear; put network/active '' ;;
+ scan) scan ;;
+ service)
+    case "${2:-all}" in
+        all) service sshd; service sftp ;;
+        sshd|sftp) service "$2" ;;
+        off) stop_pid sshd; stop_pid sftp ;;
+        *) exit 0 ;;
+    esac ;;
+ status)
+    echo "radio=$([ -e "$state/radio" ] && echo up || echo off) wpa=$(wstate) address=$(cat "$state/address" 2>/dev/null) active=$(get network/active)"
+    for s in dropbear sshd sftp; do alive "$s" && echo "$s=up"; done; : ;;
+ # wpa_cli -a ACTION: IFACE CONNECTED|DISCONNECTED (WPA_ID_STR = profile)
+ *)
+    case "${2:-}" in
+        CONNECTED) on_connected >> "$state/private/action.log" 2>&1 ;;
+        DISCONNECTED) addr_clear; put network/active '' ;;
+        *) echo 'Usage: worker up|down|load|connect NAME|restart|disconnect|scan|service [KEY]|status' >&2; exit 2 ;;
+    esac ;;
 esac

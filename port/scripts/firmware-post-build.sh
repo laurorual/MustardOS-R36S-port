@@ -8,12 +8,15 @@
 #   (level-wrapper.sh as audio.sh/bright.sh, the originals as *-muos.sh);
 # - the WirePlumber rules from core-wireplumber.conf;
 # - hold-to-repeat for volume/brightness in the pinned hotkey map;
-# - muxretro's provider metadata for the source build (M3e).
+# - muxretro's provider metadata for the source build (M3e);
+# - board/network = 1 (M4a: the port's Wi-Fi backend drives muOS's
+#   Connectivity menu; the pinned device config says 0).
 # $1 is TARGET_DIR. Runs inside the build container (paths as
 # build-image.sh mounts).
 set -eu
 python3 /port/scripts/firmware-inputs.py install \
     /port/packaging/firmware-inputs.json /m3a/inputs "$1"
+cp /port/device/rk-r35s-p0/rootfs/opt/muos/device/config/board/network "$1/opt/muos/device/config/board/network"
 python3 /port/scripts/coredb-governors.py "$1/usr/share/muos-r35s/core-assign.txt" \
     "$1/opt/muos/share/info/manifest/core.json"
 d=$1/opt/muos/script/device
