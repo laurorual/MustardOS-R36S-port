@@ -21,26 +21,16 @@ exposed a 0%-after-recharge gauge bug, fixed by kernel patch 0005 (step
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
-  test128 in slot 1. Flashed with the M3d image on 2026-11-13 (without
-  `--grow`; p3 grown on boot, 118.5 GiB).
-  - Boot records (since 2026-11-14): main = `Image-b486b7126df2`
+  test128 in slot 1. Flashed with the M3e image on 2026-11-14 (without
+  `--grow`; p3 grown on the first boot, 116.6 GiB, resize2fs rc 0).
+  - Boot records (from the image): main = `Image-b486b7126df2`
     (kernel patches 0001–0005) + `panel0-c7b3551ce101.dtb` (408 MHz
-    OPP); previous = `Image-3a3521e5cfb1` (0001–0004) + the same DTB.
-  - p2 = the M3d image's p2 plus (`install-rootfs.sh`; originals in
-    `/var/lib/muos-m1-backup`): `usr/sbin/resizepart` and the fixed
-    `usr/libexec/muos-grow-p3` (M3d item 9); M3e so far: the hotkey map
-    with hold (`opt/muos/share/hotkey/r35s-bringup.json`, staged in
-    `build/m3e/tree`), `usr/libexec/muos-press` (hold:KEY) and
-    `etc/modprobe.d/8821cu-power.conf`: functionally the M3e p2 (only
-    muxretro's provenance metadata differs).
-  - p3 `MUOS/trial/rootfs.img` = the M3e p2 (`6554ac33…`), T2-passed as
-    the trial root.
+    OPP); previous = the M2 kernel.
+  - p2 = the M3e image's p2; no trial root on p3.
   - p3: ROMs from `port/roms` (GB, NES, SNES, GBA, MD, PSX CTR) plus the
     image's `private.gb` and NES test game; the user's PSX BIOS
-    (`MUOS/bios`, backup in `port/roms/bios`); saves restored from
-    `build/m3b/p3-backup` (2026-11-11; later saves were not kept, by the
-    user's choice). Pre-flash logs of the old p3:
-    `build/m3d/p3-preflash-20261113`.
+    (`MUOS/bios`, backup in `port/roms/bios`); saves (`MUOS/pickles`)
+    restored from `build/m3e/p3-backup-20261114`, checksums identical.
   - Volume 55 (the user's). Keep it at 10 during T2 runs at night.
 - **original32 (stock dArkOSen):** the flasher station (slot 1, target
   in slot 2). Never write it.
@@ -192,10 +182,8 @@ A. **Discharge run:** done 2026-11-14. Clean poweroff at 3%; the black
 B. **After the recharge:** booted, but showed 0% on a full battery.
    Fixed by patch 0005 (step 6): now 97%. Saves backed up to
    `build/m3e/p3-backup-20261114`; volume 55 restored.
-C. **Flash M3e:** `flash-card.sh host /dev/sdX
-   dist/firmware/test128-m3e-20261113.img.zst` *without* `--grow`.
-   Expected: the first boot fills the card (I check `df` and
-   `grow-p3.log`), I restore BIOS, ROMs and saves.
+C. **Flash M3e:** done 2026-11-14; p3 grew on the first boot (item 9
+   fixed); BIOS, ROMs and saves restored.
 D. **On the flashed M3e:** menu navigation feels as smooth as before
    (the CPU now idles at 408 MHz); holding Vol+/Vol− and Menu+Vol
    changes the level continuously, in the menu and in a game, without
