@@ -571,6 +571,14 @@ about other R35S/R36S panels or revisions.
   usable from full vs ~2450 at menu idle; the zero algorithm brought dsoc
   to 3% at the cut-off. The coulomb counter also reads 0 after a plain
   low-battery poweroff (not only after charging while off).
+- **Coulomb counter seeding (2026-11-15, i2cset on the R35S):** the
+  RK817 copies Q_INIT (0x70–0x73) into Q_PRESS (0x74–0x77) when
+  Q_INIT_L0 (0x73) is written, even with an unchanged value; H3 or L1
+  writes alone load nothing. Q_PRESS is a signed counter (bit 31 = the
+  BSP's CAP_INVALID) at ~20.93k raw/mAh (CAPACITY_TO_ADC, res_div 1).
+  After the flat-battery poweroff it read about -3260 mAh and counted
+  normally from there. Raw registers: `/sys/kernel/debug/regmap/0-0020/
+  registers` (mount debugfs); BusyBox i2cset needs hex register numbers.
 - **Battery effective resistance (2026-11-14):** ~197 mΩ from 1-min load
   steps, ~217 mΩ at charge start (DT `bat_res` says 100).
 - **RTC wake from power-off:** an alarm in `/sys/class/rtc/rtc0/wakealarm`

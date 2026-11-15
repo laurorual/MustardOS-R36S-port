@@ -1,0 +1,80 @@
+From: muOS R35S port
+Subject: [PATCH] power: rk817_battery: make the coulomb counter seed load
+
+The RK817 copies Q_INIT into the coulomb counter (Q_PRESS) when
+Q_INIT_L0 is written (checked with i2cset on the R35S: an H3 or L1 write
+alone loads nothing, an L0 write with an unchanged value loads at once).
+rk817_bat_init_coulomb_cap used regmap_field_write, which skips a byte
+that already holds the value, and never checked the load. On 2026-11-15,
+after a flat-battery poweroff, patch 0006 kept the stored 4% and seeded
+103 mAh, but the counter stayed at about -3260 mAh (bit 31 = invalid,
+read as 0): nothing charged was counted, and the first smoothing step
+took the 103 mAh step for charge (4% -> 7%). Write all four bytes with
+regmap_write, L0 last, check Q_PRESS, retry twice, and log the seed when
+the counter was invalid before or a retry was needed.
+
+SPDX-License-Identifier: GPL-2.0
+---
+--- a/drivers/power/rk817_battery.c	2026-11-15 12:06:12.277199664 -0300
++++ b/drivers/power/rk817_battery.c	2026-11-15 12:06:25.690180824 -0300
+@@ -1156,23 +1156,50 @@
+ 	DBG("Q_INIT_L0 = 0x%x\n", rk817_bat_field_read(battery, Q_INIT_L0));
+ }
+ 
++static u32 rk817_bat_read_q_press(struct rk817_battery_device *battery)
++{
++	u32 val;
++
++	val = rk817_bat_field_read(battery, Q_PRESS_H3) << 24;
++	val |= rk817_bat_field_read(battery, Q_PRESS_H2) << 16;
++	val |= rk817_bat_field_read(battery, Q_PRESS_L1) << 8;
++	val |= rk817_bat_field_read(battery, Q_PRESS_L0) << 0;
++	return val;
++}
++
++/* muOS R35S port: the PMIC copies Q_INIT into the counter (Q_PRESS) when
++ * Q_INIT_L0 is written, but regmap_field_write skips a byte that already
++ * holds the value. 2026-11-15: after a flat-battery poweroff the counter
++ * read about -3260 mAh ("invalid", so 0) and the 103 mAh seed never
++ * reached it: no charge was counted, and the first smoothing step took
++ * the seed for charge (dsoc +3%). Write all four bytes, L0 last, and
++ * check that the counter took the value. */
++#define RK817_Q_INIT_H3_REG	0x70
++
+ static void rk817_bat_init_coulomb_cap(struct rk817_battery_device *battery,
+ 				       u32 capacity)
+ {
+-	u8 buf;
+-	u32 cap;
++	u32 cap, old, press = 0;
++	int i, try;
+ 
+ 	fuel_gauge_q_init_info(battery);
+ 	cap = CAPACITY_TO_ADC(capacity, battery->res_div);
+ 	DBG("new cap: 0x%x\n", cap);
+-	buf = (cap >> 24) & 0xff;
+-	rk817_bat_field_write(battery, Q_INIT_H3, buf);
+-	buf = (cap >> 16) & 0xff;
+-	rk817_bat_field_write(battery, Q_INIT_H2, buf);
+-	buf = (cap >> 8) & 0xff;
+-	rk817_bat_field_write(battery, Q_INIT_L1, buf);
+-	buf = (cap >> 0) & 0xff;
+-	rk817_bat_field_write(battery, Q_INIT_L0, buf);
++	old = rk817_bat_read_q_press(battery);
++	for (try = 1; try <= 3; try++) {
++		for (i = 0; i < 4; i++)
++			regmap_write(battery->regmap, RK817_Q_INIT_H3_REG + i,
++				     (cap >> (24 - 8 * i)) & 0xff);
++		usleep_range(1000, 2000);
++		press = rk817_bat_read_q_press(battery);
++		if (abs((s32)(press - cap)) <=
++		    (s32)CAPACITY_TO_ADC(5, battery->res_div))
++			break;
++	}
++	if (try > 1 || (old & 0x80000000))
++		BAT_INFO("muos-gauge: seed %u mAh: q_press %08x -> %08x (q_init %08x, %d write(s))%s\n",
++			 capacity, old, press, cap, try > 3 ? 3 : try,
++			 try > 3 ? " FAILED" : "");
+ 
+ 	battery->rsoc = capacity * 1000 * 100 / battery->fcc;
+ 	battery->remain_cap = capacity * 1000;

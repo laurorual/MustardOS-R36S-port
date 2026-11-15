@@ -15,34 +15,25 @@ T3 checklists in [milestones.md](milestones.md). See also
 2026-11-14, T3 items 1–5 passed, 6–7 pending). M4c (Wi-Fi toggle, Wi-Fi
 after wake 18 → 9 s, warm-reboot dongle fix, Web Services = SSH/SFTP,
 in-game Wi-Fi glyph) is T2-passed and installed on the card (2026-11-14
-evening); its T3 is next.** M4b item 6 failed (20% shown after a flat
-battery): fixed by kernel patch 0006 (`0c3305ad`, now main on the card,
-started M4d); a same-night retest showed 3% but didn't reach 0006's
-branch. The overnight test below does.
+evening); its T3 is next (user, 2026-11-15 after charging).** M4b item
+6 passed on 2026-11-15 (7% after a flat battery and ~15 h off; 0006's
+branch ran). It exposed a counter-seed bug, fixed by kernel patch 0007
+(`d61188f3`, main on the card since 2026-11-15, M4d).
 
-## Tomorrow, 2026-11-15 (user, in this order)
+## Today, 2026-11-15
 
-The console was switched off at 23:59 on 2026-11-14, unplugged, at 4%
-(right after a CTR run to the low-battery poweroff, then ~5 min on the
-charger), and left off overnight.
-
-1. **Battery overnight test (M4b item 6, kernel 0006):** plug in the
-   charger, then power on at once. Note the % on the first screen.
-   Expected: ~0–5%. Fail: ~15–25% (the first failure showed 20%). Then
-   tell the agent the %; nothing to run first.
-   - Agent: `device.sh run 'dmesg | grep muos-gauge'`. Pass if
-     `coulomb counter lost ... kept dsoc` appears with dsoc ~3000–4000.
-     If the counter was kept (`now_cap` ≈ stored cap), the
-     0006 branch still hasn't run: note it and move on (it's no
-     regression). Then record the result in milestones.md (M4b item 6).
-   - Let it charge to full before the M4c checklist (at least ~1 h;
-     about 2.5 h to 100%), so the battery isn't a factor in it.
-2. **M4c T3 checklist** (below). No flash needed: the card already has
-   M4c (same files as `dist/firmware/test128-m4c-20261114`).
-3. **Decision 2 (a):** send the revised Hardkernel request
-   (`docs/archive/phase4/hardkernel-r13-license-request.md`, revised
-   2026-11-14: to `odroid@hardkernel.com`, forum fallback; fill in the
-   GitHub URL and your name).
+- **M4b item 6 (overnight battery test): pass, 7%** (bar 0–5% pass,
+  15–25% fail). Details and the 0007 fix: milestones.md M4b.
+- **Kernel 0007** (coulomb seed load): T0 clean build, `Module.symvers`
+  unchanged; T2 trial boot with a hand-invalidated counter (seed loaded
+  on the first write, % tracks the charge), promoted, normal boot OK.
+  Its own T3 is the next flat battery (expected: the % rises from the
+  stored value while charging, no jump at boot).
+- The card's % is ~8 points high (artifact of the T2 counter test); the
+  charge finish resets it to 100%. Then the user runs the M4c T3
+  checklist (below).
+- Decision 2 (a): the Hardkernel request was sent on 2026-11-14;
+  awaiting the answer.
 
 ## Evening of 2026-11-14 (M4c, details: milestones.md M4c)
 
@@ -60,12 +51,12 @@ charger), and left off overnight.
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1: the M4b developer image flashed by the user
   2026-11-14, plus the M4c files (`install-rootfs.sh`, originals in
-  `/var/lib/muos-m1-backup`). Off overnight, unplugged, at 4%; volume
-  55 (user's); no logger, no test hooks armed.
-  - Boot records: main = `Image-0c3305ad6946` (patches 0001–0006; trial
-    booted and promoted 2026-11-14 night) + `panel0-bc04b6f8e4d4.dtb`
-    (capacity 2500/2550, FCC reads 2550); previous = `Image-4f866b8b4ad7`
-    (0001–0005, the M4b/M4c images' kernel).
+  `/var/lib/muos-m1-backup`). On the charger since 2026-11-15 14:54;
+  volume 55 (user's); no logger, no test hooks armed.
+  - Boot records: main = `Image-d61188f3a808` (patches 0001–0007;
+    trial booted and promoted 2026-11-15) + `panel0-bc04b6f8e4d4.dtb`
+    (capacity 2500/2550, FCC reads 2550); previous = `Image-0c3305ad6946`
+    (0001–0006). The M4b/M4c images' kernel is `4f866b8b` (0001–0005).
   - p3: ROMs from `port/roms` (incl. CTR + PSX BIOS, re-pushed), Wi-Fi
     profile `MUOS/network/Home.ini`; discharge logger removed
     (`log-stop`), log in `build/logs/discharge/`.
@@ -108,8 +99,11 @@ card reader; p3 auto-grow; `panic=10` reboots after a kernel panic.
 
 - **Battery:** (a) FCC 2550 tracks: the CTR run reached 3% at the
   cut-off (~2050 mAh usable at ~750 mA, ~2450 at idle). (b) The counter
-  is lost after every flat-battery poweroff; 0006 keeps the stored %
-  (T3 at the next flat battery, item 1 above). (c) The BSP's `off=`
+  is lost after a flat-battery poweroff (why it ends near -3260 mAh is
+  unknown); 0006 keeps the stored % and 0007 now loads the seed (T3 at
+  the next flat battery). (d) The BSP smoothing uses `abs(delta_cap)`:
+  any counter jump while charging raises the % (only seen with 0007's
+  T2 test; not patched). (c) The BSP's `off=`
   underreports the time off (15 min for ~2 h) and stays set across warm
   reboots.
 - **Wi-Fi dongle (RTL8821CU):** a deaf dongle has no software recovery
@@ -140,7 +134,7 @@ card reader; p3 auto-grow; `panic=10` reboots after a kernel panic.
   addresses untested; NTP not ported (no clock source).
 - **SFTP** runs as root with the whole filesystem (decision 6: port
   upstream's jail before the public build).
-- **Licences:** Mali r13p0 (decision 2 (a): request ready, not sent),
+- **Licences:** Mali r13p0 (decision 2 (a): request sent 2026-11-14),
   BL31 (decision 3: replace with rkbin's, M4d), the dirty U-Boot, Gambatte and BT firmware are
   private-only (`port/packaging/pending-licenses.json`).
 
@@ -149,8 +143,8 @@ card reader; p3 auto-grow; `panic=10` reboots after a kernel panic.
 Answered by the user 2026-11-14 (evening):
 1. **Name:** "muOS for R36S/R35S (unofficial port)"; the user contacts
    the MustardOS team before publication.
-2. **Mali:** (a), request r13p0 terms from Hardkernel (user sends the
-   revised request).
+2. **Mali:** (a), request r13p0 terms from Hardkernel (sent by the user
+   2026-11-14; awaiting the answer).
 3. **Boot payloads:** rkbin files acceptable: keep DDR/miniloader/BL32
    (= rkbin) and replace BL31 with rkbin's v1.14 (confirmed; trust-image
    rebuild = bootloader write + one T3 cycle, M4d).
@@ -185,14 +179,14 @@ recovery promotion after a passed T3 is automatic.
    Network", not on the Wi-Fi toggle.
 7. **Warm reboot 2× (menu Reboot):** Wi-Fi icon within ~10 s of the menu
    appearing, both times.
-8. M4b leftovers: item 6 failed, retest with 0006 ("When you're back"
-   1); item 7 (public image, optional; the M4c public variant isn't built
-   yet).
+8. M4b leftovers: item 6 passed 2026-11-15 (with 0006); item 7 (public
+   image, optional; the M4c public variant isn't built yet).
 
 ## Next milestone (proposal)
 
-**M4d — public-build prerequisites:** (started: kernel patch 0006, the
-lost-counter fix, built and on the card; the next image includes it),
+**M4d — public-build prerequisites:** (started: kernel patches 0006
+(lost counter keeps the stored %) and 0007 (counter seed really loads),
+main on the card; the next image includes them),
 a battery cut-off judged on the current-corrected voltage (games now
 leave ~10–18% at 0%: ~470 mAh in the counter at the CTR cut-off; mind
 the PMIC's own 3.3 V `power_off_thresd` and the zero algorithm), rkbin

@@ -83,6 +83,21 @@ vs stored 362, `off=0min`): the 0005 tie-breaker (`coulomb 14191 ->
 dsoc 2995`, estimate 6%) set it, so 0006's branch is still unexercised.
 The counter was lost after ~2 h off the first time: retest = power off
 at the cut-off, wait hours, then charger + power on.
+Overnight retest (2026-11-15, 4% at 23:59, off ~15 h, charger + power
+on): **7%** (pass by the 0–5% / 15–25% bar). The 0006 branch ran this
+time (`coulomb counter lost (now=0): kept dsoc 4059 (voltage says
+16000), cap 103`), but the 103 mAh seed never reached the counter: Q_PRESS
+stayed at about -3260 mAh (bit 31 = "invalid", read as 0), so no charge
+was counted, and the first smoothing step booked the 0 → 103 mAh step
+as charge (linek 750 × 40/10 = +3000 → dsoc 7059). Cause: the RK817
+loads Q_INIT into Q_PRESS on a write to Q_INIT_L0 (0x73), and the BSP's
+`regmap_field_write` skips unchanged bytes. Fixed by kernel patch 0007
+(M4d): all four bytes written, Q_PRESS checked. T2: counter invalidated
+by hand, trial boot logged `seed 793 mAh: q_press fc0283ff -> 00fd4008
+(1 write)`, the % then tracked the charge; promoted to main (`d61188f3`).
+Side effect of that test: invalidating the counter while charging made
+the smoothing count the drop as charge too (18 → 31%, ~8 points high
+until the charge finishes).
 
 Built unattended in the afternoon of 2026-11-14 from the M4a T3 findings.
 Image `dist/firmware/test128-m4b-20261114` (raw `3737c893…`, p2
