@@ -76,6 +76,13 @@ the estimate and seeds the counter from it (counter-lost T3 at the next
 flat battery). Capacity under CTR load (~750 mA): 1895 mAh counted for
 95 → 3% (~2050 mAh usable from full vs ~2450 at menu idle); the counter
 still held 470 mAh (18%) at the cut-off: IR drop, not a gauge error.
+Retest (kernel 0006, same night): CTR from 24%, clean poweroff at 3%
+after 31 min (362 mAh, 701 mA mean); plugged in and powered on at once:
+**3%** (pass). But the counter was not lost this time (`now_cap=363`
+vs stored 362, `off=0min`): the 0005 tie-breaker (`coulomb 14191 ->
+dsoc 2995`, estimate 6%) set it, so 0006's branch is still unexercised.
+The counter was lost after ~2 h off the first time: retest = power off
+at the cut-off, wait hours, then charger + power on.
 
 Built unattended in the afternoon of 2026-11-14 from the M4a T3 findings.
 Image `dist/firmware/test128-m4b-20261114` (raw `3737c893…`, p2

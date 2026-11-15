@@ -21,9 +21,10 @@ started M4d).
 
 ## When you're back (user)
 
-1. **M4b item 6, again (kernel 0006):** at the next flat battery, plug
-   in and power on at once: expect ~0–5%, not 20%. Nothing to run first:
-   the discharge logger is stopped and your volume (55) is restored.
+1. **M4b item 6, lost-counter case (kernel 0006):** the quick retest
+   passed (3%) but kept the counter; 0006's branch needs a flat battery
+   left **off for hours** (the first failure: ~2 h). Then charger + power
+   on: expect ~0–5%, not ~20%. Logger stopped, volume 55 restored.
 2. **M4c T3 checklist** (below). No flash needed: the card already has
    M4c (same files as `dist/firmware/test128-m4c-20261114`).
 3. **Decision 2 (a):** send the revised Hardkernel request
