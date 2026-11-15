@@ -66,6 +66,16 @@ battery) and 7 (public image) pending, during the M4b discharge run
 (`t2-discharge.sh log-start` + CTR from 96%). The forced panic of the
 afternoon: the menu was showing (rebooted by `panic=10`, the dongle deaf
 after the warm reboot → M4c item 5).
+Item 6 (2026-11-14 night): the CTR discharge ended in a clean
+low-battery poweroff at 3% / 3354 mV (dsoc tracked down to the cut-off,
+no early cut); the charger boot ~2 h later showed **20%** (fail). The
+coulomb counter read 0 (lost), so patch 0005 took the voltage estimate
+(3900 mV at +1.6 A → 20%) over the correct stored 3%. Fixed by kernel
+patch 0006 (M4d): a lost counter keeps a stored dsoc within 30 points of
+the estimate and seeds the counter from it (counter-lost T3 at the next
+flat battery). Capacity under CTR load (~750 mA): 1895 mAh counted for
+95 → 3% (~2050 mAh usable from full vs ~2450 at menu idle); the counter
+still held 470 mAh (18%) at the cut-off: IR drop, not a gauge error.
 
 Built unattended in the afternoon of 2026-11-14 from the M4a T3 findings.
 Image `dist/firmware/test128-m4b-20261114` (raw `3737c893…`, p2

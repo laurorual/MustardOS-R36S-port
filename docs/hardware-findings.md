@@ -566,6 +566,11 @@ about other R35S/R36S panels or revisions.
   under the bound driver made the firmware fail H2C (45 errors, no AP).
   With autoload blacklisted (reset first, then `modprobe`): 5/5 clean.
   Wi-Fi off (driver unloaded) saves ~76 mA in CTR (737 → 661 mA).
+- **Battery under game load (2026-11-14, CTR ~750 mA):** the 3.35 V
+  cut-off comes with ~470 mAh (18%) still in the counter: ~2050 mAh
+  usable from full vs ~2450 at menu idle; the zero algorithm brought dsoc
+  to 3% at the cut-off. The coulomb counter also reads 0 after a plain
+  low-battery poweroff (not only after charging while off).
 - **Battery effective resistance (2026-11-14):** ~197 mΩ from 1-min load
   steps, ~217 mΩ at charge start (DT `bat_res` says 100).
 - **RTC wake from power-off:** an alarm in `/sys/class/rtc/rtc0/wakealarm`

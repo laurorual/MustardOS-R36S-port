@@ -1,0 +1,37 @@
+From: muOS R35S port
+Subject: [PATCH] power: rk817_battery: lost counter, keep a plausible stored SOC
+
+The coulomb counter also reads 0 after a plain low-battery poweroff
+(2026-11-14: off ~2 h, then plugged in and powered on at once). Patch
+0005 then took the current-corrected voltage estimate, which read 20%
+(3900 mV at +1.6 A) on a battery whose stored dsoc was a correct 3%.
+Keep the stored dsoc when the estimate doesn't contradict it by more
+than 30 points (the stale-OCV threshold) and seed the counter from it;
+otherwise (charged while off) take the estimate as before.
+
+SPDX-License-Identifier: GPL-2.0
+---
+--- a/drivers/power/rk817_battery.c
++++ b/drivers/power/rk817_battery.c
+@@ -1657,7 +1657,20 @@
+ 		 pre_soc, pre_cap, now_cap, rk817_bat_get_ocv_voltage(battery),
+ 		 battery->pwroff_min);
+ 
+-	if (counter_lost) {
++	if (counter_lost && abs(pre_soc - est_soc) <= 30 * 1000) {
++		/* muOS R35S port: the counter is also lost after a plain
++		 * low-battery poweroff (2026-11-14: stored dsoc 3%, plugged in
++		 * and powered on: the estimate, 3900 mV at +1.6 A, said 20%).
++		 * The estimate is coarse and reads high on the charger; keep a
++		 * stored SOC it doesn't contradict and seed the counter from
++		 * it (the stored cap is the counter's, 18% here: the zero
++		 * algorithm takes dsoc below it near the cut-off). */
++		pre_cap = pre_soc / 10 * battery->fcc / 10000;
++		rk817_bat_init_coulomb_cap(battery, pre_cap);
++		BAT_INFO("muos-gauge: coulomb counter lost (now=%d): kept dsoc %d (voltage says %d), cap %d\n",
++			 now_cap, pre_soc, est_soc, pre_cap);
++		goto finish;
++	} else if (counter_lost) {
+ 		pre_soc = est_soc;
+ 		pre_cap = est_soc / 10 * battery->fcc / 10000;
+ 		BAT_INFO("muos-gauge: coulomb counter lost (now=%d): dsoc %d cap %d from the voltage\n",

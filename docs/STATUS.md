@@ -15,16 +15,15 @@ T3 checklists in [milestones.md](milestones.md). See also
 2026-11-14, T3 items 1–5 passed, 6–7 pending). M4c (Wi-Fi toggle, Wi-Fi
 after wake 18 → 9 s, warm-reboot dongle fix, Web Services = SSH/SFTP,
 in-game Wi-Fi glyph) is T2-passed and installed on the card (2026-11-14
-evening); its T3 is next.** A logged discharge (M4b T3 item 6, capacity
-check) is running: `t2-discharge.sh log-start` + CTR, started at 96%.
+evening); its T3 is next.** M4b item 6 failed (20% shown after a flat
+battery): fixed by kernel patch 0006 (`0c3305ad`, now main on the card,
+started M4d).
 
 ## When you're back (user)
 
-1. **M4b item 6 (as you planned):** when the battery is flat, plug in and
-   power on at once; note the % (expected: low, not ~33%). Then tell the
-   agent: it runs `t2-discharge.sh report` + `log-stop` (capacity check
-   with FCC 2550), restores your volume (55; the run uses 10) and stops
-   CTR's test state.
+1. **M4b item 6, again (kernel 0006):** at the next flat battery, plug
+   in and power on at once: expect ~0–5%, not 20%. Nothing to run first:
+   the discharge logger is stopped and your volume (55) is restored.
 2. **M4c T3 checklist** (below). No flash needed: the card already has
    M4c (same files as `dist/firmware/test128-m4c-20261114`).
 3. **Decision 2 (a):** send the revised Hardkernel request
@@ -48,13 +47,14 @@ check) is running: `t2-discharge.sh log-start` + CTR, started at 96%.
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1: the M4b developer image flashed by the user
   2026-11-14, plus the M4c files (`install-rootfs.sh`, originals in
-  `/var/lib/muos-m1-backup`). On battery, CTR running, volume 10.
-  - Boot records: main = `Image-4f866b8b4ad7` (patches 0001–0005, 200 mΩ)
-    + `panel0-bc04b6f8e4d4.dtb` (capacity 2500/2550, FCC reads 2550);
-    previous = the M2 kernel.
+  `/var/lib/muos-m1-backup`). On the charger, volume 55 (user's).
+  - Boot records: main = `Image-0c3305ad6946` (patches 0001–0006; trial
+    booted and promoted 2026-11-14 night) + `panel0-bc04b6f8e4d4.dtb`
+    (capacity 2500/2550, FCC reads 2550); previous = `Image-4f866b8b4ad7`
+    (0001–0005, the M4b/M4c images' kernel).
   - p3: ROMs from `port/roms` (incl. CTR + PSX BIOS, re-pushed), Wi-Fi
-    profile `MUOS/network/Home.ini`; `MUOS/init/zz-discharge-log.sh` with
-    `user_init=1` (removed by `log-stop`).
+    profile `MUOS/network/Home.ini`; discharge logger removed
+    (`log-stop`), log in `build/logs/discharge/`.
 - **original32 (stock dArkOSen):** the flasher station (slot 1, target
   in slot 2). Never write it.
 - Device access, identity and card layout: procedures.md.
@@ -92,10 +92,12 @@ card reader; p3 auto-grow; `panic=10` reboots after a kernel panic.
 
 ## Open problems
 
-- **Battery:** (a) FCC is now 2550 (DT clamp); the running discharge
-  checks that the % tracks the real ~2530 mAh. (b) Patch 0005's estimate
-  at 200 mΩ: M4b item 6 (after the run). (c) The BSP's `off=`
-  underreports the time off and stays set across warm reboots.
+- **Battery:** (a) FCC 2550 tracks: the CTR run reached 3% at the
+  cut-off (~2050 mAh usable at ~750 mA, ~2450 at idle). (b) The counter
+  is lost after every flat-battery poweroff; 0006 keeps the stored %
+  (T3 at the next flat battery, item 1 above). (c) The BSP's `off=`
+  underreports the time off (15 min for ~2 h) and stays set across warm
+  reboots.
 - **Wi-Fi dongle (RTL8821CU):** a deaf dongle has no software recovery
   except another sleep (power cut); case (d) (deaf after a warm reboot)
   is most likely the udev autoload fixed in M4c (5/5 clean). The pstore
@@ -169,12 +171,15 @@ recovery promotion after a passed T3 is automatic.
    Network", not on the Wi-Fi toggle.
 7. **Warm reboot 2× (menu Reboot):** Wi-Fi icon within ~10 s of the menu
    appearing, both times.
-8. M4b leftovers: item 6 ("When you're back" 1) and item 7 (public image,
-   optional; the M4c public variant isn't built yet).
+8. M4b leftovers: item 6 failed, retest with 0006 ("When you're back"
+   1); item 7 (public image, optional; the M4c public variant isn't built
+   yet).
 
 ## Next milestone (proposal)
 
-**M4d — public-build prerequisites:** rkbin BL31 trust image (bootloader
+**M4d — public-build prerequisites:** (started: kernel patch 0006, the
+lost-counter fix, built and on the card; the next image includes it),
+rkbin BL31 trust image (bootloader
 write, T3), SFTP jail (`musftpjail` in the frontend build, decision 6),
 NTP (clock), the M4c public variant, LEDs/rumble; then the publication
 checklist (name, GPL bundle on GitHub, Mali answer).
