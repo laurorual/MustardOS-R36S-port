@@ -17,14 +17,26 @@ after wake 18 → 9 s, warm-reboot dongle fix, Web Services = SSH/SFTP,
 in-game Wi-Fi glyph) is T2-passed and installed on the card (2026-11-14
 evening); its T3 is next.** M4b item 6 failed (20% shown after a flat
 battery): fixed by kernel patch 0006 (`0c3305ad`, now main on the card,
-started M4d).
+started M4d); a same-night retest showed 3% but didn't reach 0006's
+branch. The overnight test below does.
 
-## When you're back (user)
+## Tomorrow, 2026-11-15 (user, in this order)
 
-1. **M4b item 6, lost-counter case (kernel 0006):** the quick retest
-   passed (3%) but kept the counter; 0006's branch needs a flat battery
-   left **off for hours** (the first failure: ~2 h). Then charger + power
-   on: expect ~0–5%, not ~20%. Logger stopped, volume 55 restored.
+The console was switched off at 23:59 on 2026-11-14, unplugged, at 4%
+(right after a CTR run to the low-battery poweroff, then ~5 min on the
+charger), and left off overnight.
+
+1. **Battery overnight test (M4b item 6, kernel 0006):** plug in the
+   charger, then power on at once. Note the % on the first screen.
+   Expected: ~0–5%. Fail: ~15–25% (the first failure showed 20%). Then
+   tell the agent the %; nothing to run first.
+   - Agent: `device.sh run 'dmesg | grep muos-gauge'`. Pass if
+     `coulomb counter lost ... kept dsoc` appears with dsoc ~3000–4000.
+     If the counter was kept (`now_cap` ≈ stored cap), the
+     0006 branch still hasn't run: note it and move on (it's no
+     regression). Then record the result in milestones.md (M4b item 6).
+   - Let it charge to full before the M4c checklist (at least ~1 h;
+     about 2.5 h to 100%), so the battery isn't a factor in it.
 2. **M4c T3 checklist** (below). No flash needed: the card already has
    M4c (same files as `dist/firmware/test128-m4c-20261114`).
 3. **Decision 2 (a):** send the revised Hardkernel request
@@ -48,7 +60,8 @@ started M4d).
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1: the M4b developer image flashed by the user
   2026-11-14, plus the M4c files (`install-rootfs.sh`, originals in
-  `/var/lib/muos-m1-backup`). On the charger, volume 55 (user's).
+  `/var/lib/muos-m1-backup`). Off overnight, unplugged, at 4%; volume
+  55 (user's); no logger, no test hooks armed.
   - Boot records: main = `Image-0c3305ad6946` (patches 0001–0006; trial
     booted and promoted 2026-11-14 night) + `panel0-bc04b6f8e4d4.dtb`
     (capacity 2500/2550, FCC reads 2550); previous = `Image-4f866b8b4ad7`
@@ -180,7 +193,10 @@ recovery promotion after a passed T3 is automatic.
 
 **M4d — public-build prerequisites:** (started: kernel patch 0006, the
 lost-counter fix, built and on the card; the next image includes it),
-rkbin BL31 trust image (bootloader
+a battery cut-off judged on the current-corrected voltage (games now
+leave ~10–18% at 0%: ~470 mAh in the counter at the CTR cut-off; mind
+the PMIC's own 3.3 V `power_off_thresd` and the zero algorithm), rkbin
+BL31 trust image (bootloader
 write, T3), SFTP jail (`musftpjail` in the frontend build, decision 6),
 NTP (clock), the M4c public variant, LEDs/rumble; then the publication
 checklist (name, GPL bundle on GitHub, Mali answer).
