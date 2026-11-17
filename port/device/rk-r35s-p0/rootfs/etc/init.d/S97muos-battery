@@ -28,6 +28,7 @@ case "${1:-}" in
     start-stop-daemon -S -b -m -p "$state/logcap.pid" -x /usr/libexec/muos-logcap
     start-stop-daemon -S -b -m -p "$state/usbwd.pid" -x /bin/sh -- -c 'exec /usr/libexec/muos-usb-watchdog >> /opt/muos/log/usb-watchdog.log 2>&1'
     /usr/libexec/muos-rumble-setup boot || : # M4e: rumble motor verdict
+    /opt/muos/script/mux/tweak.sh boot || : # M4f: audio/max from Audio overdrive
     [ -n "$(cat /opt/muos/device/config/battery/capacity 2>/dev/null)" ] || { echo 'battery: not configured'; exit 0; }
     start-stop-daemon -S -b -m -p "$state/mubattery.pid" -x /opt/muos/frontend/mubattery
     start-stop-daemon -S -b -m -p "$state/low.pid" -x /bin/sh -- -c 'exec /usr/libexec/muos-lowbattery >> /opt/muos/log/battery-port.log 2>&1'

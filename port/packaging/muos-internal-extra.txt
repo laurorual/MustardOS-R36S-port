@@ -1,0 +1,11 @@
+# M4f: upstream MustardOS internal scripts the pinned set lacked, copied
+# from refs/muos/internal (commit 550cc58f, the port's pinned internal; the
+# pinned var/*.sh are byte-identical to it) into opt/muos/ by
+# build-image.sh stage_overlay, which refuses a hash mismatch. GPL-3.0
+# (refs/muos/internal/LICENSE, shipped as opt/muos/LICENSE).
+# sha256  path (relative to refs/muos/internal and to /opt/muos)
+1860887b57a52ee874d8f0ada1059c77744667f58a0d509f4697d3365386bfdb  script/mux/find.sh
+8874a4ac2aed403817a1996d921245c47a62c839a05748fb32c8f63a3dffc5b7  script/mux/track.sh
+1892a14b37ee32956afdaac791b32c96e5f9c394e1ca12567f5db971600ac3ad  script/system/serial.sh
+c218039656f236e38511dc8c0bf8de7c66c820ce051f506c927909a3de10cec4  script/system/tegridy.sh
+bdd609ef7cee09f392fe0c0ac9af4e11c567332635219f491c2a1459e8466044  script/var/service.sh

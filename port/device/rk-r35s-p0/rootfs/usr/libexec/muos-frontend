@@ -52,6 +52,7 @@ clear_requests() {
     rm -f /tmp/ra_no_load /tmp/ra_autoload_once.cfg
 }
 
+track=/opt/muos/script/mux/track.sh
 launch_content() {
     {
         read -r name; read -r core; read -r assign; read -r _; read -r _
@@ -71,10 +72,15 @@ launch_content() {
     # (writes /run/muos/storage/pickles/performance.csv periodically).
     MUXRETRO_PERF_CAPTURE=0; [ ! -e "$run/perf-capture" ] || MUXRETRO_PERF_CAPTURE=1
     export MUXRETRO_PERF_CAPTURE
+    # M4f: Activity (playtime), as upstream launch.sh (track.sh honours
+    # settings/advanced/activity itself; missing = on, the frontend default).
+    TRACK_SYSTEM=$assign "$track" "$name" "$core" "$content" start >> /opt/muos/log/frontend.log 2>&1 || :
     # shellcheck disable=SC2086  # $fresh is empty or one flag
     run_child /opt/muos/frontend/muxretro "/opt/muos/share/core/$core" "$content" $fresh \
         >> /opt/muos/log/frontend.log 2>&1
-    say "muxretro exit rc=$?"
+    rc=$?
+    say "muxretro exit rc=$rc"
+    TRACK_EXIT=$rc "$track" "$name" "$core" "$content" stop >> /opt/muos/log/frontend.log 2>&1 || :
     default_governor
     sync
 }

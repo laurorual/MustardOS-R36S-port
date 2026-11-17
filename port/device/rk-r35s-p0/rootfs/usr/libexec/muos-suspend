@@ -60,14 +60,27 @@ save_retro() {
     rm -f "$run/muxretro_save_ready"
 }
 
+# M4f: Activity (playtime) of the running game, as upstream suspend.sh
+# ACTIVITY_TRACKER: paused while asleep, closed on a poweroff.
+track_event() { # suspend|resume|stop [END]
+    [ -n "$retro" ] || return 0
+    t=/run/muos/storage/info/track/.current_session
+    [ -r "$t" ] || return 0
+    { read -r t_name; read -r t_core; read -r t_rom; } < "$t"
+    [ -n "$t_rom" ] || return 0
+    TRACK_END=${2:-} /opt/muos/script/mux/track.sh "$t_name" "$t_core" "$t_rom" "$1" > /dev/null 2>&1 9>&- || :
+}
+
 if [ "$shutdown" = 2 ]; then
     save_retro
+    track_event stop poweroff
     say "shutdown=2: power off instead of sleeping"
     poweroff 9>&-; exit 0
 fi
 
 # ---- SLEEP
 save_retro
+track_event suspend
 bright=$(cat "$bl"); echo 0 > "$bl"
 wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 2>/dev/null
 saved_gov=$(cat "$gov")
@@ -132,6 +145,7 @@ else
     say "woke (rtc $(cat "$rtc/since_epoch"), deadline $deadline)"
     if [ "$deadline" -gt 0 ] && [ "$(cat "$rtc/since_epoch")" -ge "$deadline" ]; then
         say "shutdown timer reached: power off"
+        track_event stop poweroff
         poweroff 9>&-; exit 0
     fi
 fi
@@ -147,5 +161,6 @@ fi
 # The game resumes on CPU0-2, away from the 8821cu association (CPU3).
 [ -z "$retro" ] || /usr/libexec/muos-cpu-pin 7 "$retro"
 [ -z "$retro" ] || kill -USR2 "$retro" 2>/dev/null
+( track_event resume ) 9>&- &
 cut -d' ' -f1 /proc/uptime > "$run/input_resume"
 say "resumed"

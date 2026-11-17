@@ -1,0 +1,30 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muOS R35S port: the subset of ripgrep that upstream script/mux/find.sh
+# (Explore search) runs as /opt/muos/bin/rg, on busybox find/grep (M4f; a
+# real ripgrep would need the Rust toolchain in the image build):
+#   rg --files DIR [--ignore-file FILE]  files below DIR, hidden ones and
+#                     those under a FILE pattern (one name glob per line,
+#                     gitignore style, # comments) left out
+#   rg [-i] [-F] [-f FILE] [PATTERN] [FILE...]   grep -E (rg's default is a
+#                     regex) or grep -F; "path:" prefixes and exit codes as
+#                     rg/grep (0 match, 1 none, 2 error)
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+if [ "${1:-}" = --files ]; then
+    dir=${2:?rg --files DIR}; shift 2
+    ign=; [ "${1:-}" != --ignore-file ] || ign=${2:-}
+    set --
+    if [ -n "$ign" ] && [ -r "$ign" ]; then
+        while IFS= read -r p || [ -n "$p" ]; do
+            p=${p%%#*}; p=${p%"${p##*[! 	]}"}; p=${p%/}; p=${p#/}
+            [ -n "$p" ] || continue
+            set -- "$@" -o -name "$p"
+        done < "$ign"
+    fi
+    # Hidden entries below DIR (not DIR itself) are skipped, as rg does.
+    exec find "$dir" -mindepth 1 \( -name '.*' "$@" \) -prune -o -type f -print
+fi
+mode=-E
+for a in "$@"; do [ "$a" != -F ] || mode=; done
+# shellcheck disable=SC2086  # $mode is empty or one flag
+exec grep $mode "$@"

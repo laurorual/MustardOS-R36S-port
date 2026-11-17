@@ -31,13 +31,14 @@ trap '[ "$rebinding" = 0 ] || bind; exit 0' TERM INT HUP
 bad=0 gone=0
 say "started (device $dev)"
 while sleep 2; do
+    # muos-suspend unbinds dwc2 itself around "mem" (net_down/net_up).
+    if busy; then bad=0 gone=0; continue; fi
     if [ ! -e "$drv/$dwc" ]; then
         gone=$((gone + 1)); bad=0
         [ "$gone" -ge 5 ] || continue
         say 'dwc2 unbound for 10 s: bind'; bind; gone=0; continue
     fi
     gone=0
-    if busy; then bad=0; continue; fi
     h=$(devmem 0xff300440 32 2>/dev/null) || continue
     case "$h" in 0x*) ;; *) continue ;; esac
     conn=$(( h & 1 ))

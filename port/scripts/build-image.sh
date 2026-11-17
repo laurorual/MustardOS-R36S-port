@@ -49,6 +49,15 @@ sdl_check='qemu-aarch64 -L /m3a/output/target /m3a/output/target/usr/libexec/muo
 stage_overlay() { # the port rootfs with its init-script symlinks resolved
     rm -rf "$m3a/overlay.tmp"
     cp -a -L --reflink=auto "$repo/port/device/rk-r35s-p0/rootfs" "$m3a/overlay.tmp"
+    # M4f: upstream muOS scripts the pinned set lacked (hash-checked list).
+    local want path src
+    while read -r want path; do
+        case "$want" in ''|'#'*) continue ;; esac
+        src=$repo/refs/muos/internal/$path
+        [ "$(sha256sum < "$src" | cut -d' ' -f1)" = "$want" ] ||
+            { echo "stage_overlay: $src does not match $want" >&2; return 1; }
+        install -D -m 0755 "$src" "$m3a/overlay.tmp/opt/muos/$path"
+    done < "$repo/port/packaging/muos-internal-extra.txt"
     rm -rf "$m3a/overlay"; mv "$m3a/overlay.tmp" "$m3a/overlay"
 }
 
