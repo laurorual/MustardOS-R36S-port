@@ -4,7 +4,17 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M4c — Wi-Fi toggle, faster Wi-Fi after wake, warm-reboot fix (done 2026-11-14, T2 passed, installed)
+## M4c — Wi-Fi toggle, faster Wi-Fi after wake, warm-reboot fix (done 2026-11-14, T3 passed 2026-11-16)
+
+**T3 (user, 2026-11-16, files installed on the card, kernel 0007):**
+items 1–7 all OK (toggle, no dongle, off stays off, wake 3×, Web
+Services, back navigation, warm reboot 2×). Item 2 remark: "Wi-Fi
+Network" stayed enabled while the toggle read "Unavailable"; no reason
+to, so it is now dimmed and closed without an adapter too (frontend
+0001, M4d; `t2-wifi-network-row.sh` PASS). M4c promoted to recovery
+image, M3e retired. Battery: 100% after the charge finish and a few days
+off (plausible: off-state drain is small), 85% stored after the T3
+session (~50 min of Wi-Fi use), voltage estimate 87–92%: consistent.
 
 Built in the evening of 2026-11-14 while the user ran the M4b discharge.
 Image `dist/firmware/test128-m4c-20261114` (raw `ab60ef13…`, p2

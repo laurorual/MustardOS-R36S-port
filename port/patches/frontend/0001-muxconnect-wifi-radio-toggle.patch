@@ -40,8 +40,8 @@ SPDX-License-Identifier: GPL-3.0
 +    lv_obj_set_style_img_opa(glyph, opa, MU_OBJ_MAIN_DEFAULT);
 +}
 +
-+/* Redraw the radio row (and dim Wi-Fi Network while the radio is off)
-+   when the adapter or the setting changed. */
++/* Redraw the radio row (and dim Wi-Fi Network while the radio is off or
++   unavailable) when the adapter or the setting changed. */
 +static void radio_refresh(void) {
 +    const int available = radio_available();
 +    const int enabled = radio_enabled();
@@ -57,7 +57,7 @@ SPDX-License-Identifier: GPL-3.0
 +    }
 +    apply_option_value_long_dot(ui_dro_radio_connect);
 +    dim_row(ui_lbl_radio_connect, ui_dro_radio_connect, ui_ico_radio_connect, !available);
-+    dim_row(ui_lbl_network_connect, ui_dro_network_connect, ui_ico_network_connect, !enabled);
++    dim_row(ui_lbl_network_connect, ui_dro_network_connect, ui_ico_network_connect, !(available && enabled));
 +
 +    radio_shown_available = available;
 +    radio_shown_enabled = enabled;
@@ -150,7 +150,7 @@ SPDX-License-Identifier: GPL-3.0
          {"net_profile", &kiosk.config.network, menu_general, visible_network_opt},
          {"netadv", &kiosk.config.net_settings, menu_general, visible_network_opt},
          {"net_proxy", &kiosk.config.proxy, menu_general, visible_network_opt},
-@@ -129,6 +223,21 @@
+@@ -129,6 +223,22 @@
  
      if (strcmp(entry->mux_name, "btall") == 0 && !bluetooth_ready()) return;
  
@@ -163,8 +163,9 @@ SPDX-License-Identifier: GPL-3.0
 +        return;
 +    }
 +
-+    /* Wi-Fi Network needs the radio: dimmed and closed while it is off. */
-+    if (strcmp(entry->mux_name, "net_profile") == 0 && !radio_enabled()) {
++    /* Wi-Fi Network needs the radio: dimmed and closed while it is off or
++       no adapter is plugged in. */
++    if (strcmp(entry->mux_name, "net_profile") == 0 && !(radio_available() && radio_enabled())) {
 +        play_sound(snd_error);
 +        return;
 +    }
@@ -172,7 +173,7 @@ SPDX-License-Identifier: GPL-3.0
      switch (entry->action) {
          case menu_general:
              if (is_ksk(*entry->kiosk_flag)) {
-@@ -184,6 +293,7 @@
+@@ -184,6 +294,7 @@
                                    {ui_lbl_nav_b, lang.generic.back, 0},
                                    {NULL, NULL, 0}});
  
@@ -180,7 +181,7 @@ SPDX-License-Identifier: GPL-3.0
  #define CONNECT(NAME, UDATA) lv_obj_set_user_data(ui_lbl_##NAME##_connect, UDATA);
      CONNECT_ELEMENTS
  #undef CONNECT
-@@ -209,7 +319,10 @@
+@@ -209,7 +320,10 @@
  
      init_dropdown_settings();
  
