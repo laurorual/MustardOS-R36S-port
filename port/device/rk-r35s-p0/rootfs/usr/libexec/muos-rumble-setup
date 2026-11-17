@@ -1,0 +1,69 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-rumble-setup (M4e): is a rumble motor fitted, and muOS's rumble
+# events. Every R36S-family device tree declares the rumble PWM whether or
+# not a motor is soldered on (the R35S has none), so muos-rumble probes the
+# battery current with the motor off and on.
+#   muos-rumble-setup boot    (S97) apply the cached verdict for this device
+#                             (key: the SoC serial) to the device config
+#                             board/rumble ("ff" = present, empty = absent,
+#                             which greys out Advanced > Rumble, frontend
+#                             0005); without a verdict, probe in the
+#                             background (~13 s, only while discharging;
+#                             a fitted motor buzzes 4 times once) and apply
+#                             it at once (the menu shows it from the next
+#                             screen it opens)
+#   muos-rumble-setup event startup|shutdown|sleep
+#                             one 300 ms pulse at board/strength when the
+#                             motor is present and settings/advanced/rumble
+#                             asks for it (upstream values: 1 startup,
+#                             2 shutdown, 3 sleep, 4 startup+shutdown,
+#                             5 startup+sleep, 6 shutdown+sleep)
+#   muos-rumble-setup probe   probe again now (prints the measurement)
+# Cache: p3 MUOS/port/rumble ("SERIAL present|absent DATE").
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+cache=/userdata/MUOS/port/rumble
+board=/opt/muos/device/config/board
+log=/opt/muos/log/rumble.log
+serial() { sed -n 's/^Serial[[:space:]]*:[[:space:]]*//p' /proc/cpuinfo | head -n1; }
+say() { echo "$(date '+%F %T') $*" >> "$log"; }
+apply() { # present|absent
+    [ -d "$board" ] || return 0
+    if [ "$1" = present ]; then printf 'ff\n' > "$board/rumble"; else : > "$board/rumble"; fi
+}
+probe() {
+    out=$(/usr/libexec/muos-rumble probe 4 2>&1); rc=$?
+    printf '%s\n' "$out" | while read -r l; do say "probe: $l"; done
+    case "$rc" in
+        0) v=present ;;
+        1) v=absent ;;
+        *) say 'probe: no verdict (charging or no reading): absent until the next boot'; return 1 ;;
+    esac
+    mkdir -p "${cache%/*}"
+    printf '%s %s %s\n' "$(serial)" "$v" "$(date +%F)" > "$cache.tmp" && mv -f "$cache.tmp" "$cache"
+    apply "$v"; say "verdict $v for $(serial)"
+}
+case "${1:-}" in
+ boot)
+    # shellcheck disable=SC2046 # the cache line splits into its fields
+    set -- $(cat "$cache" 2>/dev/null)
+    if [ -n "${1:-}" ] && [ "$1" = "$(serial)" ]; then
+        apply "${2:-absent}"
+    else
+        apply absent
+        (sleep 20; probe) < /dev/null > /dev/null 2>&1 &
+    fi ;;
+ event)
+    [ -n "$(head -n1 "$board/rumble" 2>/dev/null)" ] || exit 0
+    s=$(head -n1 /opt/muos/config/settings/advanced/rumble 2>/dev/null)
+    case "${2:-}:$s" in
+        startup:1|startup:4|startup:5|shutdown:2|shutdown:4|shutdown:6|sleep:3|sleep:5|sleep:6) ;;
+        *) exit 0 ;;
+    esac
+    p=$(head -n1 "$board/strength" 2>/dev/null)
+    case "$p" in ''|*[!0-9]*|0) p=100 ;; esac
+    [ "$p" -le 100 ] || p=100
+    /usr/libexec/muos-rumble pulse 300 "$p" ;;
+ probe) probe; cat "$cache" 2>/dev/null ;;
+ *) echo 'Usage: muos-rumble-setup boot | event startup|shutdown|sleep | probe' >&2; exit 2 ;;
+esac

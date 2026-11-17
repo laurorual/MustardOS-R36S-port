@@ -44,7 +44,7 @@ bind_path() {
 status_storage() {
     [ -f "$state/ready" ] && [ -f "$store/mount_ready" ] || return 3
     mounted "$rom" && same "$data" "$rom" || return 1
-    while IFS='|' read -r key backend src; do
+    while IFS='|' read -r key _ src; do
         case "$key" in
             catalogue|name|launch|manifest|collection|history|track|override) dest="$store/info/$key" ;;
             package) dest="$store/package/catalogue" ;;
@@ -60,6 +60,7 @@ case "${1:-}" in
     if [ -e "$state/ready" ]; then status_storage; exit $?; fi
     # Interrupted startup is rolled back before attempting a fresh transaction.
     stop_storage
+    # shellcheck disable=SC2154 # rc is set inside the trap
     trap 'rc=$?; trap - EXIT; if [ "$rc" != 0 ]; then stop_storage || :; fi; exit "$rc"' EXIT
     [ ! -L "$data" ] && [ ! -L "$rom" ] && [ ! -L "$store" ]
     mkdir -p "$data" "$store"

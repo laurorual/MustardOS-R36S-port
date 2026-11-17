@@ -125,6 +125,7 @@ else
         echo "$deadline" > "$rtc/wakealarm"
     fi
     sync
+    /usr/libexec/muos-rumble-setup event sleep 2>/dev/null || : # M4e
     say "suspend to $state"
     echo "$state" > /sys/power/state || say "suspend refused"
     echo 0 > "$rtc/wakealarm"

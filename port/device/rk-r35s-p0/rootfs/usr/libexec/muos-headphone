@@ -41,7 +41,7 @@ switch_volume() {
         SAVE_SINK_VOLUME >/dev/null 2>&1
     fi
 }
-last= first=1
+last='' first=1
 while :; do
     now=$(jack)
     if [ "$now" != x ] && [ "$now" != "$last" ]; then

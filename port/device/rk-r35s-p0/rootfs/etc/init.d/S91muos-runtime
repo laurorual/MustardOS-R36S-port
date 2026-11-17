@@ -59,6 +59,14 @@ case "${1:-}" in
         [ -e "$port/config/$f" ] && continue
         mkdir -p "$port/config/${f%/*}"; cp -p "/opt/muos/config/$f" "$port/config/$f"; echo "runtime: added config $f"
     done
+    # M4e: the pinned config lacks directories the frontend writes to
+    # (clock/, sort/, settings/overlay/, ...): saves there failed silently
+    # (e.g. Date and Time's 24-hour notation). Reads default when a file is
+    # missing, so empty directories are enough.
+    grep -v '^#' /usr/share/muos-r35s/config-dirs.txt 2>/dev/null | while read -r d; do
+        case "$d" in ''|/*|*..*) continue ;; esac
+        [ -d "$port/config/$d" ] || { mkdir -p "$port/config/$d" && echo "runtime: added config dir $d"; }
+    done
     # One-shot fixes of values earlier port images seeded wrong (each runs
     # once per card, then the user's choice wins).
     # battery-visible: the Phase 3 profile hid the status-bar battery

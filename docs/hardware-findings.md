@@ -515,9 +515,25 @@ about other R35S/R36S panels or revisions.
   the ~10–18% left at a game's cut-off (OCV ≈ 3.50 V at 730 mA) is not
   reachable at that load: the CTR run hit 3% at 3352 mV loaded, falling
   ~5 mV/min, ~1%/min. Cutting at 1% instead of 3% gains ~2–3 min.
-- **`board/rumble` is empty** in the pinned device config (muOS: no
-  rumble), although the joypad driver drives a PWM (`ff200000.pwm`,
-  `rumble_period` 200 ms, boosts 0); whether a motor is fitted is unknown.
+- **Rumble (M4e):** the R35S has no motor (user, 2026-11-17); some R36S
+  do, and every R36S-family DT (dArkOSen, ROCKNIX) declares the joypad's
+  PWM anyway. FF_RUMBLE through the gamepad's evdev node reaches the PWM
+  even while muinput grabs the pad. Probe: RK817 averaging current
+  (0x7A/0x7B, raw × 172 / 1000 mA, ~0.7 s update) read over i2c without
+  forks is steady to ±3 mA at menu idle; with the motor driven the R35S
+  shows −2…+3 mA (no motor).
+- **OFF_CNT (0x6F) is stale after warm reboots (M4e):** it read 141 min
+  on every boot of 2026-11-16/17 (also earlier: 15 min across M4b boots),
+  so the BSP's OCV calibration ran on warm reboots with the power-up OCV
+  register (3880 mV): +12 points (57 → 69%). Kernel 0008 clears it after
+  reading (untested on hardware).
+- **RK817 BOOST** (5 V for the USB host port; the dongle loses power with
+  it in "mem" sleep) is `RK817_POWER_EN_REG(3)` = 0xB4, enable bit 1 with
+  write mask bit 5: writing 0x20 would switch only it off (a software
+  power cycle for a deaf dongle). Not tried (unattended night).
+- **Wi-Fi dongle self-reset (2026-11-17):** with the firmware deaf (H2C
+  errors every 2 s from 13 s), the dongle disconnected by itself at 53 s
+  and re-enumerated in CD-ROM mode (1a2b) at 72 s: a real chip reset.
 - **Battery (M2):** RK817 fuel gauge, design_capacity 3140, qmax 3454.
   `/sys/class/power_supply/battery/{capacity,voltage_now,status,health}`.
   The charger is `ac/online` (1 when plugged in; `usb/online` stays 0), the

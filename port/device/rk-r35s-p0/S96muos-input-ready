@@ -40,6 +40,7 @@ case "${1:-}" in
     if [ -e "$state/ready" ]; then ready; exit $?; fi
     /etc/init.d/S95muos-core status
     "$vars" set device board/sdl_map ''
+    # shellcheck disable=SC2154 # rc is set inside the trap
     trap 'rc=$?; trap - EXIT; if [ "$rc" != 0 ]; then clear_ready || :; fi; exit "$rc"' EXIT
     deadline=$(( $(awk '{print int($1)}' /proc/uptime) + 12 ))
     owner=''

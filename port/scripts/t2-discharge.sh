@@ -75,6 +75,7 @@ switch)
     d=$2 rom=$3 n=${3%.*}
     r "test -f '/userdata/ROMS/$d/$rom'" || fail "no ROM $d/$rom"
     # start played the NES test game (its pickles snapshot is in /run).
+    # shellcheck disable=SC2034 # read by game_stop (t2-game.lib.sh)
     game_rom_name=${DISCHARGE_FROM:-r35s-flight} game_dir=${DISCHARGE_FROM_DIR:-NES}
     game_stop
     r "dir='$d' n='$n'; $rom_paths" > "$logs/discharge-switch.paths"

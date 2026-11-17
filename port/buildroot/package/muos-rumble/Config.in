@@ -1,0 +1,6 @@
+config BR2_PACKAGE_MUOS_RUMBLE
+	bool "muOS R35S rumble tool"
+	help
+	  /usr/libexec/muos-rumble: plays the gamepad's FF_RUMBLE effect
+	  and probes whether a rumble motor is fitted (battery current with
+	  the motor off and on). Driven by /usr/libexec/muos-rumble-setup.

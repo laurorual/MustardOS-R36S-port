@@ -11,19 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m4a-20261114": {
-      "reason": "M4a: developer image (Wi-Fi menu, user init, splash) + first public variant; recovery image 2026-11-14 (afternoon), T3 passed except Wi-Fi after sleep",
-      "files": [
-        "dist/firmware/test128-m4a-20261114.img.zst",
-        "dist/firmware/test128-m4a-20261114.img.zst.sha256",
-        "dist/firmware/test128-m4a-20261114.manifest",
-        "build/m3a/test128-m4a-20261114.p2.img",
-        "dist/firmware/public-m4a-20261114.img.zst",
-        "dist/firmware/public-m4a-20261114.img.zst.sha256",
-        "dist/firmware/public-m4a-20261114.manifest",
-        "build/m3a/public-m4a-20261114.p2.img"
-      ]
-    },
     "m4b-20261114": {
       "reason": "M4b: Wi-Fi robustness (settle, hotplug, setsid), public boot -30 s, panic=10 + pstore, quiet console, gauge estimate 200 mOhm, DT capacity 2500/2550; flashed by the user 2026-11-14, T3 items 1-5 passed; recovery image 2026-11-14 (evening) to 2026-11-16",
       "files": [
@@ -34,7 +21,7 @@
       ]
     },
     "m4c-20261114": {
-      "reason": "M4c: Wi-Fi toggle in Connectivity (grey without a dongle), wake Wi-Fi 18 -> 9 s (settle 4 s + last-channel scan), no 8821cu autoload (warm-reboot H2C), Web Services = SSH/SFTP only, in-game Wi-Fi glyph refresh; installed on the card with install-rootfs.sh 2026-11-14; T3 passed 2026-11-16 (items 1-7, files installed on the card): recovery image since 2026-11-16",
+      "reason": "M4c: Wi-Fi toggle in Connectivity (grey without a dongle), wake Wi-Fi 18 -> 9 s (settle 4 s + last-channel scan), no 8821cu autoload (warm-reboot H2C), Web Services = SSH/SFTP only, in-game Wi-Fi glyph refresh; installed on the card with install-rootfs.sh 2026-11-14; T3 passed 2026-11-16 (items 1-7, files installed on the card): recovery image 2026-11-16 to 2026-11-17",
       "files": [
         "dist/firmware/test128-m4c-20261114.img.zst",
         "dist/firmware/test128-m4c-20261114.img.zst.sha256",
@@ -43,7 +30,7 @@
       ]
     },
     "m4d-20261116": {
-      "reason": "M4d: Wi-Fi Network closed without an adapter, cut-off at 1% on the current-corrected voltage, battery history on p3, clock (tzdata, zone link on p3, ntpd -q after each address, RTC in UTC), kernel 0006/0007 (coulomb seed), boot payloads all rkbin (trust identical); developer + public variant",
+      "reason": "M4d: Wi-Fi Network closed without an adapter, cut-off at 1% on the current-corrected voltage, battery history on p3, clock (tzdata, zone link on p3, ntpd -q after each address, RTC in UTC), kernel 0006/0007 (coulomb seed), boot payloads all rkbin (trust identical); developer + public variant; T3 items 1-3 passed 2026-11-17 (p2 on the card; 24-hour notation and a slow first replug fixed/investigated in M4e): recovery image since 2026-11-17",
       "files": [
         "dist/firmware/test128-m4d-20261116.img.zst",
         "dist/firmware/test128-m4d-20261116.img.zst.sha256",
@@ -53,6 +40,15 @@
         "dist/firmware/public-m4d-20261116.img.zst.sha256",
         "dist/firmware/public-m4d-20261116.manifest",
         "build/m3a/public-m4d-20261116.p2.img"
+      ]
+    },
+    "m4e-20261117": {
+      "reason": "M4e: config directories the frontend writes (24-hour notation), rumble motor probe + Advanced > Rumble unavailable without one, Wi-Fi worker timestamps + early retry when the dongle resets itself + network log kept at shutdown, shellcheck-clean scripts; developer image",
+      "files": [
+        "dist/firmware/test128-m4e-20261117.img.zst",
+        "dist/firmware/test128-m4e-20261117.img.zst.sha256",
+        "dist/firmware/test128-m4e-20261117.manifest",
+        "build/m3a/test128-m4e-20261117.p2.img"
       ]
     }
   },

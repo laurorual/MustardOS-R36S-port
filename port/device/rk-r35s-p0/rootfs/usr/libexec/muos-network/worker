@@ -52,7 +52,7 @@ conf=$state/private/network.conf
 umask 077
 mkdir -p "$state/private" "$state/auth"
 
-say() { echo "network: $*"; }
+say() { echo "$(cut -d' ' -f1 /proc/uptime) network: $*"; } # M4e: uptime stamps
 get() { head -n1 "$cfg/$1" 2>/dev/null; }
 put() { [ -d "$cfg/network" ] || return 0; printf '%s\n' "$2" > "$cfg/$1.tmp" && mv "$cfg/$1.tmp" "$cfg/$1"; }
 iface() { cat "$state/interface" 2>/dev/null || echo wlan0; }
@@ -150,7 +150,9 @@ settle_ms=$(cat /run/muos/network-settle-ms 2>/dev/null)
 case "$settle_ms" in ''|*[!0-9]*) settle_ms=4000 ;; esac
 usb_mode() {
     candidate=; n=0
-    while [ "$n" -lt 100 ]; do
+    # M4e: 30 s, not 10: a dongle whose firmware hung resets itself and
+    # comes back in CD-ROM mode ~18 s after it vanished (2026-11-17 boot).
+    while [ "$n" -lt 300 ]; do
         candidate=$(dongle) && break
         sleep 0.1; n=$((n+1))
     done
@@ -162,7 +164,7 @@ usb_mode() {
         grep -q 'Device was reset' "$state/private/usb-reset.log" && reset_done=1
         sleep 1
     fi
-    if [ -r "$candidate/idProduct" ] && [ "$(cat "$candidate/idProduct")" = 1a2b ]; then
+    if [ "$(cat "$candidate/idProduct" 2>/dev/null)" = 1a2b ]; then
         bus=$(cat "$candidate/busnum"); device=$(cat "$candidate/devnum")
         on=$(cat "$candidate/power/connected_duration" 2>/dev/null || echo 0)
         case "$on" in ''|*[!0-9]*) on=0 ;; esac
@@ -174,7 +176,7 @@ usb_mode() {
     fi
     n=0
     while [ "$n" -lt 300 ]; do
-        [ -r "$candidate/idProduct" ] && [ "$(cat "$candidate/idVendor"):$(cat "$candidate/idProduct")" = 0bda:c820 ] && break
+        [ "$(cat "$candidate/idVendor" 2>/dev/null):$(cat "$candidate/idProduct" 2>/dev/null)" = 0bda:c820 ] && break
         sleep 0.1; n=$((n+1))
     done
     [ "$n" -lt 300 ] || { say 'dongle did not return as 0bda:c820'; return 1; }
@@ -411,6 +413,11 @@ up_once() {
     radio || { rm -f "$state/freq-hint"; gen_conf > /dev/null; return 1; }
     n=0
     while [ "$n" -lt 90 ] && [ ! -s "$state/address" ]; do
+        # M4e: the interface vanished (the dongle reset itself after its
+        # firmware stopped answering, H2C errors): retry now, not after 90 s.
+        if [ ! -e "/sys/class/net/$(iface)" ]; then
+            say "$(iface) vanished after $n s (dongle reset itself): retry"; return 1
+        fi
         if [ "$n" = 5 ] && [ -e "$state/freq-hint" ] && [ "$(wstate)" != COMPLETED ]; then
             say "nothing on $(cat "$state/freq-hint") MHz: full scan"
             unhint; wcli scan > /dev/null

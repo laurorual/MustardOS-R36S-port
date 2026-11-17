@@ -19,9 +19,13 @@ mod() { for p in /proc/[0-9]*; do case "$(readlink $p/exe)" in /opt/muos/fronten
 st() { echo "$(cut -d' ' -f1 /proc/uptime) $1 mod=$(mod) adapter=$([ -e /run/muos/network/adapter ] && echo yes || echo no)" >> $o; }
 waitaddr() { i=0; while [ $i -lt "$1" ] && ! ip -4 addr show wlan0 2>/dev/null | grep -q inet; do sleep 1; i=$((i + 1)); done; echo $i; }
 st start
-$P a; sleep 3; st probe-explore; $P b; sleep 3
-$P down; sleep 1; $P right; sleep 1; $P a; sleep 3; st config
-$P down; sleep 1; $P down; sleep 1; $P a; sleep 3; st connect
+# M4e: stop at the first unexpected screen (blind presses once launched a
+# game and overwrote its resume state).
+need() { [ "$(mod)" = "$1" ] && return 0; echo "abort: expected $1, got $(mod)" >> $o
+    $P b; sleep 2; $P b; sleep 2; echo done >> $o; sync; exit 1; }
+$P a; sleep 3; st probe-explore; need muxplore; $P b; sleep 3
+$P down; sleep 1; $P right; sleep 1; $P a; sleep 3; st config; need muxconfig
+$P down; sleep 1; $P down; sleep 1; $P a; sleep 3; st connect; need muxconnect
 $P down; sleep 1; $P a; sleep 3; st a-plugged
 $P b; sleep 3; st back
 echo 1 > /sys/bus/usb/devices/1-1/remove; sleep 4; st unplugged

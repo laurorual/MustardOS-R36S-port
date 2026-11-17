@@ -1,0 +1,72 @@
+From: muOS R35S port
+Subject: [PATCH] 0005-tweakadv-rumble-unavailable
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/muxtweakadv.c
++++ b/frontend/module/muxtweakadv.c
+@@ -64,6 +64,32 @@
+ #undef TWEAKADV
+ }
+ 
++/* R35S port: every R36S-family device tree declares the rumble PWM, but
++   not every board has a motor (the R35S has none). The port probes it
++   (muos-rumble-setup) and leaves board/rumble empty without one: then the
++   Rumble row reads "Unavailable", dimmed, and can't change (it keeps the
++   saved value). */
++static int rumble_unavailable;
++
++static void rumble_lock_row(void) {
++    rumble_unavailable = !device.board.rumble[0];
++    if (!rumble_unavailable) return;
++
++    char *unavailable[] = {lang.muxnetprofile.status.internet_unavailable};
++    add_drop_down_options(ui_dro_rumble_tweakadv, unavailable, 1);
++    lv_dropdown_set_selected(ui_dro_rumble_tweakadv, 0);
++    rumble_original = 0;
++
++    lv_obj_set_style_text_opa(ui_lbl_rumble_tweakadv, LV_OPA_50, MU_OBJ_MAIN_DEFAULT);
++    lv_obj_set_style_text_opa(ui_dro_rumble_tweakadv, LV_OPA_50, MU_OBJ_MAIN_DEFAULT);
++    lv_obj_set_style_img_opa(ui_ico_rumble_tweakadv, LV_OPA_50, MU_OBJ_MAIN_DEFAULT);
++}
++
++static int rumble_locked(void) {
++    return rumble_unavailable && (lv_group_get_focused(ui_group) == ui_lbl_rumble_tweakadv ||
++                                  lv_group_get_focused(ui_group_value) == ui_dro_rumble_tweakadv);
++}
++
+ static void restore_tweak_options(void) {
+ #define TWEAKADV(NAME, UDATA) lv_dropdown_set_selected(ui_dro_##NAME##_tweakadv, config.settings.advanced.NAME);
+     TWEAKADV_ELEMENTS
+@@ -373,6 +399,11 @@
+         return;
+     }
+ 
++    if (rumble_locked()) {
++        play_sound(snd_error);
++        return;
++    }
++
+     if (list_frame_focused()) {
+         if (list_frame_move(-1)) {
+             play_sound(snd_option);
+@@ -395,6 +426,11 @@
+         return;
+     }
+ 
++    if (rumble_locked()) {
++        play_sound(snd_error);
++        return;
++    }
++
+     if (list_frame_focused()) {
+         if (list_frame_move(+1)) {
+             play_sound(snd_option);
+@@ -536,6 +572,7 @@
+ 
+     restore_tweak_options();
+     init_dropdown_settings();
++    rumble_lock_row();
+ 
+     dialogue_init_unsaved(
+         &save_dlg, &theme, ui_screen, lang.generic.unsaved, NULL, lang.generic.save, lang.generic.discard,

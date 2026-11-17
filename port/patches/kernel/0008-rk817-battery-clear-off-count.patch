@@ -1,0 +1,35 @@
+From: muOS R35S port
+Subject: [PATCH] power: rk817_battery: clear the off counter once read
+
+OFF_CNT (0x6F, minutes the PMIC was off) is set at a power-up, but a warm
+reboot keeps the previous value. On 2026-11-17 every reboot read
+off=141min, so the BSP's OCV calibration ran on each warm reboot with the
+OCV register, which is also only sampled at a power-up: 3880 mV (69%)
+replaced a counted 57% and patch 0002 then moved the display to it (+12
+points after a reboot). Patch 0005's stale-OCV check (30 points against
+the voltage estimate) did not catch it. Clear OFF_CNT after reading it at
+boot, so a warm reboot reads 0 (no OCV calibration) and a real power-off
+counts from 0. Logged as "muos-gauge: off count N min (now M)"; M != 0
+means the register is read-only and another fix is needed.
+
+SPDX-License-Identifier: GPL-2.0
+---
+--- a/drivers/power/rk817_battery.c
++++ b/drivers/power/rk817_battery.c
+@@ -1793,6 +1793,16 @@
+ {
+ 	battery->is_first_power_on = is_rk817_bat_first_pwron(battery);
+ 	battery->pwroff_min = rk817_bat_get_off_count(battery);
++	/* muOS R35S port: the PMIC sets OFF_CNT (minutes off) at a power-up
++	 * but a warm reboot keeps the old value: on 2026-11-17 every reboot
++	 * read off=141min, so the BSP recalibrated to the OCV register, which
++	 * is only sampled at a power-up too (3880 mV, 69%, against a counted
++	 * 57%: +12 points after a reboot). Clear it once read, so a warm
++	 * reboot reads 0 and keeps the counted SOC. */
++	if (battery->pwroff_min)
++		rk817_bat_field_write(battery, OFF_CNT, 0);
++	BAT_INFO("muos-gauge: off count %d min (now %d)\n", battery->pwroff_min,
++		 rk817_bat_get_off_count(battery));
+ 	battery->pwron_voltage = rk817_bat_get_pwron_voltage(battery);
+ 
+ 	DBG("%s, is_first_power_on = %d, pwroff_min = %d, pwron_voltage = %d\n",

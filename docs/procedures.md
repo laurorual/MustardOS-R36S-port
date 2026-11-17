@@ -66,6 +66,8 @@ incrementally; rootfs in `build/m3a/output`, boot chain in `build/m3b`):
    from the M2 base image; all four payloads are rkbin files.
    `port/scripts/rkbin-trust.sh [IMAGE]` rebuilds the trust image from
    rkbin's BL31/BL32 and checks it equals sector 24576 (M4d: identical).
+   Lint (T0): `build/tools/shellcheck -S warning` (static 0.10.0, M4e) on
+   `port/scripts/*.sh` and the shipped shell scripts: warning-clean.
 1. `port/scripts/build-image.sh prepare`, then `source` (network, only
    fetches what the cache lacks), then `build` (offline, detached;
    follow with `build-image.sh status` or
@@ -125,6 +127,13 @@ snapshots.
   across screens; `comm` of `muxfrontend` names the current module. Don't
   drive Configuration → General blind: on 2026-11-16 it saved
   `settings/general/startup = resume` through its save dialog (reverted).
+  Never move the launcher focus without checking it first (A on Explore
+  must open `muxplore`): on 2026-11-17 a wrong guess launched CTR and a
+  sleep test overwrote its resume state.
+- Rumble: `muos-rumble pulse MS [PCT]`, `muos-rumble-setup probe` (M4e;
+  verdict in p3 `MUOS/port/rumble`, log `MUOS/log/system/rumble.log`).
+- Wi-Fi after the fact: p3 `MUOS/log/network-last.log` (worker with
+  uptime stamps, hotplug, dongle kernel lines; written at each clean stop).
 
 ## Update the kernel or DTB via a trial kernel
 

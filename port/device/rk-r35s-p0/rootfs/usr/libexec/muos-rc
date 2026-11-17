@@ -17,7 +17,8 @@ bounded=/usr/libexec/muos-run-bounded
 action=${1:-}
 case "$action" in
     start) list=$(ls /etc/init.d/S??* 2>/dev/null) ;;
-    stop) list=$(ls -r /etc/init.d/S??* 2>/dev/null) ;;
+    stop) list=$(ls -r /etc/init.d/S??* 2>/dev/null)
+          /usr/libexec/muos-rumble-setup event shutdown 2>/dev/null || : ;; # M4e
     *) echo 'Usage: muos-rc start|stop' >&2; exit 2 ;;
 esac
 limit() {

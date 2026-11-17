@@ -23,6 +23,7 @@ case "${1:-}" in
     start-stop-daemon -S -b -m -p "$state/loop.pid" -x /bin/sh -- "$loop" "$hotkeys" "$audio"
     n=0; while [ "$n" -lt 100 ] && [ ! -s /run/muos/first_paint ]; do sleep 0.1; n=$((n+1)); done
     [ -s /run/muos/first_paint ] && echo 'ui: first paint' || echo 'ui: no first paint after 10 s'
+    /usr/libexec/muos-rumble-setup event startup > /dev/null 2>&1 & # M4e (needs a motor)
     ;;
  stop)
     running || exit 0

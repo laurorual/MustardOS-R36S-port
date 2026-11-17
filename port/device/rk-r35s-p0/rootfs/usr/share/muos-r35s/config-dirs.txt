@@ -1,0 +1,38 @@
+# Directories under /opt/muos/config that the pinned frontend reads and
+# writes (config.c + module paths; generated in M4e). S91 creates the
+# missing ones on p3: without them every save in those screens fails.
+backup
+bluetooth
+boot
+clock
+count
+danger
+extra
+extra/core
+extra/filter
+extra/language
+extra/overlay
+extra/shader
+network
+passcode
+settings
+settings/advanced
+settings/colour
+settings/font
+settings/general
+settings/hdmi
+settings/hotkey
+settings/network
+settings/overlay
+settings/power
+settings/remap
+settings/rgb
+settings/theme
+sort
+system
+terminal
+theme
+theme/download
+theme/filter
+visual
+web

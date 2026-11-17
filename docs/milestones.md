@@ -4,7 +4,70 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M4d — public-build prerequisites, part 1 (done 2026-11-16, T2 passed, p2 written to the card)
+## M4e — config directories, rumble probe, Wi-Fi diagnostics (done 2026-11-17 night, T2 passed; p2 not written)
+
+Built unattended while the user slept. Image `dist/firmware/test128-m4e-20261117`
+(raw `ea5ca0b4…`, p2 `1b877d11…`, kernel `d61188f3` = 0001–0007). Its p2 is
+in p3 `MUOS/trial/rootfs.img` (T2 passed there); `write-p2` was refused by
+the permission check while unattended. The card's main p2 is M4d + the
+M4e files installed with `install-rootfs.sh` (all functional changes; not
+the worker's cosmetic stderr fix). Logs `build/logs/m4d/*m4e*`.
+1. **M4d T3** (user, 2026-11-16 night): 1 time zone OK (24-hour notation
+   did not stick), 2 Wi-Fi Network row OK (the first replug was slower
+   than the second), 3 regression OK, 4 flat battery in progress (the
+   discharge logger runs tonight). M4d promoted to recovery, M4a retired.
+2. **Config directories:** the pinned `/opt/muos/config` lacked 15
+   directories the frontend writes (`clock`, `backup`, `sort`, `terminal`,
+   `settings/{overlay,hotkey,colour,font,hdmi,rgb,theme}`, ...): every save
+   there failed ("Failed to open file for writing: .../clock/notation" =
+   the 24-hour bug). `usr/share/muos-r35s/config-dirs.txt` (from the
+   pinned config.c and module paths) + S91 creates the missing ones on p3
+   (reads default when a file is missing). T2: all present after a boot.
+3. **Rumble** (the R35S has no motor; some R36S do; every R36S-family DT
+   declares the PWM): `muos-rumble` (C, Buildroot package) plays FF_RUMBLE
+   on the gamepad (private node: muinput hides it) and probes the motor
+   from the RK817 averaging current (0x7A/0x7B over i2c, ~0.7 s update):
+   4 × (off 1.2 s / on 1.2 s), present if median delta ≥ 35 mA. R35S: 4
+   runs, deltas −2…+3 mA (noise ±3 mA at menu idle): absent. The FF write
+   reaches the PWM although muinput grabs the pad (PWM registers change
+   during a pulse). `muos-rumble-setup`: verdict cached per SoC serial in
+   p3 `MUOS/port/rumble`, probed in the background on a new device,
+   `board/rumble` = `ff` or empty; startup/shutdown/sleep pulses per
+   `settings/advanced/rumble`. Frontend 0005: Advanced → Rumble reads
+   "Unavailable", dimmed and locked without a motor (keeps the saved
+   value); Rumble strength was already hidden. Positive case unverified
+   (no motor here).
+4. **Wi-Fi diagnosis:** the 2026-11-17 warm reboot hit the H2C case
+   again (1 in 7 since M4c): firmware deaf from 13 s, the dongle reset
+   itself at 53 s and returned in CD-ROM mode at 72 s, but the worker
+   waited its full 90 s for an address, so Wi-Fi came at ~115 s. Now: the
+   worker logs uptime stamps, retries as soon as the interface vanishes,
+   waits 30 s (not 10) for the dongle to come back, and S89 keeps the
+   boot's worker/hotplug logs and the dongle's kernel lines in p3
+   `MUOS/log/network-last.log`. The user's slow first replug left no logs
+   (only /run then); likely the same deaf-firmware case (4 s settle after
+   power-up passed 3/3 per value in M4c, not 100%).
+5. **shellcheck 0.10.0** (`build/tools/shellcheck`, user-approved
+   download): all port scripts and shipped init scripts warning-clean
+   (false positives annotated; `muos-headphone` empty assignment).
+6. **Gauge jump after warm reboots (found tonight):** 57% → 69% on a
+   reboot. OFF_CNT (0x6F) keeps 141 min across warm reboots, so the BSP
+   recalibrated to the stale power-up OCV (3880 mV); 0005's stale check
+   (30 points against the voltage estimate) let it through and 0002 moved
+   the display. Kernel patch 0008 clears OFF_CNT after reading it
+   (`Image-ea8ac0033c0e`, T0 only: needs the i2c write check and a trial
+   kernel with the user present).
+7. **T2 (trial root, M4e p2):** `t2-wifi.sh`, `t2-wifi-radio.sh`,
+   `t2-wifi-network-row.sh`, `t2-wake-wifi.sh 3` (8.6–9.1 s),
+   `t2-sleep-cycle.sh` 5/5 PASS; rumble probe absent; config dirs; network
+   log at shutdown. Incident: a blind "up, left" before the network-row
+   test (focus was already on Explore) made its A presses launch CTR; the
+   sleep test then autosaved it: **CTR's resume state
+   (`autosave.state`) was overwritten at 00:38** (memory card `.srm`
+   rewritten at 00:33, content presumably unchanged: CTR saves only on
+   demand). The test now aborts on the first unexpected screen.
+
+## M4d — public-build prerequisites, part 1 (done 2026-11-16, T3 items 1–3 passed 2026-11-16)
 
 Image `dist/firmware/test128-m4d-20261116` (raw `619473f7…`, p2
 `61f2c02f…`, kernel `d61188f3` = 0001–0007, DTB `bc04b6f8`) + public

@@ -28,6 +28,7 @@
 # gate: --max-slow 6 --max-missed 0 (options in this order).
 # Summary on stdout; details in build/logs/level-fps.log.
 set -euo pipefail
+# shellcheck disable=SC2034 # kept for the sourced helpers
 dev=$(dirname "$0")/device.sh
 logs=$(cd "$(dirname "$0")/../.." && pwd)/build/logs; mkdir -p "$logs"
 phases="base vol bright"
