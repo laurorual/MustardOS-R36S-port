@@ -11,20 +11,29 @@ T3 checklists in [milestones.md](milestones.md). See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M4e.1 done; M4e.1 (Input Remap
-saves, dongle re-plug recovery, kernel 0008 on main) is on the card and
-the recovery image since 2026-11-17 (T3 passed; one replug was missed by
-the dwc2 driver, a pre-existing kernel problem now characterized).
-Next: M4f.**
-Details: milestones.md M4e / M4e.1.
+**Phase 5 (own-card firmware). M1–M4e.1 done (M4e.1 = recovery image).
+M4f (USB watchdog, menu scripts) built: `test128-m4f-20261117`, T2
+passed on the live root; on the trial root all passed except
+`t2-wifi-robust` hotplug (FAIL, open). Its p2 is in p3 trial, not
+written. Item 3 (BOOST power cycle) dropped: the BOOST is not the port's
+5 V.**
+Details: milestones.md M4f, M4e.1.
 
-## Now (2026-11-17 evening)
+## Next session — read first (stopped 2026-11-17 ~18:10, user's limit)
 
-- On the charger, main p2 = M4e.1 (`d73646be…`), main kernel 0008.
+- Device on the charger, booted into the **M4f trial root** (one-shot:
+  any reboot returns to main = M4e.1 p2 + M4f files installed with
+  `install-rootfs.sh`, which already run the watchdog, tweak, search,
+  activity). p3 `MUOS/trial/rootfs.img` = M4f p2 `46a573a0…`.
+- **Open: `t2-wifi-robust` hotplug FAIL on the trial root** (passed on
+  the live root before the S97 watchdog started there). Likely the
+  watchdog's rebind at 213.6 s (6 s into the test's software unplug)
+  races the test's own unbind/bind; read `build/logs/m4f/trial-t2-wifi-robust.txt`,
+  then fix the test (expect or pause the watchdog) or the watchdog.
+- Then: rerun the trial T2, `write-p2` the M4f p2 (user present),
+  M4f T3 below, promote M4f, retire M4c.
 - The idle discharge logger (`MUOS/init`) still runs; `t2-discharge.sh
-  report` pending. Last night: low-battery poweroff 04:05 at 2 % /
-  3352 mV (clean shutdown); the counter was kept (0006/0007 passed).
-- `t2-usb-watch.sh` stopped (it lives in `/run`: restart after a reboot).
+  report` pending.
 
 ## Device and bench
 
@@ -50,12 +59,13 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
+| `dist/firmware/test128-m4f-20261117.img.zst` (raw `159d4894…`, p2 `46a573a0…`) | M4f developer image | T2 partly (robust hotplug FAIL on trial root); not written |
 | **`dist/firmware/test128-m4e1-20261117.img.zst`** (raw `c122c7f4…`, p2 `d73646be…`) | **Recovery image since 2026-11-17 (evening).** M4e.1 (kernel 0001–0008) | p2 on the card; T3 passed |
 | `dist/firmware/test128-m4d-20261116.img.zst` (raw `619473f7…`, p2 `61f2c02f…`) + `public-m4d-20261116` | M4d (kernel 0001–0007); recovery 2026-11-17 morning | T3 items 1–3 passed |
 | `dist/firmware/test128-m4c-20261114.img.zst` | M4c (kernel 0001–0005) | T3 passed |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-4/5 firmware versions (`port/packaging/storage-retention.json`; retired
+5/5 firmware versions (`port/packaging/storage-retention.json`; retired
 M1, M3a.1, M3b–M3e, M4a, M4b, M4e).
 
 ## What works (T3-confirmed)
@@ -123,6 +133,18 @@ has no rumble motor; keep the option, detect the motor, show
 "Unavailable" without one (done in M4e); 11 no public-image test yet.
 
 Open: none.
+
+## M4f T3 checklist (after write-p2; no flash)
+
+1. **Audio overdrive:** Configuration → Advanced → Audio overdrive on,
+   back: volume goes above 100 %; off again: max 100 %.
+2. **Search:** Explore → Search "crash": CTR listed, opens.
+3. **Activity:** play a game ~2 min, quit: Activity shows it with ~2 min;
+   sleep during play is not counted.
+4. **System details:** serial shown; integrity shows "Modified".
+5. **Wi-Fi replug x4** (watchdog log `/opt/muos/log/usb-watchdog.log`):
+   each plug reconnects within ~25 s even if the kernel misses one.
+6. **Regression:** sleep/wake in game, Wi-Fi toggle.
 
 ## Next milestone (proposal)
 

@@ -41,6 +41,15 @@
         "dist/firmware/test128-m4e1-20261117.manifest",
         "build/m3a/test128-m4e1-20261117.p2.img"
       ]
+    },
+    "m4f-20261117": {
+      "reason": "M4f: USB watchdog (dwc2 missed plug/unplug -> rebind), menu scripts (own tweak.sh incl. Audio overdrive, upstream find/track/serial/tegridy + rg subset, Activity hooks); developer image",
+      "files": [
+        "dist/firmware/test128-m4f-20261117.img.zst",
+        "dist/firmware/test128-m4f-20261117.img.zst.sha256",
+        "dist/firmware/test128-m4f-20261117.manifest",
+        "build/m3a/test128-m4f-20261117.p2.img"
+      ]
     }
   },
   "keep": {

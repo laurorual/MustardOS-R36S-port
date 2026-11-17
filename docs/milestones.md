@@ -4,6 +4,42 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M4f — USB watchdog, menu scripts (done 2026-11-17, T2 passed)
+
+Logs `build/logs/m4f/`.
+1. **dwc2 missed plug/unplug.** Trial DTB `dr_mode = "host"` (only change,
+   `panel0-09073fe29464.dtb`, trial boot): 4 manual cycles, 8/8 events
+   seen; not conclusive against the ~1 in 6 miss rate (23 % chance), so
+   the DT stays `otg`. Automating replugs through the RK817 BOOST failed:
+   with 0xB4 = 0x00 the dongle stayed powered (on battery and on the
+   charger), so the BOOST is not the port's 5 V and item 3 (BOOST power
+   cycle) is dropped. A dwc2 unbind/bind re-detects the port (Wi-Fi back
+   17 s later) → `muos-usb-watchdog` (S97): HPRT0 bit 0 vs usb 1-1 every
+   2 s, 3 disagreeing reads → rebind, 30 s pause; idle while
+   `suspend.lock` is held (muos-suspend unbinds dwc2 itself); binds a dwc2
+   left unbound 10 s; a stop mid-rebind still binds. T2: simulated missed
+   plug (test hook) → rebind, Wi-Fi ready 15 s after detection; the
+   robustness test's software unplug is healed the same way; no trigger
+   over 9 wakes. Incident: an earlier test killed the watchdog between
+   unbind and bind → no USB until the user rebooted (nothing written).
+2. **Menu scripts.** The pinned set lacks 9 scripts the menu modules run
+   (`libmuxmod.so`): shipped now: own `tweak.sh` (audio/max from Audio
+   overdrive, also at boot: it never applied before; brightness; default
+   governor without content), upstream `find.sh` (Search) with an own
+   `/opt/muos/bin/rg` (busybox subset), `track.sh` (Activity; hooks in
+   muos-frontend start/stop and muos-suspend suspend/resume/poweroff),
+   `serial.sh`, `tegridy.sh` (all "Modified": no verifier, honest for an
+   unofficial port), `var/service.sh`; copied from refs/muos/internal
+   (pinned 550cc58f, identical to the pinned var/*.sh) by
+   `stage_overlay` against `port/packaging/muos-internal-extra.txt`.
+   Not shipped: `prepare.sh` (formats a card: one-slot device), `logo.sh`
+   (writes p1), `backup.sh` (needs zip), `profile.sh`, Bluetooth; no
+   `share/lookup` name tables (search by file name).
+   T2: tweak overdrive 0/1/0 → audio/max 100/200/100; search "crash" →
+   CTR in 0.35 s; track start/suspend/resume/stop on tmpfs → 5 s of 7;
+   `t2-sleep-cycle --game 2` with tracking on tmpfs → 56 s of 99 (two
+   sleeps excluded); `t2-sleep-cycle`, `t2-wifi-robust`, `t2-wake-wifi`.
+
 ## M4e.1 — Input Remap saves, dongle re-plug, kernel 0008 (done 2026-11-17, T3 passed → recovery image)
 
 Image `dist/firmware/test128-m4e1-20261117` (raw `c122c7f4…`, p2

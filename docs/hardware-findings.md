@@ -538,10 +538,13 @@ about other R35S/R36S panels or revisions.
   and no PrtInt in GINTSTS; a normal attach reads 0x1005 once enabled.
   dwc2 `dr_mode = "otg"`, its PHY node `otg-port` disabled (no PHY
   driver, rockchip_usb2phy irq count 0); ROCKNIX's R3xS DT is the same.
-- **RK817 BOOST** (5 V for the USB host port; the dongle loses power with
-  it in "mem" sleep) is `RK817_POWER_EN_REG(3)` = 0xB4, enable bit 1 with
-  write mask bit 5: writing 0x20 would switch only it off (a software
-  power cycle for a deaf dongle). Not tried (unattended night).
+- **RK817 BOOST** is `RK817_POWER_EN_REG(3)` = 0xB4, enable bit 1 with
+  write mask bit 5 (0x20 off, 0x22 on). It is **not** the USB port's 5 V
+  (M4f): with it off (0xB4 read 0x00) the dongle stayed connected, on
+  battery and on the charger. The port's supply is not in the DT.
+- **dwc2 rebind** (`/sys/bus/platform/drivers/dwc2/{unbind,bind}`
+  `ff300000.usb`) re-detects the port and re-enumerates the dongle in
+  < 1 s (M4f; muos-usb-watchdog uses it).
 - **Wi-Fi dongle self-reset (2026-11-17):** with the firmware deaf (H2C
   errors every 2 s from 13 s), the dongle disconnected by itself at 53 s
   and re-enumerated in CD-ROM mode (1a2b) at 72 s: a real chip reset.

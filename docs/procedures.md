@@ -135,6 +135,14 @@ snapshots.
 - USB replug diagnosis (dev only): `t2-usb-watch.sh start` before the
   user replugs (SSH is gone meanwhile), `report` afterwards (HPRT0 bit 0
   = connected; one line a second in `/run`, copied to p3).
+- USB watchdog: `/opt/muos/log/usb-watchdog.log`; test a missed plug
+  with `MUOS_USB_WATCH_DEV=/nonexistent MUOS_USB_WATCH_ONCE=1
+  /usr/libexec/muos-usb-watchdog` (detached: SSH drops; never kill a
+  watchdog mid-rebind from a test).
+- Activity tests: mount a tmpfs over `/run/muos/storage/info/track` so
+  test sessions stay out of the user's history.
+- Upstream muOS scripts: add `sha256  path` to
+  `port/packaging/muos-internal-extra.txt` (from refs/muos/internal).
 - Input Remap: `/opt/muos/script/mux/sdl_remap.sh` writes p3
   `MUOS/port/gamecontrollerdb/{retro,modern}.txt`; a broken remap is
   undone by deleting its GUID line there.
