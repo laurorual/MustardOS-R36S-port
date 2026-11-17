@@ -533,6 +533,11 @@ about other R35S/R36S panels or revisions.
   a port reset 15 s later; the first unplug of the same session was
   seen. The AP then kept the stale association (deauth reason 2 on the
   next connect, ignored by the 8821cu driver).
+  M4e.1 T3: a plug was missed too: HPRT0 (0xff300440) 0x00021401 =
+  connected, line state D+, not enabled, for 53 s with no enumeration
+  and no PrtInt in GINTSTS; a normal attach reads 0x1005 once enabled.
+  dwc2 `dr_mode = "otg"`, its PHY node `otg-port` disabled (no PHY
+  driver, rockchip_usb2phy irq count 0); ROCKNIX's R3xS DT is the same.
 - **RK817 BOOST** (5 V for the USB host port; the dongle loses power with
   it in "mem" sleep) is `RK817_POWER_EN_REG(3)` = 0xB4, enable bit 1 with
   write mask bit 5: writing 0x20 would switch only it off (a software

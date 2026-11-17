@@ -11,23 +11,20 @@ T3 checklists in [milestones.md](milestones.md). See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M4d done (M4d → recovery image).
-M4e T3 (2026-11-17, user present): 24-hour clock and Rumble row passed;
-Input Remap never stuck and the second dongle replug failed → M4e.1:
-own `sdl_remap.sh` + controller DB on p3, worker re-switches a re-plugged
-dongle and reassociates without a lease; kernel 0008 promoted to main
-(T3 item 5 passed). M4e.1 p2 written to the card (`write-p2`, verified);
-its T3 (remap + replug with the USB logger) is pending.**
+**Phase 5 (own-card firmware). M1–M4e.1 done; M4e.1 (Input Remap
+saves, dongle re-plug recovery, kernel 0008 on main) is on the card and
+the recovery image since 2026-11-17 (T3 passed; one replug was missed by
+the dwc2 driver, a pre-existing kernel problem now characterized).
+Next: M4f.**
 Details: milestones.md M4e / M4e.1.
 
-## Now (2026-11-17 afternoon, user present)
+## Now (2026-11-17 evening)
 
 - On the charger, main p2 = M4e.1 (`d73646be…`), main kernel 0008.
-- `t2-usb-watch.sh` runs (dev-only, `/run` + p3 `MUOS/log/usb-watch.log`)
-  for the replug T3; stop it with `t2-usb-watch.sh report`.
 - The idle discharge logger (`MUOS/init`) still runs; `t2-discharge.sh
   report` pending. Last night: low-battery poweroff 04:05 at 2 % /
   3352 mV (clean shutdown); the counter was kept (0006/0007 passed).
+- `t2-usb-watch.sh` stopped (it lives in `/run`: restart after a reboot).
 
 ## Device and bench
 
@@ -53,15 +50,13 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m4e1-20261117.img.zst` (raw `c122c7f4…`, p2 `d73646be…`) | M4e.1 developer image (kernel 0008) | T2-passed; p2 on the card; T3 pending |
-| **`dist/firmware/test128-m4d-20261116.img.zst`** (raw `619473f7…`, p2 `61f2c02f…`) + `public-m4d-20261116` | **Recovery image since 2026-11-17.** M4d (kernel 0001–0007) | T3 items 1–3 passed (p2 ran on the card) |
+| **`dist/firmware/test128-m4e1-20261117.img.zst`** (raw `c122c7f4…`, p2 `d73646be…`) | **Recovery image since 2026-11-17 (evening).** M4e.1 (kernel 0001–0008) | p2 on the card; T3 passed |
+| `dist/firmware/test128-m4d-20261116.img.zst` (raw `619473f7…`, p2 `61f2c02f…`) + `public-m4d-20261116` | M4d (kernel 0001–0007); recovery 2026-11-17 morning | T3 items 1–3 passed |
 | `dist/firmware/test128-m4c-20261114.img.zst` | M4c (kernel 0001–0005) | T3 passed |
-| `dist/firmware/test128-m4b-20261114.img.zst` | M4b, flashed by the user | T3 items 1–6 passed |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-5/5 firmware versions (`port/packaging/storage-retention.json`; retired
-M1, M3a.1, M3b–M3e, M4a, M4e). After the M4e.1 T3: promote M4e.1,
-retire M4b.
+4/5 firmware versions (`port/packaging/storage-retention.json`; retired
+M1, M3a.1, M3b–M3e, M4a, M4b, M4e).
 
 ## What works (T3-confirmed)
 
@@ -81,9 +76,11 @@ switching; flashing with the host card reader; p3 auto-grow; `panic=10`.
 - **Battery:** (c) kernel 0008 (OFF_CNT cleared, register writable)
   passed warm reboots; its clear after a real power-off (no charger)
   is not yet seen in a log. (d) The BSP smoothing uses `abs(delta_cap)`.
-- **USB:** the second unplug of the M4e T3 left no kernel event (dwc2
-  saw no disconnect until a port reset 15 s later); cause unknown,
-  `t2-usb-watch.sh` logs HPRT0 for the next case.
+- **USB (dwc2 misses port events):** an unplug (M4e T3) and a plug
+  (M4e.1 T3, 1 in 4) left no kernel event although HPRT0 showed the
+  change (connected bit set for 53 s, nothing enumerated). The dwc2 runs
+  `dr_mode = "otg"` with its PHY (`otg-port`) disabled (same in
+  ROCKNIX). M4f: try `dr_mode = "host"` (trial DTB), else a watchdog.
 - **Missing muOS scripts:** the pinned `/opt/muos/script/mux` has only
   `audio_sink.sh` (+ `sdl_remap.sh` since M4e.1); the frontend also calls
   `tweak.sh` (Power, Theme, Custom, Danger saves), `find.sh` (search),
@@ -127,21 +124,11 @@ has no rumble motor; keep the option, detect the motor, show
 
 Open: none.
 
-## M4e.1 T3 checklist (p2 already written; no flash)
-
-Results of the M4e T3: items 1, 2, 5 passed; 3 → remap fix; 4 → replug
-fixes (milestones M4e.1).
-1. **Input Remap:** Configuration → General → Input Remap: change one
-   button, save, leave, re-enter: the change stuck; the menu follows it;
-   survives a reboot. Then restore the original mapping.
-2. **Wi-Fi replug (logger on):** in Connectivity, unplug/plug the dongle
-   three times, ~30 s apart; each unplug shows unavailable, each plug
-   reconnects within ~20 s. Note the clock time of any failure.
-3. **Regression:** a game starts and the buttons are right.
-
 ## Next milestone (proposal)
 
-**M4f:** missing muOS menu scripts (`tweak.sh` first, then search,
-backup, extract, playtime); the missed-unplug cause (from the logger)
-and a dongle power cycle via BOOST; SFTP jail (static sftp-server in Buildroot + upstream
+**M4f:** (1) dwc2 missed plug/unplug: trial DTB with `dr_mode =
+"host"`, replug series with `t2-usb-watch.sh`; fallback: a watchdog that
+compares HPRT0 with usb 1-1 and rebinds dwc2. (2) Missing muOS menu
+scripts (`tweak.sh` first, then search, backup, extract, playtime).
+(3) Dongle power cycle via BOOST; SFTP jail (static sftp-server in Buildroot + upstream
 `musftpjail`, `muos` user); then the publication checklist.

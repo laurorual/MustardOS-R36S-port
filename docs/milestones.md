@@ -4,7 +4,7 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M4e.1 — Input Remap saves, dongle re-plug, kernel 0008 (done 2026-11-17, T2 passed, p2 written; T3 pending)
+## M4e.1 — Input Remap saves, dongle re-plug, kernel 0008 (done 2026-11-17, T3 passed → recovery image)
 
 Image `dist/firmware/test128-m4e1-20261117` (raw `c122c7f4…`, p2
 `d73646be…`, kernel `ea8ac003` = 0001–0008); p2 written with `write-p2`
@@ -38,6 +38,13 @@ Logs `build/logs/m4e-t3/`.
 5. **Flat battery (0006/0007 T3):** clean low-battery poweroff 04:05 at
    2 % / 3352 mV; at power-on "stored dsoc=2049 … ocv stale, kept": the
    counter survived.
+7. **T3** (user, 2026-11-17 16:40): 1 Input Remap stuck, the menu
+   followed it, restored; 3 a game's buttons right (CTR). 2 replug: plugs
+   1, 2 and 4 reconnected in ~10 s; plug 3 (16:37, uptime 1264 s) had no
+   kernel event at all: HPRT0 read 0x00021401 (connected, D+ high, port
+   not enabled) for 53 s and nothing enumerated; the unplug (1317 s) and
+   plug 4 (1328 s) were seen. Same class as the M4e missed unplug: the
+   dwc2 driver misses port interrupts (GINTSTS without PrtInt).
 6. **T2:** `t2-wifi`, `t2-wifi-radio`, `t2-wifi-robust`,
    `t2-sleep-cycle` 5/5, `t2-wake-wifi 2` (8.8–9.1 s) PASS on the live
    root and the trial root; `sdl_remap.sh` host test (scratch paths) and

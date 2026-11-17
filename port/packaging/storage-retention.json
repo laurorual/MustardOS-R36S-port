@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m4b-20261114": {
-      "reason": "M4b: Wi-Fi robustness (settle, hotplug, setsid), public boot -30 s, panic=10 + pstore, quiet console, gauge estimate 200 mOhm, DT capacity 2500/2550; flashed by the user 2026-11-14, T3 items 1-5 passed; recovery image 2026-11-14 (evening) to 2026-11-16",
-      "files": [
-        "dist/firmware/test128-m4b-20261114.img.zst",
-        "dist/firmware/test128-m4b-20261114.img.zst.sha256",
-        "dist/firmware/test128-m4b-20261114.manifest",
-        "build/m3a/test128-m4b-20261114.p2.img"
-      ]
-    },
     "m4c-20261114": {
       "reason": "M4c: Wi-Fi toggle in Connectivity (grey without a dongle), wake Wi-Fi 18 -> 9 s (settle 4 s + last-channel scan), no 8821cu autoload (warm-reboot H2C), Web Services = SSH/SFTP only, in-game Wi-Fi glyph refresh; installed on the card with install-rootfs.sh 2026-11-14; T3 passed 2026-11-16 (items 1-7, files installed on the card): recovery image 2026-11-16 to 2026-11-17",
       "files": [
@@ -30,7 +21,7 @@
       ]
     },
     "m4d-20261116": {
-      "reason": "M4d: Wi-Fi Network closed without an adapter, cut-off at 1% on the current-corrected voltage, battery history on p3, clock (tzdata, zone link on p3, ntpd -q after each address, RTC in UTC), kernel 0006/0007 (coulomb seed), boot payloads all rkbin (trust identical); developer + public variant; T3 items 1-3 passed 2026-11-17 (p2 on the card; 24-hour notation and a slow first replug fixed/investigated in M4e): recovery image since 2026-11-17",
+      "reason": "M4d: Wi-Fi Network closed without an adapter, cut-off at 1% on the current-corrected voltage, battery history on p3, clock (tzdata, zone link on p3, ntpd -q after each address, RTC in UTC), kernel 0006/0007 (coulomb seed), boot payloads all rkbin (trust identical); developer + public variant; T3 items 1-3 passed 2026-11-17 (p2 on the card; 24-hour notation and a slow first replug fixed/investigated in M4e): recovery image 2026-11-17 (morning)",
       "files": [
         "dist/firmware/test128-m4d-20261116.img.zst",
         "dist/firmware/test128-m4d-20261116.img.zst.sha256",
@@ -43,7 +34,7 @@
       ]
     },
     "m4e1-20261117": {
-      "reason": "M4e.1: M4e + Input Remap saves (own sdl_remap.sh, controller DB on p3), Wi-Fi re-plug in CD-ROM mode switched again, reassociate at 20/50 s without a lease, kernel 0008 (OFF_CNT cleared) as main; developer image, supersedes M4e (never flashed)",
+      "reason": "M4e.1: M4e + Input Remap saves (own sdl_remap.sh, controller DB on p3), Wi-Fi re-plug in CD-ROM mode switched again, reassociate at 20/50 s without a lease, kernel 0008 (OFF_CNT cleared) as main; developer image, supersedes M4e (never flashed); p2 written 2026-11-17, T3 items 1-3 passed (one replug missed by the dwc2 driver, pre-existing): recovery image since 2026-11-17",
       "files": [
         "dist/firmware/test128-m4e1-20261117.img.zst",
         "dist/firmware/test128-m4e1-20261117.img.zst.sha256",
