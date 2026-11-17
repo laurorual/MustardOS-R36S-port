@@ -526,7 +526,13 @@ about other R35S/R36S panels or revisions.
   on every boot of 2026-11-16/17 (also earlier: 15 min across M4b boots),
   so the BSP's OCV calibration ran on warm reboots with the power-up OCV
   register (3880 mV): +12 points (57 → 69%). Kernel 0008 clears it after
-  reading (untested on hardware).
+  reading: the register is writable (`i2cset -f -y 0 0x20 0x6f 0` sticks;
+  RK817 at i2c-0 0x20, ID 0x8174); a power-up on the charger read 0.
+- **Missed USB disconnect (M4e T3):** a dongle unplugged while Wi-Fi ran
+  produced no "USB disconnect" (dwc2, otg port 1-1, runtime PM off) until
+  a port reset 15 s later; the first unplug of the same session was
+  seen. The AP then kept the stale association (deauth reason 2 on the
+  next connect, ignored by the 8821cu driver).
 - **RK817 BOOST** (5 V for the USB host port; the dongle loses power with
   it in "mem" sleep) is `RK817_POWER_EN_REG(3)` = 0xB4, enable bit 1 with
   write mask bit 5: writing 0x20 would switch only it off (a software

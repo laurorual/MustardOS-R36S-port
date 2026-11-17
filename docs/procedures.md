@@ -132,6 +132,12 @@ snapshots.
   sleep test overwrote its resume state.
 - Rumble: `muos-rumble pulse MS [PCT]`, `muos-rumble-setup probe` (M4e;
   verdict in p3 `MUOS/port/rumble`, log `MUOS/log/system/rumble.log`).
+- USB replug diagnosis (dev only): `t2-usb-watch.sh start` before the
+  user replugs (SSH is gone meanwhile), `report` afterwards (HPRT0 bit 0
+  = connected; one line a second in `/run`, copied to p3).
+- Input Remap: `/opt/muos/script/mux/sdl_remap.sh` writes p3
+  `MUOS/port/gamecontrollerdb/{retro,modern}.txt`; a broken remap is
+  undone by deleting its GUID line there.
 - Wi-Fi after the fact: p3 `MUOS/log/network-last.log` (worker with
   uptime stamps, hotplug, dongle kernel lines; written at each clean stop).
 

@@ -5,6 +5,8 @@
 #   p3 MUOS/port/volume        -> /opt/muos/share/volume   (per-output volume)
 #   p3 MUOS/port/info-content  -> /opt/muos/share/info/content (core assigns)
 #   p3 MUOS/port/info-config   -> /opt/muos/share/info/config
+#   p3 MUOS/port/gamecontrollerdb -> /opt/muos/share/info/gamecontrollerdb
+#                                 (Input Remap, M4e.1)
 #   tmpfs copy                 -> /opt/muos/device/config  (sdl_map etc.)
 #   tmpfs copy                 -> /usr/share/wireplumber, /root
 #   tmpfs copy                 -> /etc/asound.conf, /usr/share/alsa/alsa.conf
@@ -119,6 +121,15 @@ case "${1:-}" in
     bind "$port/volume" /opt/muos/share/volume
     bind "$port/info-content" /opt/muos/share/info/content
     bind "$port/info-config" /opt/muos/share/info/config
+    # M4e.1: Input Remap writes the controller DB (script/mux/sdl_remap.sh);
+    # seeded once from the rootfs, then the user's.
+    gcdb=/opt/muos/share/info/gamecontrollerdb
+    if [ ! -d "$port/gamecontrollerdb" ] && [ -d "$gcdb" ]; then
+        rm -rf "$port/gamecontrollerdb.tmp"
+        cp -a "$gcdb" "$port/gamecontrollerdb.tmp" && mv "$port/gamecontrollerdb.tmp" "$port/gamecontrollerdb" &&
+            echo 'runtime: seeded gamecontrollerdb'
+    fi
+    [ ! -d "$gcdb" ] || bind "$port/gamecontrollerdb" "$gcdb"
     mkdir -p "$rw"
     mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs "$rw"
     cp -a /opt/muos/device/config "$rw/device-config"

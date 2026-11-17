@@ -11,41 +11,34 @@ T3 checklists in [milestones.md](milestones.md). See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M4d done (M4d T3 items 1–3 passed →
-recovery image). M4e (config directories = 24-hour clock fix, rumble
-probe + "Unavailable" row, Wi-Fi diagnostics and faster retry,
-shellcheck) is T2-passed on a trial root (night of 2026-11-16/17,
-unattended); its p2 waits in p3 for `write-p2` with the user present.
-Kernel 0008 (gauge jump after warm reboots) is built, untested.**
-Details: milestones.md M4e.
+**Phase 5 (own-card firmware). M1–M4d done (M4d → recovery image).
+M4e T3 (2026-11-17, user present): 24-hour clock and Rumble row passed;
+Input Remap never stuck and the second dongle replug failed → M4e.1:
+own `sdl_remap.sh` + controller DB on p3, worker re-switches a re-plugged
+dongle and reassociates without a lease; kernel 0008 promoted to main
+(T3 item 5 passed). M4e.1 p2 written to the card (`write-p2`, verified);
+its T3 (remap + replug with the USB logger) is pending.**
+Details: milestones.md M4e / M4e.1.
 
-## Tonight (2026-11-17, unattended) — read first
+## Now (2026-11-17 afternoon, user present)
 
-- The device is **on, off the charger, discharging** with the idle
-  logger (`t2-discharge.sh log-start`, p3 `MUOS/log/discharge.csv`),
-  volume 10, on the main p2 (M4d + M4e files). Expected: low-battery
-  poweroff at 1% (M4d) during the night.
-- **Gauge jump:** the last warm reboot (00:47) moved the % from 57 to 69
-  (stale OFF_CNT → stale OCV, milestones M4e item 6). The night's
-  cut-off therefore starts from a % that is ~12 points high; the log
-  shows where the voltage really ends.
-- **Incident:** a blind button sequence in a T2 launched CTR and a sleep
-  test overwrote **CTR's resume state** (`autosave.state`, 00:38). The
-  memory card save should be intact (the game saves only on demand).
-- `write-p2` (M4e) and any PMIC write / trial kernel were not done:
-  refused by the permission check while unattended.
+- On the charger, main p2 = M4e.1 (`d73646be…`), main kernel 0008.
+- `t2-usb-watch.sh` runs (dev-only, `/run` + p3 `MUOS/log/usb-watch.log`)
+  for the replug T3; stop it with `t2-usb-watch.sh report`.
+- The idle discharge logger (`MUOS/init`) still runs; `t2-discharge.sh
+  report` pending. Last night: low-battery poweroff 04:05 at 2 % /
+  3352 mV (clean shutdown); the counter was kept (0006/0007 passed).
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1: M4b image flashed 2026-11-14, M4d p2 written
-  2026-11-16, M4e files installed 2026-11-17 (`install-rootfs.sh`,
-  originals in `/var/lib/muos-m1-backup`). p3 `MUOS/trial/rootfs.img` =
-  M4e p2 (sha `1b877d11…`, T2-passed), `p2-previous.img` = M4c p2.
+  2026-11-16, M4e.1 p2 written 2026-11-17 (`write-p2`). p3 `MUOS/trial/rootfs.img` =
+  M4e.1 p2 (`d73646be…`), `p2-previous.img` = M4d p2 + M4e files
+  (`5b621944…`).
   Time zone set by the user (−03); volume 10 (user's level was 55).
-  - Boot records: main = `Image-d61188f3a808` (0001–0007) +
-    `panel0-bc04b6f8e4d4.dtb`; previous = `Image-0c3305ad6946`.
-    `build/m3b/boot` now holds `Image` `ea8ac0033c0e` (0001–0008).
+  - Boot records: main = `Image-ea8ac0033c0e` (0001–0008) +
+    `panel0-bc04b6f8e4d4.dtb`; previous = `Image-d61188f3a808` (0007).
   - p3: ROMs, Wi-Fi profile `Home.ini`, zone link, rumble verdict
     (`MUOS/port/rumble`: absent), discharge logger in `MUOS/init`.
 - **original32 (stock dArkOSen):** the flasher station (slot 1, target
@@ -60,14 +53,15 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m4e-20261117.img.zst` (raw `ea5ca0b4…`, p2 `1b877d11…`) | M4e developer image | T2-passed (trial root); never flashed |
+| `dist/firmware/test128-m4e1-20261117.img.zst` (raw `c122c7f4…`, p2 `d73646be…`) | M4e.1 developer image (kernel 0008) | T2-passed; p2 on the card; T3 pending |
 | **`dist/firmware/test128-m4d-20261116.img.zst`** (raw `619473f7…`, p2 `61f2c02f…`) + `public-m4d-20261116` | **Recovery image since 2026-11-17.** M4d (kernel 0001–0007) | T3 items 1–3 passed (p2 ran on the card) |
 | `dist/firmware/test128-m4c-20261114.img.zst` | M4c (kernel 0001–0005) | T3 passed |
 | `dist/firmware/test128-m4b-20261114.img.zst` | M4b, flashed by the user | T3 items 1–6 passed |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
 5/5 firmware versions (`port/packaging/storage-retention.json`; retired
-M1, M3a.1, M3b–M3e, M4a). After the M4e T3: promote M4e, retire M4b.
+M1, M3a.1, M3b–M3e, M4a, M4e). After the M4e.1 T3: promote M4e.1,
+retire M4b.
 
 ## What works (T3-confirmed)
 
@@ -84,11 +78,16 @@ switching; flashing with the host card reader; p3 auto-grow; `panic=10`.
 
 ## Open problems
 
-- **Battery:** (c) OFF_CNT stays set across warm reboots → OCV
-  recalibration with a stale OCV on every warm reboot (+12 points seen);
-  kernel 0008 clears it (T2/T3 pending). (b) Counter lost after a
-  flat-battery poweroff; 0006/0007 (T3 = tonight's flat battery). (d) The
-  BSP smoothing uses `abs(delta_cap)`.
+- **Battery:** (c) kernel 0008 (OFF_CNT cleared, register writable)
+  passed warm reboots; its clear after a real power-off (no charger)
+  is not yet seen in a log. (d) The BSP smoothing uses `abs(delta_cap)`.
+- **USB:** the second unplug of the M4e T3 left no kernel event (dwc2
+  saw no disconnect until a port reset 15 s later); cause unknown,
+  `t2-usb-watch.sh` logs HPRT0 for the next case.
+- **Missing muOS scripts:** the pinned `/opt/muos/script/mux` has only
+  `audio_sink.sh` (+ `sdl_remap.sh` since M4e.1); the frontend also calls
+  `tweak.sh` (Power, Theme, Custom, Danger saves), `find.sh` (search),
+  `backup.sh`, `extract.sh`, `track.sh`, `bt_*.sh` (M4f audit).
 - **Wi-Fi dongle (RTL8821CU):** the warm-reboot H2C case still happens
   (1 in 7 since M4c); the dongle resets itself after ~40 s; M4e retries
   at once (Wi-Fi at ~75 s instead of ~115 s). Next: a software power
@@ -128,35 +127,21 @@ has no rumble motor; keep the option, detect the motor, show
 
 Open: none.
 
-## Tomorrow (user, 2026-11-17)
+## M4e.1 T3 checklist (p2 already written; no flash)
 
-1. Don't charge before looking: if the device is off, it hit the
-   low-battery poweroff. Then plug the charger, power on, and tell me
-   (the % at power-on and later while charging = 0007's T3). If it is
-   still on, leave it; it keeps logging.
-2. With the user present, the agent will: `write-p2` the M4e p2, test
-   kernel 0008 (one i2c write check, then a trial kernel), pull the
-   discharge log (`t2-discharge.sh report`), and optionally try the
-   BOOST power cycle for the Wi-Fi dongle.
-
-## M4e T3 checklist (after the agent's write-p2; no flash)
-
-1. **24-hour clock:** Configuration → General → Date and Time → Time
-   Notation → a 24-hour option, back: the header shows 24-hour time;
-   survives a reboot.
-2. **Rumble row:** Configuration → Advanced: "Rumble" reads
-   "Unavailable", dimmed; left/right/A give the error sound; "Rumble
-   strength" is not listed.
-3. **Other saves in new directories (spot check):** change one overlay
-   or hotkey setting in General/Advanced, leave, re-enter: it stuck.
-4. **Wi-Fi replug:** unplug/plug the dongle twice in Connectivity; note
-   which one is slow, if any (the log now keeps the reason).
-5. **After kernel 0008 (if tested):** reboot twice from the menu: the %
-   doesn't jump.
+Results of the M4e T3: items 1, 2, 5 passed; 3 → remap fix; 4 → replug
+fixes (milestones M4e.1).
+1. **Input Remap:** Configuration → General → Input Remap: change one
+   button, save, leave, re-enter: the change stuck; the menu follows it;
+   survives a reboot. Then restore the original mapping.
+2. **Wi-Fi replug (logger on):** in Connectivity, unplug/plug the dongle
+   three times, ~30 s apart; each unplug shows unavailable, each plug
+   reconnects within ~20 s. Note the clock time of any failure.
+3. **Regression:** a game starts and the buttons are right.
 
 ## Next milestone (proposal)
 
-**M4f:** kernel 0008 on hardware; dongle power cycle via BOOST (if the
-attended test works: deaf-dongle recovery in seconds, maybe a shorter
-settle); SFTP jail (static sftp-server in Buildroot + upstream
+**M4f:** missing muOS menu scripts (`tweak.sh` first, then search,
+backup, extract, playtime); the missed-unplug cause (from the logger)
+and a dongle power cycle via BOOST; SFTP jail (static sftp-server in Buildroot + upstream
 `musftpjail`, `muos` user); then the publication checklist.

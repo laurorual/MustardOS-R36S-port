@@ -148,7 +148,18 @@ gen_conf() {
 # T2 hook: /run/muos/network-settle-ms overrides it (settle experiments).
 settle_ms=$(cat /run/muos/network-settle-ms 2>/dev/null)
 case "$settle_ms" in ''|*[!0-9]*) settle_ms=4000 ;; esac
+# M4e.1: a dongle that comes back in CD-ROM mode while we wait for the
+# Wi-Fi mode (re-plugged after an unplug the kernel missed, or its own
+# reset) is switched again instead of waiting out the 30 s (M4e T3).
 usb_mode() {
+    tries=0
+    while :; do
+        usb_mode_once && return 0
+        [ "$?" = 2 ] && [ "$tries" -lt 2 ] || return 1
+        tries=$((tries+1)); rm -f "$state/usb-done"
+    done
+}
+usb_mode_once() {
     candidate=; n=0
     # M4e: 30 s, not 10: a dongle whose firmware hung resets itself and
     # comes back in CD-ROM mode ~18 s after it vanished (2026-11-17 boot).
@@ -176,7 +187,11 @@ usb_mode() {
     fi
     n=0
     while [ "$n" -lt 300 ]; do
-        [ "$(cat "$candidate/idVendor" 2>/dev/null):$(cat "$candidate/idProduct" 2>/dev/null)" = 0bda:c820 ] && break
+        id=$(cat "$candidate/idVendor" 2>/dev/null):$(cat "$candidate/idProduct" 2>/dev/null)
+        [ "$id" = 0bda:c820 ] && break
+        if [ "$id" = 0bda:1a2b ] && [ "$(cat "$candidate/devnum" 2>/dev/null)" != "$device" ]; then
+            say "dongle back in CD-ROM mode after $((n / 10)) s: switch again"; return 2
+        fi
         sleep 0.1; n=$((n+1))
     done
     [ "$n" -lt 300 ] || { say 'dongle did not return as 0bda:c820'; return 1; }
@@ -421,6 +436,14 @@ up_once() {
         if [ "$n" = 5 ] && [ -e "$state/freq-hint" ] && [ "$(wstate)" != COMPLETED ]; then
             say "nothing on $(cat "$state/freq-hint") MHz: full scan"
             unhint; wcli scan > /dev/null
+        fi
+        # M4e.1: after an unplug the kernel missed, the access point still
+        # held the old association: its deauth was ignored by the driver
+        # and no lease ever came (M4e T3, 170 s until a replug). Associate
+        # again from scratch at 20 s and 50 s without an address.
+        if [ "$n" = 20 ] || [ "$n" = 50 ]; then
+            say "no address after $n s (wpa_state=$(wstate)): reassociate"
+            wcli disconnect > /dev/null; sleep 0.5; wcli reassociate > /dev/null
         fi
         sleep 1; n=$((n+1))
     done

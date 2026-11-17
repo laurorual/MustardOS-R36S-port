@@ -4,7 +4,46 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M4e — config directories, rumble probe, Wi-Fi diagnostics (done 2026-11-17 night, T2 passed; p2 not written)
+## M4e.1 — Input Remap saves, dongle re-plug, kernel 0008 (done 2026-11-17, T2 passed, p2 written; T3 pending)
+
+Image `dist/firmware/test128-m4e1-20261117` (raw `c122c7f4…`, p2
+`d73646be…`, kernel `ea8ac003` = 0001–0008); p2 written with `write-p2`
+from the trial root (old p2 `5b621944…` in `MUOS/trial/p2-previous.img`).
+Logs `build/logs/m4e-t3/`.
+1. **M4e T3** (user, 2026-11-17 afternoon): 1 24-hour clock OK, 2 Rumble
+   row OK, 3 Input Remap never stuck, 4 second replug failed, 5 (after
+   0008) 19 → 19 → 19 % over a power-off on the charger and a reboot.
+2. **Input Remap:** muxremap saves through `script/mux/sdl_remap.sh`,
+   absent from the pinned script set (only `audio_sink.sh` of 28), and the
+   DB `share/info/gamecontrollerdb` is on the read-only root. Own MIT
+   `sdl_remap.sh` (upstream contract: replace the GUID's line, set
+   `settings/remap/layout`, drop display.sh's `/tmp/sdl_gc_*` cache); S91
+   seeds p3 `MUOS/port/gamecontrollerdb` once and binds it. The frontend
+   adds that file on top of the board map, so the menu follows a remap.
+3. **Second replug (timeline from dmesg/hotplug/worker logs):** the
+   unplug produced no kernel event; turning Wi-Fi off/on made the worker
+   reset the stale port (`usb_modeswitch -R`) and only then "USB
+   disconnect" (590 s). The re-plugged dongle came back in CD-ROM mode at
+   the same path while the worker waited 30 s for 0bda:c820 (add ignored:
+   worker running). Attempt 2 associated, the AP sent deauth reason 2 (it
+   still held the old association), the driver ignored it (`ignore=1`),
+   no lease for 170 s, and the worker reported "ready" without an address.
+   Worker now: a 1a2b with a new devnum during the wait → switch again
+   (2 times max); no address at 20 s and 50 s → `disconnect` +
+   `reassociate`. The missed disconnect itself: `t2-usb-watch.sh`
+   (dev-only logger of HPRT0/GINTSTS, usb 1-1, wlan0, wpa_state).
+4. **Kernel 0008:** OFF_CNT read 74 min after the flat-battery power-up;
+   `i2cset` 0 sticks. Trial boot: off count 0, `ocv=0`, dsoc kept;
+   promoted (previous = 0007).
+5. **Flat battery (0006/0007 T3):** clean low-battery poweroff 04:05 at
+   2 % / 3352 mV; at power-on "stored dsoc=2049 … ocv stale, kept": the
+   counter survived.
+6. **T2:** `t2-wifi`, `t2-wifi-radio`, `t2-wifi-robust`,
+   `t2-sleep-cycle` 5/5, `t2-wake-wifi 2` (8.8–9.1 s) PASS on the live
+   root and the trial root; `sdl_remap.sh` host test (scratch paths) and
+   device test (board mapping, then removed).
+
+## M4e — config directories, rumble probe, Wi-Fi diagnostics (done 2026-11-17 night, T2 passed; superseded by M4e.1)
 
 Built unattended while the user slept. Image `dist/firmware/test128-m4e-20261117`
 (raw `ea5ca0b4…`, p2 `1b877d11…`, kernel `d61188f3` = 0001–0007). Its p2 is
