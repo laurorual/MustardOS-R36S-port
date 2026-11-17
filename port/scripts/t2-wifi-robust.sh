@@ -8,6 +8,8 @@
 #   hotplug   software unplug (usb 1-1/remove): the udev hook must stop the
 #             network service and clear the radio state; USB host rebind
 #             (the dongle returns): the hook must restart it, Wi-Fi back
+#             (M4f: the software unplug looks like a missed plug to
+#             muos-usb-watchdog, which rebinds dwc2 ~6 s in: expected)
 #   all       both (default)
 # The hotplug part runs detached on the device (SSH drops while the dongle
 # is gone) and logs to p3 MUOS/log/t2-wifi-robust.log. Real replugs and

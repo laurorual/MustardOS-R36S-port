@@ -1,0 +1,57 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M4f: the dwc2 driver (USB port of the Wi-Fi dongle, ff300000.usb) misses
+# port events now and then: an unplug (M4e T3) and a plug (M4e.1 T3, 1 in 4)
+# left no kernel event although the port register HPRT0 (0xff300440, bit 0 =
+# a device is connected) had changed; Wi-Fi then stayed down until another
+# replug. Every 2 s this compares HPRT0 bit 0 with the kernel's device on
+# the port (usb 1-1); 3 disagreeing reads in a row (~6 s; an enumeration or
+# the dongle's CD-ROM switch takes < 1 s) rebind the dwc2 driver, which
+# re-detects the port: the hotplug rule then restarts the network as for a
+# real replug (Wi-Fi back ~17 s after the rebind, M4f T2). 30 s pause after
+# a rebind. Idle during sleep/resume (suspend.lock). HPRT0 is read only
+# while dwc2 is bound (an unclocked controller must not be touched). A stop
+# (TERM) during a rebind still binds first, and dwc2 found unbound for 10 s
+# is bound again (M4f T2: a test killed between unbind and bind left the
+# port dead until a reboot).
+#   muos-usb-watchdog            run (S97)
+#   MUOS_USB_WATCH_DEV=PATH      test hook: the kernel device path to check
+#                                (a missing path simulates a missed plug)
+#   MUOS_USB_WATCH_ONCE=1        test hook: exit after the first rebind
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+dwc=ff300000.usb
+drv=/sys/bus/platform/drivers/dwc2
+dev=${MUOS_USB_WATCH_DEV:-/sys/bus/usb/devices/1-1}
+lock=/run/muos/suspend.lock
+say() { echo "$(cut -d' ' -f1 /proc/uptime) usb-watchdog: $*"; }
+busy() { [ -e "$lock" ] && ! flock -n "$lock" true; }
+bind() { [ -e "$drv/$dwc" ] || echo "$dwc" > "$drv/bind" 2>/dev/null || say 'bind failed'; }
+rebinding=0
+trap '[ "$rebinding" = 0 ] || bind; exit 0' TERM INT HUP
+bad=0 gone=0
+say "started (device $dev)"
+while sleep 2; do
+    if [ ! -e "$drv/$dwc" ]; then
+        gone=$((gone + 1)); bad=0
+        [ "$gone" -ge 5 ] || continue
+        say 'dwc2 unbound for 10 s: bind'; bind; gone=0; continue
+    fi
+    gone=0
+    if busy; then bad=0; continue; fi
+    h=$(devmem 0xff300440 32 2>/dev/null) || continue
+    case "$h" in 0x*) ;; *) continue ;; esac
+    conn=$(( h & 1 ))
+    if [ -e "$dev" ]; then kern=1; else kern=0; fi
+    if [ "$conn" = "$kern" ]; then bad=0; continue; fi
+    bad=$((bad + 1))
+    [ "$bad" -ge 3 ] || continue
+    if [ "$conn" = 1 ]; then what='plug'; else what='unplug'; fi
+    say "missed $what (HPRT0 $h, usb 1-1 $( [ "$kern" = 1 ] && echo present || echo absent )): rebind dwc2"
+    rebinding=1
+    echo "$dwc" > "$drv/unbind" 2>/dev/null || say 'unbind failed'
+    sleep 2
+    bind; rebinding=0
+    bad=0
+    [ -z "${MUOS_USB_WATCH_ONCE:-}" ] || { say 'once: done'; exit 0; }
+    sleep 30
+done
