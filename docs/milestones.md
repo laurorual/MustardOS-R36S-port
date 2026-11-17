@@ -4,6 +4,55 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M4d — public-build prerequisites, part 1 (done 2026-11-16, T2 passed, p2 written to the card)
+
+Image `dist/firmware/test128-m4d-20261116` (raw `619473f7…`, p2
+`61f2c02f…`, kernel `d61188f3` = 0001–0007, DTB `bc04b6f8`) + public
+variant `public-m4d-20261116` (raw `6b715293…`). The card runs the same
+p2 (`muos-root-trial write-p2`, old p2 in p3 `MUOS/trial/p2-previous.img`)
+and kernel; bootloader and p1 unchanged. Logs `build/logs/m4d/`.
+1. **Wi-Fi Network without an adapter** (M4c T3 item 2 remark, frontend
+   0001): dimmed and closed while the toggle reads "Unavailable".
+   `t2-wifi-network-row.sh` (button injection, software unplug/rebind):
+   PASS on the M4c files and on the M4d trial root.
+2. **Battery cut-off** (`muos-lowbattery`): critical 3 → 1%, guard on the
+   current-corrected voltage (V + I·200 mΩ < 3550 mV) instead of the
+   loaded 3500 mV. Analysis (hardware-findings, Power): the ~470 mAh left
+   at the CTR cut-off are not reachable at 730 mA (loaded 3352 mV vs the
+   BSP's own 3300 mV poweroff); 1% gains ~2–3 min. `t1-lowbattery.sh` 8/8
+   on the host and under the device's busybox.
+3. **Battery history** (S97): one line per boot and per clean stop in p3
+   `MUOS/log/battery-history.log` (RTC date, %, mV, mA, the kernel's boot
+   decision); the M4b log only kept 3 boots. Verified: stop + boot lines
+   across the trial reboots.
+4. **Clock:** the RK817 RTC already kept UTC (40 s off after days).
+   busybox `ntpd` (`muos-clock sync` after each address, ≤ every 6 h of
+   uptime, RTC written in UTC via `/var/lib/hwclock/adjtime`): first boot
+   stepped 40 s, the next 0 s. Time zones: Buildroot tzdata 2026e (3.1
+   MB), `/etc/localtime` → p3 `MUOS/port/config/localtime` (S91 creates it
+   as UTC), frontend 0004 makes the Timezone screen rewrite that link (the
+   root is read-only). T1 (`t1-fresh-p3.sh`): UTC on a new card, −03 after
+   a São Paulo link; T2: `date` follows a link change at once. The
+   Timezone screen itself was not driven (T3).
+5. **Boot payloads (decision 3):** rkbin's BL31 (efff42ab) has the same
+   LOAD segments as the pinned one; the trust image built from it is
+   byte-identical to the card's (`rkbin-trust.sh`). No bootloader write;
+   all four payloads are rkbin files (LICENSE in `build/m4d/rkbin`).
+6. **Not done:** SFTP jail (upstream's `musftpjail` chroots and then
+   `fexecve`s a static sftp-server; the port's gesftpserver is dynamic →
+   M4e), LEDs (none controllable), rumble (`board/rumble` empty; motor
+   unknown: question for the user).
+7. **T0–T2:** frontend from a clean tree (patches 0001–0004 apply,
+   libmuxmod `165afdfa…` reproducible; no warnings in the patched code);
+   `check-public-image.sh`, `t1-fresh-p3.sh`, `t1-elf-deps.sh` PASS. On
+   the trial root: `t2-wifi.sh`, `t2-wifi-radio.sh`,
+   `t2-wifi-network-row.sh`, `t2-menu-cycle.sh` PASS; on the written p2:
+   `t2-wake-wifi.sh 3` (wake → address 8.8–9.1 s) and
+   `t2-sleep-cycle.sh` 5/5 PASS, NTP step 0 s after the reboot. A blind button run in Configuration → General saved
+   `startup = resume` through the save dialog: reverted (file removed,
+   config diff empty). shellcheck is not available on the host (download
+   blocked): `sh -n`/`bash -n` only.
+
 ## M4c — Wi-Fi toggle, faster Wi-Fi after wake, warm-reboot fix (done 2026-11-14, T3 passed 2026-11-16)
 
 **T3 (user, 2026-11-16, files installed on the card, kernel 0007):**

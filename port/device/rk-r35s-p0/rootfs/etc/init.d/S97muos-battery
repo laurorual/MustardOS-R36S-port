@@ -7,6 +7,19 @@
 # the muos-headphone jack follower and the muos-logcap log size cap (device
 # monitors share this service).
 state=/run/muos/battery-service
+# M4d: one line per boot and per clean stop on p3 (RTC date, %, mV, mA,
+# the kernel's boot decision), kept across boots and reflashes of p2, so
+# the % after days off can be compared with the % at the last poweroff.
+hist=/userdata/MUOS/log/battery-history.log
+history() { # EVENT [TEXT]
+    [ -d "${hist%/*}" ] || return 0
+    b=/sys/class/power_supply/battery
+    printf '%s %s %s cap=%s mv=%s ma=%s %s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" \
+        "$(cut -c1-8 /proc/sys/kernel/random/boot_id)" "$(cat $b/capacity 2>/dev/null)" \
+        "$(( $(cat $b/voltage_now 2>/dev/null || echo 0) / 1000 ))" \
+        "$(( $(cat $b/current_now 2>/dev/null || echo 0) / 1000 ))" "$(cat $b/status 2>/dev/null)" "${2:-}" >> "$hist"
+    [ "$(wc -l < "$hist")" -le 600 ] || { tail -n 400 "$hist" > "$hist.tmp" && mv -f "$hist.tmp" "$hist"; }
+}
 case "${1:-}" in
  start)
     mkdir -p "$state"
@@ -18,8 +31,10 @@ case "${1:-}" in
     # The kernel's boot-time gauge decision (port kernel patch 0002).
     dmesg | sed -n 's/.*\(muos-gauge: .*\)/\1/p' | while read -r l; do
         echo "boot $(cat /proc/sys/kernel/random/boot_id | cut -c1-8) $l"; done >> /opt/muos/log/battery-port.log
+    history boot "$(dmesg | sed -n 's/.*muos-gauge: boot \(.*\)/\1/p' | tail -n 1)"
     echo "battery: started ($(cat /sys/class/power_supply/battery/capacity)%)" ;;
  stop)
+    history stop
     start-stop-daemon -K -q -p "$state/hp.pid" 2>/dev/null || :
     start-stop-daemon -K -q -p "$state/logcap.pid" 2>/dev/null || :
     start-stop-daemon -K -q -p "$state/low.pid" 2>/dev/null || :

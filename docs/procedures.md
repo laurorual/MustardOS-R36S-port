@@ -62,6 +62,10 @@ incrementally; rootfs in `build/m3a/output`, boot chain in `build/m3b`):
    byte (done once in M3b). `kernel` fails if `Module.symvers` changes
    (the modules are pinned inputs). Host tests: `port/scripts/t0-boot.sh`
    (U-Boot logic against mocks, record codec).
+   The idbloader (DDR + miniloader) and the trust image (BL31 + BL32) come
+   from the M2 base image; all four payloads are rkbin files.
+   `port/scripts/rkbin-trust.sh [IMAGE]` rebuilds the trust image from
+   rkbin's BL31/BL32 and checks it equals sector 24576 (M4d: identical).
 1. `port/scripts/build-image.sh prepare`, then `source` (network, only
    fetches what the cache lacks), then `build` (offline, detached;
    follow with `build-image.sh status` or
@@ -114,6 +118,13 @@ snapshots.
   wake timing: `t2-wake-wifi.sh [CYCLES] [SETTLE_MS]` (timeline from
   wake to address; a deaf dongle is power-cycled by another sleep);
   the menu's Wi-Fi toggle backend: `t2-wifi-radio.sh` (M4c).
+  Connectivity rows without an adapter (button injection, software
+  unplug): `t2-wifi-network-row.sh` (M4d).
+  Button injection (`muos-press`) in list screens: the launcher is a 2×4
+  grid (Configuration = down, right from Explore) and keeps its focus
+  across screens; `comm` of `muxfrontend` names the current module. Don't
+  drive Configuration → General blind: on 2026-11-16 it saved
+  `settings/general/startup = resume` through its save dialog (reverted).
 
 ## Update the kernel or DTB via a trial kernel
 
@@ -175,8 +186,19 @@ The menu is on screen about 15 s after power-on.
   charger in: fake sleep (screen off). Presses are ignored 6 s after
   waking.
 - **Battery:** the RK817 gauge's `capacity` drives the status bar; a
-  warning at 25%, clean poweroff at ≤3% while discharging, with a
-  "Battery empty" splash on the framebuffer (`muos-splash`) for 3 s.
+  warning at 25%, clean poweroff at ≤1% while discharging (M4d; only if
+  the current-corrected voltage V + I·200 mΩ is below 3550 mV), with a
+  "Battery empty" splash on the framebuffer (`muos-splash`) for 3 s. The
+  kernel powers off by itself below 3300 mV. One line per boot and per
+  clean stop (RTC date, %, mV, mA, the kernel's boot decision) in p3
+  `MUOS/log/battery-history.log`. T1: `t1-lowbattery.sh`.
+- **Clock (M4d):** the RK817 RTC keeps UTC while off; the kernel sets the
+  clock from it at boot. After each DHCP/static address, `muos-clock sync`
+  runs one `ntpd -q` (pool from config `clock/pool`, at most every 6 h of
+  uptime) and writes the RTC (log `MUOS/log/system/clock.log`).
+  `/etc/localtime` → p3 `MUOS/port/config/localtime` (created as UTC by
+  S91), which the menu's Timezone screen rewrites (frontend 0004); full
+  tzdata in `/usr/share/zoneinfo`.
 - **Headphones:** jack in → path `HP`, out → `SPK_HP`; each output keeps
   its own volume (upstream `SWITCH_OUTPUT_VOLUME`).
 - **cpufreq:** muOS per-content governors through `muos-governor` (GPU

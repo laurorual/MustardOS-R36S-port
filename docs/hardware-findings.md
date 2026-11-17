@@ -257,6 +257,12 @@ about other R35S/R36S panels or revisions.
 
 ## Boot chain
 
+- **Trust image = rkbin (M4d, 2026-11-16):** the BL31 in the U-Boot tree
+  (`rk3326_bl31_v1.14.elf`, 800 KB) and rkbin efff42ab's (210 KB) have
+  identical LOAD segments (0x10000, 78704 B; 0xff0e0000, 12288 B; same
+  `v1.3(debug):1b8f3f9` build); the extra bytes are debug sections.
+  trust_merger output with either is the same `3531668a…` = sector 24576
+  of the card and of every image (`rkbin-trust.sh`).
 - **Stock raw layout** (from dArkOSen `flash_uboot.sh`; read it only, **never
   run it**):
 
@@ -499,6 +505,19 @@ about other R35S/R36S panels or revisions.
 
 ## Power and battery
 
+- **RTC and cut-off (M4d, 2026-11-16):** the RK817 RTC (`rk808-rtc`,
+  rtc0) kept UTC to within 40 s over days off (set earlier by dArkOSen);
+  the kernel sets the clock from it at boot. DT: `power_off_thresd` 3300
+  mV (VSYS), `zero_algorithm_vol` 3850, `bat_res` 100 mΩ; with
+  `CONFIG_ARCH_ROCKCHIP_ODROIDGOA` the BSP itself powers off after 1 min
+  below 3300 mV (or at once ≤ 3250). The zero algorithm aims dsoc at 0
+  where the loaded voltage reaches that threshold at the present load, so
+  the ~10–18% left at a game's cut-off (OCV ≈ 3.50 V at 730 mA) is not
+  reachable at that load: the CTR run hit 3% at 3352 mV loaded, falling
+  ~5 mV/min, ~1%/min. Cutting at 1% instead of 3% gains ~2–3 min.
+- **`board/rumble` is empty** in the pinned device config (muOS: no
+  rumble), although the joypad driver drives a PWM (`ff200000.pwm`,
+  `rumble_period` 200 ms, boosts 0); whether a motor is fitted is unknown.
 - **Battery (M2):** RK817 fuel gauge, design_capacity 3140, qmax 3454.
   `/sys/class/power_supply/battery/{capacity,voltage_now,status,health}`.
   The charger is `ac/online` (1 when plugged in; `usb/online` stays 0), the

@@ -21,6 +21,10 @@ BR2_ROOTFS_OVERLAY="/m3a/overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="/port/scripts/firmware-post-build.sh"
 BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="/port/device/rk-r35s-p0/phase4-foundation.busybox"
 BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
+# M4d: time zones for the menu's Timezone screen (/etc/localtime is set
+# by firmware-post-build.sh).
+BR2_TARGET_TZ_INFO=y
+BR2_TARGET_LOCALTIME=""
 BR2_PACKAGE_ALSA_UTILS=y
 BR2_PACKAGE_ALSA_UTILS_AMIXER=y
 BR2_PACKAGE_ALSA_UTILS_APLAY=y

@@ -10,14 +10,31 @@
 # at 4.1 V). M4a: before the poweroff the UI is stopped (as the poweroff
 # would) and the "battery empty" splash shown for 3 s; muos-rc stop shows
 # it again at the end (/run/muos/battery-empty).
-run=/run/muos
+# M4d: critical 3 -> 1% (the BSP zero algorithm brings the % to 0 when
+# the loaded voltage reaches power_off_thresd, 3300 mV, at the present
+# load; at 3% a CTR run still had ~2-3 min), and the guard judges the
+# current-corrected voltage (open-circuit estimate V + I x 200 mOhm,
+# below VOLTAGE mV, default 3550 = ~15% on the OCV table): under a game
+# load the plain voltage reads 3.45 V at ~15%, so the old 3500 mV guard
+# would have let a gauge error power off a battery with charge left.
+# The kernel (ODROIDGOA) still powers off by itself below 3300 mV.
+run=${MUOS_RUN_DIR:-/run/muos}
+bat=${MUOS_BATTERY_SYSFS:-/sys/class/power_supply/battery}
+cfgdir=${MUOS_CONFIG_DIR:-/opt/muos/config}
 cap=$run/battery/capacity chg=$run/battery/charging ovl=$run/overlay.battery
-critical=${MUOS_BATTERY_CRITICAL:-3} interval=${MUOS_BATTERY_INTERVAL:-10}
-volt=${MUOS_BATTERY_VOLTAGE:-3500}
-bat_mv() { v=$(cat /sys/class/power_supply/battery/voltage_now 2>/dev/null); echo $(( ${v:-0} / 1000 )); }
+critical=${MUOS_BATTERY_CRITICAL:-1} interval=${MUOS_BATTERY_INTERVAL:-10}
+volt=${MUOS_BATTERY_VOLTAGE:-3550} res=${MUOS_BATTERY_RES_MOHM:-200}
+bat_mv() { v=$(cat "$bat/voltage_now" 2>/dev/null); echo $(( ${v:-0} / 1000 )); }
+# Open-circuit estimate: the discharge current (current_now < 0) times res.
+ocv_mv() {
+    i=$(cat "$bat/current_now" 2>/dev/null); i=$(( ${i:-0} / 1000 ))
+    [ "$i" -lt 0 ] || i=0
+    echo $(( $(bat_mv) - i * res / 1000 ))
+}
 say() { printf '%s %s\n' "$(cut -d' ' -f1 /proc/uptime)" "$*"; }
-cfg() { v=$(cat "/opt/muos/config/$1" 2>/dev/null); echo "${v:-$2}"; }
+cfg() { v=$(cat "$cfgdir/$1" 2>/dev/null); echo "${v:-$2}"; }
 empty() {
+    if [ -n "${MUOS_BATTERY_EMPTY_CMD:-}" ]; then $MUOS_BATTERY_EMPTY_CMD; return; fi
     : > "$run/battery-empty"; sync
     /etc/init.d/S99muos-ui stop
     /usr/libexec/muos-splash && sleep 3
@@ -33,11 +50,11 @@ while :; do
         low=0 ignored=
     else
         [ -e "$ovl" ] || { : > "$ovl"; say "low battery warning ($c%)"; }
-        if [ "$c" -le "$critical" ] && [ "$(bat_mv)" -lt "$volt" ]; then
+        if [ "$c" -le "$critical" ] && [ "$(ocv_mv)" -lt "$volt" ]; then
             low=$((low + 1))
-            [ "$low" -lt 3 ] || { say "critical battery ($c%, $(bat_mv) mV): power off"; empty; exit 0; }
+            [ "$low" -lt 3 ] || { say "critical battery ($c%, $(bat_mv) mV, corrected $(ocv_mv) mV): power off"; empty; exit 0; }
         elif [ "$c" -le "$critical" ]; then
-            [ -n "$ignored" ] || say "critical $c% ignored: battery at $(bat_mv) mV"
+            [ -n "$ignored" ] || say "critical $c% ignored: battery at $(bat_mv) mV, corrected $(ocv_mv) mV"
             low=0 ignored=1
         else
             low=0

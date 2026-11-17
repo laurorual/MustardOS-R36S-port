@@ -32,7 +32,7 @@
   {
    "id": "boot-chain-payloads",
    "component": "Selected RK3326 DDR 333MHz v1.10, miniloader v1.12, BL31 v1.14 and BL32 v1.10",
-   "status": "exact payload bytes pinned; vendor license terms still require per-file matching; private use only",
+   "status": "all four payloads are rkbin files (M4d, 2026-11-16): DDR, miniloader and BL32 byte-identical; BL31 from rkbin efff42ab gives a byte-identical trust.img (port/scripts/rkbin-trust.sh); redistributable under rkbin's LICENSE, shipped next to the public image",
    "reference": "docs/archive/phase4/phase4-uboot-sd.md",
    "source_revision": "5606e804ffe8f9e5427d55c8da04c638f01a9391",
    "payload_sha256": {
@@ -49,7 +49,13 @@
     "rk3326_bl32_v1.10.bin": "identical to rkbin commit a92d5e7df36cd1fac4bab24bc953b145fc0159a1",
     "rk3326_bl31_v1.14.elf": "DIFFERS from rkbin commit efff42ab1b9c314c56f7b95ba77bf823534efd7e (rkbin sha256 372d717c4965842f73f24279569fcfa3bd00b3a0a442e1d592c081393bfb2927); the pinned file comes from the U-Boot tree at source_revision only",
     "licence": "rkbin LICENSE (Rockchip, (c) 2017-2023, on master; the 2018 commits predate the file): non-exclusive licence to use, copy and distribute; no reverse engineering; keep notices",
-    "next": "replace BL31 with an rkbin build (v1.14 from efff42ab or later) and re-qualify the trust image (bootloader write, T3), or move to open TF-A (px30); ship rkbin's LICENSE next to the image"
+    "next": "done in M4d (no trust change: identical)"
+   },
+   "m4d_bl31_2026_11_16": {
+    "rkbin_bl31": "efff42ab1b9c314c56f7b95ba77bf823534efd7e bin/rk33/rk3326_bl31_v1.14.elf, sha256 372d717c4965842f73f24279569fcfa3bd00b3a0a442e1d592c081393bfb2927 (build/m4d/rkbin)",
+    "finding": "same LOAD segments as the U-Boot-tree file (which only adds debug sections): trust_merger output identical, sha256 3531668a2f08d4f8583ae9e256177f3404e04f9888d6e2a677613c8dfd4da138 = sector 24576 of every image and of the card",
+    "bootloader_write": "none needed",
+    "license_file": "rkbin master LICENSE, sha256 1b3cfbd212ef0e645b34aa6beee07343ce954a4f512338f12317ab297a9c9829 (build/m4d/rkbin/LICENSE)"
    }
   },
   {

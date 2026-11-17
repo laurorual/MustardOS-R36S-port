@@ -11,7 +11,8 @@
 # - muxretro's provider metadata for the source build (M3e);
 # - board/network = 1 (M4a: the port's Wi-Fi backend drives muOS's
 #   Connectivity menu; the pinned device config says 0);
-# - info_open/info_close.wav high-passed for the speaker (M4a, wav-highpass.py).
+# - info_open/info_close.wav high-passed for the speaker (M4a, wav-highpass.py);
+# - /etc/localtime -> the zone link on p3, RTC in UTC (M4d).
 # $1 is TARGET_DIR. Runs inside the build container (paths as
 # build-image.sh mounts).
 set -eu
@@ -79,4 +80,11 @@ with open(os.path.join(d, "payload.sha256")) as f:
 with open(os.path.join(d, "payload.sha256"), "w") as f:
     f.writelines(lines)
 PY
-echo "post-build: board/network, info sounds high-passed, coredb governors, level-script boost wrappers, wireplumber rules, hotkey hold, muxretro provenance"
+# Time zone (M4d): /etc/localtime follows the link on p3 that the menu's
+# Timezone screen rewrites (frontend 0004; muos-clock zone creates it, UTC);
+# the RTC is kept in UTC for busybox hwclock (the kernel reads it as UTC).
+ln -sfn /opt/muos/config/localtime "$1/etc/localtime"
+rm -f "$1/etc/timezone"
+mkdir -p "$1/var/lib/hwclock"
+printf '0.0 0 0.0\n0\nUTC\n' > "$1/var/lib/hwclock/adjtime"
+echo "post-build: board/network, info sounds high-passed, coredb governors, level-script boost wrappers, wireplumber rules, hotkey hold, muxretro provenance, localtime link + RTC in UTC"

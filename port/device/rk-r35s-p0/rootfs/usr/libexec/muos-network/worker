@@ -264,6 +264,7 @@ on_connected() {
         [ -z "$g" ] || { while route del default dev "$(iface)" 2>/dev/null; do :; done; route add default gw "$g" dev "$(iface)"; }
         [ -z "$d" ] || printf 'nameserver %s\n' "$d" > /tmp/resolv.conf
         printf '%s\n' "$a" > "$state/address.tmp" && mv "$state/address.tmp" "$state/address"
+        (setsid /usr/libexec/muos-clock sync < /dev/null > /dev/null 2>&1 &)
     else
         dhcp_start
     fi

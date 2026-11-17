@@ -107,6 +107,7 @@ case "${1:-}" in
         echo system-governor >> "$mig"; sync
     fi
     bind "$port/config" /opt/muos/config
+    /usr/libexec/muos-clock zone # M4d: the time zone link (UTC on a new card)
     bind "$port/volume" /opt/muos/share/volume
     bind "$port/info-content" /opt/muos/share/info/content
     bind "$port/info-config" /opt/muos/share/info/config

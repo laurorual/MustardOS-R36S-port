@@ -1,0 +1,47 @@
+From: muOS R35S port
+Subject: [PATCH] 0004-timezone-link-on-p3
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/muxtimezone.c
++++ b/frontend/module/muxtimezone.c
+@@ -1,4 +1,8 @@
+ #include "muxshare.h"
++
++/* R35S port: the root is read-only, so /etc/localtime is a fixed link to
++   this zone link on the user partition (created as UTC at boot). */
++#define PORT_LOCAL_TIME CONF_CONFIG_PATH "localtime"
+ #include <common/ui/orientation.h>
+ 
+ #define ZONE_REGION_OTHER "Other"
+@@ -279,8 +283,8 @@
+     char zone_group[MAX_BUFFER_SIZE];
+     snprintf(zone_group, sizeof(zone_group), "/usr/share/zoneinfo/%s", full_zone);
+ 
+-    unlink(LOCAL_TIME);
+-    if (symlink(zone_group, LOCAL_TIME) != 0) {
++    unlink(PORT_LOCAL_TIME);
++    if (symlink(zone_group, PORT_LOCAL_TIME) != 0) {
+         LOG_ERROR(mux_module, "Failed to timezone symlink");
+     }
+ 
+--- a/frontend/module/muxrtc.c
++++ b/frontend/module/muxrtc.c
+@@ -1,4 +1,8 @@
+ #include "muxshare.h"
++
++/* R35S port: the root is read-only, so /etc/localtime is a fixed link to
++   this zone link on the user partition (created as UTC at boot). */
++#define PORT_LOCAL_TIME CONF_CONFIG_PATH "localtime"
+ #include <common/ui/orientation.h>
+ #include "ui/ui_muxrtc.h"
+ 
+@@ -93,7 +97,7 @@
+     static char zone[MAX_BUFFER_SIZE];
+ 
+     char target[MAX_BUFFER_SIZE];
+-    const ssize_t len = readlink(LOCAL_TIME, target, sizeof(target) - 1);
++    const ssize_t len = readlink(PORT_LOCAL_TIME, target, sizeof(target) - 1);
+ 
+     if (len <= 0) return lang.generic.unknown;
+     target[len] = '\0';

@@ -41,6 +41,19 @@
         "dist/firmware/test128-m4c-20261114.manifest",
         "build/m3a/test128-m4c-20261114.p2.img"
       ]
+    },
+    "m4d-20261116": {
+      "reason": "M4d: Wi-Fi Network closed without an adapter, cut-off at 1% on the current-corrected voltage, battery history on p3, clock (tzdata, zone link on p3, ntpd -q after each address, RTC in UTC), kernel 0006/0007 (coulomb seed), boot payloads all rkbin (trust identical); developer + public variant",
+      "files": [
+        "dist/firmware/test128-m4d-20261116.img.zst",
+        "dist/firmware/test128-m4d-20261116.img.zst.sha256",
+        "dist/firmware/test128-m4d-20261116.manifest",
+        "build/m3a/test128-m4d-20261116.p2.img",
+        "dist/firmware/public-m4d-20261116.img.zst",
+        "dist/firmware/public-m4d-20261116.img.zst.sha256",
+        "dist/firmware/public-m4d-20261116.manifest",
+        "build/m3a/public-m4d-20261116.p2.img"
+      ]
     }
   },
   "keep": {

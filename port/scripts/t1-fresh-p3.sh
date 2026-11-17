@@ -7,7 +7,7 @@
 # aarch64 through the host's qemu binfmt). p3 is a tmpfs with only the
 # data marker (S89's mount is simulated, fstype check relaxed); then S90
 # storage, S91 runtime (seeding), S98 user init and the network worker
-# (no profiles -> radio off, "idle"). Prints a verdict.
+# (no profiles -> radio off, "idle"); M4d: the time-zone link. Prints a verdict.
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/../.." && pwd)
 target=$repo/build/m3a/output/target
@@ -22,12 +22,16 @@ echo fstype=tmpfs > /etc/default/muos-storage
 /etc/init.d/S91muos-runtime start > /dev/null; echo "S91 rc=$?"
 echo "seeded=$([ -e /userdata/MUOS/port/.seeded ] && echo yes || echo no) roms=$(ls /userdata/ROMS | wc -l) board_network=$(cat /opt/muos/device/config/board/network) sshd=$(cat /opt/muos/config/web/sshd) user_init=$(cat /opt/muos/config/settings/advanced/user_init)"
 /etc/init.d/S98muos-user-init start; echo "S98 rc=$?"
+# M4d: the zone link (UTC on a new card), then a zone change as the menu does it.
+z0=$(readlink /opt/muos/config/localtime); z1=$(date -d @1794888000 "+%H:%M %Z"); ln -sfn /usr/share/zoneinfo/America/Sao_Paulo /opt/muos/config/localtime
+echo "zone0=$z0 utc=$z1 zone=$(readlink /userdata/MUOS/port/config/localtime) local=$(date -d @1794888000 "+%H:%M %Z")"
 /usr/libexec/muos-network/worker up; echo "worker rc=$? idle=$([ -e /run/muos/network/idle ] && echo yes || echo no)"'
 podman run --rm --privileged --network=none --rootfs "$target:O" /bin/sh -c "$script" > "$logs/t1-fresh-p3.log" 2>&1 || :
 cat "$logs/t1-fresh-p3.log"
 if grep -q 'S90 rc=0' "$logs/t1-fresh-p3.log" && grep -q 'S91 rc=0' "$logs/t1-fresh-p3.log" &&
    grep -q 'seeded=yes roms=[1-9][0-9]* board_network=1 sshd=0 user_init=0' "$logs/t1-fresh-p3.log" &&
-   grep -q 'S98 rc=0' "$logs/t1-fresh-p3.log" && grep -q 'worker rc=0 idle=yes' "$logs/t1-fresh-p3.log"; then
+   grep -q 'S98 rc=0' "$logs/t1-fresh-p3.log" && grep -q 'worker rc=0 idle=yes' "$logs/t1-fresh-p3.log" &&
+   grep -q 'zone0=/usr/share/zoneinfo/Etc/UTC utc=04:00 UTC zone=/usr/share/zoneinfo/America/Sao_Paulo local=01:00 -03' "$logs/t1-fresh-p3.log"; then
     echo 'PASS fresh p3 first boot'
 else
     echo 'FAIL fresh p3 first boot'; exit 1

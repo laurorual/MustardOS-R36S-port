@@ -1,0 +1,40 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-clock (M4d): wall clock and time zone on the read-only root.
+#   muos-clock zone   make sure /opt/muos/config/localtime exists (the
+#                     zone link the menu's Timezone screen rewrites, frontend
+#                     0004; /etc/localtime points at it). Default: UTC.
+#   muos-clock sync   one SNTP query (busybox ntpd -q) to the pool in
+#                     config clock/pool (upstream key, default pool.ntp.org),
+#                     then the RK817 RTC (kept in UTC, /var/lib/hwclock/
+#                     adjtime). Run by the DHCP hook and the static-address
+#                     path; at most once per 6 h of uptime; 20 s limit.
+# The RTC keeps time while the device is off; the kernel sets the clock from
+# it at boot (rk808-rtc), so a sync is only needed for drift and a new RTC.
+cfg=${MUOS_CLOCK_CONFIG:-/opt/muos/config}
+log=/opt/muos/log/clock.log
+say() { echo "$(date '+%F %T') $*" >> "$log"; }
+case "${1:-}" in
+zone)
+    [ -e "$cfg/localtime" ] || [ -L "$cfg/localtime" ] ||
+        ln -s /usr/share/zoneinfo/Etc/UTC "$cfg/localtime" ;;
+sync)
+    stamp=/run/muos/clock-synced
+    up=$(cut -d. -f1 /proc/uptime)
+    [ ! -s "$stamp" ] || [ $((up - $(cat "$stamp"))) -ge 21600 ] || exit 0
+    exec 9> /run/muos/clock.lock
+    flock -n 9 || exit 0
+    pool=$(cat "$cfg/clock/pool" 2>/dev/null); pool=${pool:-pool.ntp.org}
+    before=$(date +%s)
+    ntpd -n -q -p "$pool" > /run/muos/clock-ntpd.log 2>&1 &
+    pid=$! n=0
+    while kill -0 "$pid" 2>/dev/null && [ "$n" -lt 20 ]; do sleep 1; n=$((n + 1)); done
+    if kill -0 "$pid" 2>/dev/null; then
+        kill "$pid" 2>/dev/null; say "sync: no answer from $pool in 20 s"; exit 1
+    fi
+    wait "$pid" || { say "sync: ntpd failed ($(tail -n 1 /run/muos/clock-ntpd.log))"; exit 1; }
+    step=$(( $(date +%s) - before - n ))
+    hwclock -w -u && echo "$up" > "$stamp"
+    say "sync: $pool, step ${step}s, RTC written" ;;
+*) echo 'Usage: muos-clock zone|sync' >&2; exit 2 ;;
+esac

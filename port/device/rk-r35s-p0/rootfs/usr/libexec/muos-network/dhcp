@@ -17,6 +17,8 @@ case "${1:-}" in
         if [ -n "${dns:-}" ]; then
             for d in $dns; do echo "nameserver $d"; done > /tmp/resolv.conf.tmp && mv /tmp/resolv.conf.tmp /tmp/resolv.conf
         fi
-        printf '%s\n' "$ip" > "$state/address.tmp" && mv "$state/address.tmp" "$state/address" ;;
+        printf '%s\n' "$ip" > "$state/address.tmp" && mv "$state/address.tmp" "$state/address"
+        # M4d: the clock (rate-limited, detached from udhcpc).
+        (setsid /usr/libexec/muos-clock sync < /dev/null > /dev/null 2>&1 &) ;;
 esac
 exit 0
