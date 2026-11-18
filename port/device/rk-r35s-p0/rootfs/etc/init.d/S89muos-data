@@ -14,8 +14,10 @@ export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 disk=/dev/disk/by-partuuid/4d554432
 data=/userdata
 part() {
-    [ -b "$disk-0$1" ] && { echo "$disk-0$1"; return; }
-    echo "/dev/mmcblk0p$1"
+    # M5: the slot 1 card by controller (a copy of the image in slot 2 has
+    # the same disk id), the by-partuuid link only as a fallback
+    d=$(/usr/libexec/muos-boot-disk) && { echo "${d}p$1"; return; }
+    echo "$disk-0$1"
 }
 case "${1:-}" in
  start)

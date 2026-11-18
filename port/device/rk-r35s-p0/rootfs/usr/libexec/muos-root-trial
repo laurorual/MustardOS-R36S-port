@@ -9,7 +9,7 @@
 # p2 stays unmounted afterwards; the next reboot boots the new p2.
 set -eu
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
-p2=/dev/mmcblk0p2
+p2=$(/usr/libexec/muos-boot-disk)p2 # M5: slot 1 by controller, not by name
 on_trial() { awk '$2 == "/" {print $1}' /proc/mounts | grep -q '^/dev/loop'; }
 p2_mounts() { awk -v d="$p2" '$1 == d || $1 == "/dev/root" {print $2}' /proc/mounts | grep -v '^/$' || :; }
 case "${1:-status}" in

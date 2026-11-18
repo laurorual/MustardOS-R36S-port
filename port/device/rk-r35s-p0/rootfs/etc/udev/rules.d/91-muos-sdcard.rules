@@ -1,0 +1,2 @@
+# M5: card inserted into / removed from slot 2 (SD controller ff380000.dwmmc)
+ACTION=="add|remove", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="mmcblk[0-9]*", DEVPATH=="*/ff380000.dwmmc/*", RUN+="/usr/libexec/muos-sdcard-hotplug %E{ACTION}"

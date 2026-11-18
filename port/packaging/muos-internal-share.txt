@@ -1,0 +1,18 @@
+# M5: upstream internal share/ trees shipped in the image (git tree id at
+# docs/upstream-revisions.txt's commit, then the path; the rest of the line
+# is the path, spaces allowed). Fetched by port/scripts/fetch-upstream-share.sh,
+# copied by build-image.sh stage_overlay to /opt/muos/<path> (640x480 only).
+0a5c668d484c7eb722242696f93d8329877807e8 share/theme/MustardOS
+c9005592327897fe439cd2289e8bec1fb4c1996e share/theme/C64
+7617e615332e8db1ce27143ebafc31170d75cd43 share/theme/Dracula
+38b8a9c59c80f512a3541c8f2c11f84257dd8033 share/theme/GB Dark
+e73697495e92a0eaba13c6e17d571c6a02956d99 share/theme/Orange
+7af98dddcc0abcb0c74b592f12876af4968e5da9 share/theme/mubiOS
+99a0f92c4ee46431066297c26e8924e4fc01f0ad share/theme/override
+ae91e505a6a599a9c02548c7ab1653b2e9fbf7d6 share/profile
+14e7a3e64bec185eeca77598d775af5891a2f20d share/lookup
+99e6802c702615a1897740474dee220a8d7a0322 share/info/name
+942c0d848a97ce85a2e7c266240e9a8d14919f0c share/media
+7ed40f000cbbf1732c98b7aff14be42dd4c98788 share/task
+8a60c85a5b1fe5740c4e0635a63f67ddd9eb154a share/language
+f00c5bdbe3ae12fba833bb27d13a45662a94d3ea share/font/internal

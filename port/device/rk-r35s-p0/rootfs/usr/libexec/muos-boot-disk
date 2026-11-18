@@ -1,0 +1,15 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M5: print the block device of the card in slot 1 (the boot card, SD
+# controller ff370000.dwmmc), e.g. /dev/mmcblk0. With a card in slot 2 the
+# kernel may number that card mmcblk0 (cards are numbered in detection
+# order) and copies of the image share the disk id, so the port's disk
+# writers (muos-root-trial, muos-boot-slot, muos-grow-p3) and the early
+# mounts resolve the disk here, never by a fixed name or PARTUUID.
+for b in /sys/devices/platform/ff370000.dwmmc/mmc_host/mmc*/mmc*:*/block/mmcblk*; do
+    [ -e "$b" ] || continue
+    echo "/dev/${b##*/}"
+    exit 0
+done
+echo 'muos-boot-disk: no card in slot 1' >&2
+exit 1

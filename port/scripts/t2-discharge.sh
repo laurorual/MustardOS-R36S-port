@@ -102,7 +102,8 @@ log-start)
     [ "$(r 'cat /sys/class/power_supply/battery/status')" = Discharging ] ||
         fail 'battery not discharging: unplug the charger first'
     r "pgrep -f '[m]uos-discharge-log|[z]z-discharge-log' >/dev/null" && fail 'a discharge log is already running'
-    r "mkdir -p $keep /userdata/MUOS/init; rm -f $csv; cat $ui > $keep/user_init.before 2>/dev/null || echo 0 > $keep/user_init.before"
+    # no game, no volume change: drop what an older game run left to restore
+    r "mkdir -p $keep /userdata/MUOS/init; rm -f $csv $keep/resume.ini.before $keep/volume.before $keep/game $keep/game-before.tar; cat $ui > $keep/user_init.before 2>/dev/null || echo 0 > $keep/user_init.before"
     printf '%s\n' "$plogger" | r "cat > $init.tmp && mv $init.tmp $init && echo 1 > $ui && sync"
     r "setsid sh $init < /dev/null > /dev/null 2>&1 &"
     sleep 9
@@ -122,9 +123,11 @@ report)
     out=$logs/discharge; rm -rf "$out"; mkdir -p "$out"
     "$dev" scp "dev:$csv" "$out/discharge.csv" > /dev/null 2>&1 || fail 'no discharge log on p3'
     r 'cd /userdata/MUOS/log; for d in system system.prev system.prev2 system.prev3; do [ -f $d/battery-port.log ] && { echo "== $d"; cat $d/battery-port.log; }; done; echo "== rc-last"; cat rc-last.log' > "$out/battery-and-shutdown.txt" 2>&1
-    r "[ -f $keep/resume.ini.before ] && cp -a $keep/resume.ini.before /userdata/MUOS/pickles/resume.ini; sync" || :
-    r "[ -f $keep/game ] || exit 0; IFS='	' read -r dir n < $keep/game; cd / && $rom_paths | while IFS= read -r f; do rm -rf \"/\$f\"; done; [ ! -f $keep/game-before.tar ] || tar -xf $keep/game-before.tar -C /; rm -f $keep/game; sync" || :
-    r "v=\$(cat $keep/volume.before 2>/dev/null) && export PIPEWIRE_RUNTIME_DIR=/run XDG_RUNTIME_DIR=/run && /opt/muos/script/device/audio.sh \$v >/dev/null 2>&1" || :
+    # each saved file is restored once and then removed, so a later report
+    # (e.g. of an idle log-start run) never brings back a stale level
+    r "[ ! -f $keep/resume.ini.before ] || mv $keep/resume.ini.before /userdata/MUOS/pickles/resume.ini; sync" || :
+    r "[ -f $keep/game ] || exit 0; IFS='	' read -r dir n < $keep/game; cd / && $rom_paths | while IFS= read -r f; do rm -rf \"/\$f\"; done; [ ! -f $keep/game-before.tar ] || tar -xf $keep/game-before.tar -C /; rm -f $keep/game $keep/game-before.tar; sync" || :
+    r "v=\$(cat $keep/volume.before 2>/dev/null) && rm -f $keep/volume.before && export PIPEWIRE_RUNTIME_DIR=/run XDG_RUNTIME_DIR=/run && /opt/muos/script/device/audio.sh \$v >/dev/null 2>&1" || :
     python3 -I - "$out/discharge.csv" "$out/battery-and-shutdown.txt" <<'PY'
 import csv, sys
 rows = [r for r in csv.DictReader(open(sys.argv[1])) if r["mv"]]

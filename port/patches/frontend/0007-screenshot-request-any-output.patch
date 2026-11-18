@@ -1,0 +1,18 @@
+From: muOS R35S port
+Subject: [PATCH] 0007-screenshot-request-any-output
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/common/platform/display.c
++++ b/frontend/common/platform/display.c
+@@ -1371,7 +1371,9 @@
+ void display_process_screenshot_request(void) {
+     static uint32_t last_poll = 0;
+ 
+-    if (!hdmi_mode) return;
++    /* R35S port: the panel is a KMS plane that /dev/fb0 does not show, so
++       script/mux/screenshot.sh asks the frontend on every output, not only
++       in HDMI mode. */
+ 
+     const uint32_t now = SDL_GetTicks();
+     if (now - last_poll < 32) return;

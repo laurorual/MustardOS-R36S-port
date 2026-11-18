@@ -58,6 +58,10 @@ stage_overlay() { # the port rootfs with its init-script symlinks resolved
             { echo "stage_overlay: $src does not match $want" >&2; return 1; }
         install -D -m 0755 "$src" "$m3a/overlay.tmp/opt/muos/$path"
     done < "$repo/port/packaging/muos-internal-extra.txt"
+    # M5: upstream share/ trees (themes, profiles, lookup/name tables,
+    # media, tasks, languages), tree-id checked; the pinned inputs that
+    # firmware-post-build installs afterwards win where paths coincide.
+    "$repo/port/scripts/fetch-upstream-share.sh" stage "$m3a/overlay.tmp"
     rm -rf "$m3a/overlay"; mv "$m3a/overlay.tmp" "$m3a/overlay"
 }
 

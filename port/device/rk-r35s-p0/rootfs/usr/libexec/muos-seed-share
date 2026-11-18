@@ -1,0 +1,34 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M5: what upstream's factory reset (internal script/system/reset.sh) copies
+# from /opt/muos/share to the user's storage, for the port's p3 (which has
+# no factory-reset step): the bundled themes into MUOS/theme (the theme
+# picker lists only that folder) and the friendly-name files into
+# MUOS/info/name; and p3 MUOS/port/profile-state, where the image's
+# /opt/muos/share/profile/state link points (profile.sh). Run by S90muos-storage after the binds, every boot; a
+# theme is copied once (marker MUOS/port/seeded-theme/<name>; the theme
+# list shows every folder in MUOS/theme), so a theme the
+# user deletes stays deleted, and nothing the user has is overwritten.
+# Log: p3 MUOS/log/seed-share.log (only when something was copied).
+share=/opt/muos/share
+store=/mnt/mmc/MUOS
+log=$store/log/seed-share.log
+[ -d "$store" ] || exit 0
+mkdir -p "$store/theme" "$store/port/seeded-theme" "$store/port/profile-state" "$store/info/name"
+for t in "$share"/theme/*/; do
+    t=${t%/}; n=${t##*/}
+    [ "$n" = override ] && continue
+    [ -e "$store/port/seeded-theme/$n" ] && continue
+    if [ ! -e "$store/theme/$n" ]; then
+        cp -a "$t" "$store/theme/$n.tmp" && mv "$store/theme/$n.tmp" "$store/theme/$n" || {
+            rm -rf "${store:?}/theme/$n.tmp"; echo "$(date) theme $n: copy failed" >> "$log"; continue; }
+        echo "$(date) theme $n copied" >> "$log"
+    fi
+    : > "$store/port/seeded-theme/$n"
+done
+for f in "$share"/info/name/*; do
+    [ -e "$f" ] || continue
+    [ -e "$store/info/name/${f##*/}" ] && continue
+    cp -a "$f" "$store/info/name/" && echo "$(date) info/name/${f##*/} copied" >> "$log"
+done
+sync

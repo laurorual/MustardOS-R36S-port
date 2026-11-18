@@ -1,0 +1,14 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M5: udev (91-muos-sdcard.rules) for slot 2: mount the card at /mnt/sdcard
+# when it appears, unmount it when it goes (a pulled card is lazily
+# unmounted). Detached so udev's event returns at once; serialized with
+# the boot's mount by storage.sh's lock. Log: /run/muos/sdcard.log.
+case "${1:-}" in add | remove) ;; *) exit 2 ;; esac
+[ -e /run/muos/storage/mount_ready ] || [ "$1" = remove ] || exit 0 # boot: S90 mounts it
+setsid sh -c '
+    [ "$1" = add ] && sleep 1 # let the partitions appear
+    act=mount; [ "$1" = remove ] && act=eject
+    echo "$(cut -d" " -f1 /proc/uptime) $1" >> /run/muos/sdcard.log
+    /opt/muos/script/device/storage.sh sdcard $act >> /run/muos/sdcard.log 2>&1
+' sh "$1" < /dev/null > /dev/null 2>&1 &

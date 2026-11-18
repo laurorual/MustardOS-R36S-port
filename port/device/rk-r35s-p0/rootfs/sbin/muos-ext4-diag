@@ -28,7 +28,7 @@ trial_root() {
     [ ! -e /etc/muos-root-trial ] || return 1
     mount -t tmpfs -o size=64k,mode=0700 muos-trial /tmp || return 1
     mkdir /tmp/p3 /tmp/root
-    if mount -t ext4 -o rw,noatime,data=ordered /dev/mmcblk0p3 /tmp/p3; then
+    if mount -t ext4 -o rw,noatime,data=ordered "$(/usr/libexec/muos-boot-disk)p3" /tmp/p3; then
         if mount -t ext4 -o loop,ro /tmp/p3/MUOS/trial/rootfs.img /tmp/root; then
             r=/tmp/root
             if [ -x $r/sbin/muos-ext4-diag ] && [ -x $r/sbin/init ] && [ -d $r/media ] &&

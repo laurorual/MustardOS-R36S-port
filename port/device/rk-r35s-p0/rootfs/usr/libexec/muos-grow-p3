@@ -18,7 +18,7 @@
 #         background at low priority.
 # Log: p3 MUOS/log/grow-p3.log (part logs to /run first; fs moves it).
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
-mode=${1:-} disk=${2:-/dev/mmcblk0}
+mode=${1:-} disk=${2:-$(/usr/libexec/muos-boot-disk)} # M5: slot 1 by controller
 name=${disk##*/}
 case "$name" in *[0-9]) p=${name}p ;; *) p=$name ;; esac
 sys=/sys/block/$name

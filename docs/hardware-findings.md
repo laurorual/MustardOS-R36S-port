@@ -556,6 +556,17 @@ The open problems behind each "partial" are in STATUS.
   register (3880 mV): +12 points (57 → 69%). Kernel 0008 clears it after
   reading: the register is writable (`i2cset -f -y 0 0x20 0x6f 0` sticks;
   RK817 at i2c-0 0x20, ID 0x8174); a power-up on the charger read 0.
+  Closed by M4g T3: 55 % before a power-off of ≥ 10 min off the charger,
+  55 % after; the idle logger (`build/logs/m5/discharge-report.txt`,
+  2026-11-17/18, 32 boots) shows every warm reboot since keeps the % (±1).
+- **Displayed % lags the gauge (dsoc vs rsoc), idle log M5:** on charge
+  dsoc trailed rsoc by 11 points (29 % shown, rsoc 39.9 %) and a reboot
+  snapped it to rsoc (29 → 40 %). On the 2026-11-17 night discharge the
+  shown % reached 2 % at 3352 mV, −450 mA, with rsoc 13 % and 331 mAh
+  left on the coulomb counter, then the log stopped (no low-battery
+  poweroff line survived the log rotation over the later boots). The
+  shown % errs low near empty, never high. Same BSP smoothing as problem
+  (d).
 - **Missed USB disconnect (M4e T3):** a dongle unplugged while Wi-Fi ran
   produced no "USB disconnect" (dwc2, otg port 1-1, runtime PM off) until
   a port reset 15 s later; the first unplug of the same session was

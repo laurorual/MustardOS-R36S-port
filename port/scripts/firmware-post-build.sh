@@ -12,13 +12,17 @@
 # - board/network = 1 (M4a: the port's Wi-Fi backend drives muOS's
 #   Connectivity menu; the pinned device config says 0);
 # - info_open/info_close.wav high-passed for the speaker (M4a, wav-highpass.py);
-# - /etc/localtime -> the zone link on p3, RTC in UTC (M4d).
+# - /etc/localtime -> the zone link on p3, RTC in UTC (M4d);
+# - share/profile/state -> p3 MUOS/port/profile-state (M5).
 # $1 is TARGET_DIR. Runs inside the build container (paths as
 # build-image.sh mounts).
 set -eu
 python3 /port/scripts/firmware-inputs.py install \
     /port/packaging/firmware-inputs.json /m3a/inputs "$1"
 cp /port/device/rk-r35s-p0/rootfs/opt/muos/device/config/board/network "$1/opt/muos/device/config/board/network"
+# M5: upstream profile.sh keeps its state in /opt/muos/share/profile/state
+# (rw on upstream, the read-only p2 here): on p3 (muos-seed-share creates it)
+ln -sfn /userdata/MUOS/port/profile-state "$1/opt/muos/share/profile/state"
 snd=$1/opt/muos/share/theme/MustardOS/sound
 for n in info_open info_close; do
     python3 /port/scripts/wav-highpass.py "$snd/$n.wav" "$snd/$n.wav.tmp" && mv "$snd/$n.wav.tmp" "$snd/$n.wav"

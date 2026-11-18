@@ -15,7 +15,7 @@
 #                                            bootloader region (sector 16384, 4 MiB)
 # IMAGE/DTB of init are p1 file names; of install-trial, local files.
 set -eu
-disk=/dev/mmcblk0 boot=/boot
+disk=$(/usr/libexec/muos-boot-disk) boot=/boot # M5: slot 1 by controller
 tool=/usr/libexec/muos-bootrec
 tmp=/run/muos-boot-slot; mkdir -p "$tmp"
 

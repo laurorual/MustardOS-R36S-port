@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Port adapter for the storage paths/bindmap contract in MustardOS
 # internal/script/device/bind.sh (550cc58f9cd3449a17f53ca55efcdc6c473b5a89).
-# Single-card bring-up: no block discovery, filesystem creation, or SD2 probing.
+# Slot 1 binds only; a card in slot 2 is mounted at /mnt/sdcard by the
+# port's script/device/storage.sh (M5). No filesystem creation.
 set -eu
 state=/run/muos/port-storage
 store=/run/muos/storage
@@ -79,9 +80,16 @@ case "${1:-}" in
     done
     mv "$state/map.tmp" "$store/bindmap"
     touch "$store/mount_ready" "$state/ready"
+    # M5: bundled themes and name files into p3 (upstream's factory reset)
+    [ ! -x /usr/libexec/muos-seed-share ] || /usr/libexec/muos-seed-share || :
+    # M5: a card in slot 2 at boot (later ones: 91-muos-sdcard.rules)
+    sd2=/opt/muos/script/device/storage.sh
+    [ ! -x "$sd2" ] || (setsid "$sd2" sdcard mount 1 < /dev/null >> /run/muos/sdcard.log 2>&1 &)
     status_storage
     ;;
- stop) stop_storage ;;
+ stop)
+    [ ! -x /opt/muos/script/device/storage.sh ] || /opt/muos/script/device/storage.sh sdcard down > /dev/null 2>&1 || :
+    stop_storage ;;
  status) status_storage ;;
  *) echo 'Usage: S90muos-storage start|stop|status' >&2; exit 2 ;;
 esac

@@ -5291,7 +5291,7 @@
    "path": "/opt/muos/frontend/lib/libmuxcom.so",
    "type": "file",
    "mode": "644",
-   "sha256": "d3478e78d1be7c88711c5df4bc171d9eba566aa2c0d084ec2988c0933dc9173c",
+   "sha256": "31a5e2bb6b72f7443e0bdf62d5d127743ce2f9bf3bcac010e522bc3a974ba033",
    "origin": "build/m4c/frontend-libs/tree/opt/muos/frontend/lib/libmuxcom.so"
   },
   {

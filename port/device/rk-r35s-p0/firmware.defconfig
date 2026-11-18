@@ -61,6 +61,9 @@ BR2_PACKAGE_DROPBEAR=y
 BR2_PACKAGE_DROPBEAR_DISABLE_REVERSEDNS=y
 # M3c: SFTP for dropbear (/usr/libexec/sftp-server; also serves OpenSSH scp)
 BR2_PACKAGE_GESFTPSERVER=y
+# M5: Info-ZIP zip/unzip for muOS extract.sh/backup.sh (unzip -Z; BusyBox unzip lacks it)
+BR2_PACKAGE_UNZIP=y
+BR2_PACKAGE_ZIP=y
 BR2_PACKAGE_WPA_SUPPLICANT=y
 BR2_PACKAGE_WPA_SUPPLICANT_WEXT=y
 BR2_PACKAGE_WPA_SUPPLICANT_CLI=y

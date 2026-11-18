@@ -1,0 +1,17 @@
+# M5: paths (relative to /opt/muos) removed from the upstream share/ trees
+# of muos-internal-share.txt: tasks for hardware, services or applications
+# the port doesn't have. One path per line, spaces allowed.
+share/task/Diagnostics/Bluetooth Report.sh
+share/task/Diagnostics/Battery Gauge Repair.sh
+share/task/Migration Tasks
+share/task/Network Tasks
+share/task/Refresh Bootlogo.sh
+share/task/Restore Tasks/Restore DraStic Configuration.sh
+share/task/Restore Tasks/Restore PortMaster.sh
+share/task/Restore Tasks/Restore PPSSPP Configuration.sh
+share/task/Restore Tasks/Restore RetroArch Configuration.sh
+share/task/Restore Tasks/Restore RetroArch Overrides.sh
+share/task/Restore Tasks/Restore YabaSanshiro Configuration.sh
+share/task/Storage Tasks/Eject USB External Storage.sh
+share/task/Storage Tasks/Mount USB External Storage.sh
+share/task/Syncthing Tasks
