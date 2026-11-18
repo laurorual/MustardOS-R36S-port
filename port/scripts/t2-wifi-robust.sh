@@ -9,7 +9,10 @@
 #             network service and clear the radio state; USB host rebind
 #             (the dongle returns): the hook must restart it, Wi-Fi back
 #             (M4f: the software unplug looks like a missed plug to
-#             muos-usb-watchdog, which rebinds dwc2 ~6 s in: expected)
+#             muos-usb-watchdog, which rebinds dwc2 4-6 s in: the removed
+#             state is sampled at 3 s (usb-done may still be set: the hook
+#             clears it after S41 stop), the watchdog's "missed plug"
+#             rebind is the re-add; the test rebinds only without one)
 #   all       both (default)
 # The hotplug part runs detached on the device (SSH drops while the dongle
 # is gone) and logs to p3 MUOS/log/t2-wifi-robust.log. Real replugs and
@@ -41,10 +44,17 @@ o=/userdata/MUOS/log/t2-wifi-robust.log; N=/run/muos/network
 st() { echo "$(cut -d' ' -f1 /proc/uptime) $1 usb=[$(cat /sys/bus/usb/devices/1-1/idProduct 2>/dev/null)] flags=[$(cd $N && ls radio usb-done ready 2>/dev/null | tr '\n' ' ')] addr=$(cat $N/address 2>/dev/null)" >> $o; }
 : > $o; : > /run/muos-hotplug.log
 st start
+W=/opt/muos/log/usb-watchdog.log; w0=$(wc -l < $W 2>/dev/null || echo 0)
 echo 1 > /sys/bus/usb/devices/1-1/remove
-sleep 8; st removed
-echo ff300000.usb > /sys/bus/platform/drivers/dwc2/unbind; sleep 2
-echo ff300000.usb > /sys/bus/platform/drivers/dwc2/bind
+sleep 3; st removed
+if pgrep -f muos-usb-watchdog > /dev/null; then
+    i=0; until tail -n +$((w0 + 1)) $W 2>/dev/null | grep -q 'missed plug' || [ $i -ge 20 ]; do sleep 1; i=$((i+1)); done
+    tail -n +$((w0 + 1)) $W 2>/dev/null | sed 's/^/WD /' >> $o
+else
+    echo 'WD none: manual rebind' >> $o
+    echo ff300000.usb > /sys/bus/platform/drivers/dwc2/unbind; sleep 2
+    echo ff300000.usb > /sys/bus/platform/drivers/dwc2/bind
+fi
 i=0; while [ $i -lt 90 ] && [ ! -s $N/address ]; do sleep 1; i=$((i+1)); done
 st readded; echo "back_after=${i}s" >> $o
 sed 's/^/HP /' /run/muos-hotplug.log >> $o; echo done >> $o; sync
@@ -55,9 +65,10 @@ EOF
     n=0; until r 'grep -qx done /userdata/MUOS/log/t2-wifi-robust.log' 2>/dev/null || [ "$n" -ge 12 ]; do sleep 5; n=$((n+1)); done
     log=$(r 'cat /userdata/MUOS/log/t2-wifi-robust.log')
     printf '%s\n' "$log"
-    if printf '%s\n' "$log" | grep -q '^[0-9.]* removed usb=\[\] flags=\[\] addr=$' &&
+    if printf '%s\n' "$log" | grep -q -E '^[0-9.]+ removed usb=\[\] flags=\[(usb-done )?\] addr=$' &&
        printf '%s\n' "$log" | grep -q 'hotplug remove: dongle gone' &&
        printf '%s\n' "$log" | grep -q 'hotplug add: restart' &&
+       printf '%s\n' "$log" | grep -q -E '^WD (.*missed plug.*rebind dwc2|none)' &&
        printf '%s\n' "$log" | grep -q '^[0-9.]* readded usb=\[c820\] .*addr=[0-9]'; then
         echo 'PASS hotplug'
     else

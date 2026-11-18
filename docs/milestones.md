@@ -4,7 +4,7 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M4f — USB watchdog, menu scripts (done 2026-11-17, T2 passed)
+## M4f — USB watchdog, menu scripts (done 2026-11-17, T2 passed, p2 written 2026-11-18)
 
 Logs `build/logs/m4f/`.
 1. **dwc2 missed plug/unplug.** Trial DTB `dr_mode = "host"` (only change,
@@ -39,6 +39,16 @@ Logs `build/logs/m4f/`.
    CTR in 0.35 s; track start/suspend/resume/stop on tmpfs → 5 s of 7;
    `t2-sleep-cycle --game 2` with tracking on tmpfs → 56 s of 99 (two
    sleeps excluded); `t2-sleep-cycle`, `t2-wifi-robust`, `t2-wake-wifi`.
+3. **Trial T2 and write-p2 (2026-11-18).** The trial root's
+   `t2-wifi-robust` hotplug FAIL was the test: the watchdog's rebind
+   (4–6 s after the software unplug, logged as "missed plug") had the
+   dongle back before the 8 s "removed" sample. The test now samples at
+   3 s (usb-done may still be set), waits for the watchdog's rebind and
+   rebinds itself only without a watchdog. Trial root: `t2-wifi`,
+   `t2-wifi-radio`, `t2-wifi-robust`, `t2-sleep-cycle --game 2`,
+   `t2-wake-wifi 2` (9.1 s) passed, no watchdog trigger over the sleeps;
+   p2 written and verified (`46a573a0…`), live: watchdog, frontend,
+   audio/max 100, one sleep cycle.
 
 ## M4e.1 — Input Remap saves, dongle re-plug, kernel 0008 (done 2026-11-17, T3 passed → recovery image)
 

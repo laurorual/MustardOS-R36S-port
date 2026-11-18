@@ -12,26 +12,21 @@ T3 checklists in [milestones.md](milestones.md). See also
 ## Current phase
 
 **Phase 5 (own-card firmware). M1–M4e.1 done (M4e.1 = recovery image).
-M4f (USB watchdog, menu scripts) built: `test128-m4f-20261117`, T2
-passed on the live root; on the trial root all passed except
-`t2-wifi-robust` hotplug (FAIL, open). Its p2 is in p3 trial, not
-written. Item 3 (BOOST power cycle) dropped: the BOOST is not the port's
-5 V.**
+M4f (USB watchdog, menu scripts): `test128-m4f-20261117`, T2 passed
+(trial and live root), p2 written 2026-11-18; **T3 pending**. Item 3
+(BOOST power cycle) dropped: the BOOST is not the port's 5 V.**
 Details: milestones.md M4f, M4e.1.
 
-## Next session — read first (stopped 2026-11-17 ~18:10, user's limit)
+## Next session — read first (2026-11-18)
 
-- Device on the charger, booted into the **M4f trial root** (one-shot:
-  any reboot returns to main = M4e.1 p2 + M4f files installed with
-  `install-rootfs.sh`, which already run the watchdog, tweak, search,
-  activity). p3 `MUOS/trial/rootfs.img` = M4f p2 `46a573a0…`.
-- **Open: `t2-wifi-robust` hotplug FAIL on the trial root** (passed on
-  the live root before the S97 watchdog started there). Likely the
-  watchdog's rebind at 213.6 s (6 s into the test's software unplug)
-  races the test's own unbind/bind; read `build/logs/m4f/trial-t2-wifi-robust.txt`,
-  then fix the test (expect or pause the watchdog) or the watchdog.
-- Then: rerun the trial T2, `write-p2` the M4f p2 (user present),
-  M4f T3 below, promote M4f, retire M4c.
+- Device off the charger, on main = **M4f p2** (`46a573a0…`, written
+  2026-11-18 with `write-p2`; old p2 = M4e.1 + M4f files installed,
+  `d58ca5a3…`, in `MUOS/trial/p2-previous.img`).
+- `t2-wifi-robust` hotplug fixed (test only): the watchdog rebinds 4–6 s
+  after the software unplug ("missed plug"), so the removed state is
+  sampled at 3 s and the watchdog's rebind is the re-add.
+- Next: the user's M4f T3 below; if it passes, promote M4f to recovery,
+  retire M4c.
 - The idle discharge logger (`MUOS/init`) still runs; `t2-discharge.sh
   report` pending.
 
@@ -39,9 +34,9 @@ Details: milestones.md M4f, M4e.1.
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1: M4b image flashed 2026-11-14, M4d p2 written
-  2026-11-16, M4e.1 p2 written 2026-11-17 (`write-p2`). p3 `MUOS/trial/rootfs.img` =
-  M4e.1 p2 (`d73646be…`), `p2-previous.img` = M4d p2 + M4e files
-  (`5b621944…`).
+  2026-11-16, M4e.1 p2 written 2026-11-17, M4f p2 2026-11-18 (`write-p2`). p3
+  `MUOS/trial/rootfs.img` = M4f p2 (`46a573a0…`), `p2-previous.img` =
+  M4e.1 p2 + M4f files (`d58ca5a3…`).
   Time zone set by the user (−03); volume 10 (user's level was 55).
   - Boot records: main = `Image-ea8ac0033c0e` (0001–0008) +
     `panel0-bc04b6f8e4d4.dtb`; previous = `Image-d61188f3a808` (0007).
@@ -59,8 +54,8 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m4f-20261117.img.zst` (raw `159d4894…`, p2 `46a573a0…`) | M4f developer image | T2 partly (robust hotplug FAIL on trial root); not written |
-| **`dist/firmware/test128-m4e1-20261117.img.zst`** (raw `c122c7f4…`, p2 `d73646be…`) | **Recovery image since 2026-11-17 (evening).** M4e.1 (kernel 0001–0008) | p2 on the card; T3 passed |
+| `dist/firmware/test128-m4f-20261117.img.zst` (raw `159d4894…`, p2 `46a573a0…`) | M4f developer image | p2 on the card (2026-11-18); T2 passed; T3 pending |
+| **`dist/firmware/test128-m4e1-20261117.img.zst`** (raw `c122c7f4…`, p2 `d73646be…`) | **Recovery image since 2026-11-17 (evening).** M4e.1 (kernel 0001–0008) | T3 passed |
 | `dist/firmware/test128-m4d-20261116.img.zst` (raw `619473f7…`, p2 `61f2c02f…`) + `public-m4d-20261116` | M4d (kernel 0001–0007); recovery 2026-11-17 morning | T3 items 1–3 passed |
 | `dist/firmware/test128-m4c-20261114.img.zst` | M4c (kernel 0001–0005) | T3 passed |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
