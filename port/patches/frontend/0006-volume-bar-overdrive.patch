@@ -1,0 +1,20 @@
+From: muOS R35S port
+Subject: [PATCH] 0006-volume-bar-overdrive
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/common/ui/common.c
++++ b/frontend/common/ui/common.c
+@@ -1572,7 +1572,11 @@
+         volume_changes_seen = volume_config_changes;
+ 
+         const int saved_volume = read_line_int_from(CONF_CONFIG_PATH "settings/general/volume", 1);
+-        if (saved_volume >= 0 && saved_volume <= device.audio.max) {
++        /* R35S port: device.c clamps device.audio.max to 100, but Audio
++         * overdrive saves volumes up to 200 and volume_to_percent scales by
++         * 200: accept them, or the bar stops at 50 %. */
++        const int volume_max = config.settings.advanced.overdrive ? 200 : device.audio.max;
++        if (saved_volume >= 0 && saved_volume <= volume_max) {
+             const int value_changed = saved_volume != current_volume;
+             current_volume = saved_volume;
+             if (value_changed) {

@@ -17,10 +17,15 @@
 # Built with the Phase 4 graphics toolchain and sysroot (graphics-config)
 # at the C65 build path, so an unpatched build reproduces the pinned
 # libmuxmod.so byte for byte (`check`; libui and libmuxcom link their
-# objects in `find` order, which differs on the reflinked tree). Only
-# libmuxmod.so is taken: the patches may only touch module code, since the
-# lang/config/device structs in libmuxcom are shared with muxfrontend and
-# muxretro, which are not rebuilt here.
+# objects in `find` order, which differs on the reflinked tree). The
+# patches must not change the lang/config/device structs in libmuxcom:
+# they are shared with muxfrontend and muxretro, which are not rebuilt here.
+# libmuxmod.so is always taken; libmuxcom.so too once a patch touches
+# frontend/common/ (M4g: function bodies only). Its unpatched rebuild has
+# the pinned symbols (names, types, sizes) and only differs in link order
+# (`check`).
+# M4g: also builds the upstream tool musftpjail (the SFTP jail, unchanged
+# source, upstream's tool flags) into tree/opt/muos/frontend/musftpjail.
 # The image takes the result as a pinned input (firmware-inputs.json);
 # for a quick test: `install-rootfs.sh --tree build/m4c/frontend-libs/tree
 # opt/muos/frontend/lib/libmuxmod.so`.
@@ -31,6 +36,7 @@ base=$repo/build/phase4/frontend-libs/source
 gfx=$repo/build/phase4/graphics-config
 area=$repo/build/m4c/frontend-libs
 src=$area/src stamp=$area/src.patches out=$area/tree/opt/muos/frontend/lib
+tool_out=$area/tree/opt/muos/frontend
 patches=$repo/port/patches/frontend
 iid=$(cat "$repo/build/phase4/rootfs-container.iid")
 log=$repo/build/logs/frontend-libs-build.log
@@ -60,22 +66,56 @@ compile() {
         ' > "$log" 2>&1 || { tail -30 "$log" >&2; exit 1; }
 }
 
+# Upstream's $(TOOLS) rule with common.mk's BASE/STRICT_CFLAGS and
+# BIN_LDFLAGS (no LTO, no rpath: the tool links libc only).
+compile_jail() {
+    podman run --rm --network=none --read-only --cap-drop=all --security-opt=no-new-privileges \
+        --userns=keep-id --memory=2g --pids-limit=256 --tmpfs /tmp:rw,nosuid,nodev,size=256m \
+        -v "$gfx/output/host:/work/graphics-config/output/host:ro,z" -v "$src:$site:rw,z" -w "$site/frontend" "$iid" sh -euc '
+        cc=/work/graphics-config/output/host/bin/aarch64-buildroot-linux-gnu-gcc
+        $cc -mcpu=cortex-a35 -std=c11 -O2 -pipe -ffunction-sections -fdata-sections \
+            -Wall -Wpedantic -Wno-format-zero-length -Wno-unused-function -fno-plt \
+            -fstack-protector-strong -fstack-clash-protection -D_FORTIFY_SOURCE=3 -D_GNU_SOURCE -fPIE -fno-ident \
+            -Werror=implicit-function-declaration -Werror=implicit-int -Werror=incompatible-pointer-types \
+            -Werror=return-type -Wformat-truncation=2 -Werror=format-truncation -Werror=unused-function \
+            -I. module/musftpjail.c common/storage/mount.c -o ../frontend-bin/musftpjail \
+            -Wl,--gc-sections -pie -Wl,-z,relro,-z,now -s
+        ' >> "$log" 2>&1 || { tail -30 "$log" >&2; exit 1; }
+}
+
 case "${1:-build}" in
 build)
     prepare
     compile
+    compile_jail
+    t=$tool_out/musftpjail
+    cp "$src/frontend-bin/musftpjail" "$t.tmp" && mv "$t.tmp" "$t"
+    echo "musftpjail: $(sha256sum "$t" | cut -c1-16) ($(stat -c %s "$t") bytes)"
     l=$out/libmuxmod.so
     cp "$src/frontend-bin/lib/libmuxmod.so" "$l.tmp" && mv "$l.tmp" "$l"
     echo "frontend-libs: warnings=$(grep -c ' warning: ' "$log" || :) (log $log)"
-    echo "libmuxmod.so: $(sha256sum "$l" | cut -c1-16) ($(stat -c %s "$l") bytes)" ;;
+    echo "libmuxmod.so: $(sha256sum "$l" | cut -c1-16) ($(stat -c %s "$l") bytes)"
+    l=$out/libmuxcom.so
+    if cat /dev/null "$patches"/*.patch | grep -q '^+++ b/frontend/common/'; then
+        cp "$src/frontend-bin/lib/libmuxcom.so" "$l.tmp" && mv "$l.tmp" "$l"
+        echo "libmuxcom.so: $(sha256sum "$l" | cut -c1-16) ($(stat -c %s "$l") bytes)"
+    else
+        rm -f "$l"
+    fi ;;
 check)
     # An unpatched rebuild must equal the pinned libmuxmod.so.
     empty=$area/no-patches; mkdir -p "$empty"
     prepare "$empty"; compile
     want=bfd909c6eae5d6d692025e8a0b489840c9a552d3ad22e902183b6265d700ae17
     got=$(sha256sum "$src/frontend-bin/lib/libmuxmod.so" | cut -d' ' -f1)
+    # libmuxcom: link order differs; the symbol table (name, type, size) must not.
+    pinned=$repo/build/m3a/inputs/2913dbf7d901a258d338995e0d937c2f6559465c41a3bd0e097072820f57cd21
+    syms() { nm -S "$1" | awk 'NF == 4 {print $4, $3, $2}' | sort; }
+    if cmp -s <(syms "$pinned") <(syms "$src/frontend-bin/lib/libmuxcom.so"); then com=same; else com=DIFF; fi
     rm -rf "$src" "$stamp"
-    if [ "$got" = "$want" ]; then echo 'same libmuxmod.so'; else echo "DIFF libmuxmod.so $got != $want"; exit 1; fi ;;
+    echo "$com libmuxcom.so symbols"
+    if [ "$got" = "$want" ]; then echo 'same libmuxmod.so'; else echo "DIFF libmuxmod.so $got != $want"; exit 1; fi
+    [ "$com" = same ] || exit 1 ;;
 clean) rm -rf "$src" "$stamp" ;;
 mkpatch)
     name=$2; shift 2

@@ -5291,8 +5291,8 @@
    "path": "/opt/muos/frontend/lib/libmuxcom.so",
    "type": "file",
    "mode": "644",
-   "sha256": "2913dbf7d901a258d338995e0d937c2f6559465c41a3bd0e097072820f57cd21",
-   "origin": "build/phase4/frontend-libs/build.fr0v680t/output/build/muos-frontend-libs-1/frontend-bin/lib/libmuxcom.so"
+   "sha256": "d3478e78d1be7c88711c5df4bc171d9eba566aa2c0d084ec2988c0933dc9173c",
+   "origin": "build/m4c/frontend-libs/tree/opt/muos/frontend/lib/libmuxcom.so"
   },
   {
    "path": "/opt/muos/frontend/lib/libmuxmod.so",
@@ -5347,8 +5347,15 @@
    "path": "/opt/muos/frontend/muxretro",
    "type": "file",
    "mode": "755",
-   "sha256": "d51260ea9e99999cbc969aa14df33e2a8c55e2301a434514f625813d647b1e28",
+   "sha256": "7bc63124266b131667b0b40754432c2ff0e46d4f6d9cd009f6f02c06fc1d6440",
    "origin": "build/m3d/muxretro/tree/opt/muos/frontend/muxretro"
+  },
+  {
+   "path": "/opt/muos/frontend/musftpjail",
+   "type": "file",
+   "mode": "755",
+   "sha256": "6e645f5c6a02e2cc7ec5b33476ebca2db9bed68711972badc1641ed0f4498205",
+   "origin": "build/m4c/frontend-libs/tree/opt/muos/frontend/musftpjail"
   },
   {
    "path": "/opt/muos/script/device",

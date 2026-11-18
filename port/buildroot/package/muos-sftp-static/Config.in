@@ -1,0 +1,6 @@
+config BR2_PACKAGE_MUOS_SFTP_STATIC
+	bool "muOS SFTP jail server (static gesftpserver)"
+	depends on BR2_PACKAGE_GESFTPSERVER
+	help
+	  /opt/muos/bin/aarch64/sftp-server for upstream musftpjail, the
+	  muos account of the jailed SFTP and the jail's modes.

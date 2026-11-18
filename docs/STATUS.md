@@ -12,26 +12,27 @@ T3 checklists in [milestones.md](milestones.md). See also
 ## Current phase
 
 **Phase 5 (own-card firmware). M1–M4f done (M4f = recovery image since
-2026-11-18: USB watchdog, menu scripts). Next: M4g (proposal below).**
+2026-11-18). M4g (SFTP jail, overdrive volume bar): `test128-m4g-20261118`,
+T2 passed, p2 written 2026-11-18; **T3 pending** (checklist below).**
 Details: milestones.md M4f, M4e.1.
 
-## Next session — read first (2026-11-18)
+## Next session — read first (2026-11-18 evening)
 
-- Device off the charger, on main = **M4f p2** (`46a573a0…`); old p2 =
-  M4e.1 + M4f files (`d58ca5a3…`) in `MUOS/trial/p2-previous.img`.
-- M4f T3 (user, 2026-11-18): 2–6 passed; 1 overdrive raises the volume
-  (T2: 123 → gain 1.86) but the bar stops at 50 % (open problems).
-  Results in milestones.md M4f.
+- Device off the charger, on main = **M4g p2** (`371b3f23…`); old p2 =
+  M4f p2 + the M4g libmuxcom/muxretro installed (`38b383fa…`) in
+  `MUOS/trial/p2-previous.img`. Web SSH and SFTP on (the user's setting).
+- Next: the user's M4g T3 below; if it passes, promote M4g, retire M4d
+  (5/5 now).
 - The idle discharge logger (`MUOS/init`) still runs; `t2-discharge.sh
-  report` pending.
+  report` pending (its `report` restores a saved volume: check first).
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1: M4b image flashed 2026-11-14, M4d p2 written
-  2026-11-16, M4e.1 p2 written 2026-11-17, M4f p2 2026-11-18 (`write-p2`). p3
-  `MUOS/trial/rootfs.img` = M4f p2 (`46a573a0…`), `p2-previous.img` =
-  M4e.1 p2 + M4f files (`d58ca5a3…`).
+  2026-11-16, M4e.1 p2 written 2026-11-17, M4f and M4g p2 2026-11-18 (`write-p2`). p3
+  `MUOS/trial/rootfs.img` = M4g p2 (`371b3f23…`), `p2-previous.img` =
+  M4f p2 + M4g frontend files (`38b383fa…`).
   Time zone set by the user (−03); volume 55 (the user's level).
   - Boot records: main = `Image-ea8ac0033c0e` (0001–0008) +
     `panel0-bc04b6f8e4d4.dtb`; previous = `Image-d61188f3a808` (0007).
@@ -49,12 +50,13 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| **`dist/firmware/test128-m4f-20261117.img.zst`** (raw `159d4894…`, p2 `46a573a0…`) | **Recovery image since 2026-11-18.** M4f (kernel 0001–0008, USB watchdog, menu scripts) | p2 on the card; T3 2–6 passed, 1 bar only |
+| `dist/firmware/test128-m4g-20261118.img.zst` (raw `a9d7cbc4…`, p2 `371b3f23…`) | M4g developer image (SFTP jail, overdrive bar) | p2 on the card; T2 passed; T3 pending |
+| **`dist/firmware/test128-m4f-20261117.img.zst`** (raw `159d4894…`, p2 `46a573a0…`) | **Recovery image since 2026-11-18.** M4f (kernel 0001–0008, USB watchdog, menu scripts) | T3 2–6 passed, 1 bar only |
 | `dist/firmware/test128-m4e1-20261117.img.zst` (raw `c122c7f4…`, p2 `d73646be…`) | M4e.1; recovery 2026-11-17 evening | T3 passed |
 | `dist/firmware/test128-m4d-20261116.img.zst` (raw `619473f7…`, p2 `61f2c02f…`) + `public-m4d-20261116` | M4d (kernel 0001–0007); recovery 2026-11-17 morning | T3 items 1–3 passed |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-4/5 firmware versions (`port/packaging/storage-retention.json`; retired
+5/5 firmware versions (`port/packaging/storage-retention.json`; retired
 M1, M3a.1, M3b–M3e, M4a–M4c, M4e).
 
 ## What works (T3-confirmed)
@@ -86,13 +88,11 @@ switching; flashing with the host card reader; p3 auto-grow; `panic=10`.
 - **Missing muOS scripts:** still absent (M4f): `backup.sh` (needs zip),
   `extract.sh`, `profile.sh`, `bt_*.sh`; `prepare.sh`/`logo.sh` not
   wanted (one card, p1); no `share/lookup` name tables.
-- **Audio overdrive bar (M4f T3 1):** the volume goes to 200 % (cubic,
-  gain 8 at 200: distorts on the speaker, as upstream), but the menu bar
-  and muxretro's in-game bar stop at 50 %: the frontend clamps
-  `device.audio.max` to 0–100 (`device.c` DEV_INT_RANGE) and ignores saved
-  volumes above it, while the bar scales by 200. In-game: our
-  `patches/muxretro/0002`; menu: `common/ui/common.c` in the pinned
-  libmuxcom (only libmuxmod is rebuilt).
+- **Audio overdrive bar (M4f T3 1):** fixed in M4g (T3 pending): the
+  frontend clamps `device.audio.max` to 0–100 and ignored saved volumes
+  above it while the bar scales by 200; now both bars accept up to 200
+  with overdrive (`patches/muxretro/0002`, `patches/frontend/0006` in a
+  rebuilt libmuxcom). 200 % = gain 8 (cubic): distorts, as upstream.
 - **Translation (pt-BR, before the public build):** parts of the system
   stay English with Português (Brasil) selected, and the existing pt-BR
   text needs a review (user, 2026-11-18). Includes our own strings
@@ -110,7 +110,7 @@ switching; flashing with the host card reader; p3 auto-grow; `panic=10`.
 - **Headphones (hardware, deprioritized):** jack contact problem.
 - **DDR devfreq** isn't synced to the display; **U-Boot log** goes to
   serial/LCD only.
-- **Pinned, not rebuilt:** muxfrontend, libui/libmuxcom, the cores, the
+- **Pinned, not rebuilt:** muxfrontend, libui, the cores, the
   kernel modules, the tuned `/opt/muos` config (now completed with empty
   directories at boot); idbloader and trust (rkbin files).
 - **Trial root:** p3 can't be unmounted at shutdown while it runs; any
@@ -118,8 +118,10 @@ switching; flashing with the host card reader; p3 auto-grow; `panic=10`.
 - **Menu:** "Direct Link" and "Proxy
   Settings" not exercised; static addresses untested; the Rumble row's
   "present" case unverified (no motor here).
-- **SFTP** runs as root with the whole filesystem (decision 6: jail
-  needs a static sftp-server).
+- **SFTP (M4g):** the menu's SFTP is jailed (muos/muos, port 2022);
+  "Internal" is the read-only p2 view of `/opt/muos` (upstream binds it
+  non-recursively: config/log show empty). Whether the Web Services
+  screen shows the login is unverified.
 - **Licences:** Mali r13p0 (Hardkernel: no answer yet), the dirty
   U-Boot, Gambatte and BT firmware are private-only.
 
@@ -136,13 +138,26 @@ has no rumble motor; keep the option, detect the motor, show
 
 Open: none.
 
+## M4g T3 checklist (p2 written; no flash)
+
+1. **Overdrive bar:** Configuration → Advanced → Audio overdrive on;
+   in the menu and in a game, volume up to the top: the bar reaches the
+   end (no stop at the middle). Overdrive off: the bar also reaches the
+   end at 100 %, volume back to your level.
+2. **SFTP from the PC** (FileZilla/WinSCP: SFTP, the console's IP, port
+   2022, user `muos`, password `muos`): you see "Primary Storage"
+   (MUOS, ROMS) and "Internal"; copy a ROM into `Primary Storage/ROMS/<system>`:
+   it shows in Explore. User `root`/`root` on 2022 is refused.
+3. **Battery (c):** off the charger, note the %, power off from the menu,
+   wait ≥ 10 min, power on: the % is the same (±1). Tell me both values.
+4. **Regression:** volume keys in a game (overdrive off), sleep/wake in
+   game, Wi-Fi on/off.
+
 ## Next milestone (proposal)
 
-**M4g:** (1) overdrive bar: muxretro's in-game bar takes the overdrive
-limit (own patch); the menu bar needs a patched libmuxcom (shared structs
-with the pinned muxfrontend: check ABI) or stays a known issue.
-(2) SFTP jail (decision 6: static sftp-server in Buildroot + upstream
-`musftpjail`, `muos` user). (3) `t2-discharge.sh report` and battery (c).
-Then the publication checklist. **Before the final public build:** a
-pt-BR milestone (inventory of English strings with pt-BR selected, our
-own strings into the language files, review of the existing pt-BR text).
+**M4h:** `t2-discharge.sh report`; Web Services screen with the SFTP login
+(check what the menu shows); then the publication checklist (roadmap M4:
+public variant T2, licences, source bundle). **Before the final public
+build:** a pt-BR milestone (inventory of English strings with pt-BR
+selected, our own strings into the language files, review of the existing
+pt-BR text).

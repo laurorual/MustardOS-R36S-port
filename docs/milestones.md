@@ -4,6 +4,41 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M4g — SFTP jail, overdrive volume bar (done 2026-11-18, p2 written, T3 pending)
+
+Image `dist/firmware/test128-m4g-20261118` (raw `a9d7cbc4…`, p2
+`371b3f23…`); logs `build/logs/m4g/`.
+1. **Overdrive bar.** The frontend's `device.c` clamps `device.audio.max`
+   to 0–100, the bar handlers drop saved volumes above it, and
+   `volume_to_percent` divides by 200 with overdrive: the bar stopped at
+   50 % while the sink went on (T2: saved 123, gain 1.86). muxretro
+   patch 0002 and frontend patch 0006 (`common/ui/common.c`) take 200
+   with overdrive. 0006 is in libmuxcom, so `build-frontend-libs.sh` now
+   ships `libmuxcom.so` when a patch touches `frontend/common/`; an
+   unpatched rebuild has the pinned symbol table (names, types, sizes;
+   only `.data`/`.bss` padding from link order differs), the patched one
+   differs only in `ui_common_progress_tick`'s size. libmuxmod unchanged.
+2. **SFTP jail (decision 6)** as upstream `web/service.sh`: dropbear
+   `-G muos -c /opt/muos/frontend/musftpjail -W 1048576 -T 5` on
+   web/sftp_port. `musftpjail` built unchanged from the pinned frontend
+   source (upstream tool flags); Buildroot package `muos-sftp-static`:
+   gesftpserver linked `-static` at `/opt/muos/bin/aarch64/sftp-server`,
+   account `muos` (1000, upstream's hash = "muos"; mkusers wants home
+   `-`), `musftpjail` root:muos 4750, `/opt/muos/browse`. The worker
+   refuses to start SFTP without the jail. The developer SFTP (2222,
+   root, `/usr/libexec/sftp-server`) is unchanged.
+3. **T0–T2:** shellcheck; frontend 0 warnings, muxretro only the 13
+   upstream ones; `check` passed; T1 333 ELFs resolved, the server static,
+   modes and accounts read from the ext4 image. Trial root:
+   `t2-sftp-jail` (login shows only Catalogue, Collections, History,
+   Internal, Primary Storage; 8 MiB put 9.8 MiB/s; `/..`, /etc, /usr not
+   reachable; root and a wrong password refused; Internal read-only),
+   `t2-sftp 16`, `t2-wifi`, `t2-wifi-robust`, `t2-menu-cycle`,
+   `t2-sleep-cycle --game 2`; live root before the image: `t2-menu-cycle`,
+   `t2-sleep-cycle --game 2` with the new libmuxcom/muxretro. p2 written
+   and verified; `t2-sftp-jail 4` on the written p2. `sftp -b` turns
+   BatchMode on (no passwords): the test passes `-oBatchMode=no` first.
+
 ## M4f — USB watchdog, menu scripts (done 2026-11-17, p2 written and T3 2026-11-18 → recovery image)
 
 Logs `build/logs/m4f/`.

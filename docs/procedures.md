@@ -122,6 +122,10 @@ snapshots.
   the menu's Wi-Fi toggle backend: `t2-wifi-radio.sh` (M4c).
   Connectivity rows without an adapter (button injection, software
   unplug): `t2-wifi-network-row.sh` (M4d).
+  Menu SFTP (M4g, jailed as upstream: port 2022, user `muos`, password
+  `muos`, storage folders only): `t2-sftp-jail.sh [MiB]`; the developer
+  SFTP (`device.sh sftp`, port 2222, root, whole filesystem) is
+  `t2-sftp.sh` and exists only on developer images.
   Button injection (`muos-press`) in list screens: the launcher is a 2×4
   grid (Configuration = down, right from Explore) and keeps its focus
   across screens; `comm` of `muxfrontend` names the current module. Don't
@@ -264,8 +268,11 @@ stays rw until the next boot.
 
 **Frontend libraries (M4c):** `port/scripts/build-frontend-libs.sh`
 builds `libmuxmod.so` from the C65 source + `port/patches/frontend/`
-(`check`: an unpatched build equals the pinned one; `mkpatch NAME FILE…`
-as in `build-muxretro.sh`). Patches touch module code only. Pin a new
+(`check`: an unpatched build equals the pinned libmuxmod and has the
+pinned libmuxcom's symbols; `mkpatch NAME FILE…` as in
+`build-muxretro.sh`), `libmuxcom.so` too once a patch touches
+`frontend/common/` (function bodies only: muxfrontend and muxretro share
+its structs), and the upstream tool `musftpjail` (M4g). Pin a new
 build in `firmware-inputs.json` (sha256 + origin) and run
 `firmware-inputs.py store port/packaging/firmware-inputs.json
 build/m3a/inputs` before `build-image.sh build`.

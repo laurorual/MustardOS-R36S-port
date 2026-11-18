@@ -5,11 +5,12 @@ SPDX-License-Identifier: GPL-3.0
 ---
 --- /dev/null
 +++ b/frontend/retro/input/level_osd.c
-@@ -0,0 +1,182 @@
+@@ -0,0 +1,188 @@
 +#include <unistd.h>
 +#include <SDL2/SDL.h>
 +#include <SDL2/SDL_image.h>
 +#include <common/base/options.h>
++#include <common/config/config.h>
 +#include <common/display/theme.h>
 +#include <common/platform/device.h>
 +#include <common/platform/display.h>
@@ -174,7 +175,12 @@ SPDX-License-Identifier: GPL-3.0
 +    if (volume_config_changes != volume_seen) {
 +        volume_seen = volume_config_changes;
 +        const int v = read_line_int_from(CONF_CONFIG_PATH "settings/general/volume", 1);
-+        if (v >= 0 && v <= device.audio.max && v != current_volume) {
++        /* device.c clamps device.audio.max to 100, but Audio overdrive
++         * (tweak.sh: device audio/max 200) allows saved volumes up to 200,
++         * and volume_to_percent scales by 200: accept them, or the bar
++         * stops at 50 % (M4f T3). */
++        const int max = config.settings.advanced.overdrive ? 200 : device.audio.max;
++        if (v >= 0 && v <= max && v != current_volume) {
 +            current_volume = v;
 +            if (!woke_recently()) level_osd_show(level_osd_volume, volume_to_percent(v));
 +        }

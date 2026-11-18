@@ -41,6 +41,15 @@
         "dist/firmware/test128-m4f-20261117.manifest",
         "build/m3a/test128-m4f-20261117.p2.img"
       ]
+    },
+    "m4g-20261118": {
+      "reason": "M4g: SFTP jail (upstream musftpjail, static gesftpserver, muos/muos on 2022), overdrive volume bar (muxretro 0002, libmuxcom frontend 0006); developer image",
+      "files": [
+        "dist/firmware/test128-m4g-20261118.img.zst",
+        "dist/firmware/test128-m4g-20261118.img.zst.sha256",
+        "dist/firmware/test128-m4g-20261118.manifest",
+        "build/m3a/test128-m4g-20261118.p2.img"
+      ]
     }
   },
   "keep": {

@@ -31,8 +31,10 @@
 # images, the private /var/lib/muos-network/network.conf. Without any
 # network the radio stays off (state "idle"). SSH: developer images run
 # dropbear key-only on :2222 (/etc/muos-network-authorized_key); muOS's web
-# services add password SSH (web/sshd_port, 22) and SFTP-only (web/sftp_port,
-# 2022) as root. Host key: the private one, else p3 MUOS/port/ssh (created
+# services add password SSH (web/sshd_port, 22, root) and SFTP-only
+# (web/sftp_port, 2022): since M4g jailed as upstream (dropbear -G muos -c
+# /opt/muos/frontend/musftpjail: user muos, password muos; the storage
+# folders in a chroot, static /opt/muos/bin/aarch64/sftp-server). Host key: the private one, else p3 MUOS/port/ssh (created
 # on first use). Warm-reboot note: btusb stays blacklisted (modprobe.d
 # wifi-only); without it the dongle's EP0 times out after a warm reboot
 # (hardware-findings.md). Every daemon runs in its own session (setsid), so
@@ -326,7 +328,10 @@ service() { # KEY: dev | sshd | sftp
             set -- -p "0.0.0.0:$port" ;;
         sftp)
             port=$(get web/sftp_port); case "$port" in ''|*[!0-9]*) port=2022 ;; esac
-            set -- -c /usr/libexec/sftp-server -p "0.0.0.0:$port" ;;
+            jail=/opt/muos/frontend/musftpjail
+            [ -x "$jail" ] && [ -x /opt/muos/bin/aarch64/sftp-server ] && grep -q '^muos:' /etc/passwd ||
+                { say 'SFTP jail missing: SFTP not started'; return 1; }
+            set -- -G muos -c "$jail" -W 1048576 -T 5 -p "0.0.0.0:$port" ;;
     esac
     setsid dropbear -F -E -j -k -m -r "$key" -P "$state/$pidn.dbpid" -K 30 "$@" >> "$state/private/$pidn.log" 2>&1 7>&- 8>&- &
     echo $! > "$state/$pidn.pid"
