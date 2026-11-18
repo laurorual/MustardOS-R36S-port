@@ -13,8 +13,8 @@ the details.
   need a new 512 MiB image.
 - Packages and receipts referenced by a proof are immutable. Never recycle a
   consumed attempt's private files.
-- Git is local only and never pushed. The baseline commit `ce01966` was made
-  on 07/11/2026; it includes C104 approved and C105 as an interrupted draft.
+- Git is local only and not yet pushed (the GPL source goes to GitHub in
+  M8, decision 4). The baseline commit `ce01966` was made on 07/11/2026.
 - Git never replaces private backups or frozen proofs.
 - Never in the Git index: ROMs, `refs/`, `build/`, `dist/`, Python caches,
   keys, provisioning data.
@@ -23,17 +23,11 @@ the details.
 
 - At most **5 firmware versions**, inventoried in
   `port/packaging/storage-retention.json` and managed by
-  `port/scripts/retention.py`. The tool refuses a 6th version; only files
-  listed for a version are ever deleted. Current versions (M2, 11/11):
-
-  | Version | Role |
-  |---|---|
-  | C100 | Unprovisioned factory ext4, rootfs rebuild reference |
-  | M1-baseline | Flashable pre-M1 test128 image (C07 init; boots on test128 only) |
-  | M1 | Flashable M1 image (autostart; any card ≥ 2 GiB) |
-  | M2 | Flashable M2 image (sleep, battery, headphones; the recovery image) |
-
-  C64, C79, C89 and C93 (audit-only images) were retired in M1.
+  `port/scripts/retention.py`. The kept versions, their roles and the
+  reason for any exception are only in that file (`retention.py check`
+  prints them); the recovery image is named in STATUS.md. The tool
+  refuses a 6th version; only files listed for a version are ever
+  deleted. The M2 image stays while `build-image.sh` uses it as the base.
 - At most **5 named Git checkpoints** (tags `checkpoint/*`).
 - `keep` in the inventory lists what is never pruned: private material
   (`build/phase4/private`), SDKs, sources and

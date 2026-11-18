@@ -4,7 +4,7 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M4g — SFTP jail, overdrive volume bar (done 2026-11-18, p2 written, T3 pending)
+## M4g — SFTP jail, overdrive volume bar (done 2026-11-18, p2 written, T3 2026-11-18 → recovery image)
 
 Image `dist/firmware/test128-m4g-20261118` (raw `a9d7cbc4…`, p2
 `371b3f23…`); logs `build/logs/m4g/`.
@@ -38,6 +38,12 @@ Image `dist/firmware/test128-m4g-20261118` (raw `a9d7cbc4…`, p2
    `t2-sleep-cycle --game 2` with the new libmuxcom/muxretro. p2 written
    and verified; `t2-sftp-jail 4` on the written p2. `sftp -b` turns
    BatchMode on (no passwords): the test passes `-oBatchMode=no` first.
+4. **T3 (2026-11-18):** 1 overdrive bar OK; 2 FileZilla with a saved site
+   failed at connect with `SSH_FX_NO_SUCH_FILE` (OpenSSH lists the jail
+   fine: the site's remote directory is outside the jail; M5 item 1);
+   3 battery 55 % before a power-off off the charger, 55 % after: closes
+   battery problem (c) (kernel 0008); 4 regression OK. Promoted to recovery,
+   M4d retired.
 
 ## M4f — USB watchdog, menu scripts (done 2026-11-17, p2 written and T3 2026-11-18 → recovery image)
 

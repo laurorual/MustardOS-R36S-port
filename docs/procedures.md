@@ -27,13 +27,14 @@ put together. Current state and the recovery image are in
 
 ## Flash with the host card reader (primary, since 2026-11-11)
 
-The commands name the M3d image; use the recovery image named in
-STATUS.md, and if it ever fails to boot, the previous one the same way.
+`RECOVERY.img.zst` stands for the recovery image named in STATUS.md
+(`dist/firmware/<name>.img.zst`); if it ever fails to boot, flash the
+previous kept image the same way.
 
 1. Power the device off and put its card in the USB reader on the host.
 2. `lsblk -dno NAME,TRAN,SIZE,MODEL` (the reader shows `usb`, about 119 GiB
    for test128).
-3. `port/scripts/flash-card.sh host /dev/sdX dist/firmware/test128-m3d-20261113.img.zst --grow`
+3. `port/scripts/flash-card.sh host /dev/sdX RECOVERY.img.zst --grow`
    - It accepts only a whole USB/removable/MMC disk (it refuses the
      internal `sda` and `nvme0n1`, partitions, an empty reader and a
      too-small card), shows model and size, asks `y`, then asks for sudo.
@@ -46,7 +47,7 @@ STATUS.md, and if it ever fails to boot, the previous one the same way.
 1. Power off. Put original32 in slot 1 and the target card in slot 2.
    Boot, join Wi-Fi, and enable Remote services (Options).
 2. On the host:
-   `port/scripts/flash-card.sh darkosen <dArkOSen-IP> dist/firmware/test128-m3d-20261113.img.zst --grow`
+   `port/scripts/flash-card.sh darkosen <dArkOSen-IP> RECOVERY.img.zst --grow`
    - Enter the `ark` SSH password once and the sudo password once.
    - Same checks as above; the target is always slot 2 (`/dev/mmcblk1`).
 3. Power off. Move the card to slot 1, leave slot 2 empty, power on.

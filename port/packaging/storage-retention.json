@@ -11,19 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m4d-20261116": {
-      "reason": "M4d: Wi-Fi Network closed without an adapter, cut-off at 1% on the current-corrected voltage, battery history on p3, clock (tzdata, zone link on p3, ntpd -q after each address, RTC in UTC), kernel 0006/0007 (coulomb seed), boot payloads all rkbin (trust identical); developer + public variant; T3 items 1-3 passed 2026-11-17 (p2 on the card; 24-hour notation and a slow first replug fixed/investigated in M4e): recovery image 2026-11-17 (morning)",
-      "files": [
-        "dist/firmware/test128-m4d-20261116.img.zst",
-        "dist/firmware/test128-m4d-20261116.img.zst.sha256",
-        "dist/firmware/test128-m4d-20261116.manifest",
-        "build/m3a/test128-m4d-20261116.p2.img",
-        "dist/firmware/public-m4d-20261116.img.zst",
-        "dist/firmware/public-m4d-20261116.img.zst.sha256",
-        "dist/firmware/public-m4d-20261116.manifest",
-        "build/m3a/public-m4d-20261116.p2.img"
-      ]
-    },
     "m4e1-20261117": {
       "reason": "M4e.1: M4e + Input Remap saves (own sdl_remap.sh, controller DB on p3), Wi-Fi re-plug in CD-ROM mode switched again, reassociate at 20/50 s without a lease, kernel 0008 (OFF_CNT cleared) as main; developer image, supersedes M4e (never flashed); p2 written 2026-11-17, T3 items 1-3 passed (one replug missed by the dwc2 driver, pre-existing): recovery image since 2026-11-17",
       "files": [
@@ -43,7 +30,7 @@
       ]
     },
     "m4g-20261118": {
-      "reason": "M4g: SFTP jail (upstream musftpjail, static gesftpserver, muos/muos on 2022), overdrive volume bar (muxretro 0002, libmuxcom frontend 0006); developer image",
+      "reason": "M4g: SFTP jail (upstream musftpjail, static gesftpserver, muos/muos on 2022), overdrive volume bar (muxretro 0002, libmuxcom frontend 0006); developer image; p2 written 2026-11-18, T3 2026-11-18 items 1, 3, 4 passed (battery % kept across a power-off), item 2 FileZilla saved site failed (its remote directory is outside the jail; not gameplay): recovery image since 2026-11-18 (night)",
       "files": [
         "dist/firmware/test128-m4g-20261118.img.zst",
         "dist/firmware/test128-m4g-20261118.img.zst.sha256",

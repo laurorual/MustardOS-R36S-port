@@ -10,6 +10,34 @@ unresolved.
 Everything below was measured on **one unit**, so it does not prove anything
 about other R35S/R36S panels or revisions.
 
+## Support summary (2026-11-18)
+
+Replaces the old compatibility matrix (its Phase 4 version is in
+[archive/phase4/compatibility-matrix.md](archive/phase4/compatibility-matrix.md)).
+T3 = confirmed by the user on the device; T2 = over SSH only.
+The open problems behind each "partial" are in STATUS.
+
+| Layer | State | Summary | Section |
+|---|---|---|---|
+| CPU / ABI | T3 | A35, glibc 2.41, capped at 1296 MHz (stock max 1512) | Power and battery |
+| Boot chain | T3 | Own U-Boot (destructive paths removed), rkbin payloads, boot records main/previous, trial kernel | Boot chain |
+| Kernel / DTB | T3 | `4.4.189-muos-r35s-p4` + patches 0001–0008, own Panel 0 DTB | Boot chain |
+| Root FS / init | T3 | ext4 RO p2, BusyBox init with rcS/rcK, trial root, p3 auto-grow | Storage |
+| Display | T3 | 640×480 @ 60.0046 Hz, brightness, blank | Display |
+| GPU | T3 | Mali-G31, r13p0 blob (private licence), SDL2 KMSDRM/GLES | Graphics (GPU) |
+| Controls | T3 | All buttons, sticks, volume keys, Power key (sleep, long press) | Input |
+| Audio | T3 partial | Speaker, headphone switching (jack contact faulty); underrun bursts | Audio |
+| Battery / charging | T3 | RK817 gauge %, kept across power-off, low-battery poweroff, charging screen | Power and battery |
+| Sleep / poweroff | T3 | mem sleep and wake (~9 s to Wi-Fi), shutdown timer, hard power-cut recovery | Power and battery |
+| Wi-Fi (RTL8821CU dongle) | T3 partial | Profiles, scan, sleep/wake, replug; warm-reboot H2C 1 in 7, dwc2 missed events (watchdog) | Network and USB |
+| SSH / SFTP | T3 partial | Developer SSH/SFTP; menu SFTP jailed on 2022 (FileZilla saved site open) | Network and USB |
+| RTC / clock | T3 | RK817 RTC in UTC, time zone, NTP | Power and battery |
+| LEDs / rumble | n/a | No controllable LED, no rumble motor on this unit | Power and battery |
+| Bluetooth | — | Not supported (no bluez) | Network and USB |
+| Slot 2 (`ff380000.dwmmc`) | — | Controller present, card never mounted | Storage |
+| Emulation | T3 | NES, GB/GBC, GBA, SNES, MD family, PSX at 59.9 fps with saves/states | Emulation stack facts |
+| Other panels / clones | — | Out of scope without evidence and a physical test | Device identity |
+
 ## Device identity
 
 - **SoC and model:**
