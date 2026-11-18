@@ -4,7 +4,7 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M4f — USB watchdog, menu scripts (done 2026-11-17, T2 passed, p2 written 2026-11-18)
+## M4f — USB watchdog, menu scripts (done 2026-11-17, p2 written and T3 2026-11-18 → recovery image)
 
 Logs `build/logs/m4f/`.
 1. **dwc2 missed plug/unplug.** Trial DTB `dr_mode = "host"` (only change,
@@ -49,6 +49,14 @@ Logs `build/logs/m4f/`.
    `t2-wake-wifi 2` (9.1 s) passed, no watchdog trigger over the sleeps;
    p2 written and verified (`46a573a0…`), live: watchdog, frontend,
    audio/max 100, one sleep cycle.
+4. **T3** (user, 2026-11-18): 2 Search, 3 Activity, 5 Wi-Fi replug ×4
+   (all four seen by the kernel, watchdog idle), 6 sleep/wake in game and
+   Wi-Fi toggle passed; 4 serial shown, the integrity result is the
+   "Modifications" tab of Device Details (items "Modificado"), as
+   designed. 1 overdrive: the volume rises (T2: saved 123, gain 1.86),
+   but the bar stops at 50 % (frontend clamps `device.audio.max` to 100,
+   upstream; STATUS open problems). No regression against M4e.1 (overdrive
+   never applied before) → recovery image; M4c retired.
 
 ## M4e.1 — Input Remap saves, dongle re-plug, kernel 0008 (done 2026-11-17, T3 passed → recovery image)
 

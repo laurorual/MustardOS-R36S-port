@@ -11,22 +11,17 @@ T3 checklists in [milestones.md](milestones.md). See also
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M4e.1 done (M4e.1 = recovery image).
-M4f (USB watchdog, menu scripts): `test128-m4f-20261117`, T2 passed
-(trial and live root), p2 written 2026-11-18; **T3 pending**. Item 3
-(BOOST power cycle) dropped: the BOOST is not the port's 5 V.**
+**Phase 5 (own-card firmware). M1–M4f done (M4f = recovery image since
+2026-11-18: USB watchdog, menu scripts). Next: M4g (proposal below).**
 Details: milestones.md M4f, M4e.1.
 
 ## Next session — read first (2026-11-18)
 
-- Device off the charger, on main = **M4f p2** (`46a573a0…`, written
-  2026-11-18 with `write-p2`; old p2 = M4e.1 + M4f files installed,
-  `d58ca5a3…`, in `MUOS/trial/p2-previous.img`).
-- `t2-wifi-robust` hotplug fixed (test only): the watchdog rebinds 4–6 s
-  after the software unplug ("missed plug"), so the removed state is
-  sampled at 3 s and the watchdog's rebind is the re-add.
-- Next: the user's M4f T3 below; if it passes, promote M4f to recovery,
-  retire M4c.
+- Device off the charger, on main = **M4f p2** (`46a573a0…`); old p2 =
+  M4e.1 + M4f files (`d58ca5a3…`) in `MUOS/trial/p2-previous.img`.
+- M4f T3 (user, 2026-11-18): 2–6 passed; 1 overdrive raises the volume
+  (T2: 123 → gain 1.86) but the bar stops at 50 % (open problems).
+  Results in milestones.md M4f.
 - The idle discharge logger (`MUOS/init`) still runs; `t2-discharge.sh
   report` pending.
 
@@ -37,7 +32,7 @@ Details: milestones.md M4f, M4e.1.
   2026-11-16, M4e.1 p2 written 2026-11-17, M4f p2 2026-11-18 (`write-p2`). p3
   `MUOS/trial/rootfs.img` = M4f p2 (`46a573a0…`), `p2-previous.img` =
   M4e.1 p2 + M4f files (`d58ca5a3…`).
-  Time zone set by the user (−03); volume 10 (user's level was 55).
+  Time zone set by the user (−03); volume 55 (the user's level).
   - Boot records: main = `Image-ea8ac0033c0e` (0001–0008) +
     `panel0-bc04b6f8e4d4.dtb`; previous = `Image-d61188f3a808` (0007).
   - p3: ROMs, Wi-Fi profile `Home.ini`, zone link, rumble verdict
@@ -54,14 +49,13 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m4f-20261117.img.zst` (raw `159d4894…`, p2 `46a573a0…`) | M4f developer image | p2 on the card (2026-11-18); T2 passed; T3 pending |
-| **`dist/firmware/test128-m4e1-20261117.img.zst`** (raw `c122c7f4…`, p2 `d73646be…`) | **Recovery image since 2026-11-17 (evening).** M4e.1 (kernel 0001–0008) | T3 passed |
+| **`dist/firmware/test128-m4f-20261117.img.zst`** (raw `159d4894…`, p2 `46a573a0…`) | **Recovery image since 2026-11-18.** M4f (kernel 0001–0008, USB watchdog, menu scripts) | p2 on the card; T3 2–6 passed, 1 bar only |
+| `dist/firmware/test128-m4e1-20261117.img.zst` (raw `c122c7f4…`, p2 `d73646be…`) | M4e.1; recovery 2026-11-17 evening | T3 passed |
 | `dist/firmware/test128-m4d-20261116.img.zst` (raw `619473f7…`, p2 `61f2c02f…`) + `public-m4d-20261116` | M4d (kernel 0001–0007); recovery 2026-11-17 morning | T3 items 1–3 passed |
-| `dist/firmware/test128-m4c-20261114.img.zst` | M4c (kernel 0001–0005) | T3 passed |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-5/5 firmware versions (`port/packaging/storage-retention.json`; retired
-M1, M3a.1, M3b–M3e, M4a, M4b, M4e).
+4/5 firmware versions (`port/packaging/storage-retention.json`; retired
+M1, M3a.1, M3b–M3e, M4a–M4c, M4e).
 
 ## What works (T3-confirmed)
 
@@ -72,7 +66,8 @@ on/off toggle, rows dimmed without a dongle, warm reboot) + SSH/SFTP;
 time zone and NTP; prefs persistence; GB, NES, SNES, GBA, MD and PSX with
 saves and states; per-system governors, 408 MHz menu idle; autostart,
 menu reboot/shutdown, hard power-cut recovery; Power-key sleep/resume,
-shutdown timer, charging fake sleep; battery %, icons and low-battery
+shutdown timer, charging fake sleep; Search, Activity (sleep excluded),
+System details; battery %, icons and low-battery
 poweroff from the RK817 gauge; battery-empty splash; headphone path
 switching; flashing with the host card reader; p3 auto-grow; `panic=10`.
 
@@ -85,15 +80,27 @@ switching; flashing with the host card reader; p3 auto-grow; `panic=10`.
   (M4e.1 T3, 1 in 4) left no kernel event although HPRT0 showed the
   change (connected bit set for 53 s, nothing enumerated). The dwc2 runs
   `dr_mode = "otg"` with its PHY (`otg-port`) disabled (same in
-  ROCKNIX). M4f: try `dr_mode = "host"` (trial DTB), else a watchdog.
-- **Missing muOS scripts:** the pinned `/opt/muos/script/mux` has only
-  `audio_sink.sh` (+ `sdl_remap.sh` since M4e.1); the frontend also calls
-  `tweak.sh` (Power, Theme, Custom, Danger saves), `find.sh` (search),
-  `backup.sh`, `extract.sh`, `track.sh`, `bt_*.sh` (M4f audit).
+  ROCKNIX). `dr_mode = "host"` inconclusive (M4f); `muos-usb-watchdog`
+  (M4f) rebinds dwc2 after 3 disagreeing reads (not yet triggered by a
+  real replug: none missed in 4 at T3).
+- **Missing muOS scripts:** still absent (M4f): `backup.sh` (needs zip),
+  `extract.sh`, `profile.sh`, `bt_*.sh`; `prepare.sh`/`logo.sh` not
+  wanted (one card, p1); no `share/lookup` name tables.
+- **Audio overdrive bar (M4f T3 1):** the volume goes to 200 % (cubic,
+  gain 8 at 200: distorts on the speaker, as upstream), but the menu bar
+  and muxretro's in-game bar stop at 50 %: the frontend clamps
+  `device.audio.max` to 0–100 (`device.c` DEV_INT_RANGE) and ignores saved
+  volumes above it, while the bar scales by 200. In-game: our
+  `patches/muxretro/0002`; menu: `common/ui/common.c` in the pinned
+  libmuxcom (only libmuxmod is rebuilt).
+- **Translation (pt-BR, before the public build):** parts of the system
+  stay English with Português (Brasil) selected, and the existing pt-BR
+  text needs a review (user, 2026-11-18). Includes our own strings
+  (Wi-Fi row help, Rumble "Unavailable").
 - **Wi-Fi dongle (RTL8821CU):** the warm-reboot H2C case still happens
   (1 in 7 since M4c); the dongle resets itself after ~40 s; M4e retries
-  at once (Wi-Fi at ~75 s instead of ~115 s). Next: a software power
-  cycle through the RK817 BOOST (0xB4, hardware-findings), attended.
+  at once (Wi-Fi at ~75 s instead of ~115 s). No software power cycle:
+  the RK817 BOOST is not the port's 5 V (M4f).
   The user's slow first replug left no logs; `network-last.log` now
   keeps them. Inserting the dongle during boot is unqualified.
 - **Wake:** Wi-Fi returns ~9 s after wake with ~0.7 s of slow frames.
@@ -108,11 +115,11 @@ switching; flashing with the host card reader; p3 auto-grow; `panic=10`.
   directories at boot); idbloader and trust (rkbin files).
 - **Trial root:** p3 can't be unmounted at shutdown while it runs; any
   reboot returns to main (one-shot marker).
-- **Menu:** Wi-Fi row help text English only; "Direct Link" and "Proxy
+- **Menu:** "Direct Link" and "Proxy
   Settings" not exercised; static addresses untested; the Rumble row's
   "present" case unverified (no motor here).
 - **SFTP** runs as root with the whole filesystem (decision 6: jail
-  needs a static sftp-server; M4f).
+  needs a static sftp-server).
 - **Licences:** Mali r13p0 (Hardkernel: no answer yet), the dirty
   U-Boot, Gambatte and BT firmware are private-only.
 
@@ -129,23 +136,13 @@ has no rumble motor; keep the option, detect the motor, show
 
 Open: none.
 
-## M4f T3 checklist (after write-p2; no flash)
-
-1. **Audio overdrive:** Configuration → Advanced → Audio overdrive on,
-   back: volume goes above 100 %; off again: max 100 %.
-2. **Search:** Explore → Search "crash": CTR listed, opens.
-3. **Activity:** play a game ~2 min, quit: Activity shows it with ~2 min;
-   sleep during play is not counted.
-4. **System details:** serial shown; integrity shows "Modified".
-5. **Wi-Fi replug x4** (watchdog log `/opt/muos/log/usb-watchdog.log`):
-   each plug reconnects within ~25 s even if the kernel misses one.
-6. **Regression:** sleep/wake in game, Wi-Fi toggle.
-
 ## Next milestone (proposal)
 
-**M4f:** (1) dwc2 missed plug/unplug: trial DTB with `dr_mode =
-"host"`, replug series with `t2-usb-watch.sh`; fallback: a watchdog that
-compares HPRT0 with usb 1-1 and rebinds dwc2. (2) Missing muOS menu
-scripts (`tweak.sh` first, then search, backup, extract, playtime).
-(3) Dongle power cycle via BOOST; SFTP jail (static sftp-server in Buildroot + upstream
-`musftpjail`, `muos` user); then the publication checklist.
+**M4g:** (1) overdrive bar: muxretro's in-game bar takes the overdrive
+limit (own patch); the menu bar needs a patched libmuxcom (shared structs
+with the pinned muxfrontend: check ABI) or stays a known issue.
+(2) SFTP jail (decision 6: static sftp-server in Buildroot + upstream
+`musftpjail`, `muos` user). (3) `t2-discharge.sh report` and battery (c).
+Then the publication checklist. **Before the final public build:** a
+pt-BR milestone (inventory of English strings with pt-BR selected, our
+own strings into the language files, review of the existing pt-BR text).

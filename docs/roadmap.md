@@ -145,6 +145,11 @@ M3d done (p3 auto-grow on first boot, log rotation, smoothness).
 T3: flash the public image on a blank card, first-boot Wi-Fi from the menu,
 enable SSH from the menu, no developer key accepted.
 
+6. **Português (Brasil)** (user, 2026-11-18; before the final public
+   build): list the strings that stay English with pt-BR selected
+   (frontend language files, our patches and scripts, muxretro), move our
+   own strings into the language files, review the existing pt-BR text.
+
 ## Kernel base, reassessed 2026-11-12
 
 | Option | For | Against |
