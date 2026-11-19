@@ -1,0 +1,106 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-mupen64plus VARIANT ROM NAME: standalone Mupen64Plus (M7, the user's
+# exception to decision 14), run by muos-frontend for the N64 "Mupen64Plus -
+# Standalone" assignments (upstream launcher ids ext-mupen64plus-*; upstream
+# script/launch/ext-mupen64plus.sh needs muOS's var scripts the port lacks).
+#   VARIANT  *rice* -> Rice; anything else -> GLideN64 (Glide64mk2 is not
+#            built; "full" = 4:3 here, the panel is 640x480)
+# Files: the build (build-mupen64plus-sa.sh) in /opt/muos/share/emulator/
+# mupen64plus (read-only); mupen64plus.cfg in p3 MUOS/port/mupen64plus (the
+# options below are forced on every start, the rest is the user's); SRAM and
+# states per game in pickles/{sram,state}/mupen64plus_sa/DIR/NAME/, named by
+# the ROM header (SaveFilenameFormat 0).
+# Resume, as muxretro: Fn+Start saves autosave.st first (core patch 0001,
+# MUPEN_AUTOSAVE), the next start loads it (--savestate).
+# Hotkeys (Fn held): Start quit + autosave, R1 save state, L1 load state
+# (slot 0). Controls follow mupen64plus-next's defaults: A = B, B = Y,
+# Z = L2, L = L1, R = R1, C = right stick, C-Right = A, C-Up = X.
+# The first start of a game with a mupen64plus-next save RAM (.srm) and no
+# standalone save splits it into the core's .eep/.mpk/.sra/.fla.
+set -u
+emu=/opt/muos/share/emulator/mupen64plus
+cfg=/userdata/MUOS/port/mupen64plus
+pk=/run/muos/storage/pickles
+variant=${1:?variant} rom=${2:?rom} name=${3:-}
+[ -n "$name" ] || { name=${rom##*/}; name=${name%.*}; }
+sys=${rom%/*}; sys=${sys##*/}
+sram=$pk/sram/mupen64plus_sa/$sys/$name state=$pk/state/mupen64plus_sa/$sys/$name
+auto=$state/autosave.st
+mkdir -p "$cfg" "$sram" "$state"
+say() { echo "muos-mupen64plus: $*"; }
+
+# The ROM header name (0x20, 20 bytes) in big-endian (.z64) order, trimmed
+# and sanitised as the core's SaveFilenameFormat 0.
+header_name() {
+    # shellcheck disable=SC2046  # one byte per word
+    set -- $(dd if="$1" bs=64 count=1 2>/dev/null | od -An -v -tx1)
+    [ $# -eq 64 ] || return 1
+    case "$1$2$3$4" in
+        80371240) order=z64 ;; 37804012) order=v64 ;; 40123780) order=n64 ;; *) return 1 ;;
+    esac
+    i=0 out=
+    for _ in $(seq 32 51); do
+        case $order in
+            z64) j=$((32 + i)) ;;
+            v64) j=$((32 + (i ^ 1))) ;;
+            n64) j=$((32 + (i & ~3) + 3 - (i & 3))) ;;
+        esac
+        eval "b=\${$((j + 1))}"
+        # shellcheck disable=SC2154  # b is set by the eval
+        out="$out\\x$b"
+        i=$((i + 1))
+    done
+    printf '%b' "$out" | tr -d '\000' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//; s/[:<>"\/\\|?*]/_/g'
+}
+
+srm=$pk/sram/mupen64plus_next/$sys/$name.srm
+if [ -s "$srm" ] && [ -z "$(ls -A "$sram" 2>/dev/null)" ]; then
+    if h=$(header_name "$rom") && [ -n "$h" ]; then
+        # mupen64plus-next save RAM: eeprom 0x800, 4 mempaks 0x8000, sram 0x8000, flash 0x20000
+        dd if="$srm" of="$sram/$h.eep" bs=2048 count=1 2>/dev/null
+        dd if="$srm" of="$sram/$h.mpk" bs=2048 skip=1 count=64 2>/dev/null
+        dd if="$srm" of="$sram/$h.sra" bs=2048 skip=65 count=16 2>/dev/null
+        dd if="$srm" of="$sram/$h.fla" bs=2048 skip=81 count=64 2>/dev/null
+        say "save RAM migrated from $srm as '$h'"
+    else
+        say "unknown ROM byte order, save RAM not migrated"
+    fi
+fi
+
+case $variant in
+    *rice*) gfx=mupen64plus-video-rice.so ;;
+    *) gfx=mupen64plus-video-GLideN64.so ;;
+esac
+set -- --corelib "$emu/libmupen64plus.so.2.0.0" --configdir "$cfg" --datadir "$emu/configs" \
+    --plugindir "$emu/plugins" --gfx "$gfx" --audio mupen64plus-audio-sdl.so \
+    --input mupen64plus-input-sdl.so --rsp mupen64plus-rsp-hle.so \
+    --fullscreen --resolution 640x480 --nosaveoptions \
+    --set "Core[R4300Emulator]=2" --set "Core[OnScreenDisplay]=False" \
+    --set "Core[SaveFilenameFormat]=0" --set "Core[SaveSRAMPath]=$sram/" \
+    --set "Core[SaveStatePath]=$state/" --set "Core[ScreenshotPath]=/userdata/MUOS/screenshot/" \
+    --set "CoreEvents[Joy Mapping Stop]=J0B9/B10" \
+    --set "CoreEvents[Joy Mapping Save State]=J0B5/B10" \
+    --set "CoreEvents[Joy Mapping Load State]=J0B4/B10" \
+    --set "Audio-SDL[RESAMPLE]=trivial" \
+    --set "Video-GLideN64[AspectRatio]=1" --set "Video-GLideN64[ThreadedVideo]=True" \
+    --set "Input-SDL-Control1[mode]=0" --set "Input-SDL-Control1[device]=0" \
+    --set "Input-SDL-Control1[name]=muOS-Keys" --set "Input-SDL-Control1[plugged]=True" \
+    --set "Input-SDL-Control1[plugin]=2" --set "Input-SDL-Control1[mouse]=False" \
+    --set "Input-SDL-Control1[AnalogDeadzone]=4096,4096" \
+    --set "Input-SDL-Control1[AnalogPeak]=32767,32767" \
+    --set "Input-SDL-Control1[DPad R]=hat(0 Right)" --set "Input-SDL-Control1[DPad L]=hat(0 Left)" \
+    --set "Input-SDL-Control1[DPad D]=hat(0 Down)" --set "Input-SDL-Control1[DPad U]=hat(0 Up)" \
+    --set "Input-SDL-Control1[Start]=button(9)" \
+    --set "Input-SDL-Control1[Z Trig]=button(6)" \
+    --set "Input-SDL-Control1[B Button]=button(3)" --set "Input-SDL-Control1[A Button]=button(0)" \
+    --set "Input-SDL-Control1[C Button R]=axis(3+) button(1)" \
+    --set "Input-SDL-Control1[C Button L]=axis(3-)" \
+    --set "Input-SDL-Control1[C Button D]=axis(4+)" \
+    --set "Input-SDL-Control1[C Button U]=axis(4-) button(2)" \
+    --set "Input-SDL-Control1[R Trig]=button(5)" --set "Input-SDL-Control1[L Trig]=button(4)" \
+    --set "Input-SDL-Control1[X Axis]=axis(0-,0+)" --set "Input-SDL-Control1[Y Axis]=axis(1-,1+)"
+[ -s "$auto" ] && set -- "$@" --savestate "$auto"
+say "start $gfx rom=$rom resume=$([ -s "$auto" ] && echo yes || echo no)"
+cd "$emu" || exit 1
+HOME=$cfg MUPEN_AUTOSAVE=$auto exec ./mupen64plus "$@" "$rom"

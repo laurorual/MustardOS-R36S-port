@@ -3,7 +3,8 @@
 # Port frontend loop, after MustardOS internal/script/mux/frontend.sh:
 #   muxfrontend reads its module from /run/muos/action and exits to request
 #   content (/run/muos/content, 9-line ROM_GO record), reboot or shutdown.
-#   Content runs in muxretro (libretro cores in /opt/muos/share/core).
+#   Content runs in muxretro (libretro cores in /opt/muos/share/core), or
+#   (M7) N64's ext-mupen64plus-* assignments in muos-mupen64plus.
 # muxfrontend SIGTERMs itself when its parent is PID 1, hence this owner.
 # Usage (from S99muos-ui): muos-frontend HOTKEYS(0|1) AUDIO(pipewire|dummy)
 export HOME=/root XDG_RUNTIME_DIR=/run PIPEWIRE_RUNTIME_DIR=/run LC_ALL=C.UTF-8
@@ -61,12 +62,29 @@ launch_content() {
     rm -f "$rom"
     content="$dir1$dir2/$file"
     say "content name=$name core=$core assign=$assign launch=$launch file=$content"
-    case "$launch" in ext-*) say "external launcher $launch not supported yet"; return 1 ;; esac
-    [ -f "/opt/muos/share/core/$core" ] || { say "missing core $core"; return 1; }
     [ -f "$content" ] || { say "missing content $content"; return 1; }
+    ext=
+    case "$core $launch" in
+        *ext-mupen64plus*) ext=mupen64plus ;;
+        *ext-*) say "external launcher $launch not supported yet"; return 1 ;;
+    esac
+    [ -n "$ext" ] || [ -f "/opt/muos/share/core/$core" ] || { say "missing core $core"; return 1; }
     fresh=; [ ! -e /tmp/ra_no_load ] || fresh=--fresh
     if [ -s "$run/governor" ]; then set_governor "$(head -n1 "$run/governor")"; else default_governor; fi
     clear_requests
+    if [ -n "$ext" ]; then
+        foreground mupen64plus
+        TRACK_SYSTEM=$assign "$track" "$name" "$core" "$content" start >> /opt/muos/log/frontend.log 2>&1 || :
+        variant=$core; case "$variant" in ext-*) ;; *) variant=$launch ;; esac
+        run_child /usr/libexec/muos-mupen64plus "$variant" "$content" "${file%.*}" \
+            >> /opt/muos/log/frontend.log 2>&1
+        rc=$?
+        say "mupen64plus exit rc=$rc"
+        TRACK_EXIT=$rc "$track" "$name" "$core" "$content" stop >> /opt/muos/log/frontend.log 2>&1 || :
+        default_governor
+        sync
+        return 0
+    fi
     foreground muxretro
     # T2 hook: /run/muos/perf-capture arms muxretro's own frame-time capture
     # (writes /run/muos/storage/pickles/performance.csv periodically).

@@ -177,7 +177,10 @@ Answered 2026-11-19: 17 grow p2 to 1 GiB in the M8 card layout, then
 ship ScummVM and the CJK fonts (recommendation accepted); 18 the user
 provides game dumps: after every T3 check `port/roms/` on the PC and use
 any ROM of a not yet tested system for its core's T2 (none new as of
-2026-11-19: bios, gb, gba, megadrive, n64, nes, psx, snes).
+2026-11-19: bios, gb, gba, megadrive, n64, nes, psx, snes); 19 exception
+to decision 14: standalone Mupen64Plus for N64 now (M7), the other
+standalone emulators stay after v1.0. The user is providing ROMs for the
+new systems.
 
 ## Decisions for the user
 
@@ -275,6 +278,20 @@ Goal (roadmap.md): pt-BR complete, wake/audio/Wi-Fi robustness, the
     scaling_min first: 1512 → 1296 through tweak.sh 3/3. (d) post-build
     appends `savestate_warmup_frames = "5"` to the mupen info: the
     user's MK64 (3 frames) and DK64 (5) autosaves restored.
+15. **Standalone Mupen64Plus (decision 19) — built, T1 passed, not on
+    the device yet:** `build-mupen64plus-sa.sh` (2.6.0 core with the
+    aarch64 new dynarec, ui-console, audio/input-sdl, rsp-hle, Rice,
+    GLideN64 GLES3+EGL at `a04081a`; 5.0 MB, pinned inputs), core patch
+    `port/patches/mupen64plus/0001` (MUPEN_AUTOSAVE: Stop saves a state
+    first), launcher `/usr/libexec/muos-mupen64plus` (N64's upstream
+    `ext-mupen64plus-*` assignments; Rice or GLideN64; Fn+Start quit +
+    autosave, resume with --savestate; Fn+R1/L1 state; libretro-like
+    controls; config in p3 `MUOS/port/mupen64plus`, saves per game in
+    pickles `mupen64plus_sa`; a mupen64plus-next .srm is split into
+    .eep/.mpk/.sra/.fla on the first start, header names tested in z64,
+    v64, n64 order on the host). T2 after the discharge run: assignment
+    list, start, input, quit/resume, DK64 fps (Rice vs GLideN64 vs the
+    libretro core), sleep while it runs.
 Remaining for M7: DK64 frame drops (after the discharge run: perf
 capture on the user's autosave, GLideN64 options vs the upstream
 defaults now in use: FB emulation, copy color/depth to RDRAM, hybrid

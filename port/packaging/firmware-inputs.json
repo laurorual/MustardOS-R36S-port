@@ -13843,6 +13843,97 @@
    "mode": "755",
    "sha256": "2ae00e08b26a7750dc21ff9faf85f5339ee636cdd59f07d0ca67a64eecdd87f8",
    "origin": "build/m3c/cores/out/mupen64plus_next_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/libmupen64plus.so.2.0.0",
+   "type": "file",
+   "mode": "755",
+   "sha256": "ae954536fc87f5399da23ce874b2b8c7ad971b6275d99ae3dbecd53c757d97b8",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/libmupen64plus.so.2.0.0"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/mupen64plus",
+   "type": "file",
+   "mode": "755",
+   "sha256": "5580ab54e727c58feda4ba8031bbe73adb87f4bdbd0abdefcc19e2831f005ac3",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/mupen64plus"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/configs/GLideN64.custom.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "32aec6c61f564fdf606c2961f850f949041bd5d4623ac5e9fbdd395e35831f19",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/configs/GLideN64.custom.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/configs/InputAutoCfg.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ee4fc07d9d4eb7861fa2aab2972a2a8b5d91efe50dbbd92aa396e376124f9aea",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/configs/InputAutoCfg.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/configs/RiceVideoLinux.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ec89fe5ab5760b94b822b41dc2889afc280a138fe1cb43811e1346b539850be9",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/configs/RiceVideoLinux.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/configs/font.ttf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c4c45690b345435b2cba52ecabe275f05e49b389b39fe68ad03afbb551288d3d",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/configs/font.ttf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/configs/mupen64plus.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6e20de66aacd771df996df04877560c44824bf1d3da9273abb04632ad03ad92e",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/configs/mupen64plus.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/configs/mupencheat.txt",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d3206c3f5cf57a8ebcc29729837fb9f5c1645a6c571e68aa08a178db2e950b36",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/configs/mupencheat.txt"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-audio-sdl.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "36b0bed12b64e55240070bee34a34789aeee9c40923f109ea650001fce56f334",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-audio-sdl.so"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-input-sdl.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "c2f614bbd2e66a57063004cb75e95e57eea982ff573ee16d12a05a97650b8e50",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-input-sdl.so"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-rsp-hle.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "d5d14331ab69336a820a36e401391872e929ad4e32a4d5f7d5b9da8027d03a92",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-rsp-hle.so"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-video-GLideN64.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "627f5a6c6fdb3ef23d19b4ad38ebfb2ba40fc8add8776f7cabe0be24dad6047d",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-video-GLideN64.so"
+  },
+  {
+   "path": "/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-video-rice.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "7a0371c79d5fc835a86f162dfc267353d59d76a79d8e8349a51a23fa1b2c9330",
+   "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-video-rice.so"
   }
  ],
  "remove": [

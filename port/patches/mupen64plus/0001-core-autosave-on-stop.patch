@@ -1,0 +1,95 @@
+From: muOS R35S port
+Subject: [PATCH] core: save a state on Stop (MUPEN_AUTOSAVE)
+
+SPDX-License-Identifier: GPL-2.0
+---
+diff -ruN a/core/src/device/r4300/interrupt.c b/core/src/device/r4300/interrupt.c
+--- a/core/src/device/r4300/interrupt.c	1969-12-31 21:00:00.000000000 -0300
++++ b/core/src/device/r4300/interrupt.c	2026-11-19 14:43:19.145573648 -0300
+@@ -668,6 +668,7 @@
+         if (savestates_get_job() == savestates_job_save)
+         {
+             savestates_save();
++            main_autosave_done();
+             return;
+         }
+     }
+diff -ruN a/core/src/main/eventloop.c b/core/src/main/eventloop.c
+--- a/core/src/main/eventloop.c	1969-12-31 21:00:00.000000000 -0300
++++ b/core/src/main/eventloop.c	2026-11-19 14:43:19.145348953 -0300
+@@ -315,7 +315,7 @@
+     {
+         // user clicked on window close button
+         case SDL_QUIT:
+-            main_stop();
++            main_stop_autosave();
+             break;
+ 
+         case SDL_KEYDOWN:
+@@ -383,7 +383,7 @@
+                     if (cmd == joyFullscreen)
+                         gfx.changeWindow();
+                     else if (cmd == joyStop)
+-                        main_stop();
++                        main_stop_autosave();
+                     else if (cmd == joyPause)
+                         main_toggle_pause();
+                     else if (cmd == joySave)
+@@ -639,7 +639,7 @@
+     else if ((slot = get_saveslot_from_keysym(keysym)) >= 0)
+         main_state_set_slot(slot);
+     else if (keysym == sdl_keysym2native(ConfigGetParamInt(l_CoreEventsConfig, kbdStop)))
+-        main_stop();
++        main_stop_autosave();
+     else if (keysym == sdl_keysym2native(ConfigGetParamInt(l_CoreEventsConfig, kbdFullscreen)))
+         gfx.changeWindow();
+     else if (keysym == sdl_keysym2native(ConfigGetParamInt(l_CoreEventsConfig, kbdSave)))
+diff -ruN a/core/src/main/main.c b/core/src/main/main.c
+--- a/core/src/main/main.c	1969-12-31 21:00:00.000000000 -0300
++++ b/core/src/main/main.c	2026-11-19 14:43:19.141524298 -0300
+@@ -2050,6 +2050,33 @@
+     return failure_rval;
+ }
+ 
++/* R35S port: with MUPEN_AUTOSAVE=FILE, Stop first saves an m64p state to
++   FILE (the launcher loads it with --savestate next time, as muxretro's
++   exit autosave); the emulator stops once the save job ran. A second Stop
++   before that (or Stop while paused) stops at once. */
++static int l_autosave_stop;
++
++void main_stop_autosave(void)
++{
++    const char *path = getenv("MUPEN_AUTOSAVE");
++    if (path != NULL && *path && g_EmulatorRunning && !g_rom_pause && !l_autosave_stop)
++    {
++        l_autosave_stop = 1;
++        main_state_save(savestates_type_m64p, path);
++        return;
++    }
++    l_autosave_stop = 0;
++    main_stop();
++}
++
++void main_autosave_done(void)
++{
++    if (!l_autosave_stop)
++        return;
++    l_autosave_stop = 0;
++    main_stop();
++}
++
+ void main_stop(void)
+ {
+     /* note: this operation is asynchronous.  It may be called from a thread other than the
+diff -ruN a/core/src/main/main.h b/core/src/main/main.h
+--- a/core/src/main/main.h	1969-12-31 21:00:00.000000000 -0300
++++ b/core/src/main/main.h	2026-11-19 14:43:19.142934229 -0300
+@@ -71,6 +71,8 @@
+ 
+ m64p_error main_run(void);
+ void main_stop(void);
++void main_stop_autosave(void);
++void main_autosave_done(void);
+ void main_toggle_pause(void);
+ void main_advance_one(void);
+ 
