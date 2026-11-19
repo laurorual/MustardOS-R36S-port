@@ -1,4 +1,5 @@
 #!/bin/sh
+# shellcheck disable=SC2016
 # SPDX-License-Identifier: MIT
 # Buildroot post-build (firmware.defconfig): install the SHA256-pinned
 # prebuilt inputs from the build/m3a/inputs store into the target, then
@@ -13,7 +14,8 @@
 #   Connectivity menu; the pinned device config says 0);
 # - info_open/info_close.wav high-passed for the speaker (M4a, wav-highpass.py);
 # - /etc/localtime -> the zone link on p3, RTC in UTC (M4d);
-# - share/profile/state, share/news -> p3 MUOS/port/ (M5).
+# - share/profile/state, share/news -> p3 MUOS/port/ (M5);
+# - a save-state warm-up for mupen64plus-next (M7).
 # $1 is TARGET_DIR. Runs inside the build container (paths as
 # build-image.sh mounts).
 set -eu
@@ -32,6 +34,10 @@ snd=$1/opt/muos/share/theme/MustardOS/sound
 for n in info_open info_close; do
     python3 /port/scripts/wav-highpass.py "$snd/$n.wav" "$snd/$n.wav.tmp" && mv "$snd/$n.wav.tmp" "$snd/$n.wav"
 done
+# M7 T3: mupen64plus-next rejects a state loaded before its first frames
+# (the exit autosave never resumed); muxretro runs this many frames first
+# (coreinfo savestate_warmup_frames; 3 restored MK64 and DK64 on the device)
+printf 'savestate_warmup_frames = "5"\n' >> "$1/opt/muos/share/emulator/retroarch/info/mupen64plus_next_libretro.info"
 python3 /port/scripts/coredb-governors.py "$1/usr/share/muos-r35s/core-assign.txt" \
     "$1/opt/muos/share/info/manifest/core.json" "$1/opt/muos/share/core"
 d=$1/opt/muos/script/device
@@ -108,4 +114,4 @@ printf '0.0 0 0.0\n0\nUTC\n' > "$1/var/lib/hwclock/adjtime"
 # M7: mount point for the archive install marks (S91 binds p3 there;
 # script/mux/extract.sh writes update/installed/<archive>.done).
 mkdir -p "$1/opt/muos/update"
-echo "post-build: board/network, info sounds high-passed, coredb governors, level-script boost wrappers, wireplumber rules, hotkey hold, muxretro provenance, localtime link + RTC in UTC, update mount point"
+echo "post-build: board/network, info sounds high-passed, coredb governors, level-script boost wrappers, wireplumber rules, hotkey hold, muxretro provenance, localtime link + RTC in UTC, update mount point, N64 state warm-up"

@@ -28,6 +28,11 @@ caps() {
     top=$(tr ' ' '\n' < "$cpu/scaling_available_frequencies" 2>/dev/null | grep . | sort -n | tail -n1)
     case "$v" in ''|*[!0-9]*) v=1296000 ;; 0) v=$top ;; esac
     [ -z "$top" ] || [ "$v" -le "$top" ] || v=$top
+    # A lower cap is refused while the floor is above it: muos-boost (run by
+    # tweak.sh's bright.sh just before) holds scaling_min at the old max.
+    # M7 T3: 1512 -> 1296 in the Danger screen kept 1512 until the next game.
+    [ "$(cat "$cpu/scaling_min_freq" 2>/dev/null)" -le "$v" ] 2>/dev/null ||
+        printf '%s\n' "$v" > "$cpu/scaling_min_freq" 2>/dev/null
     [ "$(cat "$cpu/scaling_max_freq" 2>/dev/null)" = "$v" ] || printf '%s\n' "$v" > "$cpu/scaling_max_freq" 2>/dev/null
     [ -w "$gpu/max_freq" ] || return 0
     v=$(head -n1 /opt/muos/config/danger/gpu_max 2>/dev/null)

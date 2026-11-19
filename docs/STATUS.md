@@ -13,8 +13,10 @@ milestones with their results and T3 checklists in
 
 **Phase 5 (own-card firmware). M1–M5 done; M4g = recovery image. M6
 folded into M7. M7 (polish): first image T3-tested 2026-11-19; its T3
-fixes are in image `test128-m7t3-20261119` (`5e72cfa`), trial root T2
-passed and written to p2 2026-11-19 ~13:15. Its T3 is with the user.**
+fixes are in image `test128-m7t3-20261119` (`5e72cfa`), written to p2
+2026-11-19 ~13:15; its T3 (2026-11-19) passed except the Danger screen
+→ recovery image. Its T3 fixes (Danger screen, cap switch, N64 resume)
+are done to T2 on the live root; the next image carries them.**
 
 ## Next session — read first
 
@@ -22,8 +24,15 @@ passed and written to p2 2026-11-19 ~13:15. Its T3 is with the user.**
   written 2026-11-19 by `write-p2`; the previous p2 = M7 `c24516fb…`,
   saved as `MUOS/trial/p2-previous.img` `01e4c0bf…` incl. its boot-time
   state); boot records: main = the M7 DTB.
-- The T3 below is with the user; fold its results in. Slot 2 waits for
-  M8 (decision 16).
+- The live root (rw since `install-rootfs.sh`, until the next reboot)
+  differs from p2 `c1f45838…`: frontend 0011 `libmuxmod.so` and
+  `muos-governor` (min-before-max cap). The N64 warm-up is only in
+  post-build (tested with a bind-mounted info copy).
+- **Idle discharge log running** (`t2-discharge.sh log-start`, started
+  2026-11-19 14:27 at 22 %, menu idle, backlight 60, ~412 mA at
+  3.56 V): it ends at the low-battery poweroff; after the user charges
+  and powers on: `t2-discharge.sh report`, then `log-stop`.
+- Slot 2 waits for M8 (decision 16).
 - `build/m3c/cores/debug/` holds the -g mupen build matching the shipped
   core (45 MB, for gdb); delete it once N64 is T3-confirmed.
 - Smoke ROMs deleted from p3 (2026-11-19); `make-smoke-roms.py` makes
@@ -56,13 +65,12 @@ the whole card, bootloader included; steps in procedures.md.
 | Image | Content | State |
 |---|---|---|
 | `dist/firmware/test128-m7-20261119.img.zst` (raw `528da83a…`, p2 `c24516fb…`) | M7 so far (contains M6): language pack + pt-BR, Wi-Fi liveness, 1512 MHz opt-in DTB, faster boot | T3 2026-11-19: N64 crash, blink, archive mark (fixed in m7t3) |
-| `dist/firmware/test128-m7t3-20261119.img.zst` (raw `9c60175f…`, p2 `c1f45838…`) | M7 + its T3 fixes | trial root T2 passed; written to p2 2026-11-19 (on the device); T3 pending |
+| **`dist/firmware/test128-m7t3-20261119.img.zst`** (raw `9c60175f…`, p2 `c1f45838…`) | **Recovery image since 2026-11-19.** M7 + its T3 fixes | on the device; T3 2026-11-19: 1–5 passed, 6 partial (Danger screen, fixed since) |
 | `dist/firmware/test128-m5-20261118.img.zst` (raw `64e45d74…`, p2 `768942b1…`) + `public-m5-20261118` | M5 | on the card; T3 2026-11-18: item 5 broke navigation → not promoted |
-| **`dist/firmware/test128-m4g-20261118.img.zst`** (raw `a9d7cbc4…`, p2 `371b3f23…`) | **Recovery image since 2026-11-18 (night).** M4g | T3 1, 3, 4 passed |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-5/5 versions in `storage-retention.json` (m4e1 and m4f retired
-2026-11-19). The next image retires m5 (keep m4g while it is recovery).
+4/5 versions in `storage-retention.json` (m4g retired 2026-11-19 when
+m7t3 became recovery). The image after next retires m5.
 
 ## What works (T3-confirmed)
 
@@ -164,51 +172,33 @@ in slot 2 (inserted; fails, see open problems); 16 `root=` by the slot-1
 device with the clean U-Boot in M8 (user present); until then no image
 copies in slot 2.
 
+Answered 2026-11-19: 17 grow p2 to 1 GiB in the M8 card layout, then
+ship ScummVM and the CJK fonts (recommendation accepted); 18 the user
+provides game dumps: after every T3 check `port/roms/` on the PC and use
+any ROM of a not yet tested system for its core's T2 (none new as of
+2026-11-19: bios, gb, gba, megadrive, n64, nes, psx, snes).
+
 ## Decisions for the user
 
-Work continues without them; the recommendation applies until answered.
-
-17. **p2 size** (488 MB, ~113 MB free after the M6 cores). ScummVM
-    (~60–100 MB) and later cores need room. Recommendation: grow p2 to
-    1 GiB in the M8 card layout (a reflash anyway, user present); ship
-    ScummVM and the CJK fonts (Noto Sans SC/TC/JP/KR, 29 MiB: Chinese,
-    Japanese, Korean menus) from then on; until then leave them out.
-18. **Games for the new systems** (one per system; your own dumps): copy
-    them to `ROMS/<DIR>` (ATARI2600, ATARI7800, LYNX, PCE, PCECD, NGP,
-    NGPC, WS, WSC, MSX, COLECO, SG1000, SEGACD, ARCADE, NEOGEO, DOS,
-    POKEMINI, N64) and the BIOS files to `MUOS/bios` (Diagnostics → BIOS
-    Report lists them), or put them in `port/roms/<dir>` on the PC.
-    Recommendation: yes; it turns the synthetic fps checks into real
-    verdicts (T2 then runs them automatically).
+None open.
 
 ## T3 queue
 
-M6 + M7 T3 done 2026-11-19 (results in the milestone below). Next
-checklist after the T3-fix image (`write-p2`), every path in the
-menu's pt-BR labels:
+M7 T3-fix checklist done 2026-11-19 (results: milestone item 13). For
+the next image (every path in the menu's pt-BR labels):
 
-1. **Fn+Start out of a game:** CRT-off animation, fade-in of the list,
-   no black blink at the end of the fade. Same after applying a theme
-   (Configuração → Personalização → Tema).
-2. **N64:** ROMS/N64 → Mario Kart 64 and Donkey Kong 64 start, sound,
-   playable speed; quit with Fn+Start.
-3. **Archive restore:** Configuração → Backup → "Capturas de Tela" to
-   SD1; Aplicativos → Archive Manager → the backup → extract: finishes
-   with no "could not be marked as installed" error and the entry shows
-   as installed.
-4. **BIOS:** Aplicativos → Task Toolkit → Diagnostics → BIOS Report: a
-   closing dialog lists the missing BIOS per core and offers "Renomear"
-   for SCPH5500/5501/5502.bin → choose it; MUOS/bios then has the
-   lower-case names; a PSX game still starts.
-5. **Explorar conteúdo:** only folders with games are listed;
-   Configuração → Personalização → Pastas → Pastas vazias brings the
-   rest back.
-6. **CPU 1512 MHz (from M7, path corrected):** Configuração → put the
-   focus on "Geral" → hold **Y** → confirm the warning → Configurações
-   perigosas → Máximo do processador → "Máxima (1512 MHz)"; a PSX game
-   10 min, no freeze; set 1296 again.
-7. **Slot 2:** the tests asked by Telegram (the card in a PC; the card
-   under stock dArkOSen; another card).
+1. **Configurações perigosas** (Configuração → focus on "Geral" → hold
+   **Y** → confirm): Down from "Máximo do processador" reaches "Máximo
+   dos gráficos", Down again wraps to "Nível do Log do Kernel"; on
+   "Máximo do processador" Right raises (1368 MHz…"Máxima (1512 MHz)"),
+   Left lowers.
+2. **Cap back to 1296:** set "Máxima (1512 MHz)", leave with B, open the
+   screen again, set 1296 MHz, leave: a PSX game (CTR) runs as before the
+   overclock (no extra slowdowns).
+3. **N64 resume:** start Mario Kart 64, race a little, Fn+Start; start
+   it again: it resumes where you left (after ~1 s of the boot logo).
+4. **Battery:** after the discharge run ends (the device powers off on
+   its own), charge and power on; nothing else (the agent pulls the log).
 
 ## Current milestone: M7 — polish: language, performance, power (started 2026-11-19)
 
@@ -264,7 +254,28 @@ Goal (roadmap.md): pt-BR complete, wake/audio/Wi-Fi robustness, the
     bounces, NES 59.96, sleep 2/2, t2-sdcard, t2-sftp-jail, Wi-Fi toggle
     3/3, N64 start, no FB:69 after the screen is up on game exit, p3
     update mark); written to p2.
-Remaining for M7: underrun bursts, idle power (off the charger), a soak
-(hours of play, discharge).
+13. **M7 T3-fix T3 (2026-11-19):** ok: fade without blink, MK64,
+    archive restore, BIOS Report, empty folders, Fn+Start from N64. Found:
+    (a) the Danger screen lost the focus below "Máximo do processador"
+    and wrapped to the second row (upstream hides the Online Cores row,
+    absent here, before grouping); (b) its Left/Right ran backwards
+    (upstream lists the highest speed first); (c) switching 1512 → 1296
+    kept 1512 until the next game (tweak.sh's bright.sh boost holds
+    scaling_min at the old max, so the lower max write is refused);
+    (d) N64 never resumed (mupen64plus-next rejects a state before its
+    first frames); (e) DK64 drops frames in the intro and the first
+    controllable scene (better at 1512), its camera resets (the user saw
+    the same under ArkOS: emulator); a few CTR slowdowns at 1512, not
+    seen at 1296. Promoted to recovery (only the Danger screen failed).
+14. **Its fixes — done to T2 on the live root:** (a)+(b) frontend 0011
+    (hide after grouping, as muxtweakgen; caps lowest first, "Highest"
+    last): screenshots of the focus at both rows, the wrap and
+    Right/Left; libmuxmod repinned. (c) `muos-governor` lowers
+    scaling_min first: 1512 → 1296 through tweak.sh 3/3. (d) post-build
+    appends `savestate_warmup_frames = "5"` to the mupen info: the
+    user's MK64 (3 frames) and DK64 (5) autosaves restored.
+Remaining for M7: DK64 frame drops (measure core options with the
+user's autosave), CTR at 1512 vs 1296 (thermal?), underrun bursts, idle
+power (log running), a soak; then the image.
 
 **Next milestone after M7:** M8 — public v1.0.

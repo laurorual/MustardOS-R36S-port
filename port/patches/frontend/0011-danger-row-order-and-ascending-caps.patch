@@ -1,0 +1,75 @@
+From: muOS R35S port
+Subject: [PATCH] 0011-danger-row-order-and-ascending-caps
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/muxdanger.c
++++ b/frontend/module/muxdanger.c
+@@ -24,10 +24,13 @@
+ static frequency_list cpu_frequencies;
+ static frequency_list gpu_frequencies;
+ 
+-static int compare_descending(const void *a, const void *b) {
++/* R35S port: lowest first, so Right raises the cap and Left lowers it
++   (upstream sorts highest first, which reads backwards on a d-pad). The
++   last entry is "Highest" (value 0, no cap). */
++static int compare_ascending(const void *a, const void *b) {
+     const long left = *(const long *) a;
+     const long right = *(const long *) b;
+-    return (left < right) - (left > right);
++    return (left > right) - (left < right);
+ }
+ 
+ static void build_frequency_list(frequency_list *list, const char *filename, const long divisor) {
+@@ -52,11 +55,12 @@
+     }
+     free(content);
+ 
+-    qsort(found, (size_t) total, sizeof(long), compare_descending);
++    qsort(found, (size_t) total, sizeof(long), compare_ascending);
+ 
+     for (int i = 0; i < total; i++) {
+-        snprintf(list->values[i], sizeof(list->values[i]), "%ld", i == 0 ? 0 : found[i]);
+-        if (i == 0) {
++        const int highest = i == total - 1;
++        snprintf(list->values[i], sizeof(list->values[i]), "%ld", highest ? 0 : found[i]);
++        if (highest) {
+             snprintf(
+                 list->labels[i], sizeof(list->labels[i]), "%s (%ld MHz)", lang.muxdanger.highest, found[i] / divisor
+             );
+@@ -97,7 +101,7 @@
+     for (int i = 0; i < list->count; i++) {
+         if (strcmp(value, list->values[i]) == 0) return i;
+     }
+-    return 0;
++    return list->count > 0 ? list->count - 1 : 0;
+ }
+ 
+ static int save_frequency(lv_obj_t *dropdown, const int original, const frequency_list *list, const char *file) {
+@@ -263,10 +267,6 @@
+         gpu_frequencies.count
+     );
+ 
+-    if (cpu_frequencies.count < 2) HIDE_OPTION_ITEM(danger, overclock);
+-    if (!cpu_cores_can_change()) HIDE_OPTION_ITEM(danger, online_cores);
+-    if (gpu_frequencies.count < 2) HIDE_OPTION_ITEM(danger, gpu_overclock);
+-
+     char *four_values = generate_number_string(0, 100, 4, NULL, NULL, NULL, 0);
+     apply_theme_list_drop_down(&theme, ui_lbl_vm_swap_danger, ui_dro_vm_swap_danger, four_values);
+     apply_theme_list_drop_down(&theme, ui_lbl_dirty_ratio_danger, ui_dro_dirty_ratio_danger, four_values);
+@@ -292,6 +292,15 @@
+ 
+     reset_ui_groups();
+     add_ui_groups(ui_objects, ui_objects_value, ui_objects_glyph, ui_objects_panel, 0);
++
++    /* R35S port: hide after grouping (as muxtweakgen does). Upstream hid
++       first: add_ui_groups then took the first ui_count_static rows, so a
++       hidden middle row (Online Cores: no cpu/cores on this device) stayed
++       in the group and the last row (GPU Max) fell out of it; the focus
++       vanished below CPU Max and the list wrapped to the second row. */
++    if (cpu_frequencies.count < 2) HIDE_OPTION_ITEM(danger, overclock);
++    if (!cpu_cores_can_change()) HIDE_OPTION_ITEM(danger, online_cores);
++    if (gpu_frequencies.count < 2) HIDE_OPTION_ITEM(danger, gpu_overclock);
+ }
+ 
+ static void handle_option_prev(void) {
