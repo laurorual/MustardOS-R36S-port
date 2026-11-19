@@ -4,6 +4,37 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M6 — systems, cores, build from source (done to T2 2026-11-19; p2 never written, superseded by M7)
+
+Image `dist/firmware/test128-m6-20261119`. Its `write-p2` was refused by
+the Claude Code permission check while the user slept (unattended); M7's
+image contains all of M6.
+
+Plan (roadmap.md), state:
+1. M5 T3 fixes — done to T2: Config rows (frontend 0008), screenshot
+   flash (0007), fbcon unbound under the UI (S99), Wi-Fi C2H reset
+   (worker; `t2-wifi-toggle-loop.sh`, 10 cycles + injected error).
+2. Release frontend (`TEST_IMAGE=0`) of libui, libmuxcom, libmuxmod,
+   libplutosvg, muxfrontend, muhotkey, mubattery, muxretro — done to T2
+   (screen sweep 44 ok/7 bounces, NES 59.76 fps). Config keys reviewed:
+   106 absent keys, all with built-in defaults.
+3. Cores (`build-cores.sh`): stella2014, prosystem, handy, beetle pce
+   fast/neopop/cygne, blueMSX, gearcoleco, gearsystem, pokemini, FBNeo,
+   MAME 2003-Plus, dosbox-pure, mupen64plus-next (trial) — built, symbol
+   checked, 18 folders seeded; smoke fps 60 on 2600, 7800, PCE, NGPC, WS,
+   SG-1000, Pokémon mini, DOS. Coredb system defaults = the
+   port's cores (auto-assign). ScummVM: decision 17.
+4. Kernel modules from source: `build-boot.sh modules-check` 553
+   identical + 2 differing only in the build date — done.
+5. BIOS: upstream core info files (muxretro's BIOS prompt) + Diagnostics
+   → BIOS Report — done to T2 (on the device: 3 required files missing
+   for MSX/Coleco; the PSX BIOS names need lower case).
+6. Image `test128-m6-20261119` (raw `d443411e…`, p2 `ac695c52…`): trial
+   root T2 passed (sweep 44 ok, NES 59.98, DOS smoke 60.01, Wi-Fi toggle
+   3/3 + injected C2H, sleep 2/2 in game, t2-sdcard, t2-sftp-jail 8;
+   logs `build/logs/m6/trial/`). T3 folded into M7's checklist.
+
+
 ## M5 — daily-driver completeness (done 2026-11-18, p2 written, T3 2026-11-18: not promoted)
 
 First milestone of the release plan (roadmap.md). Image

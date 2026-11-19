@@ -11,42 +11,40 @@ milestones with their results and T3 checklists in
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M5 done; M4g = recovery image (M5's T3
-found a menu-navigation bug, so M5 was not promoted). M6 (systems, cores,
-build from source) in progress: release frontend, 14 new cores + N64
-trial, M5 T3 fixes; image `test128-m6-20261119` built and **passed T2 as
-the trial root** (2026-11-19 00:30); only `write-p2` is left.**
+**Phase 5 (own-card firmware). M1–M5 done; M4g = recovery image. M6
+(systems, cores) done to T2 and folded into M7. M7 (polish) first part
+done to T2: image `test128-m7-20261119` passed T2 as the trial root
+(2026-11-19 ~03:00). `write-p2` is waiting for the user: the Claude Code
+permission check refuses it while the user is away (also on 2026-11-17),
+although AGENTS.md pre-authorizes it.**
 
 ## Next session — read first
 
-- Device on main = **M5 p2** (`768942b1…`) plus files installed live
-  for M6 T2 (release frontend and muxretro, the new cores, core info
-  files, core-assign, S99muos-ui, Wi-Fi worker, BIOS Report task); the
-  root stayed rw after `install-rootfs.sh` (busy).
-- Next: `write-p2` of `MUOS/trial/rootfs.img` (= M6 p2 `ac695c52…`,
-  already on p3 with its `.sha256`): arm `/etc/muos-root-trial` on main,
-  reboot, `muos-root-trial write-p2 /userdata/MUOS/trial/rootfs.img
-  ac695c52…`, reboot (pre-authorized: the same p2 passed T2 as the trial
-  root: sweep 44 ok, NES 59.98, DOS smoke 60.01, Wi-Fi toggle 3/3 with an
-  injected C2H, sleep 2/2 in game, t2-sdcard, t2-sftp-jail 8; logs
-  `build/logs/m6/trial/`). The warm reboot back from the trial root hit
-  the slow-Wi-Fi case once (SSH after ~3 min). Then retire m4e1 (5/5
-  versions), `retention.py add` M6, delete the smoke ROMs, hand over
-  the T3 list below.
+- Device on main = **M5 p2** (`768942b1…`) plus files installed live for
+  M6/M7 T2 (frontend, cores, language pack, watchdog, governor, muos-rc,
+  S91); boot records: main = the M7 DTB (promoted after its trial boot).
+  It was powered off at the end of the session (on the charger).
+- Next, **with the user present** (or a permission rule for it):
+  `write-p2` of `MUOS/trial/rootfs.img` = M7 p2 `c24516fb…` (on p3 with
+  its `.sha256`): arm `/etc/muos-root-trial` on main, reboot,
+  `/usr/libexec/muos-root-trial write-p2 /userdata/MUOS/trial/rootfs.img
+  c24516fbf2431fd395d52cc8ae14b83271ee57e19d5146ca3b18ef938422d5f0`,
+  reboot. Then hand over the T3 list below.
+- Smoke ROMs deleted from p3 (2026-11-19); `make-smoke-roms.py` makes
+  them again for T2.
 - The user's spare card is in slot 2 (exFAT, `ROMS/megadrive`); it never
   initialises (open problem). `/dev/mmcblk0` is still slot 1.
-- p3 has smoke ROMs in `ROMS/{ATARI2600,ATARI7800,PCE,NGPC,WS,SG1000,
-  POKEMINI,DOS}/smoke.*` (`make-smoke-roms.py`): delete them before the
-  user's T3.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1, the user's spare card (exFAT) in slot 2: M4b image
   flashed 2026-11-14, then p2 written in place (`write-p2`) for M4d,
-  M4e.1, M4f, M4g and M5. `user_init` = 0. Time zone −03; volume 55.
-  - Boot records: main = `Image-ea8ac0033c0e` (0001–0008) +
-    `panel0-bc04b6f8e4d4.dtb`; previous = `Image-d61188f3a808` (0007).
+  M4e.1, M4f, M4g and M5. `user_init` = 0. Time zone −03; volume 10
+  (lowered for the night T2).
+  - Boot records: main = `Image-ea8ac0033c0e` + `panel0-0475265be8ac.dtb`
+    (M7: CPU OPPs to 1512 MHz, capped at 1296 by `danger/cpu_max`);
+    previous = `Image-ea8ac0033c0e` + `panel0-bc04b6f8e4d4.dtb` (M4f–M6).
   - p3: ROMs, Wi-Fi profile `Home.ini`, zone link, rumble verdict
     (absent), the six seeded themes, PSX BIOS (`SCPH550x.bin`, upper case).
 - **original32 (stock dArkOSen):** the flasher station (slot 1, target
@@ -61,15 +59,14 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m6-20261119.img.zst` (raw `d443411e…`, p2 `ac695c52…`) | M6 so far: release frontend, 14 cores + N64 trial, M5 T3 fixes | built; trial root next |
+| `dist/firmware/test128-m7-20261119.img.zst` (raw `528da83a…`, p2 `c24516fb…`) | M7 so far (contains M6): language pack + pt-BR, Wi-Fi liveness, 1512 MHz opt-in DTB, faster boot | trial root T2 passed; `write-p2` waits for the user |
+| `dist/firmware/test128-m6-20261119.img.zst` (raw `d443411e…`, p2 `ac695c52…`) | M6 | trial T2 passed; never written (superseded) |
 | `dist/firmware/test128-m5-20261118.img.zst` (raw `64e45d74…`, p2 `768942b1…`) + `public-m5-20261118` | M5 | on the card; T3 2026-11-18: item 5 broke navigation → not promoted |
 | **`dist/firmware/test128-m4g-20261118.img.zst`** (raw `a9d7cbc4…`, p2 `371b3f23…`) | **Recovery image since 2026-11-18 (night).** M4g | T3 1, 3, 4 passed |
-| `dist/firmware/test128-m4f-20261117.img.zst` (raw `159d4894…`, p2 `46a573a0…`) | M4f | T3 2–6 passed |
-| `dist/firmware/test128-m4e1-20261117.img.zst` (raw `c122c7f4…`, p2 `d73646be…`) | M4e.1 | T3 passed; retire for M6 |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-The M6 image is not yet in `storage-retention.json` (6 on disk until m4e1
-is retired with `retention.py retire`).
+5/5 versions in `storage-retention.json` (m4e1 and m4f retired
+2026-11-19). The next image retires m5 (keep m4g while it is recovery).
 
 ## What works (T3-confirmed)
 
@@ -99,10 +96,10 @@ screenshots (menu), Date and Time.
   the same card under stock; another card).
 - **p2 space:** 488 MB root, ~113 MB free with the M6 cores (FBNeo 80 MB,
   MAME 2003-Plus 43 MB). ScummVM does not fit (decision 17).
-- **Wi-Fi zombie (M5 incident):** the 8821cu firmware can enter a C2H/
-  H2C error loop. While connecting it is now detected (M6: dongle reset,
-  T2 with an injected error). While "ready" nothing detects it yet (M7:
-  liveness check, dwc2 rebind).
+- **Wi-Fi zombie (M5 incident):** handled since M7: while connecting by
+  the worker (dongle reset), while "ready" by `muos-usb-watchdog` (C2H
+  errors or a silent gateway → dwc2 rebind; T2 with injected errors and
+  test hooks). A real occurrence is unverified.
 - **New systems: fps verdicts are synthetic** (an idle loop per core,
   60 fps everywhere, core 4–7 ms); real games are the user's (T3,
   decision 18). FBNeo, MAME, MSX, Coleco, Lynx, Sega CD, PCE CD need
@@ -113,14 +110,19 @@ screenshots (menu), Date and Time.
 - **USB (dwc2 misses port events):** `muos-usb-watchdog` (M4f) rebinds
   dwc2 after 3 disagreeing reads (not yet triggered by a real replug).
 - **Upstream gaps:** see the gap inventory in roadmap.md.
-- **Translation (pt-BR, M7):** parts stay English; the SFTP help text is
-  English only; our own strings are not in language files.
+- **Translation (pt-BR):** every frontend string has pt-BR text since M7
+  (upstream language pack + the port's overlay). Still English, as
+  upstream: task names (file names), sort tags, time zone and language
+  names. Chinese, Japanese and Korean are not shipped until p2 has room
+  for their fonts (decision 17).
 - **Wi-Fi dongle (RTL8821CU):** the warm-reboot H2C case (1 in 7 since
   M4c); no software power cycle; inserting the dongle during boot is
   unqualified.
-- **Wake:** Wi-Fi returns ~9 s after wake with ~0.7 s of slow frames;
-  felt stronger in M5 T3 (likely the slot-2 card's init retries).
-- **Power:** menu idle ~420 mA; no controllable LEDs.
+- **Wake:** Wi-Fi returns ~9.3–10.2 s after wake (M7 timeline in
+  hardware-findings: the 4 s CD-ROM settle dominates); ~0.7 s of slow
+  frames in a game; felt stronger in M5 T3 (likely the slot-2 card).
+- **Power:** menu idle ~420 mA (not re-measured in M7: the device was on
+  the charger); no controllable LEDs.
 - **Audio:** one unexplained no-sound report (M3d); WirePlumber "no
   profile" start failure retried; 3–8 underrun bursts per game; 200 %
   overdrive distorts (as upstream).
@@ -162,7 +164,8 @@ Work continues without them; the recommendation applies until answered.
 17. **p2 size** (488 MB, ~113 MB free after the M6 cores). ScummVM
     (~60–100 MB) and later cores need room. Recommendation: grow p2 to
     1 GiB in the M8 card layout (a reflash anyway, user present); ship
-    ScummVM from then on; until then leave it out.
+    ScummVM and the CJK fonts (Noto Sans SC/TC/JP/KR, 29 MiB: Chinese,
+    Japanese, Korean menus) from then on; until then leave them out.
 18. **Games for the new systems** (one per system; your own dumps): copy
     them to `ROMS/<DIR>` (ATARI2600, ATARI7800, LYNX, PCE, PCECD, NGP,
     NGPC, WS, WSC, MSX, COLECO, SG1000, SEGACD, ARCADE, NEOGEO, DOS,
@@ -171,77 +174,83 @@ Work continues without them; the recommendation applies until answered.
     Recommendation: yes; it turns the synthetic fps checks into real
     verdicts (T2 then runs them automatically).
 
+19. **`write-p2` while you are away:** the Claude Code permission check
+    refuses it unattended (2026-11-17 and 2026-11-19), so each milestone's
+    p2 waits for you. Recommendation: add a permission rule for
+    `muos-root-trial write-p2` (it only runs after a T2-passed trial root,
+    and the previous p2 is saved for a rollback), or tell me in the
+    morning to run it with you nearby.
+
 ## T3 queue
 
-M5 T3 done 2026-11-18 (results in milestones.md). M6 checklist (draft;
-for the M6 p2 once written):
+M5 T3 done 2026-11-18 (results in milestones.md). **M6 + M7 checklist**
+(on the M7 p2, after `write-p2`):
 
-1. **Configuration menu:** each row opens its own screen (Power →
-   power settings, Backup → backup list). Backup: back up "Capturas de
-   Tela" to SD1; Aplicativos → Archive Manager lists it; restore it.
-2. **No test-image marks:** no "THIS IS A TEST IMAGE" banner, no
-   FPS/CPU counter in any screen.
-3. **Screens between UI and game:** start and quit a game, change the
-   theme: no console text flashes (black or the last frame instead).
+1. **pt-BR everywhere:** browse Configuração, Conectividade, Serviços
+   web (SSH/"Arquivos via SFTP" and their help with Menu/Fn), Energia,
+   Aparência: no English except task names, tags and time zones. System
+   details → Compilação shows `r35s-a868092`.
+2. **Configuration menu:** each row opens its own screen (Power → power
+   settings, Backup → backup list). Backup "Capturas de Tela" to SD1;
+   Aplicativos → Archive Manager lists it; restore it.
+3. **No test-image marks; no console text** between UI and game: start
+   and quit a game, change the theme: black or the last frame only.
 4. **Screenshot:** X+L2+R2 in the menu (not on the Configuration tile):
    a short white flash; the file is in `MUOS/screenshot`.
-5. **Wi-Fi toggle:** off/on 3–4 times in Conectividade: back each time
-   within ~30 s.
-6. **Slot 2 diagnosis:** (a) with the console on, pull the spare card and
-   push it in firmly; (b) if nothing shows, try the same card in slot 2
-   under stock dArkOSen (original32 in slot 1): does dArkOSen see it?
-   (c) optionally another card. Report which.
-7. **New systems:** one game each where you have one (decision 18):
-   plays at full speed with sound; saves/states for one of them.
-8. **BIOS:** Task Toolkit → Diagnostics → BIOS Report: the report lists
-   the BIOS files per core; a Coleco game without `colecovision.rom`
-   shows a "BIOS missing" message.
-9. **Auto-assign by folder name:** a folder named like dArkOS's
-   (`ROMS/megadrive`, `ROMS/snes`) on slot 1 with a game: Explore shows
-   and starts it with the port's core.
-10. **N64 trial:** one game in `ROMS/N64`: playable or not?
-11. **Regression:** a game with volume keys, sleep/wake in the game.
+5. **Wi-Fi:** off/on 3–4 times in Conectividade (back within ~30 s
+   each); then leave the console idle in the menu for 10+ minutes and
+   check SSH/Wi-Fi still answer (the new liveness watchdog must not
+   reset a healthy connection: `MUOS/log/...usb-watchdog.log` has no
+   "Wi-Fi dead" line).
+6. **CPU 1512 MHz (opt-in):** Configurações perigosas → Máximo do
+   processador lists up to "Máxima (1512 MHz)" with 1296 MHz selected. Choose Máxima, play a
+   heavy game (PSX) 10 min: no freeze; then set 1296 again.
+7. **Boot:** two cold boots: the menu appears ~3 s sooner on the
+   second (core assignments cached); everything still assigned.
+8. **Slot 2 diagnosis:** (a) with the console on, pull the spare card
+   and push it in firmly; (b) if nothing shows, the same card in slot 2
+   under stock dArkOSen (original32 in slot 1); (c) another card.
+9. **New systems:** one game each where you have one (decision 18):
+   full speed with sound; saves/states for one of them; N64 playable?
+10. **BIOS:** Task Toolkit → Diagnostics → BIOS Report lists the BIOS
+    files per core; a Coleco game without `colecovision.rom` shows a
+    "BIOS missing" message.
+11. **Auto-assign by folder name:** `ROMS/megadrive` (or `snes`) on slot
+    1 with a game: Explore shows and starts it with the port's core.
+12. **Regression:** a game with volume keys, sleep/wake in the game.
 
-## Current milestone: M6 — systems, cores, build from source
-
-Plan (roadmap.md), state:
-1. M5 T3 fixes — done to T2: Config rows (frontend 0008), screenshot
-   flash (0007), fbcon unbound under the UI (S99), Wi-Fi C2H reset
-   (worker; `t2-wifi-toggle-loop.sh`, 10 cycles + injected error).
-2. Release frontend (`TEST_IMAGE=0`) of libui, libmuxcom, libmuxmod,
-   libplutosvg, muxfrontend, muhotkey, mubattery, muxretro — done to T2
-   (screen sweep 44 ok/7 bounces, NES 59.76 fps). Config keys reviewed:
-   106 absent keys, all with built-in defaults.
-3. Cores (`build-cores.sh`): stella2014, prosystem, handy, beetle pce
-   fast/neopop/cygne, blueMSX, gearcoleco, gearsystem, pokemini, FBNeo,
-   MAME 2003-Plus, dosbox-pure, mupen64plus-next (trial) — built, symbol
-   checked, 18 folders seeded; smoke fps 60 on 2600, 7800, PCE, NGPC, WS,
-   SG-1000, Pokémon mini, DOS. Coredb system defaults = the
-   port's cores (auto-assign). ScummVM: decision 17.
-4. Kernel modules from source: `build-boot.sh modules-check` 553
-   identical + 2 differing only in the build date — done.
-5. BIOS: upstream core info files (muxretro's BIOS prompt) + Diagnostics
-   → BIOS Report — done to T2 (on the device: 3 required files missing
-   for MSX/Coleco; the PSX BIOS names need lower case).
-6. Image, trial T2, `write-p2` — image built, trial T2 passed;
-   `write-p2` left.
-
-## Next milestone: M7 — polish: language, performance, power (started 2026-11-19)
+## Current milestone: M7 — polish: language, performance, power (started 2026-11-19)
 
 Goal (roadmap.md): pt-BR complete, wake/audio/Wi-Fi robustness, the
-1512 MHz opt-in, idle power, a soak. Items:
-1. Languages: the upstream language pack (MustardOS/language, pinned)
-   instead of internal's stale share/language; the port's strings and
-   the 32 newer upstream strings in pt-BR (overlay); CJK left out until
-   p2 has room for the fonts (decision 17).
-2. Wi-Fi liveness while "ready" (C2H loop / silent gateway → dwc2 rebind).
-3. CPU 1512 MHz opt-in: stock OPPs in the DTB (trial boot), default cap
-   1296 through the upstream Danger setting (`danger/cpu_max`).
-4. Wake: the slow frames and Wi-Fi ~9 s after wake.
-5. Audio: underrun bursts, the WirePlumber retry.
-6. Idle power, DDR devfreq.
-7. Wi-Fi warm-reboot H2C and the dongle inserted during boot.
-8. Boot time; a soak (play, sleep cycles) at T2.
-9. M6 T3 results when they arrive.
-Expected T3: pt-BR screens, 1512 opt-in in a game, wake feel, Wi-Fi
-after a long idle.
+1512 MHz opt-in, idle power, a soak. State (logs `build/logs/m7/`):
+1. **Languages — done to T2:** the pinned upstream language pack
+   (MustardOS/language `3db301a`, `muos-language.txt`) replaces
+   internal's stale `share/language` (2679 of 3318 strings had no pt-BR
+   text); the port overlay (`port/packaging/language/`) adds the 32
+   newer strings, the Wi-Fi radio help (frontend 0001 now translates it)
+   and a jail-accurate SFTP help; CJK out (decision 17), Arabic font in.
+   Screen sweep: 44 ok; pt-BR complete except upstream file-name texts.
+2. **Wi-Fi liveness — done to T2** (`t2-wifi-liveness.sh` c2h + silent).
+3. **CPU 1512 MHz opt-in — done to T2:** DTS OPPs, `muos-governor` caps
+   (`danger/cpu_max` default 1296000), `muos-rc` early cap; trial boot,
+   3 min 4-core load at 1512 MHz/1.35 V (max 73.8 °C), sleep/wake;
+   promoted to main.
+4. **Wake — measured, unchanged** (timeline in hardware-findings).
+5. **Audio:** the WirePlumber retry stays (15/15 in M5); underruns not
+   worked on yet.
+6. **Idle power / DDR devfreq:** not measurable on the charger; open.
+7. **Wi-Fi warm-reboot H2C / dongle at boot:** covered by the worker
+   retries and the liveness watchdog; the plug-during-boot case needs
+   hands (T3 later).
+8. **Boot time:** UI at ~17 s uptime; S99 now skips upstream assign.sh
+   when core.json and the script are unchanged (−3 s from the second
+   boot). Soak: not yet.
+9. M6 T3: folded into the checklist above.
+10. **Image `test128-m7-20261119`** (`a868092`): trial root T2 passed
+    (NES 60.00, DOS 60.02, sleep 2/2 + 1/1 in game, t2-sdcard,
+    t2-sftp-jail, Wi-Fi toggle 3/3 + C2H, liveness C2H); `write-p2`
+    waits for the user (decision 19).
+Remaining for M7 after the T3: underrun bursts, idle power (off the
+charger), a soak (hours of play, discharge), the T3 fixes.
+
+**Next milestone after M7:** M8 — public v1.0.

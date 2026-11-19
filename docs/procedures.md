@@ -91,6 +91,13 @@ incrementally; rootfs in `build/m3a/output`, boot chain in `build/m3b`):
      the user can reflash: it has no SSH until enabled in the menu.
 3. `port/scripts/retention.py add <name> "<reason>" <files>`
 
+Languages (M7): `fetch-upstream-share.sh fetch` also fetches the pinned
+upstream language pack (`port/packaging/muos-language.txt`); `stage`
+writes it merged with `port/packaging/language/<Language>.json` (the
+port's translations: section → English text → translation). New
+language files that a Buildroot package leaves behind go into
+`firmware-inputs.json` "remove".
+
 Prebuilt inputs are pinned in `port/packaging/firmware-inputs.json` and
 stored in `build/m3a/inputs/<sha256>` (`build-image.sh inputs`). To
 re-derive them from a device: inventory p2 (`find` + sha256, see
@@ -122,6 +129,8 @@ snapshots.
   wake to address; a deaf dongle is power-cycled by another sleep);
   the menu's Wi-Fi toggle backend: `t2-wifi-radio.sh` (M4c); repeated
   off/on: `t2-wifi-toggle-loop.sh [--inject-c2h] [N]` (M6).
+  Liveness while connected (M7, `muos-usb-watchdog`):
+  `t2-wifi-liveness.sh c2h|silent`.
   Connectivity rows without an adapter (button injection, software
   unplug): `t2-wifi-network-row.sh` (M4d).
   Menu SFTP (M4g, jailed as upstream: port 2022, user `muos`, password
@@ -262,6 +271,9 @@ The menu is on screen about 15 s after power-on.
   Volume/brightness keys boost CPU/GPU floors for 2 s (`muos-boost`). No
   overclock (deferred to the end of the project as a user toggle; a
   1512 MHz DTB from `make-dtb-opp.sh` would go in as a trial kernel).
+  M7: the port DTS carries the stock OPPs to 1512 MHz; the CPU stays at
+  1296 MHz unless config `danger/cpu_max` (menu: Danger → Processor
+  Maximum; 0 = highest) says otherwise (`muos-governor`, `muos-rc`).
 - **Wi-Fi and SSH (M4a):** muOS's Connectivity menu (Wi-Fi Network:
   X scans, a profile connects; Web Services: SSH/SFTP) drives
   `usr/libexec/muos-network/worker` through adapters at upstream's script
