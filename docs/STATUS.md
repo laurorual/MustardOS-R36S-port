@@ -21,25 +21,21 @@ standalone Mupen64Plus (decision 19, done to T2).**
 
 ## Next session — read first
 
-- Device on main = **M7 T3-fix p2** (`c1f45838…`, build `r35s-5e72cfa`,
-  written 2026-11-19 by `write-p2`; the previous p2 = M7 `c24516fb…`,
-  saved as `MUOS/trial/p2-previous.img` `01e4c0bf…` incl. its boot-time
-  state); boot records: main = the M7 DTB.
-- The live root (rw since `install-rootfs.sh`, until the next reboot)
-  differs from p2 `c1f45838…`: frontend 0011 `libmuxmod.so`,
-  `muos-governor` (min-before-max cap), `muos-frontend`,
-  `muos-mupen64plus`, `muos-suspend` and the mupen64plus tree. The N64
-  warm-up is only in post-build.
+- Device on main = **M7c p2** (`701eb2a8…`, build `r35s-187b089+`: the
+  `+` is only the uncommitted retention JSON; written 2026-11-19 ~19:05 by
+  `write-p2` after its trial-root T2; the previous p2 = M7 T3-fix with the
+  live installs, saved as `MUOS/trial/p2-previous.img` `8b986114…`);
+  boot records: main = the M7 DTB. `install-rootfs.sh` writes the real
+  p2 (it stays on the main root across reboots).
 - Idle discharge run done (report in hardware-findings, logger stopped).
-- **Device volume:** 0 at the user's request until 18:00 on 2026-11-19;
-  the user's 50 is in p3 `MUOS/volume.before-18h`, put back by a host job
-  at 18:00 (if that job did not run: `audio.sh 50`, delete the file).
+- Device volume 50 (the user's; it was 0 from 16:51 to 18:00 at their
+  request).
 - The user's pickles before the mupen tests: p3 `MUOS/t2-bak` (42 MB;
   delete after the next T3). The standalone N64 SRAM of DK64 and MK64 was
   migrated from the libretro .srm on 2026-11-19.
 - New-system ROMs from `port/roms/` on p3 (2026-11-19): 32X, ATARI2600,
   ATARI7800, GG, LYNX, SMS, PCE, SEGACD (Sonic CD), PCECD (Dracula X);
-  the CD ones need BIOS files the user has not provided.
+  BIOS `bios_CD_U.bin`, `syscard3.pce` in p3 `MUOS/bios`.
 - Slot 2 waits for M8 (decision 16).
 - `build/m3c/cores/debug/` holds the -g mupen build matching the shipped
   core (45 MB, for gdb); delete it once N64 is T3-confirmed.
@@ -73,12 +69,13 @@ the whole card, bootloader included; steps in procedures.md.
 | Image | Content | State |
 |---|---|---|
 | `dist/firmware/test128-m7-20261119.img.zst` (raw `528da83a…`, p2 `c24516fb…`) | M7 so far (contains M6): language pack + pt-BR, Wi-Fi liveness, 1512 MHz opt-in DTB, faster boot | T3 2026-11-19: N64 crash, blink, archive mark (fixed in m7t3) |
-| **`dist/firmware/test128-m7t3-20261119.img.zst`** (raw `9c60175f…`, p2 `c1f45838…`) | **Recovery image since 2026-11-19.** M7 + its T3 fixes | on the device; T3 2026-11-19: 1–5 passed, 6 partial (Danger screen, fixed since) |
+| `dist/firmware/test128-m7c-20261119.img.zst` (raw `5878d3b3…`, p2 `701eb2a8…`) | M7c: the M7 T3-fix fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal | on the device since 2026-11-19 (trial-root T2 passed); T3 pending |
+| **`dist/firmware/test128-m7t3-20261119.img.zst`** (raw `9c60175f…`, p2 `c1f45838…`) | **Recovery image since 2026-11-19.** M7 + its T3 fixes | T3 2026-11-19: 1–5 passed, 6 partial (Danger screen, fixed in m7c) |
 | `dist/firmware/test128-m5-20261118.img.zst` (raw `64e45d74…`, p2 `768942b1…`) + `public-m5-20261118` | M5 | on the card; T3 2026-11-18: item 5 broke navigation → not promoted |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-4/5 versions in `storage-retention.json` (m4g retired 2026-11-19 when
-m7t3 became recovery). The image after next retires m5.
+5/5 versions in `storage-retention.json` (m4g retired 2026-11-19 when
+m7t3 became recovery). The next image retires m5.
 
 ## What works (T3-confirmed)
 
@@ -231,6 +228,12 @@ the next image (every path in the menu's pt-BR labels):
    32X Knuckles' Chaotix, Atari 2600 Pac-Man, Atari 7800 Ms. Pac-Man,
    Game Gear Sonic Triple Trouble, Lynx Blue Lightning, Master System
    Sonic, PC Engine Splatterhouse: picture, sound, controls, no slowdown.
+7. **CD systems** (same way): Sega CD "Sonic CD (USA)" and PC Engine CD
+   "Akumajou Dracula X" (folders inside SEGACD and PCECD): the BIOS
+   screen, then the game with its CD music.
+8. **Sound after many menu moves:** browse several screens, then start
+   any game: it has sound (the menu now restarts the audio service
+   when it finds it stuck; ~3 s longer start in that case).
 
 ## Current milestone: M7 — polish: language, performance, power (started 2026-11-19)
 

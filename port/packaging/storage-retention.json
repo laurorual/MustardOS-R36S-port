@@ -41,6 +41,12 @@
         "dist/firmware/test128-m7t3-20261119.manifest",
         "build/m3a/test128-m7t3-20261119.p2.img"
       ]
+    },
+    "test128-m7c-20261119": {
+      "reason": "M7c (187b089): T3 fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal; developer image; raw 5878d3b3, p2 701eb2a8; trial root T2 passed and written to p2 2026-11-19; T3 pending",
+      "files": [
+        "dist/firmware/test128-m7c-20261119.img.zst"
+      ]
     }
   },
   "keep": {
