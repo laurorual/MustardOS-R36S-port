@@ -20,6 +20,15 @@ case "${1:-}" in
     /etc/init.d/S96muos-input-ready status || echo 'ui: warning: input not ready'
     /opt/muos/script/system/assign.sh > "$state/assign.log" 2>&1 || echo 'ui: assign.sh failed'
     audio=dummy; [ ! -e /run/muos/core/audio ] || audio=pipewire
+    # M6: no text console on the panel while the UI runs. Whenever the
+    # frontend or muxretro drops the display, the kernel shows fb0, and
+    # fbcon kept the boot log there (the "CLI" flash between screens).
+    # Unbound, fb0 only holds what is written to it (black, an exit frame
+    # mirrored by muxretro/muxsplash, the battery-empty splash).
+    for v in /sys/class/vtconsole/vtcon*; do
+        grep -q 'frame buffer' "$v/name" 2>/dev/null && echo 0 > "$v/bind" 2>/dev/null
+    done
+    [ ! -c /dev/fb0 ] || cat /dev/zero > /dev/fb0 2>/dev/null
     start-stop-daemon -S -b -m -p "$state/loop.pid" -x /bin/sh -- "$loop" "$hotkeys" "$audio"
     n=0; while [ "$n" -lt 100 ] && [ ! -s /run/muos/first_paint ]; do sleep 0.1; n=$((n+1)); done
     [ -s /run/muos/first_paint ] && echo 'ui: first paint' || echo 'ui: no first paint after 10 s'

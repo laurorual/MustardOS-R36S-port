@@ -242,6 +242,7 @@ radio() {
         # The costly part (USB enumeration, module, firmware) is done here:
         # muos-suspend resumes a game only after this (M3d wake stalls).
         rm -f "$state/idle"; touch "$state/radio"
+        echo 'muos-network: radio up' > /dev/kmsg 2>/dev/null || :
     fi
     if ! alive wpa; then
         [ -s "$conf" ] || gen_conf > /dev/null
@@ -402,6 +403,15 @@ scan() {
 }
 
 # Lift the channel restriction (running wpa_supplicant and the config file).
+# M6: the 8821cu firmware can come up in a C2H error loop (M5 incident,
+# M5 T3: radio off/on): the driver keeps "connecting" (fw_state 0x8) and
+# never associates; a reassociate does not help, a module reload with a
+# USB reset does. True if the kernel logged such errors since the last
+# radio load (a log marker: printk time stops during sleep, uptime not).
+fw_broken() {
+    dmesg | awk '/muos-network: radio up/ { f = 0 } /c2h_handler_rtl8821c: \[ERROR\]/ { f = 1 } END { exit !f }'
+}
+
 unhint() {
     rm -f "$state/freq-hint"; wcli set freq_list 0 > /dev/null; gen_conf > /dev/null
 }
@@ -437,6 +447,9 @@ up_once() {
         # firmware stopped answering, H2C errors): retry now, not after 90 s.
         if [ ! -e "/sys/class/net/$(iface)" ]; then
             say "$(iface) vanished after $n s (dongle reset itself): retry"; return 1
+        fi
+        if [ "$n" -ge 4 ] && [ $((n % 4)) = 0 ] && fw_broken; then
+            say "driver firmware errors (C2H) after $n s: reset the dongle"; return 1
         fi
         if [ "$n" = 5 ] && [ -e "$state/freq-hint" ] && [ "$(wstate)" != COMPLETED ]; then
             say "nothing on $(cat "$state/freq-hint") MHz: full scan"

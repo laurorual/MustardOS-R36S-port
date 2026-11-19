@@ -5,7 +5,38 @@ SPDX-License-Identifier: GPL-3.0
 ---
 --- a/frontend/common/platform/display.c
 +++ b/frontend/common/platform/display.c
-@@ -1371,7 +1371,9 @@
+@@ -1368,10 +1368,40 @@
+     return ret;
+ }
+ 
++/* R35S port: no rumble motor, so a saved screenshot gets a short white
++   flash on the top layer instead (drawn after the capture). */
++static void screenshot_flash_opa(void *obj, int32_t v) {
++    lv_obj_set_style_bg_opa((lv_obj_t *) obj, (lv_opa_t) v, LV_PART_MAIN);
++}
++
++static void screenshot_flash_done(lv_anim_t *a) {
++    lv_obj_del((lv_obj_t *) a->var);
++}
++
++static void screenshot_flash(void) {
++    lv_obj_t *flash = lv_obj_create(lv_layer_top());
++    lv_obj_remove_style_all(flash);
++    lv_obj_set_size(flash, LV_PCT(100), LV_PCT(100));
++    lv_obj_clear_flag(flash, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
++    lv_obj_set_style_bg_color(flash, lv_color_white(), LV_PART_MAIN);
++    lv_obj_set_style_bg_opa(flash, LV_OPA_80, LV_PART_MAIN);
++
++    lv_anim_t a;
++    lv_anim_init(&a);
++    lv_anim_set_var(&a, flash);
++    lv_anim_set_exec_cb(&a, screenshot_flash_opa);
++    lv_anim_set_values(&a, LV_OPA_80, LV_OPA_TRANSP);
++    lv_anim_set_time(&a, 300);
++    lv_anim_set_ready_cb(&a, screenshot_flash_done);
++    lv_anim_start(&a);
++}
++
  void display_process_screenshot_request(void) {
      static uint32_t last_poll = 0;
  
@@ -16,3 +47,16 @@ SPDX-License-Identifier: GPL-3.0
  
      const uint32_t now = SDL_GetTicks();
      if (now - last_poll < 32) return;
+@@ -1391,7 +1421,11 @@
+             unlink(temp_path);
+ 
+             if (display_capture_clean_frame(temp_path) == 0) {
+-                if (rename(temp_path, path) != 0) unlink(temp_path);
++                if (rename(temp_path, path) != 0) {
++                    unlink(temp_path);
++                } else {
++                    screenshot_flash();
++                }
+             } else {
+                 unlink(temp_path);
+             }

@@ -18,9 +18,16 @@ SPDX-License-Identifier: GPL-3.0
  
 --- a/frontend/module/muxconfig.c
 +++ b/frontend/module/muxconfig.c
-@@ -124,6 +124,9 @@
+@@ -123,7 +123,16 @@
+     gen_help(current_item_index, help_messages, A_SIZE(help_messages), ui_group, items);
  }
  
++/* R35S port: the Core row is hidden (see init_navigation_group); its
++   entry must be invisible too, or every row below it opens the next one. */
++static int core_available(void) {
++    return 0;
++}
++
  static int storage_available(void) {
 +    /* R35S port: the MUOS folders stay on the card in slot 1 (no bind.sh,
 +       migrate.sh or sync.sh); a card in slot 2 only adds content. */
@@ -28,7 +35,7 @@ SPDX-License-Identifier: GPL-3.0
      return is_partition_mounted(device.storage.sdcard.mount);
  }
  
-@@ -149,6 +152,9 @@
+@@ -149,6 +158,9 @@
      add_ui_groups(ui_objects, NULL, ui_objects_glyph, ui_objects_panel, 0);
  
      if (!storage_available()) HIDE_STATIC_ITEM(config, storage);
@@ -38,3 +45,12 @@ SPDX-License-Identifier: GPL-3.0
      if (!connectivity_available()) HIDE_STATIC_ITEM(config, connect);
  
      gen_step_movement(direct_to_previous(ui_objects, ui_count_dynamic, &nav_moved), +1, 1, 0, 1);
+@@ -193,7 +205,7 @@
+         {"custom", &kiosk.config.customisation, NULL},
+         {"connect", &kiosk.config.connectivity, connectivity_available},
+         {"profile", &kiosk.config.accessibility, NULL},
+-        {"core", &kiosk.config.cores, NULL},
++        {"core", &kiosk.config.cores, core_available},
+         {"power", &kiosk.setting.power, NULL},
+         {"storage", &kiosk.config.storage, storage_available},
+         {"backup", &kiosk.config.backup, NULL},
