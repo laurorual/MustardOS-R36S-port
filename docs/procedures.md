@@ -148,6 +148,29 @@ snapshots.
   test sessions stay out of the user's history.
 - Upstream muOS scripts: add `sha256  path` to
   `port/packaging/muos-internal-extra.txt` (from refs/muos/internal).
+- Upstream `share/` data (M5): refs/muos/internal is a `blob:none` sparse
+  clone without `share/` (reading its blobs fetches them into refs), so
+  `port/scripts/fetch-upstream-share.sh` keeps a sparse clone in
+  `build/upstream/internal` (640x480 only, no music/videos/CJK fonts);
+  trees by git tree id in `port/packaging/muos-internal-share.txt`,
+  removals in `muos-internal-share-exclude.txt`; `stage DIR` builds an
+  install tree (`stage_overlay` uses it). The pinned inputs win where
+  paths coincide; on the live root install only new paths (an
+  `install-rootfs.sh --tree` of the whole tree overwrites pinned files).
+- Screens (M5): `t2-ui.sh open MODULE` restarts muxfrontend straight
+  into a module (`/run/muos/action`), `go NAME KEYS…` presses and takes a
+  screenshot (`script/mux/screenshot.sh FILE`, frontend patch 0007:
+  the menu only, not muxretro), `home`; `t2-screen-sweep.sh` opens every
+  context-free screen and makes a contact sheet.
+- Slot 2 (M5): `script/device/storage.sh sdcard mount|eject|status`
+  (udev `91-muos-sdcard.rules`, S90 at boot, log `/run/muos/sdcard.log`);
+  `t2-sdcard.sh` with loop devices (`MUOS_SD2_TEST_DISK`). Disk writers
+  find the slot-1 card with `/usr/libexec/muos-boot-disk`; the host-side
+  T2 scripts that `dd` to `/dev/mmcblk0` (t2-boot-slot.sh, device.sh
+  capture) assume slot 2 is empty on the bench.
+- Backups/archives (M5): native task mode for T2 is `MUOS_TASK_UI=1
+  /opt/muos/script/mux/backup.sh 0` with `/tmp/muxbackup_manifest.txt`
+  (`INDIVIDUAL SD1` + `SD1 screenshot`), then `extract.sh FILE archive`.
 - Input Remap: `/opt/muos/script/mux/sdl_remap.sh` writes p3
   `MUOS/port/gamecontrollerdb/{retro,modern}.txt`; a broken remap is
   undone by deleting its GUID line there.

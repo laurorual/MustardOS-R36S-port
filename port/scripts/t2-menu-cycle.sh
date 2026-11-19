@@ -51,7 +51,10 @@ a=$("$(dirname "$0")/t2-audio-state.sh" 2>&1) || fail "audio in the menu: $(grep
 pass "audio in the menu ($(grep -o 'rate=[0-9]* streams=[^ ]*' <<< "$a"))"
 
 snap_save
-r '/usr/libexec/muos-press a; sleep 2; /usr/libexec/muos-press a; sleep 2; /usr/libexec/muos-press a'
+# Explore's root lists systems by friendly name (MUOS/info/name, seeded
+# since M5): Nintendo Entertainment System, Nintendo Game Boy, Sony
+# PlayStation; a fresh boot focuses the first one
+r '/usr/libexec/muos-press a; sleep 2; /usr/libexec/muos-press down; sleep 1; /usr/libexec/muos-press a; sleep 2; /usr/libexec/muos-press a'
 wait_module muxretro 20 || fail "game start (got $(module))"
 content=$(r 'for p in /proc/[0-9]*; do [ "$(readlink $p/exe)" = /opt/muos/frontend/muxretro ] && tr "\0" "\n" < $p/cmdline | sed -n 3p; done; true')
 stem=$(basename "${content%.*}")

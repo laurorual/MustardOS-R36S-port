@@ -25,14 +25,14 @@ screens call.
 
 | Area | Upstream | Port | Milestone |
 |---|---|---|---|
-| Archives | `mux/extract.sh`, `mux/backup.sh` (muxarchive, muxbackup, core installs) | missing; `unzip` present, no `zip` | M5 |
-| Packages | `package/{theme,catalogue,config,logo}.sh` (muxpicker) | missing | M5 |
-| Themes | MustardOS, C64, Dracula, GB Dark, Orange, mubiOS | MustardOS only | M5 |
-| Profiles | `system/profile.sh`, `share/profile` | missing | M5 |
-| Storage | Secondary (`/mnt/sdcard`), USB; `mux/{migrate,sync,purge}.sh` | slot 2 never mounted; scripts missing | M5 |
-| Hotkeys | `share/hotkey/*` (screenshot, brightness, overlay…) | the port's own 2 files | M5 |
-| Share data | `share/{lookup,info/name,media,task}` | missing | M5 |
-| Screens without a backend | Bluetooth, HDMI, USB gadget, News | shown | M5 (hide) |
+| Archives | `mux/extract.sh`, `mux/backup.sh` (muxarchive, muxbackup, core installs) | missing; `unzip` present, no `zip` | done (M5) |
+| Packages | `package/{theme,catalogue,config,logo}.sh` (muxpicker) | missing (logo not wanted) | done (M5) |
+| Themes | MustardOS, C64, Dracula, GB Dark, Orange, mubiOS | MustardOS only | done (M5), plus theme download |
+| Profiles | `system/profile.sh`, `share/profile` | missing | done (M5) |
+| Storage | Secondary (`/mnt/sdcard`), USB; `mux/{migrate,sync,purge}.sh` | slot 2 never mounted; scripts missing | slot 2 done (M5); migration not ported (hidden) |
+| Hotkeys | `share/hotkey/*` (screenshot, brightness, overlay…) | the port's own 2 files | screenshot done (M5) |
+| Share data | `share/{lookup,info/name,media,task}` | missing | done (M5) |
+| Screens without a backend | Bluetooth, HDMI, USB gadget, News | shown | hidden by flags or 0008/0009 (M5) |
 | Cores | 125 systems, 236 core entries (`core.json`) | 6 cores | M6 |
 | Build from source | — | muxfrontend, libui, cores, kernel modules pinned as binaries | M6 |
 | Languages | 35 language files | English + Português (BR) (incomplete) | M7 |
@@ -70,7 +70,10 @@ MAME 2003-Plus), DOS (DOSBox-Pure), ScummVM, Pokémon mini, and an N64
 trial (ship only if playable). BIOS folder checks. Rebuild muxfrontend,
 libui, libmuxmod, all cores and the kernel modules from pinned source,
 so every shipped binary has its corresponding source (the GPL
-prerequisite for M8). Core assignments regenerated from one table.
+prerequisite for M8), as a release build: the pinned frontend is a
+`TEST_IMAGE=1` build (the "THIS IS A TEST IMAGE" watermark and LVGL's
+FPS/CPU monitor; the flag changes LVGL structs, so all frontend parts
+change together). Core assignments regenerated from one table.
 
 ### M7 — Polish: language, performance, power
 
@@ -80,7 +83,9 @@ existing text) and all upstream language files. Wake: the ~0.7 s of slow
 frames and Wi-Fi ~9 s after wake. Audio: underrun bursts, the WirePlumber
 retry, the unexplained no-sound report. CPU 1512 MHz (the stock maximum)
 as an opt-in, off by default. Idle power and DDR devfreq. Wi-Fi
-warm-reboot H2C, dongle inserted during boot. A long soak (hours of play,
+warm-reboot H2C, dongle inserted during boot, and liveness: the 8821cu
+can sit in a firmware error loop with an address and no traffic (M5
+incident): detect it and rebind dwc2. A long soak (hours of play,
 sleep cycles, a discharge to empty) and boot time.
 
 ### M8 — Public v1.0

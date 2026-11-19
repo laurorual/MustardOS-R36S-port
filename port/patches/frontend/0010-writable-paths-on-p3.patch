@@ -1,0 +1,29 @@
+From: muOS R35S port
+Subject: [PATCH] 0010-writable-paths-on-p3
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/muxthemedown.c
++++ b/frontend/module/muxthemedown.c
+@@ -10,7 +10,8 @@
+ static char theme_data_local_path[MAX_BUFFER_SIZE];
+ static theme_item *theme_items = NULL;
+ static size_t theme_item_count = 0;
+-static char *preview_zip_path = "/opt/theme_catalogue.muxzip";
++/* R35S port: /opt is the read-only root here; next to theme_data.json */
++static char *preview_zip_path = "/mnt/mmc/MUOS/info/theme_catalogue.muxzip";
+ 
+ static int exit_status = 0;
+ 
+--- a/frontend/common/base/options.h
++++ b/frontend/common/base/options.h
+@@ -160,7 +160,8 @@
+ #define SOUNDFONT_PREVIEW     OPT_SHARE_PATH "media/soundfont.mid"
+ #define SOUNDFONT_PREVIEW_ALT OPT_SHARE_PATH "media/soundfont_alt.mid"
+ 
+-#define FWD_HIST_FILE OPT_SHARE_PATH "info/fwd_hist.txt"
++/* R35S port: /opt is the read-only root; Explore's history on p3 */
++#define FWD_HIST_FILE "/mnt/mmc/MUOS/info/fwd_hist.txt"
+ 
+ #define INFO_CFG_PATH OPT_SHARE_PATH "info/config"
+ #define INFO_CON_PATH OPT_SHARE_PATH "info/content"

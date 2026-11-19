@@ -13,7 +13,7 @@
 #   Connectivity menu; the pinned device config says 0);
 # - info_open/info_close.wav high-passed for the speaker (M4a, wav-highpass.py);
 # - /etc/localtime -> the zone link on p3, RTC in UTC (M4d);
-# - share/profile/state -> p3 MUOS/port/profile-state (M5).
+# - share/profile/state, share/news -> p3 MUOS/port/ (M5).
 # $1 is TARGET_DIR. Runs inside the build container (paths as
 # build-image.sh mounts).
 set -eu
@@ -23,6 +23,11 @@ cp /port/device/rk-r35s-p0/rootfs/opt/muos/device/config/board/network "$1/opt/m
 # M5: upstream profile.sh keeps its state in /opt/muos/share/profile/state
 # (rw on upstream, the read-only p2 here): on p3 (muos-seed-share creates it)
 ln -sfn /userdata/MUOS/port/profile-state "$1/opt/muos/share/profile/state"
+# and muxnews caches the community posts in /opt/muos/share/news
+ln -sfn /userdata/MUOS/port/news "$1/opt/muos/share/news"
+# M5: mount point of the slot-2 card (script/device/storage.sh; the root
+# is read-only, so it must exist in the image)
+mkdir -p "$1/mnt/sdcard"
 snd=$1/opt/muos/share/theme/MustardOS/sound
 for n in info_open info_close; do
     python3 /port/scripts/wav-highpass.py "$snd/$n.wav" "$snd/$n.wav.tmp" && mv "$snd/$n.wav.tmp" "$snd/$n.wav"

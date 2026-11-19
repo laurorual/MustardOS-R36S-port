@@ -1,0 +1,40 @@
+From: muOS R35S port
+Subject: [PATCH] 0008-hide-unported-storage-and-core-screens
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/muxspace.c
++++ b/frontend/module/muxspace.c
+@@ -741,6 +741,10 @@
+ }
+ 
+ static const char *prepare_target(void) {
++    /* R35S port: no card preparation (script/system/prepare.sh is not
++       shipped); cards are numbered in detection order here, so a format
++       by device name could hit the boot card. X stays hidden. */
++    if (1) return NULL;
+     const int index = focused_storage();
+     if (index < 0 || !storage_attached[index]) return NULL;
+ 
+--- a/frontend/module/muxconfig.c
++++ b/frontend/module/muxconfig.c
+@@ -124,6 +124,9 @@
+ }
+ 
+ static int storage_available(void) {
++    /* R35S port: the MUOS folders stay on the card in slot 1 (no bind.sh,
++       migrate.sh or sync.sh); a card in slot 2 only adds content. */
++    if (1) return 0;
+     return is_partition_mounted(device.storage.sdcard.mount);
+ }
+ 
+@@ -149,6 +152,9 @@
+     add_ui_groups(ui_objects, NULL, ui_objects_glyph, ui_objects_panel, 0);
+ 
+     if (!storage_available()) HIDE_STATIC_ITEM(config, storage);
++    /* R35S port: the cores are part of the image (muxretro); upstream's
++       core downloads (Core.-.*.muxzip for its own launchers) are not. */
++    HIDE_STATIC_ITEM(config, core);
+     if (!connectivity_available()) HIDE_STATIC_ITEM(config, connect);
+ 
+     gen_step_movement(direct_to_previous(ui_objects, ui_count_dynamic, &nav_moved), +1, 1, 0, 1);

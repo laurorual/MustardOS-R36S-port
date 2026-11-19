@@ -29,12 +29,12 @@ The open problems behind each "partial" are in STATUS.
 | Audio | T3 partial | Speaker, headphone switching (jack contact faulty); underrun bursts | Audio |
 | Battery / charging | T3 | RK817 gauge %, kept across power-off, low-battery poweroff, charging screen | Power and battery |
 | Sleep / poweroff | T3 | mem sleep and wake (~9 s to Wi-Fi), shutdown timer, hard power-cut recovery | Power and battery |
-| Wi-Fi (RTL8821CU dongle) | T3 partial | Profiles, scan, sleep/wake, replug; warm-reboot H2C 1 in 7, dwc2 missed events (watchdog) | Network and USB |
+| Wi-Fi (RTL8821CU dongle) | T3 partial | Profiles, scan, sleep/wake, replug; warm-reboot H2C 1 in 7, dwc2 missed events (watchdog), firmware error loop with no traffic (once, M5) | Network and USB |
 | SSH / SFTP | T3 partial | Developer SSH/SFTP; menu SFTP jailed on 2022 (FileZilla saved site open) | Network and USB |
 | RTC / clock | T3 | RK817 RTC in UTC, time zone, NTP | Power and battery |
 | LEDs / rumble | n/a | No controllable LED, no rumble motor on this unit | Power and battery |
 | Bluetooth | — | Not supported (no bluez) | Network and USB |
-| Slot 2 (`ff380000.dwmmc`) | — | Controller present, card never mounted | Storage |
+| Slot 2 (`ff380000.dwmmc`) | T2 | exFAT/FAT32/ext4 at /mnt/sdcard, hotplug (loop-device T2; real card: T3) | Storage |
 | Emulation | T3 | NES, GB/GBC, GBA, SNES, MD family, PSX at 59.9 fps with saves/states | Emulation stack facts |
 | Other panels / clones | — | Out of scope without evidence and a physical test | Device identity |
 

@@ -3,8 +3,9 @@
 # Test helper (T2): inject gamepad presses into the physical pad's evdev
 # node so muinput sees them like real buttons.
 #   muos-press KEY [KEY...]   KEY: a b x y up down left right start select
-#                             l1 r1 l2 r2 fn volup voldown, or fn+KEY for
-#                             a chord (fn+volup = brightness up);
+#                             l1 r1 l2 r2 fn volup voldown, or KEY+KEY...
+#                             for a chord (fn+volup = brightness up,
+#                             x+l2+r2 = screenshot);
 #                             "wait" sleeps 1 s; "power" / "power-long"
 #                             (1 s hold) go to the rk8xx_pwrkey node;
 #                             hold:KEY or hold:fn+KEY keeps KEY down for
@@ -43,8 +44,9 @@ for k in "$@"; do
         hold:fn+*) f=$(code fn) c=$(code "${k#hold:fn+}") || exit 1
               key "$f" 1; sleep 0.1; key "$c" 1; sleep "${MUOS_PRESS_HOLD:-2}"; key "$c" 0; sleep 0.1; key "$f" 0; sleep 0.5 ;;
         hold:*) c=$(code "${k#hold:}") || exit 1; key "$c" 1; sleep "${MUOS_PRESS_HOLD:-2}"; key "$c" 0; sleep 0.5 ;;
-        fn+*) f=$(code fn) c=$(code "${k#fn+}") || exit 1
-              key "$f" 1; sleep 0.1; key "$c" 1; sleep 0.15; key "$c" 0; sleep 0.1; key "$f" 0; sleep 0.5 ;;
+        *+*) # chord: press left to right, release right to left (M5: any keys)
+              cs=; for p in $(echo "$k" | tr + ' '); do c=$(code "$p") || exit 1; cs="$c $cs"; key "$c" 1; sleep 0.1; done
+              sleep 0.15; for c in $cs; do key "$c" 0; sleep 0.1; done; sleep 0.4 ;;
         *) c=$(code "$k") || exit 1; key "$c" 1; sleep 0.15; key "$c" 0; sleep 0.5 ;;
     esac
 done

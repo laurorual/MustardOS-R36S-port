@@ -1,0 +1,18 @@
+From: muOS R35S port
+Subject: [PATCH] 0009-hide-colour-temperature
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/muxtweakgen.c
++++ b/frontend/module/muxtweakgen.c
+@@ -464,6 +464,10 @@
+         HIDE_OPTION_ITEM(tweakgen, hk_shot);
+     }
+ 
++    /* R35S port: colour temperature needs a device colour node
++       (device screen/colour, init S08sunrise.sh); the RK3326 VOP has none */
++    HIDE_OPTION_ITEM(tweakgen, display_temp);
++
+     if (hdmi_mode) {
+         HIDE_OPTION_ITEM(tweakgen, display_temp);
+         HIDE_OPTION_ITEM(tweakgen, brightness);

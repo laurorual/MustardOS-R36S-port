@@ -4,6 +4,66 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M5 — daily-driver completeness (done 2026-11-18, p2 written, T3 pending)
+
+First milestone of the release plan (roadmap.md). Image
+`dist/firmware/test128-m5-20261118` (raw `64e45d74…`, p2 `768942b1…`)
++ `public-m5-20261118` (T0 only); logs `build/logs/m5/`.
+1. **SFTP follow-up:** FileZilla's error is a remembered path outside the
+   jail (`ls /mnt/mmc/ROMS` → "not found"). The Web Services help for SFTP
+   already gives port 2022 and `muos`/`muos` (upstream default English
+   text; the pinned pt-BR file predates it).
+2. **Discharge report:** findings in hardware-findings (displayed % lags
+   rsoc; % kept across power-off). `report` restored a stale volume (40)
+   and resume.ini from a 14 Nov run: now it restores and removes only
+   what the current run saved; `log-start` drops stale files.
+3. **Archives:** Info-ZIP `zip`/`unzip` (BusyBox unzip lacks `-Z`);
+   upstream `mux/extract.sh`, `mux/backup.sh`, `package/{theme,catalogue,
+   config}.sh`, `system/{profile,catalogue}.sh`, `var/{ui,zip,theme,diag,
+   runtime,boot}.sh`, `script/archive/*` unchanged (hash list). T2 in
+   native task mode: backup of the screenshot section → `.muxbak` →
+   restore.
+4. **Upstream share data:** `refs/muos/internal` is a `blob:none` sparse
+   clone (reading `share/` blobs fetched 19 MiB into refs once, by
+   accident); `fetch-upstream-share.sh` keeps a sparse clone in
+   `build/upstream/internal` (640x480 only, 28 MiB): six themes, profiles,
+   lookup/name tables, media, tasks (14 unported ones excluded),
+   languages, Latin fonts, by git tree id. `muos-seed-share` (S90) copies
+   the themes and name files to p3 like upstream's factory reset. The
+   pinned launcher had no `image/grid` (blank tiles); the 2606 themes were
+   rejected because `config/system/version` was missing ("Edge"): shipped
+   as `2606.0_ANDROMEDA`, refreshed by S91 every boot.
+5. **Profiles:** `profile.sh` state on p3 (`share/profile/state` link);
+   apply Large Print / undo T2 (undo materialises default-valued files).
+6. **Slot 2:** port `script/device/storage.sh` (controller ff380000,
+   exFAT/FAT32/ext4 at `/mnt/sdcard`, ROMS/ARCHIVE/ports), udev
+   `91-muos-sdcard.rules`, S90 at boot; `t2-sdcard.sh` with loop devices
+   (vfat, exFAT, unformatted, UTF-8 names, jail's Secondary Storage).
+   Safety: cards are numbered in detection order, so `muos-root-trial`,
+   `muos-boot-slot`, `muos-grow-p3`, `muos-ext4-diag` and S89 find the
+   slot-1 card by controller (`muos-boot-disk`). Frontend 0008 hides the
+   Storage migration screen (no bind.sh) and muxspace's card preparation.
+7. **Screenshots:** the panel is a KMS plane `/dev/fb0` doesn't show;
+   frontend 0007 serves screenshot requests on every output; port
+   `screenshot.sh`; X+L2+R2 (upstream hotkey file). Menu only.
+8. **Frontend fixes:** 0008 also hides "Cores" (upstream downloads);
+   0009 hides colour temperature (no colour node on the RK3326); 0010
+   moves the theme catalogue and Explore's forward history to p3 (both
+   were on `/opt`, read-only). CA certificates for libcurl; the upstream
+   theme download/filter and hotkey config keys; `share/news` link to p3.
+   Theme download and the community catalogue work.
+9. **Clock:** RTC stays UTC through muxrtc/muxtimezone's `hwclock -w`
+   (`/var/lib/hwclock/adjtime`, FHS path).
+10. **Screen sweep** (`t2-screen-sweep.sh`, `t2-ui.sh`): 54 context-free
+    screens opened by `/run/muos/action`, none crashed; contact sheet
+    `build/logs/m5/shots/sweep-sheet.png`.
+11. **Tests:** T0 shellcheck, contract, public leak check; T1 338 ELFs.
+    Trial root: `t2-sdcard`, `t2-sftp-jail 8`, `t2-sftp 16`, `t2-wifi`,
+    `t2-sleep-cycle --game 2`, `t2-menu-cycle` (its Explore path now goes
+    down to Nintendo Game Boy: friendly names sort the root); p2 written,
+    `t2-sftp-jail 4` and `t2-sdcard` on it. Incident on the first trial:
+    the 8821cu firmware error loop with Wi-Fi "up" (STATUS, M7).
+
 ## M4g — SFTP jail, overdrive volume bar (done 2026-11-18, p2 written, T3 2026-11-18 → recovery image)
 
 Image `dist/firmware/test128-m4g-20261118` (raw `a9d7cbc4…`, p2

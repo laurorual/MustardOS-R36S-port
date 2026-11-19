@@ -4,8 +4,9 @@
 # from /opt/muos/share to the user's storage, for the port's p3 (which has
 # no factory-reset step): the bundled themes into MUOS/theme (the theme
 # picker lists only that folder) and the friendly-name files into
-# MUOS/info/name; and p3 MUOS/port/profile-state, where the image's
-# /opt/muos/share/profile/state link points (profile.sh). Run by S90muos-storage after the binds, every boot; a
+# MUOS/info/name; and p3 MUOS/port/profile-state and MUOS/port/news,
+# where the image's /opt/muos/share/profile/state and share/news links
+# point (profile.sh, muxnews). Run by S90muos-storage after the binds, every boot; a
 # theme is copied once (marker MUOS/port/seeded-theme/<name>; the theme
 # list shows every folder in MUOS/theme), so a theme the
 # user deletes stays deleted, and nothing the user has is overwritten.
@@ -14,7 +15,7 @@ share=/opt/muos/share
 store=/mnt/mmc/MUOS
 log=$store/log/seed-share.log
 [ -d "$store" ] || exit 0
-mkdir -p "$store/theme" "$store/port/seeded-theme" "$store/port/profile-state" "$store/info/name"
+mkdir -p "$store/theme" "$store/port/seeded-theme" "$store/port/profile-state" "$store/port/news" "$store/info/name"
 for t in "$share"/theme/*/; do
     t=${t%/}; n=${t##*/}
     [ "$n" = override ] && continue
