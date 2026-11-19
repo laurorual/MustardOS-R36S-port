@@ -30,7 +30,8 @@ are done to T2 on the live root; the next image carries them.**
   post-build (tested with a bind-mounted info copy).
 - **Idle discharge log running** (`t2-discharge.sh log-start`, started
   2026-11-19 14:27 at 22 %, menu idle, backlight 60, ~412 mA at
-  3.56 V): it ends at the low-battery poweroff; after the user charges
+  3.56 V; samples 14:31–14:33 are inflated by an agent grep over p3):
+it ends at the low-battery poweroff; leave the device alone until then; after the user charges
   and powers on: `t2-discharge.sh report`, then `log-stop`.
 - Slot 2 waits for M8 (decision 16).
 - `build/m3c/cores/debug/` holds the -g mupen build matching the shipped
@@ -274,8 +275,11 @@ Goal (roadmap.md): pt-BR complete, wake/audio/Wi-Fi robustness, the
     scaling_min first: 1512 → 1296 through tweak.sh 3/3. (d) post-build
     appends `savestate_warmup_frames = "5"` to the mupen info: the
     user's MK64 (3 frames) and DK64 (5) autosaves restored.
-Remaining for M7: DK64 frame drops (measure core options with the
-user's autosave), CTR at 1512 vs 1296 (thermal?), underrun bursts, idle
+Remaining for M7: DK64 frame drops (after the discharge run: perf
+capture on the user's autosave, GLideN64 options vs the upstream
+defaults now in use: FB emulation, copy color/depth to RDRAM, hybrid
+filter, frame duping; per-folder/core overrides live in p3
+`MUOS/pickles/coreopt/{directory,core}`), CTR at 1512 vs 1296 (thermal?), underrun bursts, idle
 power (log running), a soak; then the image.
 
 **Next milestone after M7:** M8 — public v1.0.
