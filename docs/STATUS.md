@@ -16,7 +16,8 @@ folded into M7. M7 (polish): first image T3-tested 2026-11-19; its T3
 fixes are in image `test128-m7t3-20261119` (`5e72cfa`), written to p2
 2026-11-19 ~13:15; its T3 (2026-11-19) passed except the Danger screen
 → recovery image. Its T3 fixes (Danger screen, cap switch, N64 resume)
-are done to T2 on the live root; the next image carries them.**
+are done to T2 on the live root; the next image carries them, with the
+standalone Mupen64Plus (decision 19, done to T2).**
 
 ## Next session — read first
 
@@ -25,14 +26,20 @@ are done to T2 on the live root; the next image carries them.**
   saved as `MUOS/trial/p2-previous.img` `01e4c0bf…` incl. its boot-time
   state); boot records: main = the M7 DTB.
 - The live root (rw since `install-rootfs.sh`, until the next reboot)
-  differs from p2 `c1f45838…`: frontend 0011 `libmuxmod.so` and
-  `muos-governor` (min-before-max cap). The N64 warm-up is only in
-  post-build (tested with a bind-mounted info copy).
-- **Idle discharge log running** (`t2-discharge.sh log-start`, started
-  2026-11-19 14:27 at 22 %, menu idle, backlight 60, ~412 mA at
-  3.56 V; samples 14:31–14:33 are inflated by an agent grep over p3):
-it ends at the low-battery poweroff; leave the device alone until then; after the user charges
-  and powers on: `t2-discharge.sh report`, then `log-stop`.
+  differs from p2 `c1f45838…`: frontend 0011 `libmuxmod.so`,
+  `muos-governor` (min-before-max cap), `muos-frontend`,
+  `muos-mupen64plus`, `muos-suspend` and the mupen64plus tree. The N64
+  warm-up is only in post-build.
+- Idle discharge run done (report in hardware-findings, logger stopped).
+- **Device volume:** 0 at the user's request until 18:00 on 2026-11-19;
+  the user's 50 is in p3 `MUOS/volume.before-18h`, put back by a host job
+  at 18:00 (if that job did not run: `audio.sh 50`, delete the file).
+- The user's pickles before the mupen tests: p3 `MUOS/t2-bak` (42 MB;
+  delete after the next T3). The standalone N64 SRAM of DK64 and MK64 was
+  migrated from the libretro .srm on 2026-11-19.
+- New-system ROMs from `port/roms/` on p3 (2026-11-19): 32X, ATARI2600,
+  ATARI7800, GG, LYNX, SMS, PCE, SEGACD (Sonic CD), PCECD (Dracula X);
+  the CD ones need BIOS files the user has not provided.
 - Slot 2 waits for M8 (decision 16).
 - `build/m3c/cores/debug/` holds the -g mupen build matching the shipped
   core (45 MB, for gdb); delete it once N64 is T3-confirmed.
@@ -137,8 +144,8 @@ screenshots (menu), Date and Time.
 - **Wake:** Wi-Fi returns ~9.3–10.2 s after wake (M7 timeline in
   hardware-findings: the 4 s CD-ROM settle dominates); ~0.7 s of slow
   frames in a game; felt stronger in M5 T3 (likely the slot-2 card).
-- **Power:** menu idle ~420 mA (not re-measured in M7: the device was on
-  the charger); no controllable LEDs.
+- **Power:** menu idle 407–425 mA (M7 discharge run, backlight 60,
+  Wi-Fi up); no controllable LEDs.
 - **Audio:** one unexplained no-sound report (M3d); WirePlumber "no
   profile" start failure retried; 3–8 underrun bursts per game; 200 %
   overdrive distorts (as upstream).
@@ -180,11 +187,23 @@ any ROM of a not yet tested system for its core's T2 (none new as of
 2026-11-19: bios, gb, gba, megadrive, n64, nes, psx, snes); 19 exception
 to decision 14: standalone Mupen64Plus for N64 now (M7), the other
 standalone emulators stay after v1.0. The user is providing ROMs for the
-new systems.
+new systems (first batch 2026-11-19: 32X, 2600, 5200, 7800, CD-i, DC,
+GG, Jaguar, Jaguar CD, Lynx, NDS, PSP, Saturn, SMS, TG16, TG-CD, VB).
 
 ## Decisions for the user
 
-None open.
+20. **Systems without a core in the port** (ROMs given 2026-11-19):
+    Atari 5200, Virtual Boy, Jaguar, Jaguar CD, CD-i, Dreamcast, PSP,
+    Saturn, NDS. Recommendation: add the light libretro cores a5200 and
+    beetle-vb in M7/M8 (small, full speed expected on the RK3326); leave
+    Jaguar (virtualjaguar is slow and inaccurate), CD-i, Saturn and
+    Dreamcast out of v1.0; NDS (DraStic is closed source; melonDS/DeSmuME
+    are too slow here) and PSP (PPSSPP, standalone) after v1.0 with the
+    other standalone emulators (decision 14). p2 room: ~108 MB until the
+    M8 1 GiB layout.
+21. **BIOS for Sega CD and PC Engine CD:** `bios_CD_U.bin`/
+    `us_scd1_9210.bin` (Sega CD) and `syscard3.pce` (PC Engine CD) in
+    `port/roms/bios`; the games are already on the card.
 
 ## T3 queue
 
@@ -201,8 +220,21 @@ the next image (every path in the menu's pt-BR labels):
    overclock (no extra slowdowns).
 3. **N64 resume:** start Mario Kart 64, race a little, Fn+Start; start
    it again: it resumes where you left (after ~1 s of the boot logo).
-4. **Battery:** after the discharge run ends (the device powers off on
-   its own), charge and power on; nothing else (the agent pulls the log).
+4. **N64 standalone** (Explorar conteúdo → N64 → focus "Donkey Kong 64"
+   → Select → OPÇÕES DO CONTEÚDO → Núcleo do conteúdo → (system list:
+   "Nintendo N64") → "Mupen64Plus - Standalone - Rice" → only this game):
+   the game starts; your save file is there (the file select shows your
+   progress); controls as before (A, B, Z = L2, C = right stick or
+   A/X); the intro and the first controllable scene without the old
+   slowdowns; Fn+Start returns to the list and starting it again
+   resumes; Fn+X takes a screenshot; Power sleeps and wakes back into
+   the game; volume and brightness keys work.
+5. **N64 standalone Glide** (same path, "- Glide"): starts and draws
+   correctly; expected to be slower than Rice (T2: 20–27 fps).
+6. **New systems** (Explorar conteúdo → each folder, play ~1 min, Fn+Start):
+   32X Knuckles' Chaotix, Atari 2600 Pac-Man, Atari 7800 Ms. Pac-Man,
+   Game Gear Sonic Triple Trouble, Lynx Blue Lightning, Master System
+   Sonic, PC Engine Splatterhouse: picture, sound, controls, no slowdown.
 
 ## Current milestone: M7 — polish: language, performance, power (started 2026-11-19)
 
@@ -292,11 +324,30 @@ Goal (roadmap.md): pt-BR complete, wake/audio/Wi-Fi robustness, the
     v64, n64 order on the host). T2 after the discharge run: assignment
     list, start, input, quit/resume, DK64 fps (Rice vs GLideN64 vs the
     libretro core), sleep while it runs.
-Remaining for M7: DK64 frame drops (after the discharge run: perf
-capture on the user's autosave, GLideN64 options vs the upstream
-defaults now in use: FB emulation, copy color/depth to RDRAM, hybrid
-filter, frame duping; per-folder/core overrides live in p3
-`MUOS/pickles/coreopt/{directory,core}`), CTR at 1512 vs 1296 (thermal?), underrun bursts, idle
-power (log running), a soak; then the image.
+16. **Idle power — measured:** discharge run 22 % → low-battery
+    poweroff in 91 min at 407–425 mA (hardware-findings).
+17. **Standalone Mupen64Plus — done to T2:** fixed on the device:
+    nothing shown (SDL's async page flips are refused by the 4.4 kernel:
+    vsync forced on), Input-SDL section version, no forced
+    ThreadedVideo; Fn+X screenshot; muos-suspend stops/continues it
+    (fake sleep verified on the charger; real "mem" sleep is T3). T2:
+    start through the frontend handoff, DK64 .srm migration, Fn+Start
+    autosave + resume (DK Rap further along after restart), autosave on
+    UI stop (poweroff path), audio stream in PipeWire, fps with
+    `t2-swapstat.sh`: DK64 intro Rice 58 VI/s vs libretro 30.6 fps;
+    MK64 Rice 61; standalone GLideN64 20–27 (GPU-bound, any options).
+    The N64 folder's default stays the libretro core (MK64 59.9, more
+    accurate); DK64 → Standalone Rice per game (T3 item 4). The
+    assignment list's ext entries come from core.json (not yet opened
+    in the menu at T2).
+18. **New systems — T2 (decision 18):** real games at 59.8–60.0 fps on
+    title/attract screens: 32X Chaotix (core 8.9 ms), 2600 Pac-Man,
+    7800 Ms. Pac-Man, GG Sonic Triple Trouble, Lynx Blue Lightning
+    (handy's built-in boot, no BIOS), SMS Sonic, PCE Splatterhouse.
+    Sega CD and PCE CD wait for BIOS files (decision 21); other systems
+    have no core (decision 20).
+Remaining for M7: CTR at 1512 vs 1296 (thermal?), underrun bursts, a
+soak; then the image (frontend 0011, governor, N64 warm-up, standalone
+mupen, suspend).
 
 **Next milestone after M7:** M8 — public v1.0.

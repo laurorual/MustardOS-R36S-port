@@ -13,8 +13,8 @@
 # settings/power/shutdown (upstream default 600): seconds asleep before a
 # clean poweroff through init (RTC alarm); -1 sleep until woken; 2 power
 # off instead of sleeping. Charger connected: "fake sleep" (screen off,
-# frontend/muxretro stopped, wake on the Power key), timer ignored, as
-# upstream. Test hooks: --test-wake SECONDS or /run/muos/suspend-test-wake.
+# frontend/muxretro/mupen64plus stopped, wake on the Power key), timer
+# ignored, as upstream. Test hooks: --test-wake SECONDS or /run/muos/suspend-test-wake.
 export PATH=/opt/muos/frontend:/usr/sbin:/usr/bin:/sbin:/bin
 run=/run/muos
 log=/opt/muos/log/suspend.log
@@ -47,6 +47,11 @@ say "sleep state=$state shutdown=$shutdown charger=$charger"
 
 pid_of() { for p in /proc/[0-9]*; do [ "$(readlink "$p/exe")" = "/opt/muos/frontend/$1" ] && echo "${p#/proc/}"; done; }
 retro=$(pid_of muxretro | head -n1)
+# M7: the standalone N64 emulator (muos-mupen64plus) has no save hook; it is
+# stopped while asleep and continued where muxretro gets SIGUSR2.
+sa=$(for p in /proc/[0-9]*; do
+    [ "$(readlink "$p/exe")" = /opt/muos/share/emulator/mupen64plus/mupen64plus ] && echo "${p#/proc/}"
+done | head -n1)
 save_retro() {
     [ -n "$retro" ] || return 0
     rm -f "$run/muxretro_save_ready"
@@ -63,7 +68,7 @@ save_retro() {
 # M4f: Activity (playtime) of the running game, as upstream suspend.sh
 # ACTIVITY_TRACKER: paused while asleep, closed on a poweroff.
 track_event() { # suspend|resume|stop [END]
-    [ -n "$retro" ] || return 0
+    [ -n "$retro$sa" ] || return 0
     t=/run/muos/storage/info/track/.current_session
     [ -r "$t" ] || return 0
     { read -r t_name; read -r t_core; read -r t_rom; } < "$t"
@@ -80,6 +85,7 @@ fi
 
 # ---- SLEEP
 save_retro
+[ -z "$sa" ] || kill -STOP "$sa"
 track_event suspend
 bright=$(cat "$bl"); echo 0 > "$bl"
 wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 2>/dev/null
@@ -122,6 +128,7 @@ if [ "$fake" = 1 ]; then
     # struct input_event (24 B): wait for EV_KEY KEY_POWER (116) press.
     while :; do
         ev=$(dd if="$node" bs=24 count=1 2>/dev/null | od -An -tu2 | tr -s ' ')
+        # shellcheck disable=SC2086  # one field per word
         set -- $ev
         [ "${9:-}" = 1 ] && [ "${10:-}" = 116 ] && [ "${11:-}" = 1 ] && break
     done
@@ -156,11 +163,12 @@ echo "$bright" > "$bl"
 wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null
 if [ "$fake" != 1 ]; then
     net_up
-    [ -z "$retro" ] || wait_radio
+    [ -z "$retro$sa" ] || wait_radio
 fi
 # The game resumes on CPU0-2, away from the 8821cu association (CPU3).
 [ -z "$retro" ] || /usr/libexec/muos-cpu-pin 7 "$retro"
 [ -z "$retro" ] || kill -USR2 "$retro" 2>/dev/null
+[ -z "$sa" ] || { /usr/libexec/muos-cpu-pin 7 "$sa"; kill -CONT "$sa" 2>/dev/null; }
 ( track_event resume ) 9>&- &
 cut -d' ' -f1 /proc/uptime > "$run/input_resume"
 say "resumed"

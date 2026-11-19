@@ -160,6 +160,11 @@ The open problems behind each "partial" are in STATUS.
   GLES3 (`GLES3=1 FORCE_GLES3=1`) it runs: Mario Kart 64 59.9 fps,
   Donkey Kong 64 ~60 fps with ~100 missed frames in 3 min, SoC 80–83 °C
   with short throttling to 1008 MHz.
+- **SDL KMSDRM async flips (M7):** with swap interval 0 SDL asks for
+  `DRM_MODE_PAGE_FLIP_ASYNC`; this 4.4 kernel refuses every such flip
+  (`DRM_IOCTL_MODE_PAGE_FLIP` ret -22, `drm.debug=0x06`) and nothing is
+  shown. Standalone programs must enable vsync (Mupen64Plus:
+  `Video-General[VerticalSync]=True`).
 - **SDL:**
   - SDL2 2.30.12 runs KMSDRM with the opengles2 renderer at 640×480:
     59.63 fps average, frame median 16.687 ms, p95 16.904 ms.
@@ -714,6 +719,11 @@ The open problems behind each "partial" are in STATUS.
   MD 779/666, PSX 821/718 mA. Missed vsyncs per 45 s with schedutil: 0–1
   for NES/GB/GBA/SNES/MD, ~420 for PSX (performance: ~30–45). The menu's
   559 mA idle is high (backlight, Wi-Fi, redraws: not yet split).
+- **Menu idle discharge (M7, 2026-11-19, `t2-discharge.sh log-start`,
+  backlight 60, Wi-Fi up, schedutil):** 407–425 mA (mean 423) at
+  3.40–3.56 V; 22 % → clean low-battery poweroff in 91 min, ~486 mAh by
+  1-min samples (FCC 2550). The 1-min sampler itself wakes the CPU
+  (samples read 1200–1296 MHz).
 - **LEDs and rumble:** GPIO77 is the battery LED. LEDs and rumble are
   untested. (compatibility-matrix.md)
 - **Power key:** `rk8xx_pwrkey`, event0, `KEY_POWER`. The port board entry
@@ -766,6 +776,21 @@ The open problems behind each "partial" are in STATUS.
   core and present means). Use `port/scripts/t2-nes-fps.sh`. The muxretro
   log line "Content rate window X Hz" is derived from audio and frame
   counts, not from wall time; it reads 60.10 even when slow.
+- **Standalone programs (M7):** `port/scripts/t2-swapstat.sh` preloads a
+  wrapper of `SDL_GL_SwapWindow`/`SDL_PumpEvents` into
+  `muos-mupen64plus` (T2 hook, only with `/run/muos/perf-capture`):
+  swaps/s, worst gap, ms inside the swap and, for Mupen64Plus, emulated
+  VIs per second (the core pumps SDL events once per VI; 60 = full
+  speed, whatever the game's own frame rate).
+- **N64 speed (M7, 1296 MHz, from a cold boot, no input):** Donkey Kong
+  64's intro (the DK Rap): libretro mupen64plus-next (GLideN64 GLES3)
+  30.6 fps, core 30 ms/frame, i.e. half speed (the user's in-game save
+  ran ~60: the intro is the heavy part); standalone Rice 58 VI/s
+  (dips to 52–56), 29–31 swaps/s (the game draws at 30), drawn correctly;
+  standalone GLideN64 (a04081a) 20–27 VI/s whatever the options
+  (copies to RDRAM off: 38; FB emulation off: 33; the libretro core's
+  legacy blending / no fragment depth write: 27). Mario Kart 64: Rice
+  61 VI/s, standalone GLideN64 27, libretro 59.9.
 - **M6 cores (synthetic, 1296 MHz):** an idle loop per system
   (`make-smoke-roms.py`) holds 60.0 fps on 2600 (core 6.7 ms), 7800
   (4.8), PCE (4.4), NGPC (6.3), WonderSwan (5.9), SG-1000 (6.2),

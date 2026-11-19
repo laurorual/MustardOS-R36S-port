@@ -5,19 +5,27 @@
 # Standalone" assignments (upstream launcher ids ext-mupen64plus-*; upstream
 # script/launch/ext-mupen64plus.sh needs muOS's var scripts the port lacks).
 #   VARIANT  *rice* -> Rice; anything else -> GLideN64 (Glide64mk2 is not
-#            built; "full" = 4:3 here, the panel is 640x480)
+#            built; "full" = 4:3 here, the panel is 640x480). M7 T2: Rice
+#            runs DK64's intro at ~58 VI/s (the libretro core ~30) and MK64
+#            at full speed; standalone GLideN64 is GPU-bound here (20-27).
 # Files: the build (build-mupen64plus-sa.sh) in /opt/muos/share/emulator/
 # mupen64plus (read-only); mupen64plus.cfg in p3 MUOS/port/mupen64plus (the
 # options below are forced on every start, the rest is the user's); SRAM and
 # states per game in pickles/{sram,state}/mupen64plus_sa/DIR/NAME/, named by
-# the ROM header (SaveFilenameFormat 0).
+# the ROM header (SaveFilenameFormat 0). Input-SDL clears a section
+# without its version, so version is forced with the mapping.
 # Resume, as muxretro: Fn+Start saves autosave.st first (core patch 0001,
 # MUPEN_AUTOSAVE), the next start loads it (--savestate).
 # Hotkeys (Fn held): Start quit + autosave, R1 save state, L1 load state
-# (slot 0). Controls follow mupen64plus-next's defaults: A = B, B = Y,
+# (slot 0), X screenshot (MUOS/screenshot). Vsync on: SDL's KMSDRM flips
+# asynchronously without it, which this 4.4 kernel refuses (EINVAL, nothing
+# shown). Controls follow mupen64plus-next's defaults: A = B, B = Y,
 # Z = L2, L = L1, R = R1, C = right stick, C-Right = A, C-Up = X.
 # The first start of a game with a mupen64plus-next save RAM (.srm) and no
-# standalone save splits it into the core's .eep/.mpk/.sra/.fla.
+# standalone save splits it into the core's .eep/.mpk/.sra/.fla (once: later
+# libretro play is not carried over). Sleep: muos-suspend stops and
+# continues the process; a UI stop (poweroff) ends it with SIGTERM, which
+# SDL turns into a quit, so the autosave is written then too.
 set -u
 emu=/opt/muos/share/emulator/mupen64plus
 cfg=/userdata/MUOS/port/mupen64plus
@@ -82,9 +90,11 @@ set -- --corelib "$emu/libmupen64plus.so.2.0.0" --configdir "$cfg" --datadir "$e
     --set "CoreEvents[Joy Mapping Stop]=J0B9/B10" \
     --set "CoreEvents[Joy Mapping Save State]=J0B5/B10" \
     --set "CoreEvents[Joy Mapping Load State]=J0B4/B10" \
+    --set "CoreEvents[Joy Mapping Screenshot]=J0B2/B10" \
     --set "Audio-SDL[RESAMPLE]=trivial" \
-    --set "Video-GLideN64[AspectRatio]=1" --set "Video-GLideN64[ThreadedVideo]=True" \
-    --set "Input-SDL-Control1[mode]=0" --set "Input-SDL-Control1[device]=0" \
+    --set "Video-General[VerticalSync]=True" \
+    --set "Video-GLideN64[AspectRatio]=1" \
+    --set "Input-SDL-Control1[version]=2" --set "Input-SDL-Control1[mode]=0" --set "Input-SDL-Control1[device]=0" \
     --set "Input-SDL-Control1[name]=muOS-Keys" --set "Input-SDL-Control1[plugged]=True" \
     --set "Input-SDL-Control1[plugin]=2" --set "Input-SDL-Control1[mouse]=False" \
     --set "Input-SDL-Control1[AnalogDeadzone]=4096,4096" \
@@ -103,4 +113,6 @@ set -- --corelib "$emu/libmupen64plus.so.2.0.0" --configdir "$cfg" --datadir "$e
 [ -s "$auto" ] && set -- "$@" --savestate "$auto"
 say "start $gfx rom=$rom resume=$([ -s "$auto" ] && echo yes || echo no)"
 cd "$emu" || exit 1
+# T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file
+[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && export LD_PRELOAD=/run/muos/swapstat.so
 HOME=$cfg MUPEN_AUTOSAVE=$auto exec ./mupen64plus "$@" "$rom"
