@@ -18,7 +18,21 @@ case "${1:-}" in
     [ ! -e /boot/muos-noui ] || { echo 'ui: safe mode (/boot/muos-noui)'; exit 0; }
     running && exit 0
     /etc/init.d/S96muos-input-ready status || echo 'ui: warning: input not ready'
-    /opt/muos/script/system/assign.sh > "$state/assign.log" 2>&1 || echo 'ui: assign.sh failed'
+    # M7: upstream assign.sh rebuilds assign.json from the core manifests
+    # on every boot (~3 s before the first paint). Skip it while the
+    # manifests (bundled + user), the script and the output are unchanged
+    # since the last run; the Task Toolkit's refresh still runs it.
+    sig=$(find /opt/muos/share/info/manifest /run/muos/storage/info/manifest /opt/muos/script/system/assign.sh \
+        -type f -exec stat -c '%n %s %Y' {} + 2>/dev/null | sort | md5sum | cut -c1-32)
+    sigf=/userdata/MUOS/port/assign.sig
+    if [ -s /run/muos/storage/info/manifest/assign.json ] && [ "$(cat "$sigf" 2>/dev/null)" = "$sig" ]; then
+        echo 'ui: core assignments unchanged'
+    elif /opt/muos/script/system/assign.sh > "$state/assign.log" 2>&1; then
+        find /opt/muos/share/info/manifest /run/muos/storage/info/manifest /opt/muos/script/system/assign.sh \
+            -type f -exec stat -c '%n %s %Y' {} + 2>/dev/null | sort | md5sum | cut -c1-32 > "$sigf" 2>/dev/null || :
+    else
+        echo 'ui: assign.sh failed'; rm -f "$sigf"
+    fi
     audio=dummy; [ ! -e /run/muos/core/audio ] || audio=pipewire
     # M6: no text console on the panel while the UI runs. Whenever the
     # frontend or muxretro drops the display, the kernel shows fb0, and

@@ -19,7 +19,7 @@ The open problems behind each "partial" are in STATUS.
 
 | Layer | State | Summary | Section |
 |---|---|---|---|
-| CPU / ABI | T3 | A35, glibc 2.41, capped at 1296 MHz (stock max 1512) | Power and battery |
+| CPU / ABI | T3 | A35, glibc 2.41, 1296 MHz by default; stock OPPs to 1512 MHz as an opt-in (M7, T2) | Power and battery |
 | Boot chain | T3 | Own U-Boot (destructive paths removed), rkbin payloads, boot records main/previous, trial kernel | Boot chain |
 | Kernel / DTB | T3 | `4.4.189-muos-r35s-p4` + patches 0001–0008, own Panel 0 DTB | Boot chain |
 | Root FS / init | T3 | ext4 RO p2, BusyBox init with rcS/rcK, trial root, p3 auto-grow | Storage |
@@ -482,6 +482,16 @@ The open problems behind each "partial" are in STATUS.
 
 - **Controller:** the only USB controller is DWC2 at `ff300000.usb`.
   (phase4-network-warm.md)
+- **Wi-Fi liveness (M7):** `muos-usb-watchdog` checks every 60 s while
+  the network is ready: C2H errors since the radio came up, or two checks
+  without a received packet and without an ARP answer from the gateway →
+  dwc2 rebind (at most once per 10 min). T2 (`t2-wifi-liveness.sh`):
+  injected C2H line detected after 50 s, Wi-Fi back 16 s after the rebind;
+  the silent-gateway path with test hooks passed too.
+- **Wake timeline (M7 T2, 2 cycles, menu):** address 9.3/10.2 s after the
+  wake: USB enumeration 1 s (CD-ROM mode), the 4 s settle, switch 0.8 s,
+  8821cu load + firmware 2.1 s, association 0.75 s, DHCP 0.5 s. Only the
+  settle could shrink (2 s passed 3/3 in M4c, 0.27 s failed): not changed.
 - **Dongle:**
   - Realtek, starts in storage mode `0bda:1a2b`.
   - `usb_modeswitch -K -v 0bda -p 1a2b` (StandardEject) switches it to
@@ -701,6 +711,12 @@ The open problems behind each "partial" are in STATUS.
 - **CPU:**
   - The port caps the CPU at 1296 MHz (stock allows 1512).
   - Under load the governor read performance at 1296000 kHz.
+  - M7: the DTB carries the stock Panel 0 OPPs 1368–1512 MHz (1.35/1.40 V
+    entries; `rockchip,max-volt` stays 1.35 V, so the BSP's irdrop pass
+    clamps the 1.40 V ones to 1.35 V, exactly as on stock dArkOSen; this
+    unit: pvtm-volt-sel 2, avs 1). The kernel boots with the performance
+    governor, so `muos-rc` caps at once; `muos-governor` applies Danger's
+    `danger/cpu_max` (image default 1296000, 0 = highest) and `gpu_max`.
   - (phase4-bsp-foundation.md, phase4-nes-performance.md)
 - **Reboot (M1):** `reboot` through init and the launcher's Reboot entry both
   run the ordered rcK (UI → input → core → runtime → storage → p3 unmount)
