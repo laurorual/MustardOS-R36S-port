@@ -10,9 +10,10 @@
 #     the device config is S91's tmpfs copy, so the boot needs it too
 #   - the saved brightness (device/bright.sh, the port's)
 #   - the default CPU governor (muos-governor, as SET_DEFAULT_GOVERNOR),
-#     only while no content runs
-# Hotkeys come from the port's own JSON (S99 loop); the Danger CPU/GPU caps
-# and core count are not applied by the port (not in its config).
+#     only while no content runs; it also applies the Danger CPU/GPU
+#     speed caps (M7; in a game they apply at the next content start)
+# Hotkeys come from the port's own JSON (S99 loop); the Danger core count
+# is not applied by the port.
 #   tweak.sh          after a save (frontend)
 #   tweak.sh boot     audio/max only (S97 start)
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin

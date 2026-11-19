@@ -16,7 +16,11 @@ log=/run/muos-rc.log
 bounded=/usr/libexec/muos-run-bounded
 action=${1:-}
 case "$action" in
-    start) list=$(ls /etc/init.d/S??* 2>/dev/null) ;;
+    start) list=$(ls /etc/init.d/S??* 2>/dev/null)
+           # M7: the kernel boots with the performance governor and the
+           # DTB's stock OPPs reach 1512 MHz: cap the CPU at once (the
+           # image's danger/cpu_max on p2; the user's value from p3 later).
+           /usr/libexec/muos-governor cap 2>/dev/null || : ;;
     stop) list=$(ls -r /etc/init.d/S??* 2>/dev/null)
           /usr/libexec/muos-rumble-setup event shutdown 2>/dev/null || : ;; # M4e
     *) echo 'Usage: muos-rc start|stop' >&2; exit 2 ;;

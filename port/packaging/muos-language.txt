@@ -1,0 +1,15 @@
+# M7: the upstream language pack (MustardOS/language, GPL-3.0), the same
+# lang.muxzip upstream's menu downloads, pinned by release and sha256.
+# fetch-upstream-share.sh fetches it into build/upstream/language and
+# stage replaces share/language with it, merged with the port's
+# additions in port/packaging/language/<Language>.json (same layout:
+# section -> English text -> translation; the port's entries win).
+release release-main-3db301a-20261112-073445
+url https://github.com/MustardOS/language/releases/download/release-main-3db301a-20261112-073445/lang.muxzip
+sha256 30c561e5bd6b6b55b9f573c5f00ef4846cb68d063a0147d40e77196d334d0134
+# Not shipped until p2 has room for their fonts (decision 17: Noto Sans
+# SC/TC/JP/KR are 29 MiB); without the font the menu shows empty boxes.
+exclude Chinese (Simplified)
+exclude Chinese (Traditional)
+exclude Japanese
+exclude Korean

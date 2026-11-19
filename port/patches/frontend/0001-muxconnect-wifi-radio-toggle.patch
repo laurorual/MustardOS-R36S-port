@@ -98,8 +98,8 @@ SPDX-License-Identifier: GPL-3.0
  
  static void show_help(void) {
      const struct help_msg help_messages[] = {
-+        {"radio", "Turns the Wi-Fi radio on or off.\n\nOff saves battery and keeps the adapter idle until turned back on. "
-+                  "Unavailable while no Wi-Fi adapter is plugged in."},
++        {"radio", translate_specific("Turns the Wi-Fi radio on or off.\n\nOff saves battery and keeps the adapter idle "
++                                     "until turned back on. Unavailable while no Wi-Fi adapter is plugged in.")},
  #define CONNECT(NAME, UDATA) {UDATA, lang.muxconnect.help.NAME},
          CONNECT_ELEMENTS
  #undef CONNECT

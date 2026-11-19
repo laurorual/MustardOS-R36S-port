@@ -65,9 +65,13 @@ case "${1:-}" in
     # config/system/version at the pinned commit) is not a user setting:
     # always the image's. The frontend accepts themes by it (else every
     # 2606 theme fell back to the internal one).
-    cmp -s /opt/muos/config/system/version "$port/config/system/version" 2>/dev/null || {
-        mkdir -p "$port/config/system"
-        cp -p /opt/muos/config/system/version "$port/config/system/version" && echo 'runtime: refreshed config system/version'; }
+    # M7: so is system/build (the port commit, build-image.sh).
+    for f in version build; do
+        [ -e "/opt/muos/config/system/$f" ] || continue
+        cmp -s "/opt/muos/config/system/$f" "$port/config/system/$f" 2>/dev/null || {
+            mkdir -p "$port/config/system"
+            cp -p "/opt/muos/config/system/$f" "$port/config/system/$f" && echo "runtime: refreshed config system/$f"; }
+    done
     # M4e: the pinned config lacks directories the frontend writes to
     # (clock/, sort/, settings/overlay/, ...): saves there failed silently
     # (e.g. Date and Time's 24-hour notation). Reads default when a file is

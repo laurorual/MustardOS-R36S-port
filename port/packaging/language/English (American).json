@@ -1,0 +1,5 @@
+{
+  "muxwebserv": {
+    "Root-backed file transfer for your storage, the boot partition and MustardOS itself. Enabling it grants read and write access to those locations. Connect on port 2022 with the username muos and password muos.\n\nSelect this to open its settings.": "File transfer for your storage folders (SD1 and, when inserted, SD2). Enabling it grants read and write access to those folders; the system stays out of reach. Connect on port 2022 with the username muos and password muos.\n\nSelect this to open its settings."
+  }
+}

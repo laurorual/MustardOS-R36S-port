@@ -1,0 +1,73 @@
+{
+  "system": {
+    "Failed to open GENERAL joystick device": "Falha ao abrir o dispositivo de controle GENERAL",
+    "Failed to open POWER joystick device": "Falha ao abrir o dispositivo de controle POWER",
+    "Failed to open VOLUME joystick device": "Falha ao abrir o dispositivo de controle VOLUME",
+    "Failed to open EXTRA joystick device": "Falha ao abrir o dispositivo de controle EXTRA",
+    "Failed to allocate memory": "Falha ao alocar memória",
+    "Failed to duplicate string": "Falha ao duplicar o texto",
+    "Failed to open directory": "Falha ao abrir a pasta",
+    "Failed to open file": "Falha ao abrir o arquivo",
+    "Failed to open file for writing": "Falha ao abrir o arquivo para gravação",
+    "Failed to open file for reading": "Falha ao abrir o arquivo para leitura",
+    "Failed to fork": "Falha ao criar o processo",
+    "Failed to run command": "Falha ao executar o comando",
+    "Failed read command output": "Falha ao ler a saída do comando",
+    "Failed to close command stream": "Falha ao fechar a saída do comando",
+    "Failed to delete file": "Falha ao excluir o arquivo",
+    "Failed to create file": "Falha ao criar o arquivo",
+    "Failed to retrieve file or directory status": "Falha ao obter o estado do arquivo ou da pasta",
+    "Failed to open /proc/partitions": "Falha ao abrir /proc/partitions",
+    "Failed to use int16 - out of range": "Falha ao usar int16: fora do intervalo"
+  },
+  "generic": {
+    "Don't Ask Again": "Não perguntar de novo",
+    "Backspace": "Apagar",
+    "Description": "Descrição"
+  },
+  "muxapp": {
+    "This application did not come with MustardOS, so we cannot vouch for how it behaves or help when it misbehaves.\n\nPlease take any problems with it to whoever wrote it.\n\nThis is only mentioned once!": "Este aplicativo não veio com o MustardOS, então não podemos garantir como ele se comporta nem ajudar quando ele apresentar problemas.\n\nLeve qualquer problema a quem o criou.\n\nEste aviso aparece só uma vez!"
+  },
+  "muxconnect": {
+    "Turns the Wi-Fi radio on or off.\n\nOff saves battery and keeps the adapter idle until turned back on. Unavailable while no Wi-Fi adapter is plugged in.": "Liga ou desliga o rádio Wi-Fi.\n\nDesligado economiza bateria e deixa o adaptador inativo até ser ligado de novo. Indisponível enquanto nenhum adaptador Wi-Fi estiver conectado."
+  },
+  "muxcustom": {
+    "Power Off Effect": "Efeito ao desligar"
+  },
+  "muxdanger": {
+    "Highest": "Máxima",
+    "Amount of data preloaded in memory before it's requested\n\nLarger values improve sequential read performance": "Quantidade de dados carregada na memória antes de ser solicitada\n\nValores maiores melhoram o desempenho de leitura sequencial",
+    "The highest speed the processor is allowed to reach.\n\nHighest uses every speed the device offers. Choose a lower speed to run cooler and make the battery last longer.": "A velocidade máxima que o processador pode atingir.\n\nMáxima usa todas as velocidades que o dispositivo oferece. Escolha uma velocidade menor para esquentar menos e fazer a bateria durar mais.",
+    "The highest speed the graphics chip is allowed to reach.\n\nHighest uses every speed the device offers. Choose a lower speed to run cooler and make the battery last longer.": "A velocidade máxima que o chip gráfico pode atingir.\n\nMáxima usa todas as velocidades que o dispositivo oferece. Escolha uma velocidade menor para esquentar menos e fazer a bateria durar mais."
+  },
+  "muxdetail": {
+    "Build": "Compilação"
+  },
+  "muxbtdev": {
+    "Headset": "Fone com microfone"
+  },
+  "muxorder": {
+    "Pick how this list is arranged. Left and Right flip each method around, such as A to Z or Z to A.\n\nA folder can keep an order of its own, or set it globally everywhere that's up to you.": "Escolha como esta lista é organizada. Esquerda e Direita invertem cada método, como de A a Z ou de Z a A.\n\nUma pasta pode ter a própria ordem, ou você pode definir uma ordem global para todas: a escolha é sua."
+  },
+  "muxplore": {
+    "Everything you can play or view, gathered into one place. Content folders from every card and drive are brought together, so you do not have to look through each one separately.\n\nSmall markers beside each item tell you whether you have played it before, whether it belongs to a collection and whether it is ready to launch.\n\nL1 and R1 jump a page at a time, and R2 picks something at random.": "Tudo o que você pode jogar ou ver, reunido em um só lugar. As pastas de conteúdo de todos os cartões e unidades são juntadas, para você não precisar procurar em cada uma separadamente.\n\nPequenas marcas ao lado de cada item mostram se você já o jogou, se ele faz parte de uma coleção e se está pronto para iniciar.\n\nL1 e R1 pulam uma página por vez, e R2 escolhe algo ao acaso."
+  },
+  "muxretro": {
+    "A running timer in the corner showing how long you have been playing.\n\nIt tucks itself away while the Pickles Menu is open.\n\nDon't play for too long...": "Um cronômetro no canto mostrando há quanto tempo você está jogando.\n\nEle se esconde enquanto o Menu Pickles está aberto.\n\nNão jogue por tempo demais...",
+    "The shape of the picture.\n\nAuto uses whatever the game asks for, which is right almost all of the time. Pick a specific shape such as 4:3 or 16:9 only if a game looks noticeably stretched or squashed to you.\n\nOr maybe you like 8:7 we don't judge... much!": "O formato da imagem.\n\nAutomático usa o que o jogo pede, o que está certo quase sempre. Escolha um formato específico, como 4:3 ou 16:9, só se um jogo parecer visivelmente esticado ou achatado.\n\nOu talvez você goste de 8:7: não julgamos... muito!",
+    "Choose the second button used with MENU for each Pickles hotkey.\n\nAssignments stay unique. Choosing a button already in use swaps the two shortcuts.": "Escolha o segundo botão usado com MENU em cada atalho do Pickles.\n\nCada botão fica com um só atalho. Escolher um botão já em uso troca os dois atalhos.",
+    "Downloadable extras, grouped by whoever made them.\n\nPick a name to see what they have on offer.": "Extras para baixar, agrupados por quem os criou.\n\nEscolha um nome para ver o que ele oferece.",
+    "Everything this author has available, with whether you already have it alongside each one.\n\nPress A to fetch one, or to fetch it again when there is an update waiting.": "Tudo o que este autor tem disponível, indicando ao lado de cada item se você já o tem.\n\nPressione A para baixar um item, ou para baixá-lo de novo quando houver uma atualização.",
+    "States": "Estados",
+    "Save States": "Estados salvos"
+  },
+  "muxvisual": {
+    "Collapse the content picture like an old television when leaving Pickles or Wasabi. Reduce Motion disables this effect.": "Encolhe a imagem do conteúdo como uma TV antiga ao sair do Pickles ou do Wasabi. Reduzir movimento desativa este efeito."
+  },
+  "muxwebserv": {
+    "Secure Shell": "Shell seguro (SSH)",
+    "Secure File Transfer": "Arquivos via SFTP",
+    "Root command-line access through Secure Shell.\n\nSelect this to open its settings.": "Acesso à linha de comando como root pelo Shell seguro (SSH).\n\nSelecione para abrir suas configurações.",
+    "Root-backed file transfer for your storage, the boot partition and MustardOS itself. Enabling it grants read and write access to those locations. Connect on port 2022 with the username muos and password muos.\n\nSelect this to open its settings.": "Transferência de arquivos para as pastas de armazenamento (SD1 e, quando inserido, SD2). Ativar concede leitura e gravação nessas pastas; o sistema fica fora do alcance. Conecte na porta 2022 com o usuário muos e a senha muos.\n\nSelecione para abrir suas configurações."
+  }
+}

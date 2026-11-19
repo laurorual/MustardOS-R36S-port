@@ -13,18 +13,44 @@
 # M3d (docs/hardware-findings.md "Frame stalls"): with schedutil the CPU
 # idles at its 1008 MHz floor through per-frame bursts and dmc_ondemand
 # switches DDR clocks mid-game; both cost vsync misses.
-gov=${1:?usage: muos-governor GOV}
+# M7: also the speed caps of the Danger screen (upstream governor.sh):
+# config danger/cpu_max and danger/gpu_max in kHz/Hz, 0 = the highest OPP.
+# The DTB carries the stock OPPs up to 1512 MHz; without a value the CPU
+# stays at the port's tested 1296 MHz (decision 13: opt-in, the image
+# default is 1296000).
+#   muos-governor GOV    governor + caps
+#   muos-governor cap    caps only (muos-rc, before the first service: the
+#                        kernel boots with the performance governor)
 cpu=/sys/devices/system/cpu/cpu0/cpufreq
 gpu=/sys/class/devfreq/ff400000.gpu
+caps() {
+    v=$(head -n1 /opt/muos/config/danger/cpu_max 2>/dev/null)
+    top=$(tr ' ' '\n' < "$cpu/scaling_available_frequencies" 2>/dev/null | grep . | sort -n | tail -n1)
+    case "$v" in ''|*[!0-9]*) v=1296000 ;; 0) v=$top ;; esac
+    [ -z "$top" ] || [ "$v" -le "$top" ] || v=$top
+    [ "$(cat "$cpu/scaling_max_freq" 2>/dev/null)" = "$v" ] || printf '%s\n' "$v" > "$cpu/scaling_max_freq" 2>/dev/null
+    [ -w "$gpu/max_freq" ] || return 0
+    v=$(head -n1 /opt/muos/config/danger/gpu_max 2>/dev/null)
+    top=$(tr ' ' '\n' < "$gpu/available_frequencies" | grep . | sort -n | tail -n1)
+    case "$v" in ''|0|*[!0-9]*) v=$top ;; esac
+    [ "$v" -le "$top" ] 2>/dev/null || v=$top
+    # lower min_freq first when the cap is below it
+    [ "$(cat "$gpu/min_freq")" -le "$v" ] 2>/dev/null || printf '%s\n' "$v" > "$gpu/min_freq" 2>/dev/null
+    printf '%s\n' "$v" > "$gpu/max_freq" 2>/dev/null
+}
+gov=${1:?usage: muos-governor GOV|cap}
+if [ "$gov" = cap ]; then caps; exit 0; fi
 dmc=/sys/class/devfreq/dmc
 saved=/run/muos/dmc_governor
 grep -qw "$gov" "$cpu/scaling_available_governors" 2>/dev/null || gov=ondemand
 [ "$(cat "$cpu/scaling_governor" 2>/dev/null)" = "$gov" ] ||
     printf '%s\n' "$gov" > "$cpu/scaling_governor" || exit 1
+caps
 
 if [ -w "$gpu/min_freq" ]; then
     list=$(tr ' ' '\n' < "$gpu/available_frequencies" | grep . | sort -n)
     if [ "$gov" = performance ]; then f=$(echo "$list" | tail -n1); else f=$(echo "$list" | head -n1); fi
+    m=$(cat "$gpu/max_freq" 2>/dev/null); [ -z "$m" ] || [ -z "$f" ] || [ "$f" -le "$m" ] || f=$m
     [ -z "$f" ] || printf '%s\n' "$f" > "$gpu/min_freq" 2>/dev/null
 fi
 

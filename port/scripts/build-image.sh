@@ -62,6 +62,12 @@ stage_overlay() { # the port rootfs with its init-script symlinks resolved
     # media, tasks, languages), tree-id checked; the pinned inputs that
     # firmware-post-build installs afterwards win where paths coincide.
     "$repo/port/scripts/fetch-upstream-share.sh" stage "$m3a/overlay.tmp"
+    # M7: System details -> Build (config system/build, at most 15 chars):
+    # the port commit the overlay was staged from, "+" if the tree is dirty.
+    local rev
+    rev=r35s-$(git -C "$repo" rev-parse --short=7 HEAD)
+    [ -z "$(git -C "$repo" status --porcelain --untracked-files=no -- port)" ] || rev=$rev+
+    printf '%s\n' "$rev" > "$m3a/overlay.tmp/opt/muos/config/system/build"
     rm -rf "$m3a/overlay"; mv "$m3a/overlay.tmp" "$m3a/overlay"
 }
 

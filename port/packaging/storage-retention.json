@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m4e1-20261117": {
-      "reason": "M4e.1: M4e + Input Remap saves (own sdl_remap.sh, controller DB on p3), Wi-Fi re-plug in CD-ROM mode switched again, reassociate at 20/50 s without a lease, kernel 0008 (OFF_CNT cleared) as main; developer image, supersedes M4e (never flashed); p2 written 2026-11-17, T3 items 1-3 passed (one replug missed by the dwc2 driver, pre-existing): recovery image since 2026-11-17",
-      "files": [
-        "dist/firmware/test128-m4e1-20261117.img.zst",
-        "dist/firmware/test128-m4e1-20261117.img.zst.sha256",
-        "dist/firmware/test128-m4e1-20261117.manifest",
-        "build/m3a/test128-m4e1-20261117.p2.img"
-      ]
-    },
     "m4f-20261117": {
       "reason": "M4f: USB watchdog (dwc2 missed plug/unplug -> rebind), menu scripts (own tweak.sh incl. Audio overdrive, upstream find/track/serial/tegridy + rg subset, Activity hooks); developer image; p2 written 2026-11-18, T3 2026-11-18 items 2-6 passed, item 1 overdrive works but the volume bar stops at 50 % (upstream device.audio.max clamp, display only): recovery image since 2026-11-18",
       "files": [
@@ -49,6 +40,15 @@
         "dist/firmware/public-m5-20261118.img.zst.sha256",
         "dist/firmware/public-m5-20261118.manifest",
         "build/m3a/public-m5-20261118.p2.img"
+      ]
+    },
+    "m6-20261119": {
+      "reason": "M6: release frontend (TEST_IMAGE=0), 14 new cores + N64 trial (build-cores.sh), coredb defaults, upstream core info files + BIOS Report, M5 T3 fixes (config rows, screenshot flash, fbcon unbound under the UI, Wi-Fi C2H reset); developer image; trial root T2 passed 2026-11-19; write-p2 refused by the permission check while the user slept",
+      "files": [
+        "dist/firmware/test128-m6-20261119.img.zst",
+        "dist/firmware/test128-m6-20261119.img.zst.sha256",
+        "dist/firmware/test128-m6-20261119.manifest",
+        "build/m3a/test128-m6-20261119.p2.img"
       ]
     }
   },

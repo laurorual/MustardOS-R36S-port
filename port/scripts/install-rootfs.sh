@@ -50,7 +50,9 @@ if [ "$RESTORE" = 1 ]; then
     find . \( -type f -o -type l \) ! -name "*.absent" | while read -r f; do p=${f#./}; cp -a "$f" "$R/$p.m1new"; mv -f "$R/$p.m1new" "$R/$p"; echo "restored /$p"; done
     cd /; exit 0
 fi
+IFS0=$IFS; IFS="|"; set -f # REMOVES is "|"-separated (paths may hold spaces)
 for p in $REMOVES; do keep "$p"; rm -f "$R/$p"; echo "removed /$p"; done
+IFS=$IFS0; set +f
 stage=$(mktemp -d /run/m1-stage.XXXXXX)
 tar -xf - -C "$stage"
 cd "$stage"
@@ -71,5 +73,7 @@ if [ "$restore" = 1 ]; then
     exit 0
 fi
 for f in "${files[@]}"; do [ -e "$tree/$f" ] || { echo "not in tree: $f" >&2; exit 1; }; done
+joined=$(IFS="|"; echo "${removes[*]}")
+case "$joined" in *"'"*) echo "--remove: no quotes in paths" >&2; exit 1 ;; esac
 (cd "$tree" && if [ ${#files[@]} -gt 0 ]; then tar -h --owner=0 --group=0 -cf - "${files[@]}"; else tar -cf - -T /dev/null; fi) |
-    "$dev" run "RESTORE=0 REMOVES='${removes[*]}' sh -c '$remote'"
+    "$dev" run "RESTORE=0 REMOVES='$joined' sh -c '$remote'"

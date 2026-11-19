@@ -226,4 +226,22 @@ Plan (roadmap.md), state:
 6. Image, trial T2, `write-p2` — image built, trial T2 passed;
    `write-p2` left.
 
-**Next milestone after M6:** M7 — polish: language, performance, power.
+## Next milestone: M7 — polish: language, performance, power (started 2026-11-19)
+
+Goal (roadmap.md): pt-BR complete, wake/audio/Wi-Fi robustness, the
+1512 MHz opt-in, idle power, a soak. Items:
+1. Languages: the upstream language pack (MustardOS/language, pinned)
+   instead of internal's stale share/language; the port's strings and
+   the 32 newer upstream strings in pt-BR (overlay); CJK left out until
+   p2 has room for the fonts (decision 17).
+2. Wi-Fi liveness while "ready" (C2H loop / silent gateway → dwc2 rebind).
+3. CPU 1512 MHz opt-in: stock OPPs in the DTB (trial boot), default cap
+   1296 through the upstream Danger setting (`danger/cpu_max`).
+4. Wake: the slow frames and Wi-Fi ~9 s after wake.
+5. Audio: underrun bursts, the WirePlumber retry.
+6. Idle power, DDR devfreq.
+7. Wi-Fi warm-reboot H2C and the dongle inserted during boot.
+8. Boot time; a soak (play, sleep cycles) at T2.
+9. M6 T3 results when they arrive.
+Expected T3: pt-BR screens, 1512 opt-in in a game, wake feel, Wi-Fi
+after a long idle.

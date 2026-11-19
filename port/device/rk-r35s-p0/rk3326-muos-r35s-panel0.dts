@@ -2,7 +2,7 @@
 /* Only for R36S-V12 2023-08-18 Panel 0. Not yet boot-tested.
  * Includes the pinned GPL-2.0+/MIT Hardkernel-derived R35S description.
  * Panel/input/battery values were compared with the installed DTB.
- * Keep the base CPU/GPU OPPs and voltage limits; no dArkOSen overclock.
+ * Keep the base GPU OPPs; the CPU OPPs up to the stock 1512 MHz (M7, opt-in).
  * M3e: the BSP's 408 MHz CPU OPP is restored (see &cpu0_opp_table).
  */
 #include "rk3326-r35s-linux.dts"
@@ -86,4 +86,69 @@
         opp-microvolt-L3 = <950000 950000 1350000>;
         clock-latency-ns = <40000>;
     };
+
+    /* M7: the stock dArkOSen Panel 0 OPPs above 1296 MHz (same values as
+     * its DTB; rockchip,max-volt stays 1.35 V, so the 1.40 V entries run
+     * clamped at 1.35 V exactly as on stock). The CPU stays capped at
+     * 1296 MHz unless the user raises Danger -> CPU speed (decision 13:
+     * opt-in, off by default; muos-governor applies danger/cpu_max). */
+    opp-1368000000 {
+        opp-hz = /bits/ 64 <1368000000>;
+        opp-microvolt = <1350000 1350000 1350000>;
+        opp-microvolt-L0 = <1350000 1350000 1350000>;
+        opp-microvolt-L1 = <1350000 1350000 1350000>;
+        opp-microvolt-L2 = <1350000 1350000 1350000>;
+        opp-microvolt-L3 = <1350000 1350000 1350000>;
+        clock-latency-ns = <40000>;
+    };
+    opp-1416000000 {
+        opp-hz = /bits/ 64 <1416000000>;
+        opp-microvolt = <1400000 1400000 1400000>;
+        opp-microvolt-L0 = <1400000 1400000 1400000>;
+        opp-microvolt-L1 = <1400000 1400000 1400000>;
+        opp-microvolt-L2 = <1400000 1400000 1400000>;
+        opp-microvolt-L3 = <1400000 1400000 1400000>;
+        clock-latency-ns = <40000>;
+    };
+    opp-1440000000 {
+        opp-hz = /bits/ 64 <1440000000>;
+        opp-microvolt = <1400000 1400000 1400000>;
+        opp-microvolt-L0 = <1400000 1400000 1400000>;
+        opp-microvolt-L1 = <1400000 1400000 1400000>;
+        opp-microvolt-L2 = <1400000 1400000 1400000>;
+        opp-microvolt-L3 = <1400000 1400000 1400000>;
+        clock-latency-ns = <40000>;
+    };
+    opp-1464000000 {
+        opp-hz = /bits/ 64 <1464000000>;
+        opp-microvolt = <1400000 1400000 1400000>;
+        opp-microvolt-L0 = <1400000 1400000 1400000>;
+        opp-microvolt-L1 = <1400000 1400000 1400000>;
+        opp-microvolt-L2 = <1400000 1400000 1400000>;
+        opp-microvolt-L3 = <1400000 1400000 1400000>;
+        clock-latency-ns = <40000>;
+    };
+    opp-1488000000 {
+        opp-hz = /bits/ 64 <1488000000>;
+        opp-microvolt = <1400000 1400000 1400000>;
+        opp-microvolt-L0 = <1400000 1400000 1400000>;
+        opp-microvolt-L1 = <1400000 1400000 1400000>;
+        opp-microvolt-L2 = <1400000 1400000 1400000>;
+        opp-microvolt-L3 = <1400000 1400000 1400000>;
+        clock-latency-ns = <40000>;
+    };
+    opp-1512000000 {
+        opp-hz = /bits/ 64 <1512000000>;
+        opp-microvolt = <1400000 1400000 1400000>;
+        opp-microvolt-L0 = <1400000 1400000 1400000>;
+        opp-microvolt-L1 = <1400000 1400000 1400000>;
+        opp-microvolt-L2 = <1400000 1400000 1400000>;
+        opp-microvolt-L3 = <1400000 1400000 1400000>;
+        clock-latency-ns = <40000>;
+    };
+};
+
+&vdd_arm {
+    /* M7: as stock (needed by the 1.40 V OPP entries above). */
+    regulator-max-microvolt = <1400000>;
 };
