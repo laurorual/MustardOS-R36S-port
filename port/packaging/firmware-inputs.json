@@ -5291,43 +5291,43 @@
    "path": "/opt/muos/frontend/lib/libmuxcom.so",
    "type": "file",
    "mode": "644",
-   "sha256": "31a5e2bb6b72f7443e0bdf62d5d127743ce2f9bf3bcac010e522bc3a974ba033",
-   "origin": "build/m4c/frontend-libs/tree/opt/muos/frontend/lib/libmuxcom.so"
+   "sha256": "994c23385275fab0540ef47f2c5d4562f270901d4e096784f7d2ea24c3f3e173",
+   "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/lib/libmuxcom.so"
   },
   {
    "path": "/opt/muos/frontend/lib/libmuxmod.so",
    "type": "file",
    "mode": "644",
-   "sha256": "5f35a8f0e1cf33d0a43d249f99b1d8ea7e9daa65791c612038ea7a2b74732861",
-   "origin": "build/m4c/frontend-libs/tree/opt/muos/frontend/lib/libmuxmod.so"
+   "sha256": "5353423707d5eeb2a7e406c19a9f90ff22c8c05419977e18f8485002002b64f8",
+   "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/lib/libmuxmod.so"
   },
   {
    "path": "/opt/muos/frontend/lib/libplutosvg.so",
    "type": "file",
    "mode": "644",
    "sha256": "99377c313fdb5401e4535be4750afb8db9c6c6acc052818a2eee0c956cbe8683",
-   "origin": "build/phase4/graphics-config/output/target/opt/muos/frontend/lib/libplutosvg.so"
+   "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/lib/libplutosvg.so"
   },
   {
    "path": "/opt/muos/frontend/lib/libui.so",
    "type": "file",
    "mode": "644",
-   "sha256": "639c1df8c75dc5007abfb87817d8cb1ea6b3ed7e0366f008e976a0e74491791e",
-   "origin": "build/phase4/frontend-libs/build.fr0v680t/output/build/muos-frontend-libs-1/frontend-bin/lib/libui.so"
+   "sha256": "2b70fdd9d3d805cdf68d8ed6bbda586138961a534761d17665951f346723d14e",
+   "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/lib/libui.so"
   },
   {
    "path": "/opt/muos/frontend/mubattery",
    "type": "file",
    "mode": "755",
-   "sha256": "23a36df80f2b919c2ec0494fa5cbad9bb5afc997fe24148590b85c604aa78526",
-   "origin": "build/phase4/graphics-config/output/target/opt/muos/frontend/mubattery"
+   "sha256": "20e177845b47099cfaa43a111b4ad4829630531ef6079c894b422b6d08b89dd9",
+   "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/mubattery"
   },
   {
    "path": "/opt/muos/frontend/muhotkey",
    "type": "file",
    "mode": "755",
-   "sha256": "3a6c43f5f67a829cc50807e9e351bb33d6a262ce4a74ac4f813cd613d2981de7",
-   "origin": "build/phase4/graphics-config/output/target/opt/muos/frontend/muhotkey"
+   "sha256": "62ebde0179d33f17a76fa396db219cb7c39a4a2f5886c06ee57b1f1d1b3f9c24",
+   "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/muhotkey"
   },
   {
    "path": "/opt/muos/frontend/muos-sdl-map",
@@ -5340,15 +5340,15 @@
    "path": "/opt/muos/frontend/muxfrontend",
    "type": "file",
    "mode": "755",
-   "sha256": "bb4ea22d12b2e9a6da52aef1b4c0abd162eeb038e5f78bca5cbbfffa3e0e7d66",
-   "origin": "build/phase4/graphics-config/output/target/opt/muos/frontend/muxfrontend"
+   "sha256": "dd1f4b5aa59372f25cfd7aa20462b0cd97bd9c44f209cf1b17c02300a6ed3f5c",
+   "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/muxfrontend"
   },
   {
    "path": "/opt/muos/frontend/muxretro",
    "type": "file",
    "mode": "755",
-   "sha256": "7bc63124266b131667b0b40754432c2ff0e46d4f6d9cd009f6f02c06fc1d6440",
-   "origin": "build/m3d/muxretro/tree/opt/muos/frontend/muxretro"
+   "sha256": "d76cf4e8f66a1b1d7d3e68d544ecc772dad3ca105868b6897fa3532aa929d3c9",
+   "origin": "build/m3d/muxretro/release/opt/muos/frontend/muxretro"
   },
   {
    "path": "/opt/muos/frontend/musftpjail",
@@ -13759,6 +13759,97 @@
    "path": "/var/www",
    "type": "dir",
    "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/core/stella2014_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "f46828b7017f414d9a84e3416c1ded1d9c1e2bd18bd8c421f47e1c8e476910d2",
+   "origin": "build/m3c/cores/out/stella2014_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/prosystem_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "bffee14102920ebc8d195b9e453fb1f32b46f036b8650c778598158c23b95721",
+   "origin": "build/m3c/cores/out/prosystem_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/handy_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "4bcc3c723ab71adb6f3f828b2200ee71bc02e1ce12dce8217bc465fab1a182c7",
+   "origin": "build/m3c/cores/out/handy_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/mednafen_pce_fast_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "5273fe59e76fc481ab90b607252562ac4f663a87927a4e3c5df9168a406b345a",
+   "origin": "build/m3c/cores/out/mednafen_pce_fast_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/mednafen_ngp_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "37f1a40592611308ced89441ce50082c39b82adfd5cd62427d7f3995b770a8af",
+   "origin": "build/m3c/cores/out/mednafen_ngp_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/mednafen_wswan_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "40db63602431767d962a888dae1fc010ae455d3d620c13af4285a62a687886cf",
+   "origin": "build/m3c/cores/out/mednafen_wswan_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/bluemsx_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "50079a57cc9d5cab4fb036cb255af9fa400dfca4f871d1c446c752d612f64ee9",
+   "origin": "build/m3c/cores/out/bluemsx_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/gearcoleco_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "9e085b74f8e551bf48c973967a9e854600f2cb6a9f2671d1808bbc9ba50d801a",
+   "origin": "build/m3c/cores/out/gearcoleco_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/gearsystem_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "84a5eb0572a88e844f1879a3a7d6128d82df951d540cfa3c6ea1f247b3812bad",
+   "origin": "build/m3c/cores/out/gearsystem_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/pokemini_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "c5629d200afcd4068502de5cd8b8d1a446d814b2235dcd10c68db3d57f8ec675",
+   "origin": "build/m3c/cores/out/pokemini_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/fbneo_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "d1fd80d6a6cf665a97e27db19d940eb882b80010c2c00bbe895af867627cd574",
+   "origin": "build/m3c/cores/out/fbneo_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/mame2003_plus_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "24c1f9e69aadc528d4c9e04815cafaf23834d76b75af8a1985f96f97bad0f1bb",
+   "origin": "build/m3c/cores/out/mame2003_plus_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/dosbox_pure_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "3d004105c66bff426fca0e56870c0147047986b1b0f9453c5faa31cfb52921f6",
+   "origin": "build/m3c/cores/out/dosbox_pure_libretro.so"
   }
  ],
  "remove": [

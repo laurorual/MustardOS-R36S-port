@@ -70,6 +70,13 @@
    "source": "port/scripts/build-cores.sh (pinned commits; source tarballs in build/m3c/cores/cache)",
    "status": "snes9x2005 and picodrive: non-commercial licences (no sale, no bundling in a commercial product); gpsp and pcsx_rearmed: GPL-2.0, ship or offer the pinned source with any distributed image",
    "reference": "docs/milestones.md M3c"
+  },
+  {
+   "id": "libretro-cores-m6",
+   "component": "M6 libretro cores: stella2014, prosystem, handy, beetle pce fast/neopop/cygne, blueMSX, gearcoleco, gearsystem, pokemini, fbneo, mame2003-plus, dosbox-pure",
+   "source": "port/scripts/build-cores.sh (pinned commits; source tarballs in build/m3c/cores/cache)",
+   "status": "GPL-2.0: stella2014, prosystem, beetle cores, blueMSX, dosbox-pure; GPL-3.0: gearcoleco, gearsystem, pokemini; Zlib: handy; non-commercial: FBNeo and MAME 2003-Plus (no sale, no bundling in a commercial product). Ship or offer the pinned source with any distributed image; check blueMSX's licence file before M8",
+   "reference": "docs/milestones.md M6"
   }
  ]
 }

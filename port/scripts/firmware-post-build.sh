@@ -33,7 +33,7 @@ for n in info_open info_close; do
     python3 /port/scripts/wav-highpass.py "$snd/$n.wav" "$snd/$n.wav.tmp" && mv "$snd/$n.wav.tmp" "$snd/$n.wav"
 done
 python3 /port/scripts/coredb-governors.py "$1/usr/share/muos-r35s/core-assign.txt" \
-    "$1/opt/muos/share/info/manifest/core.json"
+    "$1/opt/muos/share/info/manifest/core.json" "$1/opt/muos/share/core"
 d=$1/opt/muos/script/device
 for n in audio bright; do
     mv "$d/$n.sh" "$d/$n-muos.sh"

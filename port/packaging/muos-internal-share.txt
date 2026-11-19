@@ -16,3 +16,4 @@ ae91e505a6a599a9c02548c7ab1653b2e9fbf7d6 share/profile
 7ed40f000cbbf1732c98b7aff14be42dd4c98788 share/task
 8a60c85a5b1fe5740c4e0635a63f67ddd9eb154a share/language
 f00c5bdbe3ae12fba833bb27d13a45662a94d3ea share/font/internal
+2fea00715333efc6fb0850eb2de74201958113a3 share/emulator/retroarch/info

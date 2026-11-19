@@ -8,6 +8,10 @@
 # 110-140 mA less than performance (~630-670 vs ~760-800 mA). performance
 # (CPU 1296 MHz, GPU/DDR pinned): PSX (schedutil misses ~420 vsyncs per
 # 45 s) and 32X (two SH-2s, not measured).
+# M6: more systems (fps verdicts in docs/milestones.md, M6). The launcher
+# column also sets the system's default core in the coredb (image
+# post-build), for folders muOS assigns by name (assign.json). BIOS files
+# go to MUOS/bios (checked by muos-bios-check).
 # DIR|core file|muOS system (core.json)|launcher (mu-<core.json key>)|governor
 NES|fceumm_libretro.so|Nintendo NES - Famicom|mu-fceumm|schedutil
 GB|gambatte_libretro.so|Nintendo Game Boy|mu-gambatte|schedutil
@@ -19,3 +23,20 @@ SMS|picodrive_libretro.so|Sega Master System|mu-picodrive|schedutil
 GG|picodrive_libretro.so|Sega Game Gear|mu-picodrive|schedutil
 32X|picodrive_libretro.so|Sega 32X|mu-picodrive|performance
 PSX|pcsx_rearmed_libretro.so|Sony PlayStation|mu-pcsx rearmed|performance
+ATARI2600|stella2014_libretro.so|Atari 2600|mu-stella 2014|schedutil
+ATARI7800|prosystem_libretro.so|Atari 7800|mu-prosystem|schedutil
+LYNX|handy_libretro.so|Atari Lynx|mu-handy|schedutil
+PCE|mednafen_pce_fast_libretro.so|NEC PC Engine|mu-beetle pce fast|schedutil
+PCECD|mednafen_pce_fast_libretro.so|NEC PC Engine CD|mu-beetle pce fast|performance
+NGP|mednafen_ngp_libretro.so|SNK Neo Geo Pocket - Color|mu-beetle neopop|schedutil
+NGPC|mednafen_ngp_libretro.so|SNK Neo Geo Pocket - Color|mu-beetle neopop|schedutil
+WS|mednafen_wswan_libretro.so|Bandai WonderSwan Color|mu-beetle cygne|schedutil
+WSC|mednafen_wswan_libretro.so|Bandai WonderSwan Color|mu-beetle cygne|schedutil
+MSX|bluemsx_libretro.so|Microsoft MSX|mu-bluemsx|schedutil
+COLECO|gearcoleco_libretro.so|ColecoVision|mu-gearcoleco|schedutil
+SG1000|gearsystem_libretro.so|Sega SG-1000|mu-gearsystem|schedutil
+SEGACD|picodrive_libretro.so|Sega Mega CD - Sega CD|mu-picodrive|performance
+POKEMINI|pokemini_libretro.so|Nintendo Pokemon Mini|mu-pokemini|schedutil
+ARCADE|fbneo_libretro.so|Arcade|mu-finalburn neo|performance
+NEOGEO|fbneo_libretro.so|SNK Neo Geo|mu-finalburn neo|performance
+DOS|dosbox_pure_libretro.so|PC DOS|mu-dosbox-pure|performance

@@ -4,6 +4,11 @@
 # libplutosvg) from source with the port's frontend patches.
 #
 #   build-frontend-libs.sh [build]   incremental build -> build/m4c/frontend-libs/tree/opt/muos/frontend/lib/
+#   build-frontend-libs.sh release   M6: the release build (TEST_IMAGE=0) of the
+#                                    libraries and of muxfrontend, muhotkey and
+#                                    mubattery -> build/m4c/frontend-libs/release/
+#                                    opt/muos/frontend/ (muxretro: build-muxretro.sh
+#                                    release)
 #   build-frontend-libs.sh check     unpatched rebuild == the pinned libmuxmod.so
 #   build-frontend-libs.sh clean     drop the patched tree (next build starts over)
 #   build-frontend-libs.sh mkpatch NAME FILE...   write port/patches/frontend/NAME
@@ -37,7 +42,8 @@ gfx=$repo/build/phase4/graphics-config
 area=$repo/build/m4c/frontend-libs
 src=$area/src stamp=$area/src.patches out=$area/tree/opt/muos/frontend/lib
 tool_out=$area/tree/opt/muos/frontend
-patches=$repo/port/patches/frontend
+patches=$repo/port/patches/frontend mk=$repo/port/packaging/phase4-frontend-libs.mk
+rel=$area/release/opt/muos/frontend
 iid=$(cat "$repo/build/phase4/rootfs-container.iid")
 log=$repo/build/logs/frontend-libs-build.log
 # The C65 package build directory (debug paths, -ffile-prefix-map=/work=.).
@@ -55,14 +61,24 @@ prepare() { # [PATCHDIR]: a patch set other than the port's (check: none)
     done
     echo "$want" > "$stamp"
 }
+# M6: the library makefile is kept in Git (TEST_IMAGE switch, executables).
+sync_mk() { cmp -s "$mk" "$src/frontend/phase4-frontend-libs.mk" || cp "$mk" "$src/frontend/phase4-frontend-libs.mk"; }
 
-compile() {
+compile() { # [TEST_IMAGE [MAKE GOAL...]]
+    local t=${1:-1}; shift || :
     podman run --rm --network=none --read-only --cap-drop=all --security-opt=no-new-privileges \
         --userns=keep-id --memory=6g --pids-limit=1024 --tmpfs /tmp:rw,nosuid,nodev,size=1g \
         -v "$gfx/output/host:/work/graphics-config/output/host:ro,z" -v "$src:$site:rw,z" -w "$site" "$iid" sh -euc '
         h=/work/graphics-config/output/host
+        export MAKEFLAGS=TEST_IMAGE='"$t"'
         sh '"$site"'/build-libs.sh "$h/bin/aarch64-buildroot-linux-gnu-gcc" "$h/bin/aarch64-buildroot-linux-gnu-ar" \
             "$h/bin/pkg-config" "$h/aarch64-buildroot-linux-gnu/sysroot" '"$site"' "-O2 -mcpu=cortex-a35" ""
+        if [ -n "'"$*"'" ]; then
+            export PKG_CONFIG_LIBDIR="$h/aarch64-buildroot-linux-gnu/sysroot/usr/lib/pkgconfig:$h/aarch64-buildroot-linux-gnu/sysroot/usr/share/pkgconfig"
+            export PKG_CONFIG_SYSROOT_DIR="$h/aarch64-buildroot-linux-gnu/sysroot" PATH="$h/bin:$PATH"
+            make -C '"$site"'/frontend -f phase4-frontend-libs.mk -j8 CC="$h/bin/aarch64-buildroot-linux-gnu-gcc" \
+                PKG_CONFIG="$h/bin/pkg-config" CFLAGS="-O2 -mcpu=cortex-a35" LDFLAGS= '"$*"'
+        fi
         ' > "$log" 2>&1 || { tail -30 "$log" >&2; exit 1; }
 }
 
@@ -86,6 +102,7 @@ compile_jail() {
 case "${1:-build}" in
 build)
     prepare
+    sync_mk
     compile
     compile_jail
     t=$tool_out/musftpjail
@@ -102,10 +119,20 @@ build)
     else
         rm -f "$l"
     fi ;;
+release)
+    prepare
+    sync_mk
+    compile 0 exes
+    mkdir -p "$rel/lib"
+    for f in lib/libui.so lib/libmuxcom.so lib/libmuxmod.so lib/libplutosvg.so muxfrontend muhotkey mubattery; do
+        cp "$src/frontend-bin-release/$f" "$rel/$f.tmp" && mv "$rel/$f.tmp" "$rel/$f"
+        echo "$f: $(sha256sum "$rel/$f" | cut -c1-16) ($(stat -c %s "$rel/$f") bytes)"
+    done
+    echo "frontend release: warnings=$(grep -c ' warning: ' "$log" || :) (log $log)" ;;
 check)
     # An unpatched rebuild must equal the pinned libmuxmod.so.
     empty=$area/no-patches; mkdir -p "$empty"
-    prepare "$empty"; compile
+    prepare "$empty"; sync_mk; compile
     want=bfd909c6eae5d6d692025e8a0b489840c9a552d3ad22e902183b6265d700ae17
     got=$(sha256sum "$src/frontend-bin/lib/libmuxmod.so" | cut -d' ' -f1)
     # libmuxcom: link order differs; the symbol table (name, type, size) must not.
