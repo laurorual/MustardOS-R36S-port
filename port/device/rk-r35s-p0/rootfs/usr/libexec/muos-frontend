@@ -53,6 +53,33 @@ clear_requests() {
     rm -f /tmp/ra_no_load /tmp/ra_autoload_once.cfg
 }
 
+# M7: now and then (1 in ~50 menu restarts in T2, after a sweep of all
+# screens) PipeWire's ALSA sink stops writing: the PCM runs (hw_ptr moves)
+# but appl_ptr is frozen, every client starves (muxretro discards its
+# audio, the standalone N64 blocks in audio-sdl's sync) until PipeWire
+# restarts. Checked before each game (0.1 s = 4 periods); restarted only
+# when stuck: RUNNING with appl_ptr frozen while hw_ptr moves, or XRUN at
+# both reads (PipeWire leaves XRUN at once while it services the PCM; a
+# frozen PipeWire shows this). Likely the M3d "no sound" report.
+audio_check() {
+    [ "$SDL_AUDIODRIVER" = pipewire ] || return 0
+    s=/proc/asound/card0/pcm0p/sub0/status
+    [ -r "$s" ] || return 0
+    pcm() { awk '/^state/ {st=$2} /appl_ptr/ {a=$3} /hw_ptr/ {h=$3} END {print st, a, h}' "$s"; }
+    # shellcheck disable=SC2046  # three words
+    set -- $(pcm); s1=$1 a1=${2:-} h1=${3:-}
+    sleep 0.1
+    # shellcheck disable=SC2046
+    set -- $(pcm); s2=$1 a2=${2:-} h2=${3:-}
+    case "$s1/$s2" in
+        RUNNING/RUNNING) [ "$a1" = "$a2" ] && [ "$h1" != "$h2" ] || return 0 ;;
+        XRUN/XRUN) ;;
+        *) return 0 ;;
+    esac
+    say "audio: PipeWire sink stuck ($s2, appl_ptr $a1, hw_ptr $h1 -> $h2): restarting PipeWire"
+    /opt/muos/script/init/S80pipewire.sh restart >/dev/null 2>&1 || say "audio: PipeWire restart failed"
+}
+
 track=/opt/muos/script/mux/track.sh
 launch_content() {
     {
@@ -72,6 +99,7 @@ launch_content() {
     fresh=; [ ! -e /tmp/ra_no_load ] || fresh=--fresh
     if [ -s "$run/governor" ]; then set_governor "$(head -n1 "$run/governor")"; else default_governor; fi
     clear_requests
+    audio_check
     if [ -n "$ext" ]; then
         foreground mupen64plus
         TRACK_SYSTEM=$assign "$track" "$name" "$core" "$content" start >> /opt/muos/log/frontend.log 2>&1 || :

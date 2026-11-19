@@ -37,8 +37,8 @@ screens call.
 | Build from source | — | muxfrontend, libui, cores, kernel modules pinned as binaries | M6: release frontend + muxretro and all `build-cores.sh` cores from source; modules proven identical (`modules-check`) |
 | Languages | 35 language files | English + Português (BR) (incomplete) | M7 |
 | Performance/power | — | wake dip, audio underruns, CPU capped at 1296 MHz | M7 |
-| Public release | — | licences, GPL bundle, public image T3, docs | M8 |
-| Applications | PortMaster, RetroArch, PPSSPP, ScummVM, standalone emulators | none | after v1.0 |
+| Public release | — | licences, GPL bundle, public image T3, docs | M9 |
+| Applications | PortMaster, RetroArch, PPSSPP, ScummVM, standalone emulators | Mupen64Plus standalone (M7) | ScummVM, PPSSPP and the NDS emulator in M8 (decisions 17, 20); the rest after v1.0 |
 | Bluetooth | `bt_*.sh`, bluez | none (no bluez; dongle only) | after v1.0 |
 | Web services | ttyd, Syncthing, mDNS, landing page | hidden (decision 7) | after v1.0 |
 
@@ -70,7 +70,7 @@ MAME 2003-Plus), DOS (DOSBox-Pure), ScummVM, Pokémon mini, and an N64
 trial (ship only if playable). BIOS folder checks. Rebuild muxfrontend,
 libui, libmuxmod, all cores and the kernel modules from pinned source,
 so every shipped binary has its corresponding source (the GPL
-prerequisite for M8), as a release build: the pinned frontend is a
+prerequisite for M9), as a release build: the pinned frontend is a
 `TEST_IMAGE=1` build (the "THIS IS A TEST IMAGE" watermark and LVGL's
 FPS/CPU monitor; the flag changes LVGL structs, so all frontend parts
 change together). Core assignments regenerated from one table.
@@ -88,13 +88,26 @@ can sit in a firmware error loop with an address and no traffic (M5
 incident): detect it and rebind dwc2. A long soak (hours of play,
 sleep cycles, a discharge to empty) and boot time.
 
-### M8 — Public v1.0
+### M8 — Card layout and the heavy systems (decisions 16, 17, 20)
+
+With the user present: a clean U-Boot build, `root=` by the slot-1
+device (decision 16), p2 grown to 1 GiB (decision 17), then the slot-2
+swap test (our image on the former original32 in slot 1, test128 in
+slot 2) to close the slot-2 problem. With the room: ScummVM and the CJK
+fonts (decision 17), and the systems the user wants in v1.0 (decision
+20, 2026-11-19), each at its best playable speed on the RK3326 (dArkOSen
+as the reference): Dreamcast (Flycast), PSP (PPSSPP), NDS (DraStic is
+closed source: check its licence for a public image, else melonDS or
+DeSmuME), then Saturn (lowest priority: YabaSanshiro or Beetle). PSP and
+NDS likely standalone (exceptions to decision 14 like N64), with the
+launcher pattern of `muos-mupen64plus`. Out of v1.0: Atari 5200, Virtual
+Boy, Jaguar, Jaguar CD, CD-i.
+
+### M9 — Public v1.0
 
 Licences closed (`pending-licenses.json`): Mali r13p0 (Hardkernel's
-answer or a libmali with terms), a clean U-Boot build, Gambatte, the BT
-firmware; with the clean U-Boot, `root=` by the slot-1 device (decision
-16), then the slot-2 swap test (our image on the former original32 in
-slot 1, test128 in slot 2) to close the slot-2 problem. The GPL source bundle on GitHub and third-party notices in the
+answer or a libmali with terms), the clean U-Boot (M8), Gambatte, the BT
+firmware, the M8 emulators. The GPL source bundle on GitHub and third-party notices in the
 image. The public variant: T2 checks, first-boot flow (Wi-Fi from the
 menu, SSH/SFTP toggles, empty p3 populated). The MustardOS team's answer on
 the name and theme assets. Install guide (English and pt-BR), changelog,

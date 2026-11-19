@@ -223,6 +223,19 @@ The open problems behind each "partial" are in STATUS.
 
 ## Audio
 
+- **PipeWire sink stall (M7, 2026-11-19):** now and then (3 times in ~10
+  full screen sweeps, i.e. ~50 menu restarts each; never with single
+  screens) PipeWire's ALSA sink stops writing while the PCM keeps
+  running: `/proc/asound/card0/pcm0p/sub0/status` shows `hw_ptr` moving
+  and `appl_ptr` frozen; nodes still "running", `pw-profiler` records
+  nothing. Every SDL client starves until PipeWire restarts: muxretro
+  plays silence ("Audio ring overran and discarded … seconds of sound"),
+  the standalone Mupen64Plus blocks in audio-sdl's sync (SDL_Delay of
+  ~419 ms per VI). Not tied to the volume (0 % boots fine 5/5). Likely
+  the M3d no-sound report. Handled: `muos-frontend` checks the pointers
+  for 0.1 s before each game and runs `S80pipewire.sh restart` if stuck.
+  Root cause open (the trigger is likely a menu instance killed during
+  its audio setup).
 - **Codec:**
   - RK817 codec (`rockchip,rk817-codec`), card0 `rockchiprk817co`, driver
     asoc-simple-card, PCM `ff070000.i2s-rk817-hifi`, mclk-fs 256.

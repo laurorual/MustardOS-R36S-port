@@ -146,7 +146,9 @@ screenshots (menu), Date and Time.
   frames in a game; felt stronger in M5 T3 (likely the slot-2 card).
 - **Power:** menu idle 407–425 mA (M7 discharge run, backlight 60,
   Wi-Fi up); no controllable LEDs.
-- **Audio:** one unexplained no-sound report (M3d); WirePlumber "no
+- **Audio:** PipeWire sink stall now and then (no sound, standalone
+  N64 frozen until a PipeWire restart; hardware-findings): self-healed
+  before each game since M7, root cause open; WirePlumber "no
   profile" start failure retried; 3–8 underrun bursts per game; 200 %
   overdrive distorts (as upstream).
 - **Headphones (hardware, deprioritized):** jack contact problem.
@@ -158,7 +160,7 @@ screenshots (menu), Date and Time.
   reboot returns to main (one-shot marker).
 - **Menu:** "Direct Link" and "Proxy Settings" not exercised; static
   addresses untested; the Rumble row's "present" case unverified.
-- **Licences (M8):** Mali r13p0 (Hardkernel: no answer yet), the dirty
+- **Licences (M9):** Mali r13p0 (Hardkernel: no answer yet), the dirty
   U-Boot, Gambatte and BT firmware are private-only; FBNeo and MAME
   2003-Plus are non-commercial (pending-licenses.json).
 
@@ -189,21 +191,15 @@ to decision 14: standalone Mupen64Plus for N64 now (M7), the other
 standalone emulators stay after v1.0. The user is providing ROMs for the
 new systems (first batch 2026-11-19: 32X, 2600, 5200, 7800, CD-i, DC,
 GG, Jaguar, Jaguar CD, Lynx, NDS, PSP, Saturn, SMS, TG16, TG-CD, VB).
+Answered 2026-11-19: 20 Dreamcast, PSP, NDS and Saturn (lowest
+priority) in v1.0 (M8, after the 1 GiB p2; popular, and some games are
+playable under dArkOSen); Atari 5200, Virtual Boy, Jaguar, Jaguar CD
+and CD-i out of v1.0. 21 Sega CD and PC Engine CD BIOS provided in
+`port/roms/bios` (bios_CD_U.bin, syscard3.pce).
 
 ## Decisions for the user
 
-20. **Systems without a core in the port** (ROMs given 2026-11-19):
-    Atari 5200, Virtual Boy, Jaguar, Jaguar CD, CD-i, Dreamcast, PSP,
-    Saturn, NDS. Recommendation: add the light libretro cores a5200 and
-    beetle-vb in M7/M8 (small, full speed expected on the RK3326); leave
-    Jaguar (virtualjaguar is slow and inaccurate), CD-i, Saturn and
-    Dreamcast out of v1.0; NDS (DraStic is closed source; melonDS/DeSmuME
-    are too slow here) and PSP (PPSSPP, standalone) after v1.0 with the
-    other standalone emulators (decision 14). p2 room: ~108 MB until the
-    M8 1 GiB layout.
-21. **BIOS for Sega CD and PC Engine CD:** `bios_CD_U.bin`/
-    `us_scd1_9210.bin` (Sega CD) and `syscard3.pce` (PC Engine CD) in
-    `port/roms/bios`; the games are already on the card.
+None open.
 
 ## T3 queue
 
@@ -344,10 +340,22 @@ Goal (roadmap.md): pt-BR complete, wake/audio/Wi-Fi robustness, the
     title/attract screens: 32X Chaotix (core 8.9 ms), 2600 Pac-Man,
     7800 Ms. Pac-Man, GG Sonic Triple Trouble, Lynx Blue Lightning
     (handy's built-in boot, no BIOS), SMS Sonic, PCE Splatterhouse.
-    Sega CD and PCE CD wait for BIOS files (decision 21); other systems
-    have no core (decision 20).
+    With the user's BIOS (decision 21): Sega CD Sonic CD (picodrive,
+    bios_CD_U.bin, 35 tracks) and PCE CD Dracula X (pce_fast,
+    syscard3.pce) 60.0 fps. Atari 5200, VB, Jaguar, Jaguar CD, CD-i out
+    of v1.0; Dreamcast, PSP, NDS, Saturn in M8 (decision 20).
+19. **PipeWire sink stall — found and self-healed:** the first trial
+    root of image m7c had no game audio (muxretro discarded it all; the
+    standalone N64 froze in audio-sdl's sync): PipeWire's ALSA sink had
+    stopped writing (appl_ptr frozen, PCM running). Reproduced 3× in ~10
+    full screen sweeps, never per screen; a PipeWire restart cures it.
+    `muos-frontend` now checks the PCM for 0.1 s before each game and
+    restarts PipeWire when stuck (T2: frozen PipeWire → detected (XRUN)
+    → restart → NES audio flowing). Root cause open.
 Remaining for M7: CTR at 1512 vs 1296 (thermal?), underrun bursts, a
 soak; then the image (frontend 0011, governor, N64 warm-up, standalone
 mupen, suspend).
 
-**Next milestone after M7:** M8 — public v1.0.
+**Next milestone after M7:** M8 — card layout (clean U-Boot, root by
+slot, 1 GiB p2) and the heavy systems (decision 20); then M9 — public
+v1.0.
