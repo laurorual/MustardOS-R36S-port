@@ -4,7 +4,7 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M5 — daily-driver completeness (done 2026-11-18, p2 written, T3 pending)
+## M5 — daily-driver completeness (done 2026-11-18, p2 written, T3 2026-11-18: not promoted)
 
 First milestone of the release plan (roadmap.md). Image
 `dist/firmware/test128-m5-20261118` (raw `64e45d74…`, p2 `768942b1…`)
@@ -63,6 +63,38 @@ First milestone of the release plan (roadmap.md). Image
     down to Nintendo Game Boy: friendly names sort the root); p2 written,
     `t2-sftp-jail 4` and `t2-sdcard` on it. Incident on the first trial:
     the 8821cu firmware error loop with Wi-Fi "up" (STATUS, M7).
+
+**T3 2026-11-18** (the user; fixes in M6, so M4g stays the recovery image:
+item 5 broke menu navigation):
+1. FileZilla ok (new site): Catalogue, Collections, History, Internal,
+   Primary Storage; ROM copy works; help shows the login and port.
+2. Ok. Noted: a console flash when a game starts or ends and a blink when
+   returning to the list or changing theme. Cause of the flash: fbcon
+   repainted the kernel log on fb0 whenever the UI dropped the display
+   (M6: unbound). The blink is upstream's black fade-in (Customisation).
+3. Ok. MustardOS launcher icons look dimmer than the theme's preview:
+   the theme's own 640x480 scheme sets icon alpha/recolour 225 and tile
+   alpha 192; its preview.png matches the global scheme (255). As upstream.
+4. Ok (theme download, apply, back to MustardOS).
+5. **Configuration → Backup opened Power, Power opened Core ("No cores
+   found")**: 0008 hid the Core row but its A-handler entry stayed visible
+   (M6 fix).
+6. "Nothing happens" on X+L2+R2: eight screenshots of that session are
+   in MUOS/screenshot; there was no feedback (no rumble motor). M6: a
+   white flash. In-game screenshots remain unsupported.
+7, 8. Ok.
+9. The minute changed; after a reboot NTP set the correct time again
+   (as designed: the RTC is written, then synced when Wi-Fi is up).
+10. **Slot 2 failed** (FAT32 and exFAT card, `ROMS/megadrive`): the
+    kernel never initialised the card: data line busy before the first
+    command, DAT3 low (looks unpowered), at boot and on hotplug. DT, kernel
+    source, config, regulators, pins and GRF match stock dArkOSen, whose
+    log shows slot 2 at SDR104 on this unit. Open (T3 in M6).
+11. Mostly ok. One Wi-Fi off/on stayed in "connecting" (8821cu C2H error
+    loop after the module load, 95 s) until a second toggle; M6: the
+    worker resets the dongle on those errors. The wake hitch felt
+    stronger; likely the slot-2 card init retries on resume (~3 s of mmc
+    errors at each wake in that log).
 
 ## M4g — SFTP jail, overdrive volume bar (done 2026-11-18, p2 written, T3 2026-11-18 → recovery image)
 

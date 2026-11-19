@@ -13850,6 +13850,13 @@
    "mode": "755",
    "sha256": "3d004105c66bff426fca0e56870c0147047986b1b0f9453c5faa31cfb52921f6",
    "origin": "build/m3c/cores/out/dosbox_pure_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/mupen64plus_next_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "67c513cfd00c201239fdeedea67cd2f3063b79b6a289336103f52668e5960b50",
+   "origin": "build/m3c/cores/out/mupen64plus_next_libretro.so"
   }
  ],
  "remove": [

@@ -37,6 +37,7 @@ gearsystem https://github.com/drhelius/Gearsystem 4b3b1b266e536848ab23b8733f783a
 pokemini https://github.com/libretro/PokeMini 132111b76343559860532a1ccc094f93f1ed5650 8fade789e8990d4066e9c77a714c9728bfbbf8bada46de5415c955191be249a5 pokemini_libretro.so GPL-3.0
 fbneo https://github.com/libretro/FBNeo 12ec3ca2de7e5677d03b533c12cd9395a28212b0 0d47a639357e464623b4af4d91d946e2667a50bb826972f39344d890d4d06cd2 src/burner/libretro/fbneo_libretro.so non-commercial(fbneo)
 mame2003_plus https://github.com/libretro/mame2003-plus-libretro dce2e9a2ef1ccdca174b1ab870f29bd2fed1a97b 00c3ce1b2a07393581fe0e9d245d6a0cbeb353356833e33191a8f75afe7964d6 mame2003_plus_libretro.so non-commercial(mame)
+mupen64plus_next https://github.com/libretro/mupen64plus-libretro-nx 15bada85906593376e8fd697f1b0b3af3a20f512 62fb1629e12283f5eb9ddd951285eae5a6743e5a67b08c4857198ebc3aec2686 mupen64plus_next_libretro.so GPL-2.0
 dosbox_pure https://github.com/libretro/dosbox-pure e39497e7c2a32c67c26e6598dd14f6d58c384bfd 37652b8c45d1ef176c1eecbbb6b2c5cb9444bd7d3e0cffb803006e183a6a882b dosbox_pure_libretro.so GPL-2.0
 EOF
 }
@@ -53,6 +54,9 @@ make_cmd() {
         gearcoleco|gearsystem) echo 'make -j8 -C platforms/libretro platform=unix' ;;
         fbneo) echo 'make -j8 -C src/burner/libretro platform=unix' ;;
         mame2003_plus) echo 'make -j8 platform=unix' ;;
+        # N64 trial: GLES2 through muxretro's hw render, aarch64 dynarec
+        # (the unix rule picks the dynarec from the build host's uname -m)
+        mupen64plus_next) echo 'make -j8 platform=unix GLES=1 FORCE_GLES=1 ARCH=aarch64 WITH_DYNAREC=aarch64 HAVE_PARALLEL_RSP=0 HAVE_THR_AL=1 LLE=0' ;;
         # its unix rule picks CPU flags from the build host (uname -m)
         dosbox_pure) echo 'make -j8 platform=unix CPUFLAGS="-DPAGESIZE=4096 -mcpu=cortex-a35"' ;;
     esac
@@ -67,7 +71,7 @@ check_symbols() { # SO
         <("$rel" --dyn-syms -W "$1" | awk '$7 == "UND" && $5 == "GLOBAL" && $8 != "" {sub(/@.*/, "", $8); print $8}' | sort -u) \
         <(for l in "$t/lib/libc.so.6" "$t/lib/libm.so.6" "$t/lib/ld-linux-aarch64.so.1" \
                    "$t/usr/lib/libstdc++.so.6" "$t/lib/libgcc_s.so.1" "$t/lib/libpthread.so.0" \
-                   "$t/lib/libdl.so.2" "$t/lib/librt.so.1" "$t/usr/lib/libz.so.1"; do
+                   "$t/lib/libdl.so.2" "$t/lib/librt.so.1" "$t/usr/lib/libz.so.1" "$t/usr/lib/libmali.so.1"; do
               [ -e "$l" ] || l=$t/usr/lib/${l##*/}
               "$rel" --dyn-syms -W "$l" | awk '$7 != "UND" && $8 != "" {sub(/@.*/, "", $8); print $8}'; done | sort -u))
     [ -z "$missing" ] || { echo "$(basename "$1"): unresolved symbols: $(echo "$missing" | tr '\n' ' ')" >&2; return 1; }
@@ -86,7 +90,9 @@ fetch)
             git -C "$tmp" init -q src
             git -C "$tmp/src" fetch -q --depth 1 "$url" "$commit"
             git -C "$tmp/src" checkout -q FETCH_HEAD
-            git -C "$tmp/src" submodule -q update --init --recursive --depth 1
+            # M6: mupen64plus-nx has a gitlink without a .gitmodules file
+            # (the paraLLEl RSP's gnulib, not built): nothing to init then
+            git -C "$tmp/src" submodule -q update --init --recursive --depth 1 || [ ! -e "$tmp/src/.gitmodules" ]
             tar -C "$tmp" --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner \
                 --exclude=.git --exclude=.git/* -cf "$tarball" src
             rm -rf "$tmp"

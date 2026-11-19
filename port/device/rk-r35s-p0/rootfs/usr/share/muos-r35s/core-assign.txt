@@ -40,3 +40,5 @@ POKEMINI|pokemini_libretro.so|Nintendo Pokemon Mini|mu-pokemini|schedutil
 ARCADE|fbneo_libretro.so|Arcade|mu-finalburn neo|performance
 NEOGEO|fbneo_libretro.so|SNK Neo Geo|mu-finalburn neo|performance
 DOS|dosbox_pure_libretro.so|PC DOS|mu-dosbox-pure|performance
+# N64: trial (M6), shipped only if playable (roadmap)
+N64|mupen64plus_next_libretro.so|Nintendo N64|mu-mupen64plus next|performance

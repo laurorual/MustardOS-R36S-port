@@ -10,6 +10,11 @@
 #   build-boot.sh uboot-ref    must reproduce the M2 card's uboot.img
 #   build-boot.sh uboot        the M3b boot-records U-Boot
 #   build-boot.sh all          kernel + uboot
+#   build-boot.sh modules-check  M6: the modules of the last kernel build
+#                              against the pinned ones (firmware inputs):
+#                              identical after --strip-debug, except the
+#                              __DATE__/__TIME__ strings of the Realtek
+#                              drivers (Linaro 6.3 ignores SOURCE_DATE_EPOCH)
 #
 # Outputs in build/m3b/boot: Image, rk3326-muos-r35s-panel0.dtb, uboot.img,
 # kernel.config, SHA256SUMS. Containers: the Phase 4 kernel container with
@@ -136,7 +141,28 @@ kernel) [ -f "$out/ref.Module.symvers" ] || { echo 'run kernel-ref first' >&2; e
 uboot-ref) uboot ref ;;
 uboot) uboot boot ;;
 all) "$0" kernel; "$0" uboot ;;
-*) sed -n '3,13p' "$0"; exit 2 ;;
+modules-check)
+    pin=$repo/build/phase4/probe-modules/lib/modules/4.4.189-muos-r35s-p4/kernel
+    strip=$work/linaro6/bin/aarch64-linux-gnu-strip tmp=$(mktemp -d)
+    same=0 dated=0 bad=0
+    while IFS= read -r f; do
+        b=$m3b/kernel-output/$f
+        if cmp -s "$pin/$f" "$b"; then same=$((same + 1)); continue; fi
+        "$strip" --strip-debug -o "$tmp/a.ko" "$b" 2>/dev/null || { echo "missing: $f"; bad=$((bad + 1)); continue; }
+        if cmp -s "$pin/$f" "$tmp/a.ko"; then same=$((same + 1)); continue; fi
+        # Same size and only date/time strings apart: a __DATE__/__TIME__ build.
+        if [ "$(stat -c %s "$pin/$f")" = "$(stat -c %s "$tmp/a.ko")" ] &&
+            ! diff <(strings "$pin/$f") <(strings "$tmp/a.ko") | grep '^[<>]' |
+                grep -q -v -E '^[<>] ([0-9]{2}:[0-9]{2}:[0-9]{2}|[A-Z][a-z]{2} [ 0-9][0-9] [0-9]{4})$'; then
+            dated=$((dated + 1)); echo "build date only: $f"
+        else
+            bad=$((bad + 1)); echo "DIFFERS: $f"
+        fi
+    done < <(cd "$pin" && find . -name '*.ko' | sort)
+    rm -rf "$tmp"
+    echo "modules-check: $same identical, $dated differ in the build date only, $bad other"
+    [ "$bad" = 0 ] ;;
+*) sed -n '3,18p' "$0"; exit 2 ;;
 esac
 if [ -f "$out/Image" ] && [ -f "$out/uboot.img" ]; then
     (cd "$out" && sha256sum Image rk3326-muos-r35s-panel0.dtb uboot.img kernel.config > SHA256SUMS)
