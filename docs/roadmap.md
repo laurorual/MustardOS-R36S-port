@@ -29,12 +29,12 @@ screens call.
 | Packages | `package/{theme,catalogue,config,logo}.sh` (muxpicker) | missing (logo not wanted) | done (M5) |
 | Themes | MustardOS, C64, Dracula, GB Dark, Orange, mubiOS | MustardOS only | done (M5), plus theme download |
 | Profiles | `system/profile.sh`, `share/profile` | missing | done (M5) |
-| Storage | Secondary (`/mnt/sdcard`), USB; `mux/{migrate,sync,purge}.sh` | slot 2 never mounted; scripts missing | slot 2 done (M5); migration not ported (hidden) |
+| Storage | Secondary (`/mnt/sdcard`), USB; `mux/{migrate,sync,purge}.sh` | slot 2 never mounted; scripts missing | slot 2 done (M5; a real card does not initialise yet, M6 T3); migration not ported (hidden) |
 | Hotkeys | `share/hotkey/*` (screenshot, brightness, overlay…) | the port's own 2 files | screenshot done (M5) |
 | Share data | `share/{lookup,info/name,media,task}` | missing | done (M5) |
 | Screens without a backend | Bluetooth, HDMI, USB gadget, News | shown | hidden by flags or 0008/0009 (M5) |
-| Cores | 125 systems, 236 core entries (`core.json`) | 6 cores | M6 |
-| Build from source | — | muxfrontend, libui, cores, kernel modules pinned as binaries | M6 |
+| Cores | 125 systems, 236 core entries (`core.json`) | 6 cores | M6: 20 cores, 28 folders (N64 trial; ScummVM waits for p2 space) |
+| Build from source | — | muxfrontend, libui, cores, kernel modules pinned as binaries | M6: release frontend + muxretro and all `build-cores.sh` cores from source; modules proven identical (`modules-check`) |
 | Languages | 35 language files | English + Português (BR) (incomplete) | M7 |
 | Performance/power | — | wake dip, audio underruns, CPU capped at 1296 MHz | M7 |
 | Public release | — | licences, GPL bundle, public image T3, docs | M8 |

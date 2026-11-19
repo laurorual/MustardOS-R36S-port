@@ -14,8 +14,8 @@ milestones with their results and T3 checklists in
 **Phase 5 (own-card firmware). M1–M5 done; M4g = recovery image (M5's T3
 found a menu-navigation bug, so M5 was not promoted). M6 (systems, cores,
 build from source) in progress: release frontend, 14 new cores + N64
-trial, M5 T3 fixes; image `test128-m6-20261119` built, trial root and
-`write-p2` next.**
+trial, M5 T3 fixes; image `test128-m6-20261119` built and **passed T2 as
+the trial root** (2026-11-19 00:30); only `write-p2` is left.**
 
 ## Next session — read first
 
@@ -23,9 +23,16 @@ trial, M5 T3 fixes; image `test128-m6-20261119` built, trial root and
   for M6 T2 (release frontend and muxretro, the new cores, core info
   files, core-assign, S99muos-ui, Wi-Fi worker, BIOS Report task); the
   root stayed rw after `install-rootfs.sh` (busy).
-- Next: trial root with `build/m3a/test128-m6-20261119.p2.img`
-  (p2 `ac695c52…`), the standard T2 set + `t2-wifi-toggle-loop.sh`, then
-  `write-p2`; retire m4e1 (5/5 versions) before `retention.py add`.
+- Next: `write-p2` of `MUOS/trial/rootfs.img` (= M6 p2 `ac695c52…`,
+  already on p3 with its `.sha256`): arm `/etc/muos-root-trial` on main,
+  reboot, `muos-root-trial write-p2 /userdata/MUOS/trial/rootfs.img
+  ac695c52…`, reboot (pre-authorized: the same p2 passed T2 as the trial
+  root: sweep 44 ok, NES 59.98, DOS smoke 60.01, Wi-Fi toggle 3/3 with an
+  injected C2H, sleep 2/2 in game, t2-sdcard, t2-sftp-jail 8; logs
+  `build/logs/m6/trial/`). The warm reboot back from the trial root hit
+  the slow-Wi-Fi case once (SSH after ~3 min). Then retire m4e1 (5/5
+  versions), `retention.py add` M6, delete the smoke ROMs, hand over
+  the T3 list below.
 - The user's spare card is in slot 2 (exFAT, `ROMS/megadrive`); it never
   initialises (open problem). `/dev/mmcblk0` is still slot 1.
 - p3 has smoke ROMs in `ROMS/{ATARI2600,ATARI7800,PCE,NGPC,WS,SG1000,
@@ -208,13 +215,15 @@ Plan (roadmap.md), state:
 3. Cores (`build-cores.sh`): stella2014, prosystem, handy, beetle pce
    fast/neopop/cygne, blueMSX, gearcoleco, gearsystem, pokemini, FBNeo,
    MAME 2003-Plus, dosbox-pure, mupen64plus-next (trial) — built, symbol
-   checked, 17 folders seeded; smoke fps 60 on 2600, 7800, PCE, NGPC, WS
-   (SG-1000, Pokémon mini, DOS pending). Coredb system defaults = the
+   checked, 18 folders seeded; smoke fps 60 on 2600, 7800, PCE, NGPC, WS,
+   SG-1000, Pokémon mini, DOS. Coredb system defaults = the
    port's cores (auto-assign). ScummVM: decision 17.
 4. Kernel modules from source: `build-boot.sh modules-check` 553
    identical + 2 differing only in the build date — done.
 5. BIOS: upstream core info files (muxretro's BIOS prompt) + Diagnostics
-   → BIOS Report — done to T2 (task not yet run on the device).
-6. Image, trial T2, `write-p2` — image built; trial next.
+   → BIOS Report — done to T2 (on the device: 3 required files missing
+   for MSX/Coleco; the PSX BIOS names need lower case).
+6. Image, trial T2, `write-p2` — image built, trial T2 passed;
+   `write-p2` left.
 
 **Next milestone after M6:** M7 — polish: language, performance, power.

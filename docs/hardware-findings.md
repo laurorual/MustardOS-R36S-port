@@ -34,8 +34,8 @@ The open problems behind each "partial" are in STATUS.
 | RTC / clock | T3 | RK817 RTC in UTC, time zone, NTP | Power and battery |
 | LEDs / rumble | n/a | No controllable LED, no rumble motor on this unit | Power and battery |
 | Bluetooth | — | Not supported (no bluez) | Network and USB |
-| Slot 2 (`ff380000.dwmmc`) | T2 | exFAT/FAT32/ext4 at /mnt/sdcard, hotplug (loop-device T2; real card: T3) | Storage |
-| Emulation | T3 | NES, GB/GBC, GBA, SNES, MD family, PSX at 59.9 fps with saves/states | Emulation stack facts |
+| Slot 2 (`ff380000.dwmmc`) | T2 | exFAT/FAT32/ext4 at /mnt/sdcard, hotplug (loop-device T2); the user's spare card never initialises (M5 T3, open) | Storage |
+| Emulation | T3 | NES, GB/GBC, GBA, SNES, MD family, PSX at 59.9 fps with saves/states; M6 cores T2 (synthetic 60 fps) | Emulation stack facts |
 | Other panels / clones | — | Out of scope without evidence and a physical test | Device identity |
 
 ## Device identity
@@ -725,6 +725,19 @@ The open problems behind each "partial" are in STATUS.
   core and present means). Use `port/scripts/t2-nes-fps.sh`. The muxretro
   log line "Content rate window X Hz" is derived from audio and frame
   counts, not from wall time; it reads 60.10 even when slow.
+- **M6 cores (synthetic, 1296 MHz):** an idle loop per system
+  (`make-smoke-roms.py`) holds 60.0 fps on 2600 (core 6.7 ms), 7800
+  (4.8), PCE (4.4), NGPC (6.3), WonderSwan (5.9), SG-1000 (6.2),
+  Pokémon mini (6.6), DOS (5.1). Lower bounds only; real games pending.
+- **BIOS:** muxretro reads the firmware list of the core's libretro
+  `.info` (`share/emulator/retroarch/info`, upstream, M6) and refuses
+  only its "BIOS-only" cores (gearcoleco here) when a file is missing;
+  names match case-insensitively there, but the cores open the exact name
+  (pcsx_rearmed never finds `SCPH5501.bin`; it wants `scph5501.bin`).
+  Diagnostics → BIOS Report (port task) lists all of it.
+- **Auto-assign:** an unassigned folder gets its system's coredb default
+  core via `assign.json` (folder name lower-cased, " -_+" removed); the
+  image post-build sets those defaults to the port's cores (M6).
 - **M3c cores (1296 MHz, schedutil):** all vsync-locked at 59.9 except
   PSX (59.1). Core time per frame: GB 2.9 ms, PSX 3.6 ms (ari64 dynarec),
   GBA 4.2 ms (gpsp arm64 dynarec), MD 4.9 ms, NES 7.0 ms, SNES 9.4 ms

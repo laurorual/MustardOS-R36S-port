@@ -120,7 +120,8 @@ snapshots.
   vs UI kill, simulated unplug/replug); sleep: `t2-sleep-cycle.sh`;
   wake timing: `t2-wake-wifi.sh [CYCLES] [SETTLE_MS]` (timeline from
   wake to address; a deaf dongle is power-cycled by another sleep);
-  the menu's Wi-Fi toggle backend: `t2-wifi-radio.sh` (M4c).
+  the menu's Wi-Fi toggle backend: `t2-wifi-radio.sh` (M4c); repeated
+  off/on: `t2-wifi-toggle-loop.sh [--inject-c2h] [N]` (M6).
   Connectivity rows without an adapter (button injection, software
   unplug): `t2-wifi-network-row.sh` (M4d).
   Menu SFTP (M4g, jailed as upstream: port 2022, user `muos`, password
@@ -300,6 +301,24 @@ its structs), and the upstream tool `musftpjail` (M4g). Pin a new
 build in `firmware-inputs.json` (sha256 + origin) and run
 `firmware-inputs.py store port/packaging/firmware-inputs.json
 build/m3a/inputs` before `build-image.sh build`.
+
+**Release frontend (M6):** the image ships the `TEST_IMAGE=0` build:
+`build-frontend-libs.sh release` (libraries + muxfrontend, muhotkey,
+mubattery → `build/m4c/frontend-libs/release`), then
+`build-muxretro.sh release` (own tree, links the release libraries →
+`build/m3d/muxretro/release`). Both use every frontend/muxretro patch;
+`build` (test build) stays for `check` and quick tests. Re-pin with
+`pin-input.py PATH…`; a new input file: `pin-input.py --origin PATH
+ORIGIN` (then `build-image.sh inputs`).
+
+**Cores (M3c, M6):** `build-cores.sh fetch|build NAME…` (table: repo,
+commit, tarball SHA256, output, licence; a new row has `-` until its
+first fetch prints the SHA256). Folder, core, coredb system, launcher
+key and governor per system: `rootfs/usr/share/muos-r35s/core-assign.txt`
+(S91 seeds folders; the post-build sets coredb governors and default
+cores). Smoke content without game dumps: `make-smoke-roms.py DIR` then
+`t2-nes-fps.sh --dir DIR --rom smoke.EXT`. Kernel modules:
+`build-boot.sh modules-check` after a kernel build.
 
 **Safe mode:** create `/boot/muos-noui` on the FAT partition; the UI is
 skipped, SSH still comes up.

@@ -9,6 +9,11 @@
 # (share/emulator/retroarch/info, the same lists muxretro checks before a
 # launch) against MUOS/bios. A name that only matches in another case is
 # reported: muxretro accepts it, most cores open the exact name.
+# "required" only for the cores that run nothing without it (muxretro
+# refuses gearcoleco; blueMSX needs its Databases and Machines); other
+# entries the .info marks as not optional (gpSP's gba_bios.bin: it has a
+# built-in replacement) are shown as "listed".
+NEEDS_BIOS=" gearcoleco_libretro bluemsx_libretro "
 
 . /opt/muos/script/var/diag.sh
 
@@ -30,8 +35,13 @@ for CORE in "$CORE_DIR"/*_libretro.so; do
 	DIAG_SECTION "$(sed -n 's/^corename *= *"\(.*\)"$/\1/p' "$INFO") ($NAME)"
 	printf '%s\n' "$LIST" | while IFS='|' read -r IDX FILE; do
 		OPT=$(sed -n "s/^firmware${IDX}_opt *= *\"\(.*\)\"$/\1/p" "$INFO")
-		KIND=required
-		[ "$OPT" = true ] && KIND=optional
+		KIND=optional
+		if [ "$OPT" != true ]; then
+			case "$NEEDS_BIOS" in
+				*" $NAME "*) KIND=required ;;
+				*) KIND=listed ;;
+			esac
+		fi
 		if [ -e "$BIOS_DIR/$FILE" ]; then
 			STATE="ok   $(md5sum "$BIOS_DIR/$FILE" 2>/dev/null | cut -d' ' -f1)"
 		else
