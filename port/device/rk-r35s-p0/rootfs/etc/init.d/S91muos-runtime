@@ -5,6 +5,8 @@
 #   p3 MUOS/port/volume        -> /opt/muos/share/volume   (per-output volume)
 #   p3 MUOS/port/info-content  -> /opt/muos/share/info/content (core assigns)
 #   p3 MUOS/port/info-config   -> /opt/muos/share/info/config
+#   p3 MUOS/port/update        -> /opt/muos/update (Archive Manager
+#                                 install marks, M7)
 #   p3 MUOS/port/gamecontrollerdb -> /opt/muos/share/info/gamecontrollerdb
 #                                 (Input Remap, M4e.1)
 #   tmpfs copy                 -> /opt/muos/device/config  (sdl_map etc.)
@@ -91,6 +93,13 @@ case "${1:-}" in
         fi
         echo battery-visible >> "$mig"; sync
     fi
+    # empty-folders-hidden (M7 T3): S91 seeds a ROMS folder per installed
+    # core (below), so Explore listed many empty systems; hide them
+    # (Configuração → Personalização → Pastas vazias shows them again).
+    if ! grep -qx empty-folders-hidden "$mig"; then
+        printf '0\n' > "$port/config/visual/folderempty" && echo 'runtime: visual/folderempty -> 0 (hide empty folders)'
+        echo empty-folders-hidden >> "$mig"; sync
+    fi
     # M3c: default ROM folders + core assignments for installed cores.
     grep -v '^#' /usr/share/muos-r35s/core-assign.txt 2>/dev/null |
     while IFS='|' read -r dir core sys launch gov; do
@@ -132,6 +141,7 @@ case "${1:-}" in
     bind "$port/volume" /opt/muos/share/volume
     bind "$port/info-content" /opt/muos/share/info/content
     bind "$port/info-config" /opt/muos/share/info/config
+    [ ! -d /opt/muos/update ] || bind "$port/update" /opt/muos/update
     # M4e.1: Input Remap writes the controller DB (script/mux/sdl_remap.sh);
     # seeded once from the rootfs, then the user's.
     gcdb=/opt/muos/share/info/gamecontrollerdb

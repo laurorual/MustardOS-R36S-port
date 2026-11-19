@@ -10,6 +10,9 @@
 #   build-cores.sh build [NAME...]   offline, in the phase4-rootfs container:
 #                                    unpack, make, copy the .so to
 #                                    build/m3c/cores/out (+ SHA256SUMS)
+#   CORE_DEBUG=1 build NAME          -g build for gdb: unstripped .so in
+#                                    build/m3c/cores/debug, the stripped one
+#                                    in debug/stripped (out/ untouched)
 #
 # NAME: a table row (default: all). Each line of
 # the table: name repo commit tarball-sha256 output-so license.
@@ -54,9 +57,12 @@ make_cmd() {
         gearcoleco|gearsystem) echo 'make -j8 -C platforms/libretro platform=unix' ;;
         fbneo) echo 'make -j8 -C src/burner/libretro platform=unix' ;;
         mame2003_plus) echo 'make -j8 platform=unix' ;;
-        # N64 trial: GLES2 through muxretro's hw render, aarch64 dynarec
-        # (the unix rule picks the dynarec from the build host's uname -m)
-        mupen64plus_next) echo 'make -j8 platform=unix GLES=1 FORCE_GLES=1 ARCH=aarch64 WITH_DYNAREC=aarch64 HAVE_PARALLEL_RSP=0 HAVE_THR_AL=1 LLE=0' ;;
+        # N64: GLES3 through muxretro's hw render, aarch64 dynarec (the unix
+        # rule picks the dynarec from the build host's uname -m). M7: the GLES2
+        # build crashed in GLideN64's BufferedDrawer (Mali advertises
+        # GL_EXT_buffer_storage, glMapBufferRange returned NULL in the 2.0
+        # context); the Mali-G31 has GLES 3.2.
+        mupen64plus_next) echo 'make -j8 platform=unix GLES3=1 FORCE_GLES3=1 ARCH=aarch64 WITH_DYNAREC=aarch64 HAVE_PARALLEL_RSP=0 HAVE_THR_AL=1 LLE=0' ;;
         # its unix rule picks CPU flags from the build host (uname -m)
         dosbox_pure) echo 'make -j8 platform=unix CPUFLAGS="-DPAGESIZE=4096 -mcpu=cortex-a35"' ;;
     esac
@@ -112,16 +118,21 @@ build)
         tar -C "$stage" -xf "$tarball"
         code='sdk=/work/graphics-config/output/host t=$sdk/bin/aarch64-buildroot-linux-gnu-
 export CC=${t}gcc CXX=${t}g++ AR=${t}ar LD=${t}gcc STRIP=${t}strip CROSS_COMPILE=$t
-export CFLAGS="-O2 -mcpu=cortex-a35 -fstack-protector-strong -ffile-prefix-map=/stage=." CXXFLAGS="-O2 -mcpu=cortex-a35 -fstack-protector-strong -ffile-prefix-map=/stage=."
+export CFLAGS="-O2 -mcpu=cortex-a35 -fstack-protector-strong -ffile-prefix-map=/stage=.'"${CORE_DEBUG:+ -g}"'" CXXFLAGS="-O2 -mcpu=cortex-a35 -fstack-protector-strong -ffile-prefix-map=/stage=.'"${CORE_DEBUG:+ -g}"'"
 export LDFLAGS="-Wl,-z,relro,-z,now"
 cd /stage/src
 '"$(make_cmd "$n")"'
+'"${CORE_DEBUG:+cp \"$so\" /stage/unstripped.so}"'
 ${t}strip --strip-unneeded '"$so"''
         podman run --rm --network=none --read-only --cap-drop=all --security-opt=no-new-privileges \
             --userns=keep-id --tmpfs /tmp:rw,nosuid,nodev -v "$work:/work:ro,z" -v "$stage:/stage:rw,z" \
             "$(cat "$work/rootfs-container.iid")" sh -eu -c "$code" > "$area/logs/$n.log" 2>&1 ||
             { tail -20 "$area/logs/$n.log"; echo "$n: build failed (log $area/logs/$n.log)" >&2; exit 1; }
         b=${so##*/}
+        if [ -n "${CORE_DEBUG:-}" ]; then # gdb symbols for a core dump; never shipped
+            mkdir -p "$area/debug"; cp "$stage/unstripped.so" "$area/debug/$b"
+            out=$area/debug/stripped; mkdir -p "$out"
+        fi
         cp "$stage/src/$so" "$out/$b"
         rm -rf "$stage"
         check_symbols "$out/$b" || exit 1

@@ -177,41 +177,32 @@ Work continues without them; the recommendation applies until answered.
 
 ## T3 queue
 
-M5 T3 done 2026-11-18 (results in milestones.md). **M6 + M7 checklist**
-(on the M7 p2, written 2026-11-19):
+M6 + M7 T3 done 2026-11-19 (results in the milestone below). Next
+checklist after the T3-fix image (`write-p2`), every path in the
+menu's pt-BR labels:
 
-1. **pt-BR everywhere:** browse Configuração, Conectividade, Serviços
-   web (SSH/"Arquivos via SFTP" and their help with Menu/Fn), Energia,
-   Aparência: no English except task names, tags and time zones. System
-   details → Compilação shows `r35s-a868092`.
-2. **Configuration menu:** each row opens its own screen (Power → power
-   settings, Backup → backup list). Backup "Capturas de Tela" to SD1;
-   Aplicativos → Archive Manager lists it; restore it.
-3. **No test-image marks; no console text** between UI and game: start
-   and quit a game, change the theme: black or the last frame only.
-4. **Screenshot:** X+L2+R2 in the menu (not on the Configuration tile):
-   a short white flash; the file is in `MUOS/screenshot`.
-5. **Wi-Fi:** off/on 3–4 times in Conectividade (back within ~30 s
-   each); then leave the console idle in the menu for 10+ minutes and
-   check SSH/Wi-Fi still answer (the new liveness watchdog must not
-   reset a healthy connection: `MUOS/log/...usb-watchdog.log` has no
-   "Wi-Fi dead" line).
-6. **CPU 1512 MHz (opt-in):** Configurações perigosas → Máximo do
-   processador lists up to "Máxima (1512 MHz)" with 1296 MHz selected. Choose Máxima, play a
-   heavy game (PSX) 10 min: no freeze; then set 1296 again.
-7. **Boot:** two cold boots: the menu appears ~3 s sooner on the
-   second (core assignments cached); everything still assigned.
-8. **Slot 2 diagnosis:** (a) with the console on, pull the spare card
-   and push it in firmly; (b) if nothing shows, the same card in slot 2
-   under stock dArkOSen (original32 in slot 1); (c) another card.
-9. **New systems:** one game each where you have one (decision 18):
-   full speed with sound; saves/states for one of them; N64 playable?
-10. **BIOS:** Task Toolkit → Diagnostics → BIOS Report lists the BIOS
-    files per core; a Coleco game without `colecovision.rom` shows a
-    "BIOS missing" message.
-11. **Auto-assign by folder name:** `ROMS/megadrive` (or `snes`) on slot
-    1 with a game: Explore shows and starts it with the port's core.
-12. **Regression:** a game with volume keys, sleep/wake in the game.
+1. **Fn+Start out of a game:** CRT-off animation, fade-in of the list,
+   no black blink at the end of the fade. Same after applying a theme
+   (Configuração → Personalização → Tema).
+2. **N64:** ROMS/N64 → Mario Kart 64 and Donkey Kong 64 start, sound,
+   playable speed; quit with Fn+Start.
+3. **Archive restore:** Configuração → Backup → "Capturas de Tela" to
+   SD1; Aplicativos → Archive Manager → the backup → extract: finishes
+   with no "could not be marked as installed" error and the entry shows
+   as installed.
+4. **BIOS:** Aplicativos → Task Toolkit → Diagnostics → BIOS Report: a
+   closing dialog lists the missing BIOS per core and offers "Renomear"
+   for SCPH5500/5501/5502.bin → choose it; MUOS/bios then has the
+   lower-case names; a PSX game still starts.
+5. **Explorar conteúdo:** only folders with games are listed;
+   Configuração → Personalização → Pastas → Pastas vazias brings the
+   rest back.
+6. **CPU 1512 MHz (from M7, path corrected):** Configuração → put the
+   focus on "Geral" → hold **Y** → confirm the warning → Configurações
+   perigosas → Máximo do processador → "Máxima (1512 MHz)"; a PSX game
+   10 min, no freeze; set 1296 again.
+7. **Slot 2:** the tests asked by Telegram (the card in a PC; the card
+   under stock dArkOSen; another card).
 
 ## Current milestone: M7 — polish: language, performance, power (started 2026-11-19)
 

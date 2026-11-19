@@ -13841,7 +13841,7 @@
    "path": "/opt/muos/share/core/mupen64plus_next_libretro.so",
    "type": "file",
    "mode": "755",
-   "sha256": "67c513cfd00c201239fdeedea67cd2f3063b79b6a289336103f52668e5960b50",
+   "sha256": "2ae00e08b26a7750dc21ff9faf85f5339ee636cdd59f07d0ca67a64eecdd87f8",
    "origin": "build/m3c/cores/out/mupen64plus_next_libretro.so"
   }
  ],

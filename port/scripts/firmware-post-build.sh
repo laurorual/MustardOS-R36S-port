@@ -40,6 +40,15 @@ for n in audio bright; do
     cp /port/device/rk-r35s-p0/level-wrapper.sh "$d/$n.sh"
     chmod 0755 "$d/$n.sh" "$d/$n-muos.sh"
 done
+# M7 T3 ("the screen blinks once after the fade-in"): `bright.sh N` forces
+# fb0/blank 0 (the frontend runs it when a screen starts, tweak.sh after a
+# theme save); on this kernel that restores the fbdev mode over the UI's
+# plane for one frame (DRM log: FB:69, other planes off). Skip the forced
+# unblank as upstream does for rk-g350-v; a real blank/unblank (brightness
+# 0 and back) still goes through.
+grep -qF 'elif [ "$FORCE" -eq 1 ] && [ "$BOARD_NAME" != rk-g350-v ]; then' "$d/bright-muos.sh"
+sed -i 's/elif \[ "$FORCE" -eq 1 \] && \[ "$BOARD_NAME" != rk-g350-v \]; then/elif [ "$FORCE" -eq 1 ] \&\& [ "$BOARD_NAME" != rk-g350-v ] \&\& [ "$BOARD_NAME" != rk-r35s-p0 ]; then/' "$d/bright-muos.sh"
+grep -qF '[ "$BOARD_NAME" != rk-r35s-p0 ]; then' "$d/bright-muos.sh"
 # The WirePlumber rules S80pipewire installs at start: the port's copy
 # (state.restore-props off for the sink, M3d step 3) over the pinned one.
 cp /port/device/rk-r35s-p0/core-wireplumber.conf "$1/opt/muos/device/control/wireplumber.conf"
@@ -96,4 +105,7 @@ ln -sfn /opt/muos/config/localtime "$1/etc/localtime"
 rm -f "$1/etc/timezone"
 mkdir -p "$1/var/lib/hwclock"
 printf '0.0 0 0.0\n0\nUTC\n' > "$1/var/lib/hwclock/adjtime"
-echo "post-build: board/network, info sounds high-passed, coredb governors, level-script boost wrappers, wireplumber rules, hotkey hold, muxretro provenance, localtime link + RTC in UTC"
+# M7: mount point for the archive install marks (S91 binds p3 there;
+# script/mux/extract.sh writes update/installed/<archive>.done).
+mkdir -p "$1/opt/muos/update"
+echo "post-build: board/network, info sounds high-passed, coredb governors, level-script boost wrappers, wireplumber rules, hotkey hold, muxretro provenance, localtime link + RTC in UTC, update mount point"
