@@ -43,7 +43,7 @@
       ]
     },
     "m7-20261119": {
-      "reason": "M7 (a868092; contains M6): upstream language pack + pt-BR overlay (100% of frontend strings), Wi-Fi liveness watchdog, DTB with stock OPPs to 1512 MHz (cap 1296 by default, Danger opt-in; already main on the card), assign.sh skipped when unchanged, build id; developer image; trial root T2 passed 2026-11-19; write-p2 pending (refused by the permission check while the user slept)",
+      "reason": "M7 (a868092; contains M6): upstream language pack + pt-BR overlay (100% of frontend strings), Wi-Fi liveness watchdog, DTB with stock OPPs to 1512 MHz (cap 1296 by default, Danger opt-in; already main on the card), assign.sh skipped when unchanged, build id; developer image; trial root T2 passed 2026-11-19; written to p2 2026-11-19",
       "files": [
         "dist/firmware/test128-m7-20261119.img.zst",
         "dist/firmware/test128-m7-20261119.img.zst.sha256",

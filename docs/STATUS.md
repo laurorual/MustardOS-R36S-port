@@ -14,22 +14,16 @@ milestones with their results and T3 checklists in
 **Phase 5 (own-card firmware). M1–M5 done; M4g = recovery image. M6
 (systems, cores) done to T2 and folded into M7. M7 (polish) first part
 done to T2: image `test128-m7-20261119` passed T2 as the trial root
-(2026-11-19 ~03:00). `write-p2` is waiting for the user: the Claude Code
-permission check refuses it while the user is away (also on 2026-11-17),
-although AGENTS.md pre-authorizes it.**
+(2026-11-19 ~03:00) and was written to p2 (`write-p2`, 2026-11-19
+11:02, user present). M6 + M7 T3 is with the user.**
 
 ## Next session — read first
 
-- Device on main = **M5 p2** (`768942b1…`) plus files installed live for
-  M6/M7 T2 (frontend, cores, language pack, watchdog, governor, muos-rc,
-  S91); boot records: main = the M7 DTB (promoted after its trial boot).
-  It was powered off at the end of the session (on the charger).
-- Next, **with the user present** (or a permission rule for it):
-  `write-p2` of `MUOS/trial/rootfs.img` = M7 p2 `c24516fb…` (on p3 with
-  its `.sha256`): arm `/etc/muos-root-trial` on main, reboot,
-  `/usr/libexec/muos-root-trial write-p2 /userdata/MUOS/trial/rootfs.img
-  c24516fbf2431fd395d52cc8ae14b83271ee57e19d5146ca3b18ef938422d5f0`,
-  reboot. Then hand over the T3 list below.
+- Device on main = **M7 p2** (`c24516fb…`, build `r35s-a868092`,
+  written 2026-11-19 by `write-p2`; the previous p2, M5 + live M6/M7
+  files, is `MUOS/trial/p2-previous.img`, `9d85f4d3…`); boot records:
+  main = the M7 DTB. `MUOS/trial/rootfs.img` is the M7 p2 again.
+- The M6 + M7 T3 below is with the user; fold its results in.
 - Smoke ROMs deleted from p3 (2026-11-19); `make-smoke-roms.py` makes
   them again for T2.
 - The user's spare card is in slot 2 (exFAT, `ROMS/megadrive`); it never
@@ -40,7 +34,7 @@ although AGENTS.md pre-authorizes it.**
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1, the user's spare card (exFAT) in slot 2: M4b image
   flashed 2026-11-14, then p2 written in place (`write-p2`) for M4d,
-  M4e.1, M4f, M4g and M5. `user_init` = 0. Time zone −03; volume 10
+  M4e.1, M4f, M4g, M5 and M7. `user_init` = 0. Time zone −03; volume 10
   (lowered for the night T2).
   - Boot records: main = `Image-ea8ac0033c0e` + `panel0-0475265be8ac.dtb`
     (M7: CPU OPPs to 1512 MHz, capped at 1296 by `danger/cpu_max`);
@@ -59,7 +53,7 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m7-20261119.img.zst` (raw `528da83a…`, p2 `c24516fb…`) | M7 so far (contains M6): language pack + pt-BR, Wi-Fi liveness, 1512 MHz opt-in DTB, faster boot | trial root T2 passed; `write-p2` waits for the user |
+| `dist/firmware/test128-m7-20261119.img.zst` (raw `528da83a…`, p2 `c24516fb…`) | M7 so far (contains M6): language pack + pt-BR, Wi-Fi liveness, 1512 MHz opt-in DTB, faster boot | trial root T2 passed; written to p2 2026-11-19 (on the device) |
 | `dist/firmware/test128-m6-20261119.img.zst` (raw `d443411e…`, p2 `ac695c52…`) | M6 | trial T2 passed; never written (superseded) |
 | `dist/firmware/test128-m5-20261118.img.zst` (raw `64e45d74…`, p2 `768942b1…`) + `public-m5-20261118` | M5 | on the card; T3 2026-11-18: item 5 broke navigation → not promoted |
 | **`dist/firmware/test128-m4g-20261118.img.zst`** (raw `a9d7cbc4…`, p2 `371b3f23…`) | **Recovery image since 2026-11-18 (night).** M4g | T3 1, 3, 4 passed |
@@ -94,6 +88,13 @@ screenshots (menu), Date and Time.
   pinmux/pulls and GRF IO_VSEL match stock dArkOSen, whose log shows
   test128 at SDR104 in slot 2 of this unit. Next: the user's T3 (reseat;
   the same card under stock; another card).
+- **Battery % short of 100 after sleeping on the charger (user,
+  2026-11-19):** sleep with the charger in overnight, wake: 95 %, not
+  100 %. The next boot logged dsoc 93.9 %, rsoc 92.9 %, OCV 4149 mV,
+  remain 2368 of FCC 2550 mAh (FCC learned down from 3380). Likely the BSP
+  gauge's charge-finish step (dsoc → 100 on charge done) doesn't run
+  while suspended, and/or the low learned FCC. Low priority; look at it
+  with the M7 power items.
 - **p2 space:** 488 MB root, ~113 MB free with the M6 cores (FBNeo 80 MB,
   MAME 2003-Plus 43 MB). ScummVM does not fit (decision 17).
 - **Wi-Fi zombie (M5 incident):** handled since M7: while connecting by
@@ -174,17 +175,10 @@ Work continues without them; the recommendation applies until answered.
     Recommendation: yes; it turns the synthetic fps checks into real
     verdicts (T2 then runs them automatically).
 
-19. **`write-p2` while you are away:** the Claude Code permission check
-    refuses it unattended (2026-11-17 and 2026-11-19), so each milestone's
-    p2 waits for you. Recommendation: add a permission rule for
-    `muos-root-trial write-p2` (it only runs after a T2-passed trial root,
-    and the previous p2 is saved for a rollback), or tell me in the
-    morning to run it with you nearby.
-
 ## T3 queue
 
 M5 T3 done 2026-11-18 (results in milestones.md). **M6 + M7 checklist**
-(on the M7 p2, after `write-p2`):
+(on the M7 p2, written 2026-11-19):
 
 1. **pt-BR everywhere:** browse Configuração, Conectividade, Serviços
    web (SSH/"Arquivos via SFTP" and their help with Menu/Fn), Energia,
@@ -248,8 +242,8 @@ Goal (roadmap.md): pt-BR complete, wake/audio/Wi-Fi robustness, the
 9. M6 T3: folded into the checklist above.
 10. **Image `test128-m7-20261119`** (`a868092`): trial root T2 passed
     (NES 60.00, DOS 60.02, sleep 2/2 + 1/1 in game, t2-sdcard,
-    t2-sftp-jail, Wi-Fi toggle 3/3 + C2H, liveness C2H); `write-p2`
-    waits for the user (decision 19).
+    t2-sftp-jail, Wi-Fi toggle 3/3 + C2H, liveness C2H); written to p2
+    2026-11-19 (read-back verified; boots to the menu, build id ok).
 Remaining for M7 after the T3: underrun bursts, idle power (off the
 charger), a soak (hours of play, discharge), the T3 fixes.
 
