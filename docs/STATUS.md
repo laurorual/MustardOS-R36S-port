@@ -14,31 +14,28 @@ milestones with their results and T3 checklists in
 **Phase 5 (own-card firmware). M1–M5 done; M4g = recovery image. M6
 folded into M7. M7 (polish): first image T3-tested 2026-11-19; its T3
 fixes are in image `test128-m7t3-20261119` (`5e72cfa`), written to p2
-2026-11-19 ~13:15; its T3 (2026-11-19) passed except the Danger screen
-→ recovery image. Its T3 fixes (Danger screen, cap switch, N64 resume)
-are done to T2 on the live root; the next image carries them, with the
-standalone Mupen64Plus (decision 19, done to T2).**
+2026-11-19 ~13:15; its T3 passed except the Danger screen. Image
+`test128-m7c-20261119` (its fixes + standalone Mupen64Plus) T3 passed
+2026-11-19 → recovery image. Since then on the live root: N64 defaults
+to the standalone Rice (decision 22).**
 
 ## Next session — read first
 
-- Device on main = **M7c p2** (`701eb2a8…`, build `r35s-187b089+`: the
-  `+` is only the uncommitted retention JSON; written 2026-11-19 ~19:05 by
-  `write-p2` after its trial-root T2; the previous p2 = M7 T3-fix with the
-  live installs, saved as `MUOS/trial/p2-previous.img` `8b986114…`);
-  boot records: main = the M7 DTB. `install-rootfs.sh` writes the real
-  p2 (it stays on the main root across reboots).
+- Device on main = **M7c p2** (`701eb2a8…`, build `r35s-187b089+`;
+  written 2026-11-19 ~19:05 by `write-p2`; the previous p2 saved as
+  `MUOS/trial/p2-previous.img` `8b986114…`) + live installs 2026-11-19
+  ~20:40 (decision 22: S91, core-assign.txt, muos-mupen64plus, the pruned
+  core.json; migration `n64-standalone` ran: N64 folder + MK64's per-game
+  cfg → ext-mupen64plus-rice); boot records: main = the M7 DTB.
+  `install-rootfs.sh` writes the real p2 (it stays across reboots).
 - Idle discharge run done (report in hardware-findings, logger stopped).
-- Device volume 50 (the user's; it was 0 from 16:51 to 18:00 at their
-  request).
-- The user's pickles before the mupen tests: p3 `MUOS/t2-bak` (42 MB;
-  delete after the next T3). The standalone N64 SRAM of DK64 and MK64 was
-  migrated from the libretro .srm on 2026-11-19.
+- Device volume 40 (the user's).
+- The standalone N64 SRAM of DK64 and MK64 was migrated from the
+  libretro .srm on 2026-11-19 (`MUOS/t2-bak` deleted after the M7c T3).
 - New-system ROMs from `port/roms/` on p3 (2026-11-19): 32X, ATARI2600,
   ATARI7800, GG, LYNX, SMS, PCE, SEGACD (Sonic CD), PCECD (Dracula X);
   BIOS `bios_CD_U.bin`, `syscard3.pce` in p3 `MUOS/bios`.
 - Slot 2 waits for M8 (decision 16).
-- `build/m3c/cores/debug/` holds the -g mupen build matching the shipped
-  core (45 MB, for gdb); delete it once N64 is T3-confirmed.
 - Smoke ROMs deleted from p3 (2026-11-19); `make-smoke-roms.py` makes
   them again for T2.
 - The user's spare card is in slot 2 (exFAT, `ROMS/megadrive`); it never
@@ -69,13 +66,12 @@ the whole card, bootloader included; steps in procedures.md.
 | Image | Content | State |
 |---|---|---|
 | `dist/firmware/test128-m7-20261119.img.zst` (raw `528da83a…`, p2 `c24516fb…`) | M7 so far (contains M6): language pack + pt-BR, Wi-Fi liveness, 1512 MHz opt-in DTB, faster boot | T3 2026-11-19: N64 crash, blink, archive mark (fixed in m7t3) |
-| `dist/firmware/test128-m7c-20261119.img.zst` (raw `5878d3b3…`, p2 `701eb2a8…`) | M7c: the M7 T3-fix fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal | on the device since 2026-11-19 (trial-root T2 passed); T3 pending |
-| **`dist/firmware/test128-m7t3-20261119.img.zst`** (raw `9c60175f…`, p2 `c1f45838…`) | **Recovery image since 2026-11-19.** M7 + its T3 fixes | T3 2026-11-19: 1–5 passed, 6 partial (Danger screen, fixed in m7c) |
-| `dist/firmware/test128-m5-20261118.img.zst` (raw `64e45d74…`, p2 `768942b1…`) + `public-m5-20261118` | M5 | on the card; T3 2026-11-18: item 5 broke navigation → not promoted |
+| **`dist/firmware/test128-m7c-20261119.img.zst`** (raw `5878d3b3…`, p2 `701eb2a8…`) | **Recovery image since 2026-11-19.** M7c: the M7 T3-fix fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal | on the device; T3 2026-11-19: 1–8 passed (4 partial: no level bar or screenshot feedback in the standalone N64) |
+| `dist/firmware/test128-m7t3-20261119.img.zst` (raw `9c60175f…`, p2 `c1f45838…`) | M7 + its T3 fixes (recovery until m7c) | T3 2026-11-19: 1–5 passed, 6 partial (Danger screen, fixed in m7c) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-5/5 versions in `storage-retention.json` (m4g retired 2026-11-19 when
-m7t3 became recovery). The next image retires m5.
+4/5 versions in `storage-retention.json` (m5 retired 2026-11-19 when
+m7c became recovery, 530 MiB). The image after next retires m7.
 
 ## What works (T3-confirmed)
 
@@ -92,7 +88,9 @@ System details; battery %, icons and low-battery poweroff from the RK817
 gauge, % kept across a power-off; battery-empty splash; headphone path
 switching; flashing with the host card reader; p3 auto-grow; `panic=10`;
 themes (six bundled, download, switching), profiles, Task Toolkit,
-screenshots (menu), Date and Time.
+screenshots (menu), Date and Time; N64 with the standalone Mupen64Plus
+Rice (saves, resume, sleep, levels; GLideN64 works but slow); 32X, 2600,
+7800, GG, Lynx, SMS, PCE, Sega CD and PCE CD.
 
 ## Open problems
 
@@ -124,8 +122,11 @@ screenshots (menu), Date and Time.
   60 fps everywhere, core 4–7 ms); real games are the user's (T3,
   decision 18). FBNeo, MAME, MSX, Coleco, Lynx, Sega CD, PCE CD need
   game or BIOS files to test at all.
-- **Screenshots:** menu only (X+L2+R2, now with a flash); muxretro has
-  no capture. X on the Configuration tile also opens Kiosk (upstream).
+- **Screenshots:** menu (X+L2+R2, with a flash) and the standalone N64
+  (Fn+X, saved but no feedback: the M7c T3 missed it); muxretro has no
+  capture.
+- **Standalone N64:** no volume/brightness bar (muxretro draws it; the
+  keys work). Low priority. X on the Configuration tile also opens Kiosk (upstream).
 - **Battery:** (d) the BSP smoothing uses `abs(delta_cap)`.
 - **USB (dwc2 misses port events):** `muos-usb-watchdog` (M4f) rebinds
   dwc2 after 3 disagreeing reads (not yet triggered by a real replug).
@@ -194,46 +195,27 @@ playable under dArkOSen); Atari 5200, Virtual Boy, Jaguar, Jaguar CD
 and CD-i out of v1.0. 21 Sega CD and PC Engine CD BIOS provided in
 `port/roms/bios` (bios_CD_U.bin, syscard3.pce).
 
+Answered 2026-11-19 (M7c T3): 22 N64 defaults to "Mupen64Plus -
+Standalone - Rice" (done to T2: seed, migration, coredb default; the
+assignment list offers only Rice and Glide, the "- Full" entries equal
+4:3 on this panel and GlideMk2 isn't built).
+
 ## Decisions for the user
 
 None open.
 
 ## T3 queue
 
-M7 T3-fix checklist done 2026-11-19 (results: milestone item 13). For
-the next image (every path in the menu's pt-BR labels):
+M7c checklist done 2026-11-19 (results: milestone item 20). For the next
+image (every path in the menu's pt-BR labels):
 
-1. **Configurações perigosas** (Configuração → focus on "Geral" → hold
-   **Y** → confirm): Down from "Máximo do processador" reaches "Máximo
-   dos gráficos", Down again wraps to "Nível do Log do Kernel"; on
-   "Máximo do processador" Right raises (1368 MHz…"Máxima (1512 MHz)"),
-   Left lowers.
-2. **Cap back to 1296:** set "Máxima (1512 MHz)", leave with B, open the
-   screen again, set 1296 MHz, leave: a PSX game (CTR) runs as before the
-   overclock (no extra slowdowns).
-3. **N64 resume:** start Mario Kart 64, race a little, Fn+Start; start
-   it again: it resumes where you left (after ~1 s of the boot logo).
-4. **N64 standalone** (Explorar conteúdo → N64 → focus "Donkey Kong 64"
-   → Select → OPÇÕES DO CONTEÚDO → Núcleo do conteúdo → (system list:
-   "Nintendo N64") → "Mupen64Plus - Standalone - Rice" → only this game):
-   the game starts; your save file is there (the file select shows your
-   progress); controls as before (A, B, Z = L2, C = right stick or
-   A/X); the intro and the first controllable scene without the old
-   slowdowns; Fn+Start returns to the list and starting it again
-   resumes; Fn+X takes a screenshot; Power sleeps and wakes back into
-   the game; volume and brightness keys work.
-5. **N64 standalone Glide** (same path, "- Glide"): starts and draws
-   correctly; expected to be slower than Rice (T2: 20–27 fps).
-6. **New systems** (Explorar conteúdo → each folder, play ~1 min, Fn+Start):
-   32X Knuckles' Chaotix, Atari 2600 Pac-Man, Atari 7800 Ms. Pac-Man,
-   Game Gear Sonic Triple Trouble, Lynx Blue Lightning, Master System
-   Sonic, PC Engine Splatterhouse: picture, sound, controls, no slowdown.
-7. **CD systems** (same way): Sega CD "Sonic CD (USA)" and PC Engine CD
-   "Akumajou Dracula X" (folders inside SEGACD and PCECD): the BIOS
-   screen, then the game with its CD music.
-8. **Sound after many menu moves:** browse several screens, then start
-   any game: it has sound (the menu now restarts the audio service
-   when it finds it stuck; ~3 s longer start in that case).
+1. **N64 default** (Explorar conteúdo → N64 → Mario Kart 64): it starts
+   without choosing a core and runs as DK64 did in the standalone; your
+   time-trial save is there; Fn+Start, start again: it resumes.
+2. **N64 core list** (focus a game → Select → OPÇÕES DO CONTEÚDO →
+   Núcleo do conteúdo → "Nintendo N64"): only "Mupen64Plus - Standalone -
+   Glide" and "- Rice" among the standalone entries (no "Full", no
+   "GlideMk2").
 
 ## Current milestone: M7 — polish: language, performance, power (started 2026-11-19)
 
@@ -355,9 +337,29 @@ Goal (roadmap.md): pt-BR complete, wake/audio/Wi-Fi robustness, the
     `muos-frontend` now checks the PCM for 0.1 s before each game and
     restarts PipeWire when stuck (T2: frozen PipeWire → detected (XRUN)
     → restart → NES audio flowing). Root cause open.
-Remaining for M7: CTR at 1512 vs 1296 (thermal?), underrun bursts, a
-soak; then the image (frontend 0011, governor, N64 warm-up, standalone
-mupen, suspend).
+20. **M7c T3 (2026-11-19):** 1–3, 5–8 ok; 4 partial: save, controls,
+    steady frame rate, resume, sleep, levels and the camera ok (the
+    camera reset was the libretro core), Fn+X saved two shots but showed
+    nothing, no level bar. Glide much slower than Rice (expected). Small
+    slowdowns felt in the new systems. Promoted to recovery (m5 retired).
+21. **Its follow-ups — done to T2 on the live root:** decision 22 (N64 →
+    standalone Rice: core-assign row with an ext- core, S91 installs it
+    when `emulator/mupen64plus` exists, one-shot `n64-standalone`
+    migration of the folder and per-game cfgs equal to the old seed;
+    `coredb-governors.py` sets an external default and drops N64's
+    unbuilt external entries). T2: migration on busybox, MK64 from the
+    folder assignment → Rice under performance, Fn+Start autosave, .srm
+    split.
+22. **New systems, frame pacing (`t2-newsys-fps.sh`, 75 s each,
+    attract):** all 7 at 60.00 Hz, p95 16.9–18.2 ms; the only frames over
+    25 ms (one per 17 s window, always 2.1 s into it) are muxretro's own
+    15 s capture dump, so no hitch from the cores. 2600 Pac-Man has the
+    most 18.5–25 ms frames (62 per 75 s, still no repeats). The user's
+    slowdowns are likely the games' own (Chaotix and 2600 Pac-Man slow
+    down and flicker on real hardware) or level changes (~1 frame each,
+    M3b); ask which game if they persist.
+Remaining for M7 (all T2, by the agent): CTR at 1512 vs 1296 (fps and
+temperature), underrun bursts, a soak; then the image (decision 22).
 
 **Next milestone after M7:** M8 — card layout (clean U-Boot, root by
 slot, 1 GiB p2) and the heavy systems (decision 20); then M9 — public

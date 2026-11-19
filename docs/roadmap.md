@@ -129,7 +129,8 @@ panels or clones.
 - **Overclock beyond stock** (CPU above 1512 MHz, GPU above 520 MHz) as an
   explicit, labelled option.
 - **Bluetooth** through a combo dongle (bluez, `bt_*.sh`).
-- **Applications:** PortMaster, standalone emulators (PPSSPP, Mupen64Plus).
+- **Applications:** PortMaster, the other standalone emulators (Mupen64Plus
+  is in since M7, the N64 default; PPSSPP and the NDS one come in M8).
 - **Web services:** ttyd, Syncthing, mDNS, the landing page.
 - **Automated builds and update packages.**
 

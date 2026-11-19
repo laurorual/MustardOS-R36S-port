@@ -100,10 +100,30 @@ case "${1:-}" in
         printf '0\n' > "$port/config/visual/folderempty" && echo 'runtime: visual/folderempty -> 0 (hide empty folders)'
         echo empty-folders-hidden >> "$mig"; sync
     fi
+    # n64-standalone (M7c T3, the user's choice): N64 defaults to the
+    # standalone Mupen64Plus (Rice). The folder's old seed and per-game
+    # assignments equal to it (mupen64plus-next through "mu-mupen64plus
+    # next") move to it; any other choice stays.
+    c=$port/info-content/N64
+    if ! grep -qx n64-standalone "$mig" && [ -d /opt/muos/share/emulator/mupen64plus ]; then
+        for f in "$c"/*.cfg; do
+            [ -f "$f" ] || continue
+            if [ "${f##*/}" = core.cfg ]; then a=1 b=5; else a=2 b=6; fi
+            [ "$(sed -n "${a}p" "$f")" = mupen64plus_next_libretro.so ] &&
+                [ "$(sed -n "${b}p" "$f")" = "mu-mupen64plus next" ] || continue
+            sed -i "${a}s/.*/ext-mupen64plus-rice/;${b}s/.*/ext-mupen64plus - standalone - rice/" "$f" &&
+                echo "runtime: migrated ${f#"$port"/} -> ext-mupen64plus-rice"
+        done
+        echo n64-standalone >> "$mig"; sync
+    fi
     # M3c: default ROM folders + core assignments for installed cores.
     grep -v '^#' /usr/share/muos-r35s/core-assign.txt 2>/dev/null |
     while IFS='|' read -r dir core sys launch gov; do
-        [ -n "$dir" ] && [ -f "/opt/muos/share/core/$core" ] || continue
+        [ -n "$dir" ] || continue
+        case $core in
+            ext-*) e=${core#ext-}; [ -d "/opt/muos/share/emulator/${e%%-*}" ] || continue ;;
+            *) [ -f "/opt/muos/share/core/$core" ] || continue ;;
+        esac
         mkdir -p "/userdata/ROMS/$dir"
         c=$port/info-content/$dir
         [ -e "$c/core.cfg" ] && continue

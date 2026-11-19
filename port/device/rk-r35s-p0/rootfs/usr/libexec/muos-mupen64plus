@@ -4,8 +4,10 @@
 # exception to decision 14), run by muos-frontend for the N64 "Mupen64Plus -
 # Standalone" assignments (upstream launcher ids ext-mupen64plus-*; upstream
 # script/launch/ext-mupen64plus.sh needs muOS's var scripts the port lacks).
-#   VARIANT  *rice* -> Rice; anything else -> GLideN64 (Glide64mk2 is not
-#            built; "full" = 4:3 here, the panel is 640x480). M7 T2: Rice
+#   VARIANT  *rice* -> Rice; anything else -> GLideN64 (the image's coredb
+#            offers only these two: Glide64mk2 is not built and upstream's
+#            "- Full" entries equal 4:3 on this 640x480 panel). The N64
+#            folder default since M7c T3 (the user's choice). M7 T2: Rice
 #            runs DK64's intro at ~58 VI/s (the libretro core ~30) and MK64
 #            at full speed; standalone GLideN64 is GPU-bound here (20-27).
 # Files: the build (build-mupen64plus-sa.sh) in /opt/muos/share/emulator/

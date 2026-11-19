@@ -32,7 +32,7 @@ game_start() { # ROM [DIR]
     local rom=$1 dir=${2:-NES} cfg core sys launch
     cfg=$(r "cat '/opt/muos/share/info/content/$dir/core.cfg'") || fail "no core assignment for $dir"
     core=$(sed -n 1p <<< "$cfg") sys=$(sed -n 2p <<< "$cfg") launch=$(sed -n 5p <<< "$cfg")
-    r "test -f '/userdata/ROMS/$dir/$rom' && test -f '/opt/muos/share/core/$core'" || fail "missing ROMS/$dir/$rom or core $core"
+    r "test -f \"/userdata/ROMS/$dir/$rom\" && test -f '/opt/muos/share/core/$core'" || fail "missing ROMS/$dir/$rom or core $core"
     game_rom_name=${rom%.*} game_dir=$dir
     game_snapshot save
     wait_module muxlaunch 40 || { for _ in 1 2 3; do r '/usr/libexec/muos-press b'; sleep 2; done; wait_module muxlaunch 10 || fail "not at launcher"; }

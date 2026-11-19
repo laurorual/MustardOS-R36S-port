@@ -40,5 +40,9 @@ POKEMINI|pokemini_libretro.so|Nintendo Pokemon Mini|mu-pokemini|schedutil
 ARCADE|fbneo_libretro.so|Arcade|mu-finalburn neo|performance
 NEOGEO|fbneo_libretro.so|SNK Neo Geo|mu-finalburn neo|performance
 DOS|dosbox_pure_libretro.so|PC DOS|mu-dosbox-pure|performance
-# N64: trial (M6), shipped only if playable (roadmap)
-N64|mupen64plus_next_libretro.so|Nintendo N64|mu-mupen64plus next|performance
+# N64: the standalone Mupen64Plus with Rice (M7c T3, the user's choice:
+# steadier than mupen64plus-next, DK64 intro 58 VI/s vs 30.6 fps). An
+# ext-NAME-* core is installed when /opt/muos/share/emulator/NAME exists;
+# the launcher column is muOS's assign tag (ext- = the coredb's external
+# section).
+N64|ext-mupen64plus-rice|Nintendo N64|ext-mupen64plus - standalone - rice|performance

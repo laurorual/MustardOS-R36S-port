@@ -8,11 +8,18 @@
 # muOS auto-assigns an unassigned folder (e.g. ROMS/megadrive on a card in
 # slot 2) the default core of the system its name maps to (assign.json),
 # and upstream's defaults (Genesis Plus GX, mGBA, snes9x...) are not shipped.
-# Rows whose core file is not in CORE_DIR (when given) are skipped.
+# Rows whose core file is not in CORE_DIR (when given) are skipped; an
+# ext-NAME-* row (external runtime, launcher column "ext-KEY") needs
+# CORE_DIR/../emulator/NAME. M7c: the coredb's external N64 entries the
+# image does not build are dropped (Glide64mk2; "- Full" = the 4:3 entry on
+# this 640x480 panel), so the assignment list only offers what runs.
 #   coredb-governors.py CORE_ASSIGN_TXT CORE_JSON [CORE_DIR]
 import json
 import os
 import sys
+
+# external cores the image ships, per system (others in that system dropped)
+EXTERNAL = {"Nintendo N64": {"ext-mupen64plus-rice", "ext-mupen64plus-gliden64"}}
 
 
 def main(table, path, core_dir=None):
@@ -21,13 +28,17 @@ def main(table, path, core_dir=None):
         if line.startswith("#") or not line.strip():
             continue
         f = line.rstrip("\n").split("|")
-        if core_dir and not os.path.isfile(os.path.join(core_dir, f[1])):
+        if f[1].startswith("ext-"):
+            have = os.path.isdir(os.path.join(core_dir or "", "..", "emulator", f[1][4:].split("-")[0]))
+        else:
+            have = os.path.isfile(os.path.join(core_dir or "", f[1]))
+        if core_dir and not have:
             print(f"coredb-governors: {f[0]}: {f[1]} not in the image, skipped")
             continue
         if len(f) >= 5 and f[4]:
             want[f[2]] = f[4]
-        if len(f) >= 4 and f[3].startswith("mu-"):
-            key = f[3][3:]
+        if len(f) >= 4 and f[3][:3] in ("mu-", "ext"):
+            key = (f[3][3:] if f[3].startswith("mu-") else f[3][4:], "libretro" if f[3].startswith("mu-") else "external")
             if default.setdefault(f[2], key) != key:
                 sys.exit(f"coredb-governors: {f[2]!r}: two default cores ({default[f[2]]!r}, {key!r})")
     with open(path, encoding="utf-8") as fh:
@@ -40,9 +51,17 @@ def main(table, path, core_dir=None):
             db[system]["governor"] = gov
             changed += 1
             print(f"coredb-governors: {system} -> {gov}")
-    for system, key in sorted(default.items()):
-        if key not in db.get(system, {}).get("libretro", {}):
-            sys.exit(f"coredb-governors: no core {key!r} for {system!r} in {path}")
+    for system, keep in sorted(EXTERNAL.items()):
+        ext = db.get(system, {}).get("external", {})
+        for key in [k for k, e in ext.items() if e.get("core") not in keep]:
+            del ext[key]
+            changed += 1
+            print(f"coredb-governors: {system}: external {key!r} dropped")
+        if {e.get("core") for e in ext.values()} != keep:
+            sys.exit(f"coredb-governors: {system}: external cores {sorted(keep)} not all in {path}")
+    for system, (key, section) in sorted(default.items()):
+        if key not in db.get(system, {}).get(section, {}):
+            sys.exit(f"coredb-governors: no {section} core {key!r} for {system!r} in {path}")
         if db[system].get("default") != key:
             db[system]["default"] = key
             changed += 1
