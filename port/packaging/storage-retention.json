@@ -33,15 +33,6 @@
         "build/m3a/public-m5-20261118.p2.img"
       ]
     },
-    "m6-20261119": {
-      "reason": "M6: release frontend (TEST_IMAGE=0), 14 new cores + N64 trial (build-cores.sh), coredb defaults, upstream core info files + BIOS Report, M5 T3 fixes (config rows, screenshot flash, fbcon unbound under the UI, Wi-Fi C2H reset); developer image; trial root T2 passed 2026-11-19; never written (superseded by M7)",
-      "files": [
-        "dist/firmware/test128-m6-20261119.img.zst",
-        "dist/firmware/test128-m6-20261119.img.zst.sha256",
-        "dist/firmware/test128-m6-20261119.manifest",
-        "build/m3a/test128-m6-20261119.p2.img"
-      ]
-    },
     "m7-20261119": {
       "reason": "M7 (a868092; contains M6): upstream language pack + pt-BR overlay (100% of frontend strings), Wi-Fi liveness watchdog, DTB with stock OPPs to 1512 MHz (cap 1296 by default, Danger opt-in; already main on the card), assign.sh skipped when unchanged, build id; developer image; trial root T2 passed 2026-11-19; written to p2 2026-11-19",
       "files": [
@@ -49,6 +40,15 @@
         "dist/firmware/test128-m7-20261119.img.zst.sha256",
         "dist/firmware/test128-m7-20261119.manifest",
         "build/m3a/test128-m7-20261119.p2.img"
+      ]
+    },
+    "m7t3-20261119": {
+      "reason": "M7 T3 fixes (5e72cfa): N64 core built for GLES3 (GLES2 crashed in GLideN64 BufferedDrawer), bright.sh forced fb0 unblank skipped (blink after fade-in), /opt/muos/update bound to p3 (archive install marks), BIOS Report closing dialog + case renames, empty folders hidden; developer image; trial root T2 passed 2026-11-19; written to p2 2026-11-19; T3 pending",
+      "files": [
+        "dist/firmware/test128-m7t3-20261119.img.zst",
+        "dist/firmware/test128-m7t3-20261119.img.zst.sha256",
+        "dist/firmware/test128-m7t3-20261119.manifest",
+        "build/m3a/test128-m7t3-20261119.p2.img"
       ]
     }
   },

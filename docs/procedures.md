@@ -329,7 +329,11 @@ first fetch prints the SHA256). Folder, core, coredb system, launcher
 key and governor per system: `rootfs/usr/share/muos-r35s/core-assign.txt`
 (S91 seeds folders; the post-build sets coredb governors and default
 cores). Smoke content without game dumps: `make-smoke-roms.py DIR` then
-`t2-nes-fps.sh --dir DIR --rom smoke.EXT`. Kernel modules:
+`t2-nes-fps.sh --dir DIR --rom smoke.EXT`. A core crash: `prlimit --pid
+<frontend sh> --core=unlimited` and a core_pattern on p3, pull the dump,
+`CORE_DEBUG=1 build-cores.sh build NAME` (-g; the stripped result must
+equal the shipped .so) and gdb with a sysroot whose core path points at
+`build/m3c/cores/debug/<so>`. Kernel modules:
 `build-boot.sh modules-check` after a kernel build.
 
 **Safe mode:** create `/boot/muos-noui` on the FAT partition; the UI is

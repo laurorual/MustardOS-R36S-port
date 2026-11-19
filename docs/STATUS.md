@@ -12,18 +12,20 @@ milestones with their results and T3 checklists in
 ## Current phase
 
 **Phase 5 (own-card firmware). M1–M5 done; M4g = recovery image. M6
-(systems, cores) done to T2 and folded into M7. M7 (polish) first part
-done to T2: image `test128-m7-20261119` passed T2 as the trial root
-(2026-11-19 ~03:00) and was written to p2 (`write-p2`, 2026-11-19
-11:02, user present). M6 + M7 T3 is with the user.**
+folded into M7. M7 (polish): first image T3-tested 2026-11-19; its T3
+fixes are in image `test128-m7t3-20261119` (`5e72cfa`), trial root T2
+passed and written to p2 2026-11-19 ~13:15. Its T3 is with the user.**
 
 ## Next session — read first
 
-- Device on main = **M7 p2** (`c24516fb…`, build `r35s-a868092`,
-  written 2026-11-19 by `write-p2`; the previous p2, M5 + live M6/M7
-  files, is `MUOS/trial/p2-previous.img`, `9d85f4d3…`); boot records:
-  main = the M7 DTB. `MUOS/trial/rootfs.img` is the M7 p2 again.
-- The M6 + M7 T3 below is with the user; fold its results in.
+- Device on main = **M7 T3-fix p2** (`c1f45838…`, build `r35s-5e72cfa`,
+  written 2026-11-19 by `write-p2`; the previous p2 = M7 `c24516fb…`,
+  saved as `MUOS/trial/p2-previous.img` `01e4c0bf…` incl. its boot-time
+  state); boot records: main = the M7 DTB.
+- The T3 below is with the user; fold its results in. Slot 2 waits for
+  M8 (decision 16).
+- `build/m3c/cores/debug/` holds the -g mupen build matching the shipped
+  core (45 MB, for gdb); delete it once N64 is T3-confirmed.
 - Smoke ROMs deleted from p3 (2026-11-19); `make-smoke-roms.py` makes
   them again for T2.
 - The user's spare card is in slot 2 (exFAT, `ROMS/megadrive`); it never
@@ -53,8 +55,8 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m7-20261119.img.zst` (raw `528da83a…`, p2 `c24516fb…`) | M7 so far (contains M6): language pack + pt-BR, Wi-Fi liveness, 1512 MHz opt-in DTB, faster boot | trial root T2 passed; written to p2 2026-11-19 (on the device) |
-| `dist/firmware/test128-m6-20261119.img.zst` (raw `d443411e…`, p2 `ac695c52…`) | M6 | trial T2 passed; never written (superseded) |
+| `dist/firmware/test128-m7-20261119.img.zst` (raw `528da83a…`, p2 `c24516fb…`) | M7 so far (contains M6): language pack + pt-BR, Wi-Fi liveness, 1512 MHz opt-in DTB, faster boot | T3 2026-11-19: N64 crash, blink, archive mark (fixed in m7t3) |
+| `dist/firmware/test128-m7t3-20261119.img.zst` (raw `9c60175f…`, p2 `c1f45838…`) | M7 + its T3 fixes | trial root T2 passed; written to p2 2026-11-19 (on the device); T3 pending |
 | `dist/firmware/test128-m5-20261118.img.zst` (raw `64e45d74…`, p2 `768942b1…`) + `public-m5-20261118` | M5 | on the card; T3 2026-11-18: item 5 broke navigation → not promoted |
 | **`dist/firmware/test128-m4g-20261118.img.zst`** (raw `a9d7cbc4…`, p2 `371b3f23…`) | **Recovery image since 2026-11-18 (night).** M4g | T3 1, 3, 4 passed |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
@@ -81,13 +83,17 @@ screenshots (menu), Date and Time.
 
 ## Open problems
 
-- **Slot 2 does not initialise the user's spare card (M5 T3 10):** at
+- **Slot 2 does not initialise the card (M5 T3 10; M7 T3: reseated,
+  same):** the card is the former original32 (SDHC, worked in slot 1
+  under stock at 1.8 V SDR50); test128 worked in slot 2 under stock.
+  Port side: at
   boot and on hotplug the card holds DAT0 busy before the first command
   and DAT3 reads low (as if unpowered); `mmc1: error -110`. DT, kernel
   source/config, regulators (vcc_sd LDO6 3.0 V, shared with slot 1),
   pinmux/pulls and GRF IO_VSEL match stock dArkOSen, whose log shows
-  test128 at SDR104 in slot 2 of this unit. Next: the user's T3 (reseat;
-  the same card under stock; another card).
+  test128 at SDR104 in slot 2 of this unit. Next (M8, after the U-Boot
+  root-by-slot change): our image on the former original32 in slot 1,
+  test128 in slot 2.
 - **Battery % short of 100 after sleeping on the charger (user,
   2026-11-19):** sleep with the charger in overnight, wake: 95 %, not
   100 %. The next boot logged dsoc 93.9 %, rsoc 92.9 %, OCV 4149 mV,
@@ -235,7 +241,30 @@ Goal (roadmap.md): pt-BR complete, wake/audio/Wi-Fi robustness, the
     (NES 60.00, DOS 60.02, sleep 2/2 + 1/1 in game, t2-sdcard,
     t2-sftp-jail, Wi-Fi toggle 3/3 + C2H, liveness C2H); written to p2
     2026-11-19 (read-back verified; boots to the menu, build id ok).
-Remaining for M7 after the T3: underrun bursts, idle power (off the
-charger), a soak (hours of play, discharge), the T3 fixes.
+11. **M6 + M7 T3 (2026-11-19):** ok: pt-BR, screenshots, Wi-Fi,
+    boot time, auto-assign by folder, regression. Found: (a) archive
+    restore said "could not be marked as installed" (extract.sh writes
+    /opt/muos/update on the read-only root); (b) one black blink at the
+    end of the fade-in after a game and after a theme (bright.sh's
+    forced fb0 unblank, hardware-findings); (c) CPU 1512 not found (the
+    checklist gave a wrong path; the Danger screen is hold Y on
+    "Geral"); (d) slot 2 still dead with the former original32 card;
+    (e) N64 crashed at start (GLES2 build, hardware-findings); (f) BIOS
+    Report only said "6 findings"; (g) Explore listed the empty system
+    folders S91 seeds.
+12. **T3 fixes — done to T2 except the image's suite:** (a) S91 binds
+    p3 `MUOS/port/update`; (b) post-build skips the forced unblank
+    (verified live: no FB:69 commit, backlight still set); (e) N64 core
+    rebuilt for GLES3 (MK64 59.9, DK64 ~60 fps, 80–83 °C); (f) closing
+    dialog + case renames; (g) `folderempty` 0 + one-shot migration.
+    (d): the conclusive test (test128 in slot 2 under the port kernel)
+    needs the M8 U-Boot (root by slot 1, decision 16); the user has only
+    these two cards. Image `test128-m7t3-20261119` (`5e72cfa`, raw
+    `9c60175f…`, p2 `c1f45838…`): trial root T2 passed (sweep 44 ok/7
+    bounces, NES 59.96, sleep 2/2, t2-sdcard, t2-sftp-jail, Wi-Fi toggle
+    3/3, N64 start, no FB:69 after the screen is up on game exit, p3
+    update mark); written to p2.
+Remaining for M7: underrun bursts, idle power (off the charger), a soak
+(hours of play, discharge).
 
 **Next milestone after M7:** M8 — public v1.0.

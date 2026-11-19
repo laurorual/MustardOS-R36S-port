@@ -29,7 +29,7 @@ screens call.
 | Packages | `package/{theme,catalogue,config,logo}.sh` (muxpicker) | missing (logo not wanted) | done (M5) |
 | Themes | MustardOS, C64, Dracula, GB Dark, Orange, mubiOS | MustardOS only | done (M5), plus theme download |
 | Profiles | `system/profile.sh`, `share/profile` | missing | done (M5) |
-| Storage | Secondary (`/mnt/sdcard`), USB; `mux/{migrate,sync,purge}.sh` | slot 2 never mounted; scripts missing | slot 2 done (M5; a real card does not initialise yet, M6 T3); migration not ported (hidden) |
+| Storage | Secondary (`/mnt/sdcard`), USB; `mux/{migrate,sync,purge}.sh` | slot 2 never mounted; scripts missing | slot 2 done (M5; a real card does not initialise yet, M7 T3; swap test in M8); migration not ported (hidden) |
 | Hotkeys | `share/hotkey/*` (screenshot, brightness, overlay…) | the port's own 2 files | screenshot done (M5) |
 | Share data | `share/{lookup,info/name,media,task}` | missing | done (M5) |
 | Screens without a backend | Bluetooth, HDMI, USB gadget, News | shown | hidden by flags or 0008/0009 (M5) |
@@ -92,7 +92,9 @@ sleep cycles, a discharge to empty) and boot time.
 
 Licences closed (`pending-licenses.json`): Mali r13p0 (Hardkernel's
 answer or a libmali with terms), a clean U-Boot build, Gambatte, the BT
-firmware. The GPL source bundle on GitHub and third-party notices in the
+firmware; with the clean U-Boot, `root=` by the slot-1 device (decision
+16), then the slot-2 swap test (our image on the former original32 in
+slot 1, test128 in slot 2) to close the slot-2 problem. The GPL source bundle on GitHub and third-party notices in the
 image. The public variant: T2 checks, first-boot flow (Wi-Fi from the
 menu, SSH/SFTP toggles, empty p3 populated). The MustardOS team's answer on
 the name and theme assets. Install guide (English and pt-BR), changelog,

@@ -122,7 +122,14 @@ The open problems behind each "partial" are in STATUS.
     percentage turns 80/160 into "50", and it moves several points per
     step of 5.
   - The prefs store keeps brightness as 40..160 in panel units.
-  - Blank/unblank is untested.
+  - **fb0 unblank over the UI blinks (M7):** `echo 0 >
+    /sys/class/graphics/fb0/blank` while the frontend owns the display
+    makes the kernel restore the fbdev mode (DRM log: FB:69 on the
+    primary plane, the other planes off) for one frame, then the UI's
+    next flip returns. muOS `bright.sh N` forces that unblank on every
+    call (the frontend at each screen start, tweak.sh after a theme
+    save): the "blink after the fade-in". The post-build skips the forced
+    unblank on rk-r35s-p0 (a real 0 → N still unblanks).
   - (compatibility-matrix.md, phase4-network-controls.md,
     phase4-preferences-preparation.md)
 
@@ -145,6 +152,14 @@ The open problems behind each "partial" are in STATUS.
     so the two are different binaries.
   - The ROCKNIX rxp0 blob is untested.
   - (phase4-graphics.md, phase2-display-input.md)
+- **GLES context for libretro cores (M7):** muxretro's hw_render gives
+  a GLES2 core a 2.0 context, but the blob still lists
+  `GL_EXT_buffer_storage`: GLideN64 (mupen64plus-next) then picks its
+  BufferedDrawer and `glMapBufferRange` returns NULL → SIGSEGV at the
+  first fill-rect (core dump + `build-cores.sh CORE_DEBUG=1`). Built for
+  GLES3 (`GLES3=1 FORCE_GLES3=1`) it runs: Mario Kart 64 59.9 fps,
+  Donkey Kong 64 ~60 fps with ~100 missed frames in 3 min, SoC 80–83 °C
+  with short throttling to 1008 MHz.
 - **SDL:**
   - SDL2 2.30.12 runs KMSDRM with the opengles2 renderer at 640×480:
     59.63 fps average, frame median 16.687 ms, p95 16.904 ms.
@@ -471,6 +486,16 @@ The open problems behind each "partial" are in STATUS.
     Neither survives a Deck reboot.
   - The Deck's reader reports a different last CID byte.
   - (phase4-backup-native.md, phase4-root-permissions.md)
+- **Slot 2 signalling (M7):** both slots use `vqmmc` = `vccio_sd`
+  (RK817 LDO5, fixed 1.8 V; io-domains vccio1/vccio2) and `vmmc` =
+  `vcc_sd` (LDO6, 3.0 V, shared), as stock and ROCKNIX's R3xS DT: SD
+  cards start at 1.8 V signalling here. The user's spare card: CD reads
+  present, the controller STATUS 0x206 (DAT0 busy, DAT3 low) before
+  CMD0, every retry times out; a controller rebind (unbind/bind
+  `ff380000.dwmmc`, safe: slot 1 is ff370000) repeats it. Stock U-Boot's
+  board init sets no slot-2 power or pin state that the port lacks
+  (GPIO3_B6 = the slot-2 CD; its "wifi_en" output-high is overridden by
+  Linux's CD input).
 - **MMC timeouts (Phase 3, stock image):**
   - `mmcblk0: error -110` and an I/O error at sector 17400328 aborted Btrfs
     and forced the root read-only.
