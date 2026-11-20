@@ -37,6 +37,15 @@
         "dist/firmware/test128-m7c-20261119.manifest",
         "build/m3a/test128-m7c-20261119.p2.img"
       ]
+    },
+    "m7d-20261119": {
+      "reason": "M7 final (1ed3ce6): m7c + N64 defaults to the standalone Rice (decision 22: seed, n64-standalone migration, coredb default, unbuilt external entries dropped); developer image; raw 67ae7da4, p2 176c691a",
+      "files": [
+        "dist/firmware/test128-m7d-20261119.img.zst",
+        "dist/firmware/test128-m7d-20261119.img.zst.sha256",
+        "dist/firmware/test128-m7d-20261119.manifest",
+        "build/m3a/test128-m7d-20261119.p2.img"
+      ]
     }
   },
   "keep": {

@@ -4,6 +4,171 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M7 — polish: language, performance, power (done to T2 2026-11-19; image m7d on p2, T3 pending)
+
+Logs `build/logs/m7/`. Images m7 → m7t3 → m7c (recovery) → m7d.
+
+1. **Languages — done to T2:** the pinned upstream language pack
+   (MustardOS/language `3db301a`, `muos-language.txt`) replaces
+   internal's stale `share/language` (2679 of 3318 strings had no pt-BR
+   text); the port overlay (`port/packaging/language/`) adds the 32
+   newer strings, the Wi-Fi radio help (frontend 0001 now translates it)
+   and a jail-accurate SFTP help; CJK out (decision 17), Arabic font in.
+   Screen sweep: 44 ok; pt-BR complete except upstream file-name texts.
+2. **Wi-Fi liveness — done to T2** (`t2-wifi-liveness.sh` c2h + silent).
+3. **CPU 1512 MHz opt-in — done to T2:** DTS OPPs, `muos-governor` caps
+   (`danger/cpu_max` default 1296000), `muos-rc` early cap; trial boot,
+   3 min 4-core load at 1512 MHz/1.35 V (max 73.8 °C), sleep/wake;
+   promoted to main.
+4. **Wake — measured, unchanged** (timeline in hardware-findings).
+5. **Audio:** the WirePlumber retry stays (15/15 in M5); underruns not
+   worked on yet.
+6. **Idle power / DDR devfreq:** not measurable on the charger; open.
+7. **Wi-Fi warm-reboot H2C / dongle at boot:** covered by the worker
+   retries and the liveness watchdog; the plug-during-boot case needs
+   hands (T3 later).
+8. **Boot time:** UI at ~17 s uptime; S99 now skips upstream assign.sh
+   when core.json and the script are unchanged (−3 s from the second
+   boot). Soak: not yet.
+9. M6 T3: folded into the checklist above.
+10. **Image `test128-m7-20261119`** (`a868092`): trial root T2 passed
+    (NES 60.00, DOS 60.02, sleep 2/2 + 1/1 in game, t2-sdcard,
+    t2-sftp-jail, Wi-Fi toggle 3/3 + C2H, liveness C2H); written to p2
+    2026-11-19 (read-back verified; boots to the menu, build id ok).
+11. **M6 + M7 T3 (2026-11-19):** ok: pt-BR, screenshots, Wi-Fi,
+    boot time, auto-assign by folder, regression. Found: (a) archive
+    restore said "could not be marked as installed" (extract.sh writes
+    /opt/muos/update on the read-only root); (b) one black blink at the
+    end of the fade-in after a game and after a theme (bright.sh's
+    forced fb0 unblank, hardware-findings); (c) CPU 1512 not found (the
+    checklist gave a wrong path; the Danger screen is hold Y on
+    "Geral"); (d) slot 2 still dead with the former original32 card;
+    (e) N64 crashed at start (GLES2 build, hardware-findings); (f) BIOS
+    Report only said "6 findings"; (g) Explore listed the empty system
+    folders S91 seeds.
+12. **T3 fixes — done to T2 except the image's suite:** (a) S91 binds
+    p3 `MUOS/port/update`; (b) post-build skips the forced unblank
+    (verified live: no FB:69 commit, backlight still set); (e) N64 core
+    rebuilt for GLES3 (MK64 59.9, DK64 ~60 fps, 80–83 °C); (f) closing
+    dialog + case renames; (g) `folderempty` 0 + one-shot migration.
+    (d): the conclusive test (test128 in slot 2 under the port kernel)
+    needs the M8 U-Boot (root by slot 1, decision 16); the user has only
+    these two cards. Image `test128-m7t3-20261119` (`5e72cfa`, raw
+    `9c60175f…`, p2 `c1f45838…`): trial root T2 passed (sweep 44 ok/7
+    bounces, NES 59.96, sleep 2/2, t2-sdcard, t2-sftp-jail, Wi-Fi toggle
+    3/3, N64 start, no FB:69 after the screen is up on game exit, p3
+    update mark); written to p2.
+13. **M7 T3-fix T3 (2026-11-19):** ok: fade without blink, MK64,
+    archive restore, BIOS Report, empty folders, Fn+Start from N64. Found:
+    (a) the Danger screen lost the focus below "Máximo do processador"
+    and wrapped to the second row (upstream hides the Online Cores row,
+    absent here, before grouping); (b) its Left/Right ran backwards
+    (upstream lists the highest speed first); (c) switching 1512 → 1296
+    kept 1512 until the next game (tweak.sh's bright.sh boost holds
+    scaling_min at the old max, so the lower max write is refused);
+    (d) N64 never resumed (mupen64plus-next rejects a state before its
+    first frames); (e) DK64 drops frames in the intro and the first
+    controllable scene (better at 1512), its camera resets (the user saw
+    the same under ArkOS: emulator); a few CTR slowdowns at 1512, not
+    seen at 1296. Promoted to recovery (only the Danger screen failed).
+14. **Its fixes — done to T2 on the live root:** (a)+(b) frontend 0011
+    (hide after grouping, as muxtweakgen; caps lowest first, "Highest"
+    last): screenshots of the focus at both rows, the wrap and
+    Right/Left; libmuxmod repinned. (c) `muos-governor` lowers
+    scaling_min first: 1512 → 1296 through tweak.sh 3/3. (d) post-build
+    appends `savestate_warmup_frames = "5"` to the mupen info: the
+    user's MK64 (3 frames) and DK64 (5) autosaves restored.
+15. **Standalone Mupen64Plus (decision 19) — built, T1 passed, not on
+    the device yet:** `build-mupen64plus-sa.sh` (2.6.0 core with the
+    aarch64 new dynarec, ui-console, audio/input-sdl, rsp-hle, Rice,
+    GLideN64 GLES3+EGL at `a04081a`; 5.0 MB, pinned inputs), core patch
+    `port/patches/mupen64plus/0001` (MUPEN_AUTOSAVE: Stop saves a state
+    first), launcher `/usr/libexec/muos-mupen64plus` (N64's upstream
+    `ext-mupen64plus-*` assignments; Rice or GLideN64; Fn+Start quit +
+    autosave, resume with --savestate; Fn+R1/L1 state; libretro-like
+    controls; config in p3 `MUOS/port/mupen64plus`, saves per game in
+    pickles `mupen64plus_sa`; a mupen64plus-next .srm is split into
+    .eep/.mpk/.sra/.fla on the first start, header names tested in z64,
+    v64, n64 order on the host). T2 after the discharge run: assignment
+    list, start, input, quit/resume, DK64 fps (Rice vs GLideN64 vs the
+    libretro core), sleep while it runs.
+16. **Idle power — measured:** discharge run 22 % → low-battery
+    poweroff in 91 min at 407–425 mA (hardware-findings).
+17. **Standalone Mupen64Plus — done to T2:** fixed on the device:
+    nothing shown (SDL's async page flips are refused by the 4.4 kernel:
+    vsync forced on), Input-SDL section version, no forced
+    ThreadedVideo; Fn+X screenshot; muos-suspend stops/continues it
+    (fake sleep verified on the charger; real "mem" sleep is T3). T2:
+    start through the frontend handoff, DK64 .srm migration, Fn+Start
+    autosave + resume (DK Rap further along after restart), autosave on
+    UI stop (poweroff path), audio stream in PipeWire, fps with
+    `t2-swapstat.sh`: DK64 intro Rice 58 VI/s vs libretro 30.6 fps;
+    MK64 Rice 61; standalone GLideN64 20–27 (GPU-bound, any options).
+    The N64 folder's default stays the libretro core (MK64 59.9, more
+    accurate); DK64 → Standalone Rice per game (T3 item 4). The
+    assignment list's ext entries come from core.json (not yet opened
+    in the menu at T2).
+18. **New systems — T2 (decision 18):** real games at 59.8–60.0 fps on
+    title/attract screens: 32X Chaotix (core 8.9 ms), 2600 Pac-Man,
+    7800 Ms. Pac-Man, GG Sonic Triple Trouble, Lynx Blue Lightning
+    (handy's built-in boot, no BIOS), SMS Sonic, PCE Splatterhouse.
+    With the user's BIOS (decision 21): Sega CD Sonic CD (picodrive,
+    bios_CD_U.bin, 35 tracks) and PCE CD Dracula X (pce_fast,
+    syscard3.pce) 60.0 fps. Atari 5200, VB, Jaguar, Jaguar CD, CD-i out
+    of v1.0; Dreamcast, PSP, NDS, Saturn in M8 (decision 20).
+19. **PipeWire sink stall — found and self-healed:** the first trial
+    root of image m7c had no game audio (muxretro discarded it all; the
+    standalone N64 froze in audio-sdl's sync): PipeWire's ALSA sink had
+    stopped writing (appl_ptr frozen, PCM running). Reproduced 3× in ~10
+    full screen sweeps, never per screen; a PipeWire restart cures it.
+    `muos-frontend` now checks the PCM for 0.1 s before each game and
+    restarts PipeWire when stuck (T2: frozen PipeWire → detected (XRUN)
+    → restart → NES audio flowing). Root cause open.
+20. **M7c T3 (2026-11-19):** 1–3, 5–8 ok; 4 partial: save, controls,
+    steady frame rate, resume, sleep, levels and the camera ok (the
+    camera reset was the libretro core), Fn+X saved two shots but showed
+    nothing, no level bar. Glide much slower than Rice (expected). Small
+    slowdowns felt in the new systems. Promoted to recovery (m5 retired).
+21. **Its follow-ups — done to T2 on the live root:** decision 22 (N64 →
+    standalone Rice: core-assign row with an ext- core, S91 installs it
+    when `emulator/mupen64plus` exists, one-shot `n64-standalone`
+    migration of the folder and per-game cfgs equal to the old seed;
+    `coredb-governors.py` sets an external default and drops N64's
+    unbuilt external entries). T2: migration on busybox, MK64 from the
+    folder assignment → Rice under performance, Fn+Start autosave, .srm
+    split.
+22. **New systems, frame pacing (`t2-newsys-fps.sh`, 75 s each,
+    attract):** all 7 at 60.00 Hz, p95 16.9–18.2 ms; the only frames over
+    25 ms (one per 17 s window, always 2.1 s into it) are muxretro's own
+    15 s capture dump, so no hitch from the cores. 2600 Pac-Man has the
+    most 18.5–25 ms frames (62 per 75 s, still no repeats). The user's
+    slowdowns are likely the games' own (Chaotix and 2600 Pac-Man slow
+    down and flicker on real hardware) or level changes (~1 frame each,
+    M3b); ask which game if they persist.
+23. **CTR at the 1296 vs 1512 cap** (`t2-long-play.sh --cap`, mid-race
+    from the fixed test state p3 `MUOS/port/t2/ctr-race`, the user's
+    scene): 1512 is thermally counterproductive under a long load (CPU
+    held at 1008–1200 MHz, min fps 59.31, 433 underrun events) vs 1296
+    (59.88, 25): the 1296 default stays (decision 13; hardware-findings).
+24. **Underruns — measured:** the "bursts" are the game start (launch +
+    state load); a steady game underruns only when the core runs short of
+    CPU (hardware-findings, Audio).
+25. **Image `test128-m7d-20261119`** (`1ed3ce6`, raw `67ae7da4…`, p2
+    `176c691a…`): trial root T2 passed (build id `r35s-1ed3ce6`, sweep 44
+    ok/9 bounces as before, NES 59.96, sleep 2/2, t2-sdcard,
+    t2-sftp-jail, Wi-Fi toggle 3/3, MK64 Rice start/quit); written to p2
+    2026-11-19 (previous p2 `21fbc43b…` saved).
+26. **Soak (`t2-soak.sh`, m7d on main, 10 min per game, ~1 h 40):** NES,
+    GBA, 32X, PCE, Mega Drive (UMK3, from `megadrive`; SNES and MD empty
+    on p3) 59.79–59.95 min fps, 0–2 underruns, RSS flat, 68–83 °C, CPU
+    1296 MHz throughout; CTR mid-race 59.89, 43 underruns, 83 °C; MK64
+    (standalone Rice, folder default) 10 min alive, 61.9 VI/s, 78–82 °C,
+    Fn+Start autosave written; sleep in a game 5/5. Menu sleep 1 of 5
+    missed: the press reached muos-hotkey (SLEEP_SHORT logged 20 s after
+    the previous resume) but muos-suspend exited without a trace (its
+    lock or the recent-wake guard); rerun 5/5. Both silent exits now log
+    (next image).
+
 ## M6 — systems, cores, build from source (done to T2 2026-11-19; p2 never written, superseded by M7)
 
 Image `dist/firmware/test128-m6-20261119`. Its `write-p2` was refused by

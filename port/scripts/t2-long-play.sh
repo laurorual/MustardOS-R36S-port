@@ -18,16 +18,21 @@
 # summary adds muxretro's audio underrun events (session total) and the
 # CPU clock seen. The frames > 25 ms ("missed") include the capture's own
 # 15 s dump: about one per sample is the baseline (M7 newsys T2). Volume 10
-# for the run, the user's level restored.
+# for the run, the user's level restored. --press KEY: one muos-press KEY
+# 15 s after the start (e.g. start: a resumed state saved paused, such as
+# CTR mid-race, runs again; AI karts race without input). --state DIR:
+# start from that test state (t2-game.lib.sh $game_state).
 set -euo pipefail
 dev=$(dirname "$0")/device.sh
 logs=$(cd "$(dirname "$0")/../.." && pwd)/build/logs; mkdir -p "$logs"
-minutes=12 cap='' name=long-play
+minutes=12 cap='' name=long-play press=''
 while [ $# -gt 0 ]; do
     case $1 in
     --minutes) minutes=$2; shift 2 ;;
     --cap) cap=$2; shift 2 ;;
     --log) name=$2; shift 2 ;;
+    --press) press=$2; shift 2 ;;
+    --state) game_state=$2; shift 2 ;;
     *) break ;;
     esac
 done
@@ -62,7 +67,8 @@ bad=0 summary=
 for g in "${games[@]}"; do
     dir=${g%%=*} rom=${g#*=}
     game_start "$rom" "$dir"
-    sleep 20
+    sleep 15; [ -z "$press" ] || r "/usr/libexec/muos-press $press"
+    sleep 5
     first=$(r "$sample"); pid0=$(sed -n 's/^pid=\([^ ]*\).*/\1/p' <<< "$first"); rss0=$(sed -n 's/.* rss=\([0-9]*\).*/\1/p' <<< "$first")
     echo "$(date -u +%T) $dir start $first" >> "$log"
     why='' maxt=0 miss=0 fpsmin=999 n=0 pid='' rss=$rss0 temp=0 pcm='' frames=0 fps=0 missed=0 und=0 mhzmax=0

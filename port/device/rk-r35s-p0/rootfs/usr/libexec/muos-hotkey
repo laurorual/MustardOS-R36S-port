@@ -24,7 +24,7 @@ while :; do
     kill -0 "$mu" 2>/dev/null || { say "muhotkey died, restarting"; start_mu; }
     IFS= read -r key <&3 || continue
     [ -n "$key" ] || continue
-    [ ! -e "$run/recent_wake" ] || continue
+    [ ! -e "$run/recent_wake" ] || { case $key in SLEEP_*) say "$key ignored (recent wake)" ;; esac; continue; }
     case "$key" in
         SLEEP_SHORT|SLEEP_LONG) say "$key"; /usr/libexec/muos-suspend ;;
         IDLE_SLEEP) [ "$(cfg settings/power/idle_sleep 0)" -gt 0 ] && { say "$key"; /usr/libexec/muos-suspend; } ;;

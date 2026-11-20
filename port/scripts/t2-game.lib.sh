@@ -6,7 +6,10 @@
 # have a core assignment (info/content/DIR/core.cfg: core, system, launch).
 # game_start snapshots the ROM's pickles (state/*/DIR, sram/*/DIR and
 # resume.ini) to /run and game_stop puts them back, so a test run's exit
-# autosave never replaces the user's.
+# autosave never replaces the user's. M7: $game_state (a device dir with a
+# muxretro quicksave.state, its .png and states.ini, e.g. p3
+# MUOS/port/t2/ctr-race) becomes the game's autosave for the run, so the
+# test starts from a fixed scene; the restore removes it again.
 r() { "$dev" run "cd /; $*"; }
 # Match on /proc/PID/exe: pgrep -f would also match this SSH command line.
 pids_of() { echo 'for p in /proc/[0-9]*; do [ "$(readlink $p/exe)" = /opt/muos/frontend/'"$1"' ] && echo ${p#/proc/}; done'; }
@@ -35,6 +38,10 @@ game_start() { # ROM [DIR]
     r "test -f \"/userdata/ROMS/$dir/$rom\" && test -f '/opt/muos/share/core/$core'" || fail "missing ROMS/$dir/$rom or core $core"
     game_rom_name=${rom%.*} game_dir=$dir
     game_snapshot save
+    [ -z "${game_state:-}" ] || r 's="'"$game_state"'" d="/userdata/MUOS/pickles/state/'"${core%_libretro.so}/$dir/$game_rom_name"'"
+       test -f "$s/quicksave.state" && mkdir -p "$d" && rm -f "$d"/autosave.* &&
+       cp "$s/quicksave.state" "$d/autosave.state" && { cp "$s/quicksave.png" "$d/autosave.png" 2>/dev/null || :; } &&
+       sed "/^\[quicksave\]/,\$!d; s/^\[quicksave\]/[autosave]/" "$s/states.ini" > "$d/states.ini"' || fail "test state $game_state not installed"
     wait_module muxlaunch 40 || { for _ in 1 2 3; do r '/usr/libexec/muos-press b'; sleep 2; done; wait_module muxlaunch 10 || fail "not at launcher"; }
     r 'touch /run/muos/perf-capture; rm -f /run/muos/storage/pickles/performance.csv
        printf "%s\n" "'"$game_rom_name"'" "'"$core"'" "'"$sys"'" 0 0 "'"$launch"'" /mnt/mmc/ROMS "/'"$dir"'" "'"$rom"'" > /run/muos/content

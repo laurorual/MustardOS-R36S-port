@@ -10,11 +10,13 @@ after it. Rewritten 2026-11-18. The current state is in
 
 Phases 0–4 (inventory, first native component, display/input, the menu on
 the Debian bench, the standalone firmware base) are done. Phase 5 (own
-card) has delivered M1–M4g: a flashable image that boots straight to the
-muOS menu, with display, controls, audio, Wi-Fi + SSH/SFTP (jailed),
-battery gauge, sleep/resume, poweroff, time zone/NTP, six cores (NES, GB/GBC,
-GBA, SNES, MD/SMS/GG/32X, PSX) with saves and states, search, activity,
-and a public build variant without the developer's identity. Everything
+card) has delivered M1–M7 (M7's T3 pending): a flashable image that
+boots straight to the muOS menu in English or Português (BR), with
+display, controls, audio, Wi-Fi + SSH/SFTP (jailed), battery gauge,
+sleep/resume, poweroff, time zone/NTP, about 20 libretro cores plus the
+standalone Mupen64Plus (the N64 default) with saves and states, search,
+activity, themes, and a public build variant without the developer's
+identity. Everything
 listed under "What works" in STATUS is T3-confirmed.
 
 ## Gap inventory (2026-11-18)

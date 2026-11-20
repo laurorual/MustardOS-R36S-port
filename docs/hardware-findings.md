@@ -236,6 +236,12 @@ The open problems behind each "partial" are in STATUS.
   for 0.1 s before each game and runs `S80pipewire.sh restart` if stuck.
   Root cause open (the trigger is likely a menu instance killed during
   its audio setup).
+- **Underruns (M7, muxretro's `audio_underrun_events`):** light systems
+  0 in 75 s (6 of 7 new-system games; one had 2 events, 4 ms); CTR at
+  1296 MHz 20 in the first 20 s (launch and state load), then 5 in 6
+  min; CTR thermally throttled at the 1512 cap (1008–1200 MHz) 433. The
+  "bursts" are the game start; a steady game only underruns when the
+  core runs short of CPU.
 - **Codec:**
   - RK817 codec (`rockchip,rk817-codec`), card0 `rockchiprk817co`, driver
     asoc-simple-card, PCM `ff070000.i2s-rk817-hifi`, mclk-fs 256.
@@ -897,6 +903,14 @@ The open problems behind each "partial" are in STATUS.
     schedutil: 64 °C). The soc zone uses `power_allocator` (trips 70/85 °C
     passive, 115 °C critical); no cooling device engaged in 4.5 min
     (CPU stayed at 1296 MHz). The margin to 85 °C is small in a warm room.
+    M7 (`t2-long-play.sh --cap`, CTR mid-race from a fixed test state, 6
+    min each, already warm): cap 1296 → 80–85 °C, the allocator trims to
+    1248/1200 in the last minutes, min fps 59.88, 25 underrun events (20
+    in the first 20 s); cap 1512 → 80–82 °C but the CPU sits at
+    1008–1200 MHz the whole run (sustainable_power 750 mW), min fps 59.31,
+    433 underrun events. Sustained load is thermally limited: 1512 only
+    helps short bursts and costs more than it gives under a long load,
+    which matches the user's CTR slowdowns at 1512 (M7 T3).
   - *Wake:* muxretro was resumed before the USB/Wi-Fi bring-up: DWC2 up to
     32k IRQ/s, udevd, kworkers and the 8821cu firmware load stalled frames
     for ~3 s (max 89 ms). All device IRQs land on CPU0. With the game

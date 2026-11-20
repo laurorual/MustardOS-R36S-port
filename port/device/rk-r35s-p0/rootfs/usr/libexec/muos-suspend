@@ -32,8 +32,8 @@ test_wake=; [ "${1:-}" = --test-wake ] && test_wake=$2
 [ -n "$test_wake" ] || [ ! -s /run/muos/suspend-test-wake ] || test_wake=$(cat /run/muos/suspend-test-wake)
 
 exec 9>"$run/suspend.lock"
-flock -n 9 || exit 0
-[ ! -e "$run/recent_wake" ] || exit 0
+flock -n 9 || { say "ignored: another sleep holds the lock"; exit 0; }
+[ ! -e "$run/recent_wake" ] || { say "ignored: recent wake"; exit 0; }
 : > "$run/recent_wake"
 # However this run ends, re-arm sleep a few seconds later.
 trap '( sleep 6; rm -f "$run/recent_wake" ) 9>&- &' EXIT
