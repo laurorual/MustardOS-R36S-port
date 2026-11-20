@@ -93,6 +93,7 @@ launch_content() {
     ext=
     case "$core $launch" in
         *ext-mupen64plus*) ext=mupen64plus ;;
+        *ext-ppsspp*) ext=ppsspp ;; # M8
         *ext-*) say "external launcher $launch not supported yet"; return 1 ;;
     esac
     [ -n "$ext" ] || [ -f "/opt/muos/share/core/$core" ] || { say "missing core $core"; return 1; }
@@ -101,13 +102,17 @@ launch_content() {
     clear_requests
     audio_check
     if [ -n "$ext" ]; then
-        foreground mupen64plus
+        foreground "$ext"
         TRACK_SYSTEM=$assign "$track" "$name" "$core" "$content" start >> /opt/muos/log/frontend.log 2>&1 || :
-        variant=$core; case "$variant" in ext-*) ;; *) variant=$launch ;; esac
-        run_child /usr/libexec/muos-mupen64plus "$variant" "$content" "${file%.*}" \
-            >> /opt/muos/log/frontend.log 2>&1
+        if [ "$ext" = mupen64plus ]; then
+            variant=$core; case "$variant" in ext-*) ;; *) variant=$launch ;; esac
+            run_child /usr/libexec/muos-mupen64plus "$variant" "$content" "${file%.*}" \
+                >> /opt/muos/log/frontend.log 2>&1
+        else
+            run_child "/usr/libexec/muos-$ext" "$content" >> /opt/muos/log/frontend.log 2>&1
+        fi
         rc=$?
-        say "mupen64plus exit rc=$rc"
+        say "$ext exit rc=$rc"
         TRACK_EXIT=$rc "$track" "$name" "$core" "$content" stop >> /opt/muos/log/frontend.log 2>&1 || :
         default_governor
         sync

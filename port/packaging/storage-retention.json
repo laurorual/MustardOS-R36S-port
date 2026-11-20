@@ -37,6 +37,15 @@
         "dist/firmware/test128-m7d-20261119.manifest",
         "build/m3a/test128-m7d-20261119.p2.img"
       ]
+    },
+    "m8-20261120": {
+      "reason": "M8 so far (2be5a66+): kernel mmc DT aliases, quiet U-Boot + boot logo (root=/dev/mmcblk0p2), Wi-Fi deferred on wake in a game, standalone PPSSPP (dArkOSen), parallel-dc/melonDS/YabaSanshiro cores; developer image; raw fbd4871c, p2 0f723304",
+      "files": [
+        "dist/firmware/test128-m8-20261120.img.zst",
+        "dist/firmware/test128-m8-20261120.img.zst.sha256",
+        "dist/firmware/test128-m8-20261120.manifest",
+        "build/m3a/test128-m8-20261120.p2.img"
+      ]
     }
   },
   "keep": {

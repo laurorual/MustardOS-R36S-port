@@ -38,11 +38,12 @@ SG1000|gearsystem_libretro.so|Sega SG-1000|mu-gearsystem|schedutil
 SEGACD|picodrive_libretro.so|Sega Mega CD - Sega CD|mu-picodrive|performance
 POKEMINI|pokemini_libretro.so|Nintendo Pokemon Mini|mu-pokemini|schedutil
 ARCADE|fbneo_libretro.so|Arcade|mu-finalburn neo|performance
-# M8 (decision 20): the heavy systems, GLES through muxretro's hw render.
+# M8 (decision 20): the heavy systems. dArkOSen's choices where they can
+# run here (the user, 2026-11-20): PSP = standalone PPSSPP (muos-ppsspp).
 # flycast_libretro.so is libretro/flycast (parallel-dc), the coredb's
-# "Flycast" entry. PPSSPP needs its assets in MUOS/bios/PPSSPP (S91).
+# "Flycast" entry; DC and Saturn need their BIOS (MUOS/bios).
 DC|flycast_libretro.so|Sega Dreamcast|mu-flycast|performance
-PSP|ppsspp_libretro.so|Sony PlayStation Portable|mu-ppsspp|performance
+PSP|ext-ppsspp|Sony PlayStation Portable|ext-ppsspp|performance
 NDS|melonds_libretro.so|Nintendo DS|mu-melonds|performance
 SATURN|yabasanshiro_libretro.so|Sega Saturn|mu-yabasanshiro|performance
 NEOGEO|fbneo_libretro.so|SNK Neo Geo|mu-finalburn neo|performance

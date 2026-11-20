@@ -1,0 +1,9 @@
+{
+  "devices": ["rk-r35s-p0"],
+  "QUIT_STANDALONE": {
+    "handle_hold": false,
+    "inputs": ["MENU", "START"],
+    "is_normal_mode": true,
+    "run_command": "/usr/libexec/muos-standalone-quit"
+  }
+}

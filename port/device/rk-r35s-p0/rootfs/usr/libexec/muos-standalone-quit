@@ -1,0 +1,8 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M8: Fn+Start (hotkey QUIT_STANDALONE, opt/muos/share/hotkey/standalone.json)
+# quits a standalone emulator that has no such combo of its own, as
+# dArkOSen's killer_daemon: SIGTERM, which SDL turns into a normal quit
+# (PPSSPP saves its settings). Mupen64Plus maps Fn+Start itself (autosave).
+pid=$(pidof PPSSPPSDL) && kill -TERM $pid
+exit 0

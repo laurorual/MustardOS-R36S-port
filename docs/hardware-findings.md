@@ -354,6 +354,12 @@ The open problems behind each "partial" are in STATUS.
     (ENV_IS_NOWHERE, PANIC_HANG, no CMD_GO/rbrom; patch0007). **Never use
     `saveenv`.**
   - (phase4-boot-chain.md, phase4-uboot-sd.md, phase4-uboot-panel.md)
+- **Linux mmc numbering (M8):** the 4.4 BSP numbers hosts and mmcblk in
+  probe/detection order (no DT alias support), so a card in slot 2 that
+  initialises first would be mmcblk0. Kernel patch 0009 + DTS aliases
+  (mmc0 = sdmmc ff370000 = slot 1, mmc1 = sdio ff380000 = slot 2) make
+  slot 1 always mmc0/mmcblk0; the root is `/dev/mmcblk0p2` since M8 (an
+  image copy in slot 2 shares the PARTUUID).
 - **Device numbering:** U-Boot sees the SD card as `mmc 1`; Linux sees it as
   `mmcblk0`. These are separate enumerations, so do not swap them.
   (phase4-uboot-sd.md)
@@ -393,9 +399,15 @@ The open problems behind each "partial" are in STATUS.
   `HW_RANDOM_TPM` is off. Result: the RNG is ready at 2.6 s instead of
   7–11 s.
 - **Boot command and root check:**
-  - Kernel cmdline: `root=PARTUUID=4d554432-02 rootfstype=ext4 rootwait ro`,
-    no initramfs, `booti 0x02000000 - 0x01f00000`. The C79 image uses
-    `init=/sbin/muos-ext4-diag`.
+  - Kernel cmdline (M8): `console=ttyFIQ0,115200n8 root=/dev/mmcblk0p2
+    rootfstype=ext4 rootwait ro init=/sbin/muos-ext4-diag quiet
+    loglevel=3 ...` (until M7: PARTUUID, `console=tty0 loglevel=7`), no
+    initramfs, `booti 0x02000000 - 0x01f00000`. U-Boot autoboot delay 0
+    (stock odroidgoa value; it was 3 s). The kernel DT's `drm-logo`
+    reserved node is empty: U-Boot's picture is not handed over, fbcon
+    takes the display at ~4 s.
+  - U-Boot draws a BMP with `show_bmp`/`bmpdecoder` (no bounds checks:
+    only a validated 640x480 24-bit uncompressed file is passed, M8).
   - Compare root MAJ:MIN using `findmnt -rn`; padded output once caused a
     false "Root device mismatch".
   - (phase4-ext4-diagnostic.md, phase4-card-image.md)
@@ -986,3 +998,20 @@ The open problems behind each "partial" are in STATUS.
 - **Superseded:** the C89 p2-only Deck repair flow and the C82 offline
   backup (`build/phase4/offline-backup`, still kept, private).
 - **Untested:** power loss or SIGKILL during any write.
+
+## Standalone emulators (M8)
+
+- **SDL renderer apps need vsync on KMSDRM:** without it SDL queues
+  asynchronous page flips, which this 4.4 kernel refuses ("Could not
+  queue pageflip: -22", nothing shown): DraStic needs `SDL_RENDER_VSYNC=1`
+  (Mupen64Plus: `VerticalSync`, PPSSPP: `VSyncInterval = True`).
+- **Input:** SDL sees one pad, the virtual `muOS-Keys` (b0 B, b1 A, b2 X,
+  b3 Y, b4/b5 L1/R1, b6/b7 L2/R2, b8 select, b9 start, b10 Fn, b11/b12
+  L3/R3, hat d-pad, axes 0–3); the physical node is grabbed by muinput.
+  muOS's label mapping (gamecontrollerdb `retro.txt`) matches dArkOSen's
+  PPSSPP controls (Cross = B). Fn reaches PPSSPP as NKCODE_BACK (its
+  pause menu), so an "Exit App" chord with Fn never fires: Fn+Start is a
+  muhotkey combo (`QUIT_STANDALONE`) that SIGTERMs PPSSPPSDL.
+- **muxretro core options:** `pickles/coreopt/core/<core>.ini`, section
+  `[options]`, `key=value` without spaces (mini trims the key only).
+

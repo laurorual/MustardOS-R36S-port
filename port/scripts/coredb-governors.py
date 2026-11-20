@@ -23,7 +23,7 @@ import sys
 
 # external cores the image ships, per system (others in that system dropped)
 EXTERNAL = {"Nintendo N64": {"ext-mupen64plus-rice", "ext-mupen64plus-gliden64"},
-            "Sega Dreamcast": set(), "Sony PlayStation Portable": set(),
+            "Sega Dreamcast": set(), "Sony PlayStation Portable": {"ext-ppsspp"},
             "Nintendo DS": set(), "Sega Saturn": set()}
 
 

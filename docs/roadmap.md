@@ -102,8 +102,11 @@ as the reference): Dreamcast (Flycast), PSP (PPSSPP), NDS (DraStic is
 closed source: check its licence for a public image, else melonDS or
 DeSmuME), then Saturn (lowest priority: YabaSanshiro or Beetle). PSP and
 NDS likely standalone (exceptions to decision 14 like N64), with the
-launcher pattern of `muos-mupen64plus`. Out of v1.0: Atari 5200, Virtual
-Boy, Jaguar, Jaguar CD, CD-i. From the M7 T3: a quiet boot with a boot logo
+launcher pattern of `muos-mupen64plus`. Standalone emulators follow
+dArkOSen's choices, versions, settings and performance profiles (the
+user, 2026-11-20; dArkOS RK3326 `es_systems.cfg`: PSP standalone PPSSPP,
+NDS DraStic, Saturn standalone YabaSanshiro). Out of v1.0: Atari 5200,
+Virtual Boy, Jaguar, Jaguar CD, CD-i. From the M7 T3: a quiet boot with a boot logo
 instead of the scrolling kernel console (needed before any public
 image), and a libretro game held on wake until the bring-up settles.
 

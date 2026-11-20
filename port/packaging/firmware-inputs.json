@@ -13934,6 +13934,1302 @@
    "mode": "755",
    "sha256": "7a0371c79d5fc835a86f162dfc267353d59d76a79d8e8349a51a23fa1b2c9330",
    "origin": "build/m7/mupen64plus/tree/opt/muos/share/emulator/mupen64plus/plugins/mupen64plus-video-rice.so"
+  },
+  {
+   "path": "/opt/muos/share/core/flycast_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "4dcddbf3b48860a9257863b7d5714614dddb0362a0df90d96035eee82d7eef9c",
+   "origin": "build/m3c/cores/out/parallel_dc_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/melonds_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "b58d3ab64071a7a3187fba08fead91f669cbc7d4abd22da24bb6c1eec9218628",
+   "origin": "build/m3c/cores/out/melonds_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/yabasanshiro_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "030556c94695fb40492bb555443fde3ddcfceaea980c65b5d97aabc1a682e522",
+   "origin": "build/m3c/cores/out/yabasanshiro_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/LICENSE.TXT",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ff265754cbb2e0d3b674f90a79ef5bbaa1f7f1075aec9f5e241524520e5049fa",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/LICENSE.TXT"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/PPSSPPSDL",
+   "type": "file",
+   "mode": "755",
+   "sha256": "201df12298420bb679ca6a682c5a7f9a113faa81d6f03a621b2615ce45b4c1e5",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/PPSSPPSDL"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/Inconsolata-Regular.ttf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e0267abf9d734e2b9f766f8cb7a496b552c57cdfeacfa0efdc5bfd21940ae145",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/Inconsolata-Regular.ttf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/Roboto_Condensed-Bold.ttf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "da69d6f3193e279c892451c17f7e4926aecd4aeaf7300171ddb44c70551260ca",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/Roboto_Condensed-Bold.ttf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/Roboto_Condensed-Italic.ttf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "9fe1c2390bbce960ebba517eec37659fdd1c7a59dd256da6274b5b4d88509575",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/Roboto_Condensed-Italic.ttf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/Roboto_Condensed-Light.ttf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "3f1a3f85852fafc3a198904f6efc1fce5ae1013775ac40da35bd52ec82d38e41",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/Roboto_Condensed-Light.ttf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/Roboto_Condensed-Regular.ttf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d8e6f7c5a1356d41dd82b0c00219febd21c791cc5cd1ecf8a0323cbeafe6496c",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/Roboto_Condensed-Regular.ttf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/adhoc-servers.json",
+   "type": "file",
+   "mode": "644",
+   "sha256": "7c12f2ec3c4451693d385453f531fa9986e8689067c81a5530ba08a4c1e81512",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/adhoc-servers.json"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/asciifont_atlas.meta",
+   "type": "file",
+   "mode": "644",
+   "sha256": "92ab3d61d17e6fa2111a80bd75d89cc241f2a85461d0f3e58198f84adcf35c9c",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/asciifont_atlas.meta"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/asciifont_atlas.zim",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1020b3cc03eced719dceec715b547f849b5594c4b7085143eab50ed3e3d87afc",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/asciifont_atlas.zim"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/compat.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e0db159acb3a69325bbc4117e508dee1fe21892ff619cb3a11e632793a589da1",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/compat.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/font_atlas.meta",
+   "type": "file",
+   "mode": "644",
+   "sha256": "26a173366b420596279d69894384387e4867e66be73cedd1ee5cda5ec96a31fa",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/font_atlas.meta"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/font_atlas.zim",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5929677cbfb28fd9040f6c16cf479d5ac54b205f5df180d100d3b1a210df0353",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/font_atlas.zim"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/gamecontrollerdb.txt",
+   "type": "file",
+   "mode": "644",
+   "sha256": "96b0fbc7e18d1580cc5ccfdcd7c0cd61e451f1dc062ff91634e1327ecc28911f",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/gamecontrollerdb.txt"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/infra-dns.json",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a175162ac999a9d412abfbbc33792a3abce4a7fd76fb6acf3550735b6cb2b6a3",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/infra-dns.json"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/langregion.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "0b54a77d3e478c432f68f42b00149308bf97e51d1ec3431a4fc50fcff61e26ce",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/langregion.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ppge_atlas.meta",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2eadb18c05d8f492b46c23bcbad4f4811c98cf717145536ccfe136787845f2ed",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ppge_atlas.meta"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ppge_atlas.zim",
+   "type": "file",
+   "mode": "644",
+   "sha256": "3ab7fcf6956d0281ada94d501fc6d1cfa8fc034f139e25fed6c829f723d92a95",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ppge_atlas.zim"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/sfx_achievement_unlocked.wav",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c95f53b1279684c8db5f2b518a63675db3713b3c097c65fd2ff280baf29ffd34",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/sfx_achievement_unlocked.wav"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/sfx_back.wav",
+   "type": "file",
+   "mode": "644",
+   "sha256": "8e6550b975a34511788dbeaacae47c9be6c89c967052c12342c6cc32f5650e4c",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/sfx_back.wav"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/sfx_confirm.wav",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c2fdb1d1e6e677883f13eb866a1d83b8f67cc94f00aec21163612f61afefb693",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/sfx_confirm.wav"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/sfx_leaderbord_submitted.wav",
+   "type": "file",
+   "mode": "644",
+   "sha256": "61e780e220798f49d15e6d9eb85634a6e21f05765ed2a7aec682e196f4edda7d",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/sfx_leaderbord_submitted.wav"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/sfx_select.wav",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6d108dcae03c5a4ea04136b972c7c202b8b5013f4771791f0cb7348db0051dc1",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/sfx_select.wav"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/sfx_toggle_off.wav",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5d3c60e5fd12658ffc562f14331b7d0c962b818bee4a38aa9c928d2f08fb4f6b",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/sfx_toggle_off.wav"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/sfx_toggle_on.wav",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f56b389dde4da2ad6f65f3ac136c3d9c1a681aa76c3ca531e984410b261b4810",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/sfx_toggle_on.wav"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/jpn0.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d363cec75fecfafd1511e370e48c748c30199c694b83a4026be34d799b192917",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/jpn0.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/kr0.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6b0b3a8be9e709d6af02223d077675e1530f9879f42656377a9d8d42e2614333",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/kr0.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn0.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1184f16bc89bad1fea49093806784470281af54f279b57ef0378ce33e6603870",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn0.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn1.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "0cb72bdce33780b78596001fdc6842c244aac06e813fddf28e3437e4db45dd5b",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn1.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn10.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ff8fcdebca739eaa81c07caabd78b3e3eafb89cac0e68caf7aaf7a2b25514e85",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn10.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn11.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ebb94efd7d18143d6c6d54ae7aa5cc801d8c56dc7ca613c779cc60dc8b640a16",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn11.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn12.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c71f3dee57b8a105a88791dd041a008adb918b14a3892a1b18ed6a63f721201a",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn12.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn13.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "25b0efa79cf1b6656b35356483ad2b1191626550d59b5943ed681e82b945bd73",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn13.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn14.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "bc2c9389ac33f120b4be4fd3efc467de12fd886ec147969a4309ea270ccc1da3",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn14.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn15.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "4ab43137ebed97d8bbec829b32d4b343f9895e0b14ec1c884c1b44dfa35d5204",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn15.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn2.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ecfdfc8c7f1ee367dda81ff3177af626b5bf64014315ce0c389903c40964b4bf",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn2.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn3.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "82bf8f0b60fd7e513560b29c52f6c721ade05910a144704c17f78aba298d9b08",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn3.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn4.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "250babd8a242d7eaaa84284c78d5e2273b29e61d0d8c01b65414e3248d7c1164",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn4.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn5.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e30b45662d37516c590ca070c831b44a6883587e223abd28082cb017623474f7",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn5.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn6.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a0fb14123ceb1ef81cb230cbf0688de594d0725de234a2ad710cd9b89391c7e9",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn6.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn7.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "9a4d35eeeee93fe8b5434e8dff79dabf7bbd914ad0d6461fb60d36eb178bf2c8",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn7.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn8.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c8620bdd244585bbf993a82903168f6ec8464d4cbcad238d4e0ca5623c1ba3c1",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn8.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn9.pgf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e250f2782e0c72707ce16f73331e2604daa84c488c8b9c959e2296867c1710bf",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/flash0/font/ltn9.pgf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/README.md",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5bce8cf4a2bd04da57dddfc2eacd27c9e01173baad2c1f3ed0d3a3859e4843d7",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/README.md"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/ar_AE.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "93a29acf5f825c392c9a5e0b561244a21db313a2cd2fa099d6111c400409f2ef",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/ar_AE.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/az_AZ.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6f1d4c0911e65d61c478c1f904b018f8920af891d398d093c36c4a995e51b69f",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/az_AZ.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/be_BY.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "16be60ed6b5963f17961a62599e45c5c7602dae73dbe9f9c6bdcb14c4c6cf3b4",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/be_BY.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/bg_BG.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d4500c3dd4f9bc26c12f077ff698cbbb1539d917c80246ffe98cb2bbaa9c4f6a",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/bg_BG.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/ca_ES.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1ea0777e888ba67669c7826e7a46679459ebdf3e272e0c208697051c0c130bf4",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/ca_ES.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/cz_CZ.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "781329513cdd02918db01154d236ca6f47d95ce444c0383762f10c23cc568395",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/cz_CZ.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/da_DK.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "eb595d4da187eaba1a770470e277b7ed7d7f436c228895ad4c264f77863de50f",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/da_DK.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/de_DE.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a8b9c10a186052e8d4d8d4238562afef68603b21e28757e93da3fa225f6622e4",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/de_DE.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/dr_ID.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1c81a0eda36693d8254f65f3314756f74ac9ebee4ba86434febfbd3a14164bd1",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/dr_ID.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/en_US.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "7cf4d007fbb9fd1005c79a16059d02953eea854fe65fc3471291bc2bf8f88da7",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/en_US.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/es_ES.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "682c0049d92ebb487dc15c7bdd4047bf352172e562b790288789f1a0a6bd34e5",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/es_ES.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/es_LA.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "9e0c0aea0c8e61aa74a1e57edf7dba2e55a534b9ae513b4d76ee8e8063fa42f6",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/es_LA.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/fa_IR.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "65f3afdf8ca395b877cab636f5b43eaca7e35423a7c25272b25dd947c0b7b25b",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/fa_IR.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/fi_FI.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "838cc305065559cbeb81a9af37d9be9d3f476940fa2f998d9e617fac4b692b40",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/fi_FI.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/fr_FR.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6f384961b22c91ff03dce752d53ff9061e1e374d09ea51294e3af5722ed099f2",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/fr_FR.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/gl_ES.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2dadee6e9012fa12dbb05ea67ea058e5e5d2a93a1a4814e7ee8b3b07b614d2b4",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/gl_ES.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/gr_EL.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "aedaa0b4f5643b100135e40352e7f80c1bd4fcb1818fe0f33d5a22f13918a95b",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/gr_EL.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/he_IL.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "85d08f4d5bbb08de37db21c95ef68da6d053a95b97bf1d78ca995de15f1b9db8",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/he_IL.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/he_IL_invert.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d424f9538e9aa332bf81f774258ad3aa05aac3a6212a2b165e1f97491f41ad67",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/he_IL_invert.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/hr_HR.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "99e71438f2409ad669093db48eb93c9279b136551caa46333e37b239426ed91e",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/hr_HR.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/hu_HU.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "3ec3bdfb82a11e9b9e7f6ddb0f92ee4d6c0643895399b860db1ebd5904475f8b",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/hu_HU.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/id_ID.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "8975789472bdc85774446e610b8463f2dfd51ec2c0296f7875285d45786fa54c",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/id_ID.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/it_IT.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f860c7f73971e41a467ab339ae2dd29bbe7e64260f2bbca616c7b9f2ea2531b7",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/it_IT.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/ja_JP.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "db4322a1184b89fa559575858f6f1a40a7ffeec5e52f24352faec5d416c8a487",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/ja_JP.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/jv_ID.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "b88bbe6727c54d2f0e998ed6ca2537c66dea8679e88d863c4aaadc9245d087ae",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/jv_ID.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/ko_KR.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "8a7202296d6fceac80eda6c2026e9eb03ec4fa65867019b209c0f1e8c883403f",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/ko_KR.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/ku_SO.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "898ba7bdd8e7edd89bd2caa724aed65844013cc4db3007ac36a82ea40763f7eb",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/ku_SO.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/lo_LA.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6e3b65e05fc1de775af9b4bdd1b8c0092306d3dbd92bcceeb426b70eff56a310",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/lo_LA.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/lt-LT.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "3fc8a398915d3c02407a6e3344033c9435f84bde797a5502ee4ef9b83edd4c69",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/lt-LT.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/ms_MY.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "134d6b260746404c63c989d18af87e7e85f06a2e4d6f119396a6f42cba39bd41",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/ms_MY.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/nl_NL.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2b3961ef50e2d2280f34c9ad38237e9b8805f2ddab3ab94914b4ca4e5af09608",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/nl_NL.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/no_NO.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "8db3229d263f2a0dfae72f0f41d37f93c072d5d634fd82a93d528e17249e6b45",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/no_NO.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/pl_PL.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "53f07ce9e325421084d9ea0f18f93afbef18f04f1e04ef379bcae6864d2eb948",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/pl_PL.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/pt_BR.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ebc66d179e11572816b0a12071f054d2d6d7563085b1600318f0cffa31130aba",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/pt_BR.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/pt_PT.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e6455a184ed597f2a7a2d13fe4a66cb94319e7f9e262de85ea46c7b232d616bd",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/pt_PT.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/ro_RO.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f77a4bcd894f6a6a4bd708354398c99ae07a6deba3a289f01d19cb9a29bf774a",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/ro_RO.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/ru_RU.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ff888b958bc18575235e99da7b64ae86f675489bdc3bc768613496df1ef38603",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/ru_RU.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/sv_SE.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f16a989d37a40d1e6a31b46a6f6662fd4445cc8c84acd91f76d2885e63d9290e",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/sv_SE.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/tg_PH.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "4ac1b434340ace2fd12c4aa769fdce68509341d3504f571f7c2808afb55ab469",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/tg_PH.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/th_TH.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "124bcf721f6dfcf192247174a0671ad74dd85058e0ab69c2b1ab5a9f54736e20",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/th_TH.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/tr_TR.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "9587d62507235fd04fe3860aca65a2a2f7ffa7cdf9717bf4ed8ac8c65ef25d38",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/tr_TR.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/uk_UA.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5783d072cf5a26c077751a6a44f375c57f2b615902f77ffcd07f5894a495c8f3",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/uk_UA.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/vi_VN.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "08e680216c935d0055c4fe2ca6970d93c2d848ef91590d48f26ce67c3904b269",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/vi_VN.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/zh_CN.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f45be6e9bf38d6d131456a483a6507dc8d1d328addfbd54f8a3bb70d83cacb4a",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/zh_CN.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/lang/zh_TW.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "0a88c71907f0e622489f24e9209a2a2ef145973eb8f8f7b28edbc00295ebf87a",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/lang/zh_TW.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/4xhqglsl.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "3e656f9b30a1d2a4bfe4dda6696d79cd28d4fd499d1d80c704e30b959e3c6001",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/4xhqglsl.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/4xhqglsl.vsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c195f001259bcdf9b2be7260c91ae59ae171cc825cb494af8472fae2193d6916",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/4xhqglsl.vsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/5xBR-lv2.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1ccbec50ae113f2ea8088e5535cfc99044e0f5ceb38800e8fcfcf4a8c92522d2",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/5xBR-lv2.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/5xBR.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "44374186c32bebec095ebf014894401969bdf75b67d45b2a3a5a40ae803953f5",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/5xBR.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/5xBR.vsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2c8161eda12a9d7a28b3bdb9c4375e4eb83d0fcbc11e70276391942339568eee",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/5xBR.vsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/GaussianDownscale.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "eb36c1b654376381922d1a486e5a1a998155e357e96f5c7ff6c94c2d98214a55",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/GaussianDownscale.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/aacolor.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6d4b8e3478a0397181f4476c3e294af11b88b100c25883a2a5453d357d67f146",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/aacolor.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/aacolor.vsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a3ea2687befd37aadf269d0934fab5c54034a065b88f18d5861281d5fea31264",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/aacolor.vsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/bloom.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "09a3685bac8c85ae7a6d125eadefe5d84d2809c380a47f3d6df4577e565f4bec",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/bloom.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/bloomnoblur.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c709c37901654dd59c30a624e06bb04f67b6c62417b455425faa404874ebfb6c",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/bloomnoblur.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/cartoon.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c61aedf38403939dbd8eb5df239928fbcdd8522573aa6707098f52bcd0f0b5fe",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/cartoon.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/cartoon.vsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f1cc9d0d6c269fc257c53880b093a9de70b2f8f88580039bfa50b1372bf6846d",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/cartoon.vsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/colorcorrection.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e39e2a2dffa0141237351a6be41cd1db645e7f72764f3ceff410adf7ae977283",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/colorcorrection.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/crt.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "dcf1f35df91366b78cd708dacf8140f9b305da8ac69c0461690a623de03e1d24",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/crt.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/defaultshaders.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "687b26977775cc34e685bbbadf166527417663568f4cce33854f89a6e8b84946",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/defaultshaders.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/fakereflections.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e02090c0455cb0fbd720ca78f246d82152f04ccc80bd9f62c54912f61f253857",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/fakereflections.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/fsr_easu.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c0ce5e6d85841569d4ddfec8866d300a7968e1d4d02899ab825fbb98460aedcf",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/fsr_easu.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/fsr_rcas.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f61e788f8a9a07d7d812f612c857d5956012c6c6d809010cde417d3a4b5c1be4",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/fsr_rcas.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/fxaa.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "b0d5bd19ac6658dfa21eeb3a4f2b7a91e19ea09de3499c360a67fdb53487d19d",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/fxaa.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/fxaa.vsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "05d6207a1b459d131e7cdbce5d8d6aeb35fbac4a60f02d8b072bdb600174c84b",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/fxaa.vsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/natural.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "31e11f048a9421a3566dc59254d9f24cedca1ca7b7cb7f796c8da6a6d665411b",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/natural.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/natural.vsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "33752c2162f4f5042d251a4732fa5781d6dbcb0964a419509c471103ab43a96a",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/natural.vsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/naturalA.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "dc28e8ea863823bf5d2de3dc81babc99856983507b67d5bc9051df7d1969f1b1",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/naturalA.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/naturalA.vsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c8049698fa9a637ad9d17857321cff5ae5828ba02249760ee7f7eb7ea99bf1ec",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/naturalA.vsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/persistence.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2bdd958789e33dd9e973227e62f1b36f3bc77b048c34e82aef39b2bfceb5b11f",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/persistence.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/psp_color.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2e6cda41b9ad36ee0c33b92155e7069cf9c295770dec8e31675f92ac8425e14f",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/psp_color.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/scanlines.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "130ea313492c185fd30baf42bbd45de0815697f9dd5b4e61d263efd6c7bc8995",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/scanlines.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/sharpen.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "33e2b9a4797cd722c5963eafb2668a1111b4b54e62c1025c7c36cc46e0b0586c",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/sharpen.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/smiley.py",
+   "type": "file",
+   "mode": "644",
+   "sha256": "257fb64c32470b0f469792b61cf07a09409912a7b69bf92969702046bf83557a",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/smiley.py"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/smiley_16x16_rgba.bin",
+   "type": "file",
+   "mode": "644",
+   "sha256": "898a2064aeac496e82c18d9fa86547a69a069152154a6134ad12680623f0a0df",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/smiley_16x16_rgba.bin"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/stereo_red_blue.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5ab5bed9dce6d17a0fd840be30c7bc1e34485f6b49555b650e926404173b68c5",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/stereo_red_blue.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/stereo_sbs.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "acb4f6149070bcb83953947680ac96519bd3f37219b3e39705d40fab049b3f62",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/stereo_sbs.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_2xbrz.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "43824c306a4b1cb8d7a6d430f5dfa15be3bfe7e9caff350bd5913b34d0914ea4",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_2xbrz.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_4xbrz.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d9797ae8f4a7335730132fd79406c731da340ad79e7db6cda0391a9e831c2a06",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_4xbrz.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_mmpx.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "be2c95364cc81b84f9ac64d14186c1c8fac2e1e4074d6f36d1ed3a10cd7701a9",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_mmpx.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_mmpx_adv.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "3f5e7b1c189bc0e31c1d5628f10a23a51c63c24cf11f171ad92cacaed8371249",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_mmpx_adv.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_2x_single.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1be43bf0c72e33a08c9bba84fdb940b86a27811181fd9ca82cff192734ef1d8d",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_2x_single.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_4x_single.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5aae21ce046033d2584985c8366dd88ad7837203e0d2d7cce7b1d72043255c5d",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_4x_single.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_mp_cshift_2x.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e37c7265db6a83a807f52cc4e740849b59914e6bc038b9a8b099146e2061c7ef",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_mp_cshift_2x.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_mp_cshift_4x.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "8207fd6d6c829a2f36f310176dc99e6dc408f393d7ca8f3dbcca3c75431c49de",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_mp_cshift_4x.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_mp_nns16_pass1_buffer.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "4a5e4f5ed7f624fce8fb73b0de96e3ad16f92afcac3f257708baf68341421f87",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_mp_nns16_pass1_buffer.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_mp_nns16_pass1_image.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "49c44eda205aa2681c5808dfcce7eb18a1ed8c7ce92c2b7ffaa41cb88a4dc810",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_mp_nns16_pass1_image.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_mp_nns16_pass2.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "18a74d5e2259d943e007e7aee1e11c211f90ade9e3cdff84541a65de8bf3f800",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_nnedi3_mp_nns16_pass2.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_smiley_2x.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c19a904fed26e76a0ea70372aad240075f408e4be0137d3594cfceeaaab40d54",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_smiley_2x.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_spline36_2x.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "7c473fc5e693693368f90640529cec71e9e4f14755dcd4b449f3b6b13534555d",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_spline36_2x.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/tex_spline36_4x.csh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c2b68d0e6fc698ad30612bb861535b85ac62f5064dfc794b065f476ac33277a6",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/tex_spline36_4x.csh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_bicubic.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c0d71546f9607b9bb560ef098b8221122f3ce2292c70377eb45278cb43cb2852",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_bicubic.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_bicubic.vsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1f6954bd0113f37759d7e411b916147a0393795002c335c2db524ea87533f19c",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_bicubic.vsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_sharp_bilinear.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a0457f1f964ba9765301642114d94d0d682cd53e2538e887f33aed965885e580",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_sharp_bilinear.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_sharp_bilinear.vsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d2296209f94a4abd60c7c865ea7b4d2991b16eb0d075c1488e8c2a3ebc6ad6aa",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_sharp_bilinear.vsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_spline36.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "43295e897c1d608cfe6128906a85ed04b071943fe08753e652b13eb63a437767",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_spline36.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_spline36.vsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "8a37557a9b87a4c6d2fb1ad3006cc20b59dfe16b50c183344c47f9e650156626",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/upscale_spline36.vsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/videoAA.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "40b100fd3734cb00c2ce26ff8599bf1686b469a2c7596b5d651bc2ee7e1ac2db",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/videoAA.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/shaders/vignette.fsh",
+   "type": "file",
+   "mode": "644",
+   "sha256": "332c37880e715b5538553c11d88f32a818bdf74bdf4d6e35141913c2062b7efd",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/shaders/vignette.fsh"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/themes",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/themes/1995.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a9d946eb6b41be312feaf55a6a44d42b707f87a37e8ff501200daaed585f6a35",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/themes/1995.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/themes/alpine.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "601ebaab67277778cdfb08c476b403a50b4921448e79575ea497e3e8e70bf6bd",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/themes/alpine.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/themes/defaultthemes.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2ac2f1c16cea22e3335e241dadc0565c5ff3e872baa86533c601875dc63163eb",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/themes/defaultthemes.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/themes/slateforest.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "68297da8469ee4ff992ea786078e274f39927ccf2f45ce32dbb6db8b1e2de38c",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/themes/slateforest.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/themes/strawberry.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5b443e322154996c51aac5149001467dc050e74dffa0c98e289d371d00da8187",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/themes/strawberry.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/themes/vinewood.ini",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e542850be7f67380a2b5111636381a1cffb55431ca557d50516250b77f8b182a",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/themes/vinewood.ini"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images/bg.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "cb5de20853266b1e469cec09f80e04642decbc8e756eb3dceec686f50d9e3fac",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ui_images/bg.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images/buttons.svg",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6b15399b77531fa7290b0bb43dc93cc806ca3b63c8f019e56026240984616726",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ui_images/buttons.svg"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images/drop_shadow.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "118475adc99d892656b59de796b710be8e255370ec93a99d3a01282078cb4b3e",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ui_images/drop_shadow.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images/icon.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a7c8fd7f99c116dc954ab4b6d3d35a1b9a587c8e69f78c868c49f64af74ca0e9",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ui_images/icon.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images/icon_gold.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d1f29ddea1ce92ee277a62f338d5e0b059ae0889d839bbb79c2d1449b87e8ba2",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ui_images/icon_gold.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images/images.svg",
+   "type": "file",
+   "mode": "644",
+   "sha256": "bf68d1853f1b971f0176a1c1ad55ff393061ddeb4bcf32e556ddc8fa85679cf1",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ui_images/images.svg"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images/psp_display.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2f00a4add375d19e0905cc79587d585972255b66eb3ffd66829c9007372fbf91",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ui_images/psp_display.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images/retroachievements_logo.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "fbc76d97c2db7f6627530f362b356eb7e49079b4b2f8c6fe0db2f0b0750e98d7",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ui_images/retroachievements_logo.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images/stick.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "cfd24d9ec1f13d72215cb0a1c7ed6ca0e76b687bf12981665eb99a3c4a020585",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ui_images/stick.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/ui_images/stick_line.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "be931a9e6c4fd2eabb096c035e324953eb12c04617fb62f8e69cbd30d361210e",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/ui_images/stick_line.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/upload",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/upload/index.html",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e4cf1953e7c5972de12a319e49db8897de4f433d2bd9995fda4aadef22438ca1",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/upload/index.html"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_asin_lut65536.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "7a046ed71cc700dba4f90ff42e66ebd4b292281d3d2899202c3e370aa7c26ef9",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_asin_lut65536.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_asin_lut_deltas.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6c6ba37ae631df90b731c6753f500e1bd4455b6435a56d50e3dd8f813b234027",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_asin_lut_deltas.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_asin_lut_indices.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "418dd88590f2a2cfe4d45b27abe5e547a81ecf3ea00c90afec86740d6012d9c8",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_asin_lut_indices.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_exp2_lut.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "fcd6b4f4bb088e70c0c3e0aa0466d8ae9a2bf6b9459ae0a660e7de37a914ea35",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_exp2_lut.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_exp2_lut65536.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "7a0c42d5652c0fa48f457072b02a87f949e747d3f8a04f25bfa861fc2b85b01d",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_exp2_lut65536.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_log2_lut.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2ce3277fc2eaa9188f7afa341dadfd041447c07482d7aea8c5dbd1a3c869181c",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_log2_lut.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_log2_lut65536.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f7b0f2726808c5bb7207a2a5c297df437277e95e121b7e46dc8f5cf152bb0dd4",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_log2_lut65536.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_log2_lut65536_quadratic.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "25a0ddddbf33bab98a88f9c95a678fb93d54be17b1d08a1a90131161b42eeec5",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_log2_lut65536_quadratic.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_rcp_lut.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "0aee9fd249988073e4f364cd724cb6f54aa0c57ce0b515a1fe69a65444a92c55",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_rcp_lut.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_rsqrt_lut.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "9ebaa077ce0e70c6e6a706945bd905af681a8cc16d9fedd623b23d59d7794ced",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_rsqrt_lut.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sin_lut8192.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1017c38fcc37ced830dc68e5603725526ecadcc23bb0fdf99159622351f61676",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sin_lut8192.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sin_lut_delta.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "24bddbb34b59b9a714e3c1f9a0335b3fbbfcedf8d04e71f95adf1b4295fbb13b",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sin_lut_delta.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sin_lut_exceptions.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "46d585d103c9265393ed7c79bc4db7d047daf855c52358f4311a54d275e7fb74",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sin_lut_exceptions.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sin_lut_interval_delta.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1506831c116bb5def823fc89c80b8d4fcdd6c938b223855a67709fcfe3fb285b",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sin_lut_interval_delta.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sqrt_lut.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "634e81488992fc2a0bfe5eaa3982f8895f7cdbb59595cb1dc6934bddafde86a6",
+   "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sqrt_lut.dat"
   }
  ],
  "remove": [

@@ -56,8 +56,11 @@ pid_of() { for p in /proc/[0-9]*; do [ "$(readlink "$p/exe")" = "/opt/muos/front
 retro=$(pid_of muxretro | head -n1)
 # M7: the standalone N64 emulator (muos-mupen64plus) has no save hook; it is
 # stopped while asleep and continued where muxretro gets SIGUSR2.
+# M8: also standalone PPSSPP.
 sa=$(for p in /proc/[0-9]*; do
-    [ "$(readlink "$p/exe")" = /opt/muos/share/emulator/mupen64plus/mupen64plus ] && echo "${p#/proc/}"
+    case "$(readlink "$p/exe")" in
+        */emulator/mupen64plus/mupen64plus|*/PPSSPPSDL) echo "${p#/proc/}" ;;
+    esac
 done | head -n1)
 save_retro() {
     [ -n "$retro" ] || return 0

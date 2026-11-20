@@ -11,45 +11,53 @@ milestones with their results and T3 checklists in
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M5 and M7 done (M6 folded into M7;
-M7 T3 passed 2026-11-20). Recovery image: m7d (on the device). Current:
-M8 (card layout and the heavy systems); its bootloader and
-partition-table writes need the user present.**
+**Phase 5 (own-card firmware). M1–M5 and M7 done. Current: M8 (card
+layout and the heavy systems), first night done 2026-11-20 (unattended):
+image m8 on p2 and the new U-Boot (root by device, quiet boot, boot
+logo) on the card, both T2-passed; T3 checklist below. Recovery image:
+m7d (its U-Boot is the old one; the m8 image carries the new one).**
 
 ## Next session — read first
 
-- Device on main = **M7d p2** (`176c691a…`, build `r35s-1ed3ce6`;
-  written 2026-11-19 ~22:00 by `write-p2` from the trial root; the
-  previous p2 saved as `MUOS/trial/p2-previous.img` `21fbc43b…`), no
-  live installs on top; it is also the recovery image. The
-  muos-suspend/muos-hotkey logging of silent sleep exits (M7 item 26) is
-  in the repo only (next image). Boot
-  records: main = the M7 DTB.
+- Device on main = **M8 p2** (`0f723304…`, written 2026-11-20 ~03:05 by
+  `write-p2`; previous p2 `50a5c24d…` in `MUOS/trial/p2-previous.img`)
+  and the **M8 U-Boot** (`159e086c…`, written ~03:10 with read-back; the
+  M7 one `65fb3dcd…` in `MUOS/trial/uboot-previous.img` and
+  `build/m8/uboot-previous.img`). p1 has `bootlogo.bmp`. Boot records:
+  main = `Image-331eebd4a643` + `panel0-c97151d0ec1a.dtb` (mmc aliases),
+  previous = the M7 kernel/DTB. No live installs on top.
+- If the U-Boot ever fails: write `build/m8/uboot-previous.img` to
+  sectors 16384–24575 of the card from the host reader (p3 untouched):
+  `dd if=build/m8/uboot-previous.img of=/dev/sdX bs=512 seek=16384
+  conv=fsync`.
 - CTR test state (the user's scene, mid-race, unpaused): p3
   `MUOS/port/t2/ctr-race` (`t2-long-play.sh --state`, `t2-soak.sh`).
 - Idle discharge run done (report in hardware-findings, logger stopped).
-- Device volume 40 (the user's).
+- Device volume 35 at the end of the M8 night (40 before; T2 runs set
+  10 and restore what they read).
 - The standalone N64 SRAM of DK64 and MK64 was migrated from the
   libretro .srm on 2026-11-19 (`MUOS/t2-bak` deleted after the M7c T3).
 - New-system ROMs from `port/roms/` on p3 (2026-11-19): 32X, ATARI2600,
   ATARI7800, GG, LYNX, SMS, PCE, SEGACD (Sonic CD), PCECD (Dracula X);
-  BIOS `bios_CD_U.bin`, `syscard3.pce` in p3 `MUOS/bios`.
-- Slot 2 waits for M8 (decision 16).
+  BIOS `bios_CD_U.bin`, `syscard3.pce` in p3 `MUOS/bios`. M8
+  (2026-11-20): DC (Power Stone 2), PSP (God of War CoO), NDS (NSMB),
+  SATURN (Sonic R); core options: `melonds_threaded_renderer=enabled`.
+- DraStic test copy (dArkOS binary + RG351MP cfg) in p3 `MUOS/t2/drastic`.
 - Smoke ROMs deleted from p3 (2026-11-19); `make-smoke-roms.py` makes
   them again for T2.
 - The user's spare card is in slot 2 (exFAT, `ROMS/megadrive`); it never
-  initialises (open problem). `/dev/mmcblk0` is still slot 1.
+  initialises (open problem). Slot 1 is mmcblk0 by DT alias since M8.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1, the user's spare card (exFAT) in slot 2: M4b image
   flashed 2026-11-14, then p2 written in place (`write-p2`) for M4d,
-  M4e.1, M4f, M4g, M5 and M7 (m7, m7t3, m7c, m7d). `user_init` = 0. Time
-  zone −03; volume 40 (the user's; T2 runs use 10 and restore it).
-  - Boot records: main = `Image-ea8ac0033c0e` + `panel0-0475265be8ac.dtb`
-    (M7: CPU OPPs to 1512 MHz, capped at 1296 by `danger/cpu_max`);
-    previous = `Image-ea8ac0033c0e` + `panel0-bc04b6f8e4d4.dtb` (M4f–M6).
+  M4e.1, M4f, M4g, M5, M7 (m7, m7t3, m7c, m7d) and M8 (m8); U-Boot
+  rewritten in place for M8. `user_init` = 0. Time zone −03.
+  - Boot records: main = `Image-331eebd4a643` + `panel0-c97151d0ec1a.dtb`
+    (M8: mmc DT aliases; CPU OPPs to 1512 MHz, cap 1296); previous =
+    `Image-ea8ac0033c0e` + `panel0-0475265be8ac.dtb` (M7).
   - p3: ROMs, Wi-Fi profile `Home.ini`, zone link, rumble verdict
     (absent), the six seeded themes, PSX BIOS (`SCPH550x.bin`, upper case).
 - **original32 (stock dArkOSen):** the flasher station (slot 1, target
@@ -64,14 +72,14 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
+| `dist/firmware/test128-m8-20261120.img.zst` (raw `fbd4871c…`, p2 `0f723304…`, U-Boot `159e086c…`) | M8 night 1: mmc aliases, quiet U-Boot + boot logo, Wi-Fi deferred on wake in a game, standalone PPSSPP, DC/NDS/Saturn cores | on the device (p2 + U-Boot); T3 pending (the M8 checklist) |
 | **`dist/firmware/test128-m7d-20261119.img.zst`** (raw `67ae7da4…`, p2 `176c691a…`) | **Recovery image since 2026-11-20.** M7 final: m7c + N64 defaults to the standalone Rice (decision 22), pruned N64 core list | on the device; T3 2026-11-20: 1–8 passed |
 | `dist/firmware/test128-m7c-20261119.img.zst` (raw `5878d3b3…`, p2 `701eb2a8…`) | M7c: the M7 T3-fix fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal (recovery until m7d) | T3 2026-11-19: 1–8 passed (4 partial: no level bar or screenshot feedback in the standalone N64) |
 | `dist/firmware/test128-m7t3-20261119.img.zst` (raw `9c60175f…`, p2 `c1f45838…`) | M7 + its T3 fixes (recovery until m7c) | T3 2026-11-19: 1–5 passed, 6 partial (Danger screen, fixed in m7c) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-4/5 versions in `storage-retention.json` (m7 retired 2026-11-20 when
-m7d became recovery, 447 MiB). The next image fits; the one after
-retires m7t3.
+5/5 versions in `storage-retention.json` (m8 added 2026-11-20). The next
+image retires m7t3.
 
 ## What works (T3-confirmed)
 
@@ -114,8 +122,16 @@ CD; Wi-Fi dongle plugged during boot; 15 min of CTR/MK64 without cuts;
   gauge's charge-finish step (dsoc → 100 on charge done) doesn't run
   while suspended, and/or the low learned FCC. Low priority; look at it
   with the M7 power items.
-- **p2 space:** 488 MB root, ~113 MB free with the M6 cores (FBNeo 80 MB,
-  MAME 2003-Plus 43 MB). ScummVM does not fit (decision 17).
+- **p2 space:** 488 MB root, ~85 MB free in m8 (PPSSPP 48 MB, parallel-dc
+  32 MB added). ScummVM, CJK fonts and DraStic wait for the 1 GiB p2
+  (decision 17; layout session with the user).
+- **Heavy systems (M8):** PSP standalone runs (God of War: 30 Hz content,
+  mostly 7–8 presented frames/s after the menus with auto frameskip; the
+  heaviest PSP game, verdict is T3); DC and Saturn need BIOS (decision
+  24: parallel-dc's HLE hangs on Power Stone 2, YabaSanshiro refuses
+  without BIOS); NDS: melonDS 22–23 fps, DraStic not integrated
+  (decision 23). The coredb PSP default key `ppsspp` also names the
+  unshipped libretro entry (folders assigned by name may pick it).
 - **Wi-Fi zombie (M5 incident):** handled since M7: while connecting by
   the worker (dongle reset), while "ready" by `muos-usb-watchdog` (C2H
   errors or a silent gateway → dwc2 rebind; T2 with injected errors and
@@ -144,14 +160,13 @@ CD; Wi-Fi dongle plugged during boot; 15 min of CTR/MK64 without cuts;
   cycles. Both exits log from the next image on.
 - **Wi-Fi dongle (RTL8821CU):** the warm-reboot H2C case (1 in 7 since
   M4c); no software power cycle.
-- **Wake:** Wi-Fi returns ~9.3–10.2 s after wake (M7 timeline in
-  hardware-findings: the 4 s CD-ROM settle dominates); ~0.7 s of slow
-  frames in a libretro game (M7 T3: NES back at once, then stutters
-  until it settles; the standalone N64 holds its last frame ~1 s and
-  then runs smoothly, which reads better). M8 item.
-- **No boot logo (M7 T3):** the kernel console scrolls on the LCD from
-  power-on to the menu (U-Boot env `console=tty0 loglevel=7`). Must be
-  fixed before the public image (M8, with the clean U-Boot).
+- **Wake:** in the menu Wi-Fi returns ~9.3–10.2 s after wake (M7
+  timeline in hardware-findings). Woken in a game (M8), Wi-Fi stays down
+  until the game ends (no stutter: T2 peak 40 ms); T3 to confirm.
+- **Boot logo (M8):** U-Boot shows p1 `bootlogo.bmp` (own art), the
+  kernel console is serial-only and quiet, muos-rc shows the same logo
+  until the menu. The gap between the kernel taking the display (~4 s,
+  fbcon) and muos-rc (~5 s) may be black; T3.
 - **Power:** menu idle 407–425 mA (M7 discharge run, backlight 60,
   Wi-Fi up); no controllable LEDs.
 - **Audio:** PipeWire sink stall now and then (no sound, standalone
@@ -213,20 +228,60 @@ assignment list offers only Rice and Glide, the "- Full" entries equal
 
 ## Decisions for the user
 
-None open.
+23. **NDS emulator.** dArkOSen uses DraStic (closed source, free to use;
+    its binary is in the dArkOS repo; no explicit redistribution licence).
+    melonDS (GPL) is 22–23 fps here. Recommendation: DraStic in the
+    developer image now (needs the 1 GiB p2 or ~5 MB of the 85 MB left,
+    plus a launcher with remapped controls), public image only after
+    the licence check (pending-licenses, M9); melonDS stays as the
+    fallback core.
+24. **BIOS for DC and Saturn.** Please add to `port/roms/bios`: DC
+    `dc_boot.bin` (+ `dc_flash.bin`), Saturn `saturn_bios.bin` (or
+    `sega_101.bin` / `mpr-17933.bin`). Without them DC hangs at boot
+    (HLE) and Saturn does not start; dArkOSen's DC also uses the BIOS.
+25. **Card layout session (M8 items 1–4 left):** p2 1 GiB means moving
+    p3 (ROMs, saves, Wi-Fi profile): recommendation: with you present,
+    back up p3 on the PC, flash the 1 GiB-layout image with the host
+    reader, restore p3 (one session, ~30 min of your time), then the
+    slot-2 swap test with the two cards.
 
 ## T3 queue
 
-Empty. The M7 checklist passed 2026-11-20 (milestones.md M7 item 27).
-M8's checklist is written at its end.
+**M8 checklist, night 1 (image m8 + new U-Boot, on the device; pt-BR
+labels).** Items 4 and 5 on battery (on the charger sleep is the fake
+one).
+
+1. **Boot logo:** Desligar, power on: from the first light to the menu a
+   black screen with "muOS / R36S / R35S / unofficial port" and no
+   scrolling text; note any black gap or flicker and the seconds from
+   power-on to the menu (M7: ~15 s).
+2. **Regression after boot:** menu in pt-BR, Wi-Fi connects (header
+   icon), Configuração → Conectividade unchanged.
+3. **PSP** (Explorar conteúdo → PSP → God of War - Chains of Olympus
+   (USA)): starts in PPSSPP; Cross = B, Circle = A, Square = Y,
+   Triangle = X, L1/R1 = L/R, Start/Select, d-pad and stick; play a few
+   minutes: is it playable? Fn opens PPSSPP's menu (B or Fn closes it);
+   Fn+Start returns to the muOS menu.
+4. **Sleep in PSP (battery):** short Power → screen off; Power → the game
+   continues where it was, sound back.
+5. **Sleep in a libretro game (battery):** NES (Explorar conteúdo → NES),
+   short Power, wake after ~30 s: the game continues at once with no
+   stutter; the Wi-Fi icon stays off while in the game; Fn+Start to the
+   menu: Wi-Fi icon back within ~15 s.
+6. **N64 regression** (Explorar conteúdo → N64 → Mario Kart 64 (USA)):
+   starts, Fn+Start back to the menu.
+7. **NDS / DC / Saturn (known):** NDS (Explorar conteúdo → NDS) starts
+   in melonDS but slow (~22 fps); DC and Saturn need BIOS (decision 24):
+   no need to test.
 
 ## Current milestone: M8 — card layout and the heavy systems (decisions 16, 17, 20)
 
-Started 2026-11-20. Goal: the final card layout (clean U-Boot, `root=`
-by the slot-1 device, p2 at 1 GiB) with a quiet boot and a boot logo,
-and the systems the user wants in v1.0. The bootloader and
-partition-table writes (items 1–4) need a session with the user
-present; everything else runs before it.
+Started 2026-11-20. Night 1 (unattended, 2026-11-20 01:30–03:30): items
+1 (U-Boot root by device, written), 2 (quiet boot + logo, written), 7
+(PSP standalone), 10 (wake in a game) done to T2; 6/8/9 built, blocked by
+decisions 23/24; 3/4 need decision 25. Details: milestones.md M8.
+The bootloader and partition-table writes need the user present, except
+the night-1 exception.
 
 Items:
 1. Clean U-Boot build (from source, no dirty tree), `root=` by the

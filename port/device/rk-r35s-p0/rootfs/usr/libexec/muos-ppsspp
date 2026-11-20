@@ -1,0 +1,37 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-ppsspp ROM: standalone PPSSPP (M8, PSP; dArkOSen's default emulator
+# for PSP, the user's rule 2026-11-20: standalone emulators follow
+# dArkOSen), run by muos-frontend for the PSP "ext-ppsspp" assignment.
+# Files: the build (build-ppsspp-sa.sh: PPSSPPSDL v1.20.4 + dArkOS patches)
+# in /opt/muos/share/emulator/ppsspp (read-only); the memory stick in p3
+# MUOS/port/ppsspp (PSP/SAVEDATA, PSP/PPSSPP_STATE, PSP/SYSTEM).
+# Settings and controls: dArkOS's RG351MP files (/usr/share/muos-r35s/
+# ppsspp), copied once; later changes in PPSSPP's own menu stay. As
+# dArkOSen's ppsspp.sh, the OpenGL backend is forced on every start.
+# Controls: muOS's label mapping of the muOS-Keys pad (gamecontrollerdb
+# retro.txt, the one dArkOSen's controls.ini expects: Cross = B, Circle =
+# A, Square = Y, Triangle = X). Fn = PPSSPP's pause menu (save/load state,
+# settings, exit); Fn+Start quits (muos-standalone-quit, as dArkOSen's
+# killer_daemon); L3/R3 load/save state (dArkOSen).
+# Sleep: muos-suspend stops and continues the process.
+set -u
+emu=/opt/muos/share/emulator/ppsspp
+cfg=/userdata/MUOS/port
+sys=$cfg/ppsspp/PSP/SYSTEM
+rom=${1:?rom}
+say() { echo "muos-ppsspp: $*"; }
+mkdir -p "$sys"
+for f in ppsspp.ini controls.ini; do
+    [ -s "$sys/$f" ] || cp "/usr/share/muos-r35s/ppsspp/$f" "$sys/$f"
+done
+sed -i '/^GraphicsBackend =/c\GraphicsBackend = 0 (OPENGL)' "$sys/ppsspp.ini"
+map=/userdata/MUOS/port/gamecontrollerdb/retro.txt
+[ -s "$map" ] || map=/opt/muos/share/info/gamecontrollerdb/retro.txt
+SDL_GAMECONTROLLERCONFIG=$(grep -v '^#' "$map" | grep -m1 'muOS-Keys')
+export SDL_GAMECONTROLLERCONFIG
+say "start rom=$rom"
+cd "$emu" || exit 1
+# T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file
+[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && export LD_PRELOAD=/run/muos/swapstat.so
+XDG_CONFIG_HOME=$cfg HOME=$cfg exec ./PPSSPPSDL --fullscreen "$rom"

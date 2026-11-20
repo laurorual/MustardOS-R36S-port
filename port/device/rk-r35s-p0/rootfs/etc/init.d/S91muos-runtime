@@ -132,12 +132,6 @@ case "${1:-}" in
         echo system > "$c/core.con"; echo "${gov:-performance}" > "$c/core.gov"; echo false > "$c/core.rac"
         echo "runtime: assigned $dir -> $core ($gov)"
     done
-    # M8: PPSSPP's system files (fonts, PPGE atlas, compat.ini) where the
-    # libretro core reads them (system dir/PPSSPP); a folder the user put
-    # there wins.
-    a=/opt/muos/share/emulator/ppsspp-assets
-    [ ! -d "$a" ] || [ -e /userdata/MUOS/bios/PPSSPP ] || [ -L /userdata/MUOS/bios/PPSSPP ] ||
-        { mkdir -p /userdata/MUOS/bios && ln -s "$a" /userdata/MUOS/bios/PPSSPP && echo "runtime: MUOS/bios/PPSSPP -> $a"; }
     # game-governor (M3d): M3c seeded schedutil, which idles at the 1008 MHz
     # floor through per-frame bursts (PSX 59.1 fps, missed vsyncs); games
     # now default to performance (muos-governor also pins GPU and DDR).

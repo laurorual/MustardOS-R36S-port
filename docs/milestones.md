@@ -4,6 +4,81 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M8 — card layout and the heavy systems (in progress; night 2026-11-20, unattended)
+
+Logs `build/logs/m8/`. Image `test128-m8-20261120` (raw `fbd4871c…`, p2
+`0f723304…`) on p2 since 2026-11-20 ~03:05; U-Boot `159e086c…` written
+the same night (user's exception for that night: U-Boot, partition table
+and p2 writes allowed while away, avoiding writes likely to lose SSH).
+
+1. **Slot 1 = mmcblk0 (decision 16) — done to T2:** kernel patch 0009
+   (host and mmcblk index from the `mmcN` DT alias, upstream v5.9/v5.10
+   behaviour) + DTS aliases mmc0 = sdmmc (slot 1), mmc1 = sdio. Trial
+   kernel T2 (mmc0/mmcblk0 = ff370000, t2-sdcard, NES 59.97), promoted
+   (main `Image-331eebd4a643` + `panel0-c97151d0ec1a.dtb`).
+2. **U-Boot: root by device, quiet boot, boot logo — written, T2 passed:**
+   bootargs `root=/dev/mmcblk0p2`, `console=ttyFIQ0` only, `quiet
+   loglevel=3`; no autoboot delay (stock odroidgoa value, was 3 s); no
+   diagnostic LCD text (probe-quiet.patch, boot profile only:
+   `uboot-ref` still byte-identical to the M2 card); `muos_boot` shows p1
+   `bootlogo.bmp` after validating it (640x480, 24 bpp, uncompressed,
+   pixels inside the file: the decoder has no bounds checks); text only
+   on failures. T0 37/37 (ASan/UBSan, 10 new logo cases). Written from
+   main with read-back (previous U-Boot `65fb3dcd…` saved: p3
+   `MUOS/trial/uboot-previous.img`, host `build/m8/`). First boot: cmdline
+   as above, frontend loop at 10.9 s uptime (12.7 s before) plus ~3 s
+   less in U-Boot; `t2-boot-slot.sh` 4/4 (main, corrupt main -> previous,
+   bad trial consumed, main again).
+3. **Boot logo:** `make-boot-logo.py` (greys only, Noto Sans; own art, no
+   MustardOS assets): p1 `bootlogo.bmp` for U-Boot and the same picture
+   from muos-rc start (`muos-splash bootlogo.fb.gz`) until the frontend.
+   Visual result is T3.
+4. **p2 1 GiB, slot-2 swap — not done:** the card's p3 holds the Wi-Fi
+   profile and the trial root, so moving it remotely risks SSH; needs
+   the user (host reflash + p3 restore, or a planned migration).
+5. **Wake in a game (M7 T3 note) — done to T2:** woken in a game, Wi-Fi
+   stays down until the game ends (watcher, network/deferred quiets the
+   USB watchdog; T2 hook `wifi-wake-in-game`). T2 (real mem sleep, RTC
+   wake, NES): 40 s in game after the wake with Wi-Fi down, dwc2 unbound,
+   no watchdog rebind; Wi-Fi up 9 s after the game quit; 3161 frames
+   after the wake: 10 at 18.5-25 ms, 8 at 25-50, 2 over 50 (peak 40 ms
+   in the steady window).
+6. **Cores (decision 20) — built, T1:** parallel-dc (libretro/flycast,
+   installed as `flycast_libretro.so`, `arm64_cortex_a53_gles2`), melonDS
+   (`odroidgoa`), YabaSanshiro (`arm64_cortex_a53_gles3`), PPSSPP libretro
+   (built, not shipped). coredb post-build: unshipped externals dropped,
+   "extra" unmarked on the defaults.
+7. **dArkOSen's choices (the user, 2026-11-20):** dArkOS RK3326
+   `es_systems.cfg`: PSP standalone PPSSPP (v1.20.4 + its patches,
+   `ppsspp.ini`/`controls.ini` RG351MP), NDS DraStic, DC flycast (32-bit
+   default; 64-bit flycast here), Saturn YabaSanshiro standalone (HLE).
+   Clone `build/darkos-src` (tree only, blobs on demand).
+8. **PSP — standalone PPSSPP, done to T2:** `build-ppsspp-sa.sh` (SDK gcc,
+   dArkOS flags; no SDL2_ttf, as dArkOS: atlas fonts), `muos-ppsspp`
+   (memstick p3 `MUOS/port/ppsspp`, dArkOS defaults copied once, OpenGL
+   forced, muOS-Keys label mapping), `muos-frontend` dispatches
+   `ext-ppsspp`, sleep stops/continues it, Fn+Start quits
+   (`QUIT_STANDALONE` hotkey -> `muos-standalone-quit`, SIGTERM). T2:
+   God of War starts, 30 Hz content, after menus mostly 7-8 presented
+   frames/s with auto frameskip (heaviest PSP game; verdict is T3);
+   Fn+Start quits PSP and N64 from the frontend. libretro PPSSPP: GoW at
+   15 of 30 Hz (960x544 muxretro default).
+9. **NDS:** melonDS 22-23 fps (JIT on, threaded renderer ~23):
+   unplayable. DraStic r2.5.2.2 (dArkOS binary) runs on this rootfs
+   (all libraries present) once SDL renders with vsync
+   (`SDL_RENDER_VSYNC=1`; without it KMSDRM pageflip -22, black screen);
+   ~70% of one core in NSMB. Not integrated: licence (decision 23) and
+   its controls need remapping to muOS-Keys (select 8, start 9, hat).
+10. **DC and Saturn need BIOS:** parallel-dc's HLE (REIOS) hangs at boot
+    on Power Stone 2 (no frame in 75 s, also without threaded rendering);
+    YabaSanshiro refuses to start without the real BIOS (HLE only by a
+    debug option). Decision 24.
+11. **Trial root T2 (m8):** sweep 44 ok / 10 bounces (same set as M7),
+    NES 59.96, t2-sdcard, t2-sftp-jail, Wi-Fi toggle 3/3, PSP and MK64
+    start/quit; written to p2 (previous p2 `50a5c24d…` saved).
+12. `trial-guard.sh` (p3 user init, unattended trial boots) is in the
+    repo now; removed from the card at the end (user_init back to 0).
+
 ## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 
 Logs `build/logs/m7/`. Images m7 → m7t3 → m7c → m7d (recovery).

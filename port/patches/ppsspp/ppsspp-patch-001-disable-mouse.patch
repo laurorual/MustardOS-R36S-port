@@ -1,0 +1,26 @@
+diff --git a/SDL/SDLMain.cpp b/SDL/SDLMain.cpp
+index dae1b6934..8968098b1 100644
+--- a/SDL/SDLMain.cpp
++++ b/SDL/SDLMain.cpp
+@@ -817,12 +817,7 @@ static void ProcessSDLEvent(SDL_Window *window, const SDL_Event &event, InputSta
+ 				g_Config.iWindowWidth = new_width;
+ 				g_Config.iWindowHeight = new_height;
+ 			}
+-			// Hide/Show cursor correctly toggling fullscreen
+-			if (lastUIState == UISTATE_INGAME && fullscreen && !g_Config.bShowTouchControls) {
+-				SDL_ShowCursor(SDL_DISABLE);
+-			} else if (lastUIState != UISTATE_INGAME || !fullscreen) {
+-				SDL_ShowCursor(SDL_ENABLE);
+-			}
++			SDL_ShowCursor(SDL_DISABLE);
+ 			break;
+ 		}
+ 
+@@ -1140,6 +1135,7 @@ void UpdateSDLCursor() {
+ 			SDL_ShowCursor(SDL_DISABLE);
+ 		if (lastUIState != UISTATE_INGAME || !g_Config.UseFullScreen())
+ 			SDL_ShowCursor(SDL_ENABLE);
++		SDL_ShowCursor(SDL_DISABLE);
+ 	}
+ #endif
+ }

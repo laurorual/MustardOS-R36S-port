@@ -1,0 +1,7 @@
+PPSSPP standalone defaults (M8), seeded once into p3 MUOS/port/ppsspp/PSP/SYSTEM
+by /usr/libexec/muos-ppsspp. Verbatim from dArkOS (MIT License, Copyright
+2021-present dArkOS), https://github.com/christianhaitian/dArkOS
+commit 86bac70b51f6264670b95020aa7d3cf2cede622d:
+  ppsspp/ppsspp.ini.rg351mp   -> ppsspp.ini
+  ppsspp/controls.ini.rg351mp -> controls.ini
+dArkOSen (R36S) is built as dArkOS RG351MP.

@@ -187,6 +187,24 @@ snapshots.
 - Wi-Fi after the fact: p3 `MUOS/log/network-last.log` (worker with
   uptime stamps, hotplug, dongle kernel lines; written at each clean stop).
 
+## Update U-Boot in place (M8)
+
+No fallback: a U-Boot that does not boot costs a host-reader rewrite of
+sectors 16384–24575 (p3 is untouched). Only with the user's consent (or
+present), after T0 (`t0-boot.sh`) and `build-boot.sh uboot-ref` still
+byte-identical.
+1. Back up the current one: `dd if=$(muos-boot-disk) bs=512 skip=16384
+   count=8192 of=/userdata/MUOS/trial/uboot-previous.img`, pull it to
+   `build/`.
+2. Push `build/m3b/boot/uboot.img` (4 MiB) to `/run`, check its SHA256
+   against the build; `dd ... seek=16384 conv=fsync`, drop caches, read
+   back and `cmp`.
+3. Reboot; check `/proc/cmdline`; `t2-boot-slot.sh` (4 cases).
+- The boot logo is p1 `bootlogo.bmp` (`make-boot-logo.py --bmp
+  bootlogo.fb.gz OUT`; remount `/boot` rw to replace it).
+- Unattended trial boots: `port/scripts/trial-guard.sh` as p3
+  `MUOS/init/zz-trial-guard.sh` with `user_init` = 1 (remove after).
+
 ## Update the kernel or DTB via a trial kernel
 
 (no bootloader write):
