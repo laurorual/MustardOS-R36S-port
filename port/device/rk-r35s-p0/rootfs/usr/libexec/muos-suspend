@@ -45,6 +45,21 @@ flock -n 9 || { say "ignored: another sleep holds the lock"; exit 0; }
 # However this run ends, re-arm sleep a few seconds later.
 trap '( sleep 6; rm -f "$run/recent_wake" ) 9>&- &' EXIT
 
+# M8 (M8 T3 5): the press must read as instant. Before anything slow (the
+# process scans, muxretro's auto-save of ~1.3 s, the Wi-Fi stop): screen
+# off and a standalone emulator stopped first, sound muted next. dArkOSen
+# blanks first too ("so it seems like sleep enters quicker", sleep.rk3326).
+bright=$(cat "$bl"); [ "$bright" -gt 0 ] 2>/dev/null || bright=$(cfg settings/general/brightness 60)
+echo 0 > "$bl"
+sa=$(for p in /proc/[0-9]*; do
+    case "$(readlink "$p/exe")" in
+        */emulator/mupen64plus/mupen64plus|*/PPSSPPSDL|*/drastic) echo "${p#/proc/}" ;;
+    esac
+done | head -n1)
+[ -z "$sa" ] || kill -STOP "$sa"
+wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 2>/dev/null
+say "screen off"
+
 state=$(cfg danger/state mem)
 shutdown=$(cfg settings/power/shutdown 600)
 charger=$(cat "$(cat /opt/muos/device/config/battery/charger 2>/dev/null || echo /sys/class/power_supply/ac/online)" 2>/dev/null || echo 0)
@@ -55,13 +70,8 @@ say "sleep state=$state shutdown=$shutdown charger=$charger"
 pid_of() { for p in /proc/[0-9]*; do [ "$(readlink "$p/exe")" = "/opt/muos/frontend/$1" ] && echo "${p#/proc/}"; done; }
 retro=$(pid_of muxretro | head -n1)
 # M7: the standalone N64 emulator (muos-mupen64plus) has no save hook; it is
-# stopped while asleep and continued where muxretro gets SIGUSR2.
-# M8: also standalone PPSSPP.
-sa=$(for p in /proc/[0-9]*; do
-    case "$(readlink "$p/exe")" in
-        */emulator/mupen64plus/mupen64plus|*/PPSSPPSDL) echo "${p#/proc/}" ;;
-    esac
-done | head -n1)
+# stopped while asleep (above, $sa) and continued where muxretro gets
+# SIGUSR2. M8: also standalone PPSSPP and DraStic.
 save_retro() {
     [ -n "$retro" ] || return 0
     rm -f "$run/muxretro_save_ready"
@@ -102,10 +112,7 @@ fi
 # ---- SLEEP
 stop_watcher # a new one starts at the wake if a game still runs
 save_retro
-[ -z "$sa" ] || kill -STOP "$sa"
 track_event suspend
-bright=$(cat "$bl"); echo 0 > "$bl"
-wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 2>/dev/null
 saved_gov=$(cat "$gov")
 
 net_down() {
@@ -177,7 +184,6 @@ fi
 # ---- RESUME
 /usr/libexec/muos-governor "$saved_gov"
 echo "$bright" > "$bl"
-wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null
 defer=0
 if [ "$fake" != 1 ]; then
     if [ -n "$retro$sa" ] && [ ! -e "$run/wifi-wake-in-game" ]; then
@@ -190,6 +196,20 @@ if [ "$fake" != 1 ]; then
         [ -z "$retro$sa" ] || wait_radio
     fi
 fi
+# M8 (M8 T3 5: micro stutters right after the wake): a game shows its
+# paused frame and is held a little longer while the resumed devices
+# settle (the standalone N64's ~1 s read better in the M7 T3), then the
+# sound and the game come back together. settings/power/wake_hold in ms
+# (default 3000: t2-wake-frames.sh, NES, 2 wakes each: without it 10-11
+# slow frames in the first 2.8 s, up to 238 ms, nearly all in the page
+# flip; with 3 s none; T2 hook /run/muos/wake-hold).
+hold=$(cat "$run/wake-hold" 2>/dev/null || cfg settings/power/wake_hold 3000)
+case "$hold" in ''|*[!0-9]*) hold=3000 ;; esac
+if [ -n "$retro$sa" ] && [ "$hold" -gt 0 ]; then
+    say "hold ${hold} ms"
+    sleep "$((hold / 1000)).$(printf '%03d' $((hold % 1000)))"
+fi
+wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null
 # The game resumes on CPU0-2, away from the 8821cu association (CPU3).
 [ -z "$retro" ] || /usr/libexec/muos-cpu-pin 7 "$retro"
 [ -z "$retro" ] || kill -USR2 "$retro" 2>/dev/null

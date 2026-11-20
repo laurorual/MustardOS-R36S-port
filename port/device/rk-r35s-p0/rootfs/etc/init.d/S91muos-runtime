@@ -116,6 +116,25 @@ case "${1:-}" in
         done
         echo n64-standalone >> "$mig"; sync
     fi
+    # m8-heavy-defaults (decision 23, M8 T3: the fastest emulator): PSP
+    # defaults to PPSSPP v1.12.3 (ext-ppsspp-2021), NDS to DraStic. As
+    # n64-standalone: only the folder seeds and per-game assignments equal
+    # to the old default move.
+    if ! grep -qx m8-heavy-defaults "$mig"; then
+        for m in "PSP ext-ppsspp ext-ppsspp ext-ppsspp-2021 ext-ppsspp-2021 ppsspp-2021" \
+                 "NDS melonds_libretro.so mu-melonds ext-drastic ext-drastic drastic"; do
+            # shellcheck disable=SC2086 # one field per word
+            set -- $m
+            [ -d "/opt/muos/share/emulator/$6" ] || continue
+            for f in "$port/info-content/$1"/*.cfg; do
+                [ -f "$f" ] || continue
+                if [ "${f##*/}" = core.cfg ]; then a=1 b=5; else a=2 b=6; fi
+                [ "$(sed -n "${a}p" "$f")" = "$2" ] && [ "$(sed -n "${b}p" "$f")" = "$3" ] || continue
+                sed -i "${a}s/.*/$4/;${b}s/.*/$5/" "$f" && echo "runtime: migrated ${f#"$port"/} -> $4"
+            done
+        done
+        echo m8-heavy-defaults >> "$mig"; sync
+    fi
     # M3c: default ROM folders + core assignments for installed cores.
     grep -v '^#' /usr/share/muos-r35s/core-assign.txt 2>/dev/null |
     while IFS='|' read -r dir core sys launch gov; do

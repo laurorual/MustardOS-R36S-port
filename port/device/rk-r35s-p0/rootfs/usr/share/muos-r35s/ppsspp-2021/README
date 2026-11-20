@@ -1,0 +1,11 @@
+PPSSPP v1.12.3 ("2021", dArkOSen's standalone-2021) defaults (M8), seeded once
+into p3 MUOS/port/ppsspp-2021/ppsspp/PSP/SYSTEM by /usr/libexec/muos-ppsspp
+--2021. From dArkOS (MIT License, Copyright 2021-present dArkOS),
+https://github.com/christianhaitian/dArkOS commit
+86bac70b51f6264670b95020aa7d3cf2cede622d:
+  ppsspp/configs/backupforromsfolder/ppsspp/PSP/SYSTEM/ppsspp.ini.2021.sdl.rg351mp
+      -> ppsspp.ini, changed (M8 T2, t2-psp-fps.sh, God of War CoO):
+         InternalResolution 0 -> 1 (Auto renders 2x on 640x480: slower),
+         FrameSkip 0 -> 1 (about 23 emulated fps instead of 13),
+         AudioBackend 1 -> 0 and no AudioDevice (SDL audio through PipeWire)
+  ppsspp/controls.ini.rg351mp -> controls.ini (as ../ppsspp)

@@ -40,11 +40,15 @@ POKEMINI|pokemini_libretro.so|Nintendo Pokemon Mini|mu-pokemini|schedutil
 ARCADE|fbneo_libretro.so|Arcade|mu-finalburn neo|performance
 # M8 (decision 20): the heavy systems. dArkOSen's choices where they can
 # run here (the user, 2026-11-20): PSP = standalone PPSSPP (muos-ppsspp).
+# Decision 23 (2026-11-20: the fastest emulator, closed source allowed):
+# NDS = DraStic (muos-drastic); melonDS stays as the libretro choice.
+# PSP = PPSSPP v1.12.3 (dArkOSen's standalone-2021, faster here), v1.20.4
+# stays as the second choice.
 # flycast_libretro.so is libretro/flycast (parallel-dc), the coredb's
 # "Flycast" entry; DC and Saturn need their BIOS (MUOS/bios).
 DC|flycast_libretro.so|Sega Dreamcast|mu-flycast|performance
-PSP|ext-ppsspp|Sony PlayStation Portable|ext-ppsspp|performance
-NDS|melonds_libretro.so|Nintendo DS|mu-melonds|performance
+PSP|ext-ppsspp-2021|Sony PlayStation Portable|ext-ppsspp-2021|performance
+NDS|ext-drastic|Nintendo DS|ext-drastic|performance
 SATURN|yabasanshiro_libretro.so|Sega Saturn|mu-yabasanshiro|performance
 NEOGEO|fbneo_libretro.so|SNK Neo Geo|mu-finalburn neo|performance
 DOS|dosbox_pure_libretro.so|PC DOS|mu-dosbox-pure|performance

@@ -46,6 +46,8 @@ mupen64plus_next https://github.com/libretro/mupen64plus-libretro-nx 15bada85906
 dosbox_pure https://github.com/libretro/dosbox-pure e39497e7c2a32c67c26e6598dd14f6d58c384bfd 37652b8c45d1ef176c1eecbbb6b2c5cb9444bd7d3e0cffb803006e183a6a882b dosbox_pure_libretro.so GPL-2.0
 flycast https://github.com/libretro/flycast 328a768ab56b84623974b935b20d5a518265ba4e 3119db6b76cbbdceee304dc8b9f39fc1b9dff64c8aa5e4054068c717d1c4c565 parallel_dc_libretro.so GPL-2.0
 ppsspp https://github.com/hrydgard/ppsspp fa50bb1976065c4f8b1b47af227d367fe9771555 8e8c50a3f7f5d40c9ac4207ce2dc4df1107ed97d9494b14c64ab9602df2b44a2 b/lib/ppsspp_libretro.so GPL-2.0
+flycast2 https://github.com/flyinghead/flycast 5aa091fde632fb332c8d8c34e280d62dc951954c 6b39696378b3662c95a22c31790f54665f817cf741175c63309351c4ca8401a5 b/flycast_libretro.so GPL-2.0
+ppsspp2021 https://github.com/hrydgard/ppsspp ce0a45cf0fcdd5bebf32208b9998f68dfc1107b7 e212d1389dcac45d4835db97a510e425e4768a4775c93d30c69a02e2324bbdae PPSSPPSDL GPL-2.0
 melonds https://github.com/libretro/melonds 4081e8358e66f1ea11879560be6b813dfeaab75a cc4b9d3290e4c829981858d1f0278d8f12d183bebf1b06825ea606ce4f02a707 melonds_libretro.so GPL-3.0
 yabasanshiro https://github.com/libretro/yabause 09ed8e5b2e97e7a848ea2514545c34c7b809e399 6b8f29e7754143971c5db22fcdaafb8ad0ce237a04bb53fd1f71a959403d6cab yabause/src/libretro/yabasanshiro_libretro.so GPL-2.0
 EOF
@@ -75,6 +77,10 @@ make_cmd() {
         # Buildroot SDK with its toolchain file
         # libretro/flycast is the Makefile fork; its RK3326-class platform
         flycast) echo 'make -j8 platform=arm64_cortex_a53_gles2 AS="$CC"' ;; # its .S go through ASFLAGS = gcc flags
+        # M8 (M8 T3, decision 23: the fastest emulator): flyinghead's
+        # Flycast v2.7 (the upstream libretro/flycast is now the parallel_dc
+        # fork, which hangs at boot here), GLES3, arm64 dynarec
+        flycast2) echo 'mkdir -p b && (cd b && $sdk/bin/cmake .. -DCMAKE_TOOLCHAIN_FILE=$sdk/share/buildroot/toolchainfile.cmake -DCMAKE_BUILD_TYPE=Release -DLIBRETRO=ON -DUSE_GLES=ON -DUSE_VULKAN=OFF -DUSE_OPENMP=ON && make -j8 flycast_libretro)' ;;
         ppsspp) echo 'mkdir -p b && (cd b && $sdk/bin/cmake .. -DCMAKE_TOOLCHAIN_FILE=$sdk/share/buildroot/toolchainfile.cmake -DCMAKE_BUILD_TYPE=Release -DLIBRETRO=ON -DUSING_GLES2=ON -DUSING_EGL=OFF -DUSING_FBDEV=OFF -DVULKAN=OFF -DUSING_X11_VULKAN=OFF -DUSE_WAYLAND_WSI=OFF -DUSE_DISCORD=OFF -DUSE_MINIUPNPC=OFF -DUSE_FFMPEG=ON -DUSE_SYSTEM_FFMPEG=OFF -DARM64=ON -DUNITTEST=OFF -DHEADLESS=OFF && make -j8 ppsspp_libretro)' ;;
         melonds) echo 'make -j8 platform=odroidgoa' ;;
         yabasanshiro) echo 'make -j8 -C yabause/src/libretro platform=arm64_cortex_a53_gles3' ;;

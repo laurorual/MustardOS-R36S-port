@@ -1,8 +1,13 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
-# muos-ppsspp ROM: standalone PPSSPP (M8, PSP; dArkOSen's default emulator
-# for PSP, the user's rule 2026-11-20: standalone emulators follow
-# dArkOSen), run by muos-frontend for the PSP "ext-ppsspp" assignment.
+# muos-ppsspp [--2021] ROM: standalone PPSSPP (M8, PSP; dArkOSen's default
+# emulator for PSP, the user's rule 2026-11-20: standalone emulators follow
+# dArkOSen), run by muos-frontend for the PSP "ext-ppsspp" assignment, and
+# with --2021 for "ext-ppsspp-2021": v1.12.3, dArkOSen's standalone-2021,
+# the PSP default since the M8 T3 (decision 23, the fastest: God of War
+# 13.0 against 11.1 fps at 1008 MHz, ~23 emulated fps with FrameSkip 1).
+# 2021 has its own memory stick (p3 MUOS/port/ppsspp-2021/ppsspp: its
+# states and ini differ) but shares PSP/SAVEDATA with the 1.20 one.
 # Files: the build (build-ppsspp-sa.sh: PPSSPPSDL v1.20.4 + dArkOS patches)
 # in /opt/muos/share/emulator/ppsspp (read-only); the memory stick in p3
 # MUOS/port/ppsspp (PSP/SAVEDATA, PSP/PPSSPP_STATE, PSP/SYSTEM).
@@ -16,22 +21,34 @@
 # killer_daemon); L3/R3 load/save state (dArkOSen).
 # Sleep: muos-suspend stops and continues the process.
 set -u
-emu=/opt/muos/share/emulator/ppsspp
-cfg=/userdata/MUOS/port
+name=ppsspp cfg=/userdata/MUOS/port
+[ "${1:-}" = --2021 ] && { name=ppsspp-2021 cfg=/userdata/MUOS/port/ppsspp-2021; shift; }
+emu=/opt/muos/share/emulator/$name
+# T2 hook (t2-psp-fps.sh T2_PSP_EMU): another PPSSPPSDL build to compare
+[ -s /run/muos/ppsspp-emu ] && emu=$(cat /run/muos/ppsspp-emu)
 sys=$cfg/ppsspp/PSP/SYSTEM
 rom=${1:?rom}
 say() { echo "muos-ppsspp: $*"; }
 mkdir -p "$sys"
 for f in ppsspp.ini controls.ini; do
-    [ -s "$sys/$f" ] || cp "/usr/share/muos-r35s/ppsspp/$f" "$sys/$f"
+    [ -s "$sys/$f" ] || cp "/usr/share/muos-r35s/$name/$f" "$sys/$f"
 done
+if [ "$name" = ppsspp-2021 ] && [ ! -e "$cfg/ppsspp/PSP/SAVEDATA" ]; then
+    mkdir -p /userdata/MUOS/port/ppsspp/PSP/SAVEDATA
+    ln -s /userdata/MUOS/port/ppsspp/PSP/SAVEDATA "$cfg/ppsspp/PSP/SAVEDATA"
+fi
 sed -i '/^GraphicsBackend =/c\GraphicsBackend = 0 (OPENGL)' "$sys/ppsspp.ini"
 map=/userdata/MUOS/port/gamecontrollerdb/retro.txt
 [ -s "$map" ] || map=/opt/muos/share/info/gamecontrollerdb/retro.txt
 SDL_GAMECONTROLLERCONFIG=$(grep -v '^#' "$map" | grep -m1 'muOS-Keys')
 export SDL_GAMECONTROLLERCONFIG
-say "start rom=$rom"
+say "start $name rom=$rom"
 cd "$emu" || exit 1
 # T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file
 [ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && export LD_PRELOAD=/run/muos/swapstat.so
-XDG_CONFIG_HOME=$cfg HOME=$cfg exec ./PPSSPPSDL --fullscreen "$rom"
+# T2 hook: core dumps (/run/muos/ppsspp-core; kernel core_pattern set by the test)
+# shellcheck disable=SC3045 # busybox ash has ulimit -c
+[ -e /run/muos/ppsspp-core ] && ulimit -c unlimited
+# T2 hook (t2-psp-fps.sh): boot straight into a save state (fixed scene)
+state=; [ -s /run/muos/ppsspp-state ] && state=--state=$(cat /run/muos/ppsspp-state)
+XDG_CONFIG_HOME=$cfg HOME=$cfg exec ./PPSSPPSDL --fullscreen ${state:+"$state"} "$rom"

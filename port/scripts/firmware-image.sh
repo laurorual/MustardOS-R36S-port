@@ -29,7 +29,11 @@ rootfs=$(realpath "$1") base=$(realpath "$2") base_raw=$3 out=$(realpath -m "$4"
 variant=${6:-developer}
 case "$variant" in developer|public) ;; *) echo "variant $variant" >&2; exit 2 ;; esac
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
-p2_start=262144 p2_sectors=1048576 p1_start=32768 p1_sectors=204800
+# M8 (decision 17): p2 is 1 GiB. The M2 base has p2 = 512 MiB and a 1 GiB p3
+# at 1310720; the base p3 moves behind the new p2 and the MBR entries for p2
+# and p3 are rewritten (same disk identifier, so PARTUUIDs stay).
+p2_start=262144 p2_sectors=2097152 p1_start=32768 p1_sectors=204800
+base_p2_sectors=1048576 base_p3_start=1310720 p3_start=2359296 p3_sectors=2097152
 m2_image=780935823cb8c86e4330c8c8157ebb4005fb5580e68e72c4b0c4e480bab42d2f
 m2_dtb=496bbe3591f8619f059ebc384277ecdd17fd41f956aef40de20afb46b92d5b49
 private=(/var/lib/muos-network/dropbear_ed25519_host_key /var/lib/muos-network/network.conf
@@ -37,7 +41,7 @@ private=(/var/lib/muos-network/dropbear_ed25519_host_key /var/lib/muos-network/n
 
 grep -q "^raw_sha256=$base_raw" "${base%.img.zst}.manifest" || { echo 'base manifest mismatch' >&2; exit 1; }
 (cd "$(dirname "$base")" && sha256sum -c --quiet "$(basename "$base").sha256")
-[ "$(stat -c %s "$rootfs")" -eq $((p2_sectors * 512)) ] || { echo 'rootfs is not 512 MiB' >&2; exit 1; }
+[ "$(stat -c %s "$rootfs")" -eq $((p2_sectors * 512)) ] || { echo 'rootfs is not 1 GiB' >&2; exit 1; }
 mkdir -p "$(dirname "$out")"
 work=$(mktemp -d "$repo/build/m3a/.image.XXXXXX")
 trap 'rm -rf "$work"' EXIT
@@ -46,7 +50,28 @@ img=$work/card.img
 echo "== base $(basename "$base")"
 zstd -q -dc --long=27 "$base" | dd of="$img" bs=1M conv=sparse status=none
 grep -q "^raw_sha256=$(sha256sum "$img" | cut -d' ' -f1)" "${base%.img.zst}.manifest"
-dd if="$img" of="$work/base-p2.img" bs=512 skip=$p2_start count=$p2_sectors status=none
+dd if="$img" of="$work/base-p2.img" bs=512 skip=$p2_start count=$base_p2_sectors status=none
+echo "== layout: p2 $((p2_sectors / 2048)) MiB, p3 moved to sector $p3_start"
+sfdisk -d "$img" > "$work/base.sfdisk"
+grep -q "^$img""2 : start= *$p2_start, size= *$base_p2_sectors," "$work/base.sfdisk" &&
+    grep -q "^$img""3 : start= *$base_p3_start, size= *$p3_sectors," "$work/base.sfdisk" ||
+    { cat "$work/base.sfdisk"; echo 'base layout is not the M2 one' >&2; exit 1; }
+dd if="$img" of="$work/base-p3.raw" bs=512 skip=$base_p3_start count=$p3_sectors conv=sparse status=none
+truncate -s $(( (p3_start + p3_sectors) * 512 )) "$img"
+# zero the old p3 and the p2 growth (the new p3 overlaps the old one, and
+# the sparse copy below skips zero blocks)
+fallocate -p -o $(( (p2_start + base_p2_sectors) * 512 )) -l $(( (p3_start + p3_sectors - p2_start - base_p2_sectors) * 512 )) "$img"
+dd if="$work/base-p3.raw" of="$img" bs=512 seek=$p3_start conv=notrunc,sparse status=none
+cmp -s "$work/base-p3.raw" <(dd if="$img" bs=512 skip=$p3_start count=$p3_sectors status=none)
+rm -f "$work/base-p3.raw"
+sed -e "s|^\($img""2 : start= *$p2_start, size= *\)$base_p2_sectors,|\1$p2_sectors,|" \
+    -e "s|^\($img""3 : start= *\)$base_p3_start,|\1$p3_start,|" "$work/base.sfdisk" |
+    sfdisk -q --no-reread --no-tell-kernel "$img" >/dev/null
+sfdisk -d "$img" > "$work/new.sfdisk"
+grep -q "^$img""2 : start= *$p2_start, size= *$p2_sectors," "$work/new.sfdisk" &&
+    grep -q "^$img""3 : start= *$p3_start, size= *$p3_sectors," "$work/new.sfdisk" &&
+    [ "$(grep '^label-id' "$work/base.sfdisk")" = "$(grep '^label-id' "$work/new.sfdisk")" ] ||
+    { cat "$work/new.sfdisk"; echo 'relayout failed' >&2; exit 1; }
 
 cp --reflink=auto "$rootfs" "$work/p2.img"
 cmds=$work/debugfs.cmds; : > "$cmds"
@@ -144,7 +169,6 @@ echo "main: $kin + $kdn ($klabel); previous: Image + rk3326-muos-r35s-panel0.dtb
 
 if [ "$variant" = public ]; then
     echo "== p3: fresh MUOSDATA (same features as the base p3), data marker only"
-    p3_start=1310720 p3_sectors=2097152
     dd if="$img" of="$work/base-p3.img" bs=512 skip=$p3_start count=$p3_sectors conv=sparse status=none
     h=$(dumpe2fs -h "$work/base-p3.img" 2>/dev/null)
     v() { sed -n "s/^$1: *//p" <<< "$h"; }

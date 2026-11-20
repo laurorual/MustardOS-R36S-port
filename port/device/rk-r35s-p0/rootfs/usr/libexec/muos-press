@@ -3,7 +3,7 @@
 # Test helper (T2): inject gamepad presses into the physical pad's evdev
 # node so muinput sees them like real buttons.
 #   muos-press KEY [KEY...]   KEY: a b x y up down left right start select
-#                             l1 r1 l2 r2 fn volup voldown, or KEY+KEY...
+#                             l1 r1 l2 r2 l3 r3 fn volup voldown, or KEY+KEY...
 #                             for a chord (fn+volup = brightness up,
 #                             x+l2+r2 = screenshot);
 #                             "wait" sleeps 1 s; "power" / "power-long"
@@ -27,7 +27,7 @@ code() {
         a) echo 305 ;; b) echo 304 ;; x) echo 307 ;; y) echo 308 ;;
         l1) echo 310 ;; r1) echo 311 ;; l2) echo 312 ;; r2) echo 313 ;;
         up) echo 544 ;; down) echo 545 ;; left) echo 546 ;; right) echo 547 ;;
-        select) echo 704 ;; start) echo 705 ;; fn) echo 708 ;;
+        select) echo 704 ;; start) echo 705 ;; l3) echo 706 ;; r3) echo 707 ;; fn) echo 708 ;;
         voldown) echo 114 ;; volup) echo 115 ;;
         *) echo "muos-press: unknown key $1" >&2; return 1 ;;
     esac

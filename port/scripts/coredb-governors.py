@@ -23,8 +23,13 @@ import sys
 
 # external cores the image ships, per system (others in that system dropped)
 EXTERNAL = {"Nintendo N64": {"ext-mupen64plus-rice", "ext-mupen64plus-gliden64"},
-            "Sega Dreamcast": set(), "Sony PlayStation Portable": {"ext-ppsspp"},
-            "Nintendo DS": set(), "Sega Saturn": set()}
+            "Sega Dreamcast": set(), "Sony PlayStation Portable": {"ext-ppsspp", "ext-ppsspp-2021"},
+            "Nintendo DS": {"ext-drastic"}, "Sega Saturn": set()}
+# M8 (decision 23): external emulators upstream's coredb has no entry for
+ADD = {"Nintendo DS": {"drastic": {"name": "DraStic", "core": "ext-drastic",
+                                   "launcher": "drastic.sh", "control": "modern"}},
+       "Sony PlayStation Portable": {"ppsspp-2021": {"name": "PPSSPP 2021 (v1.12)", "core": "ext-ppsspp-2021",
+                                                     "launcher": "ppsspp.sh", "control": "modern"}}}
 
 
 def main(table, path, core_dir=None):
@@ -34,7 +39,8 @@ def main(table, path, core_dir=None):
             continue
         f = line.rstrip("\n").split("|")
         if f[1].startswith("ext-"):
-            have = os.path.isdir(os.path.join(core_dir or "", "..", "emulator", f[1][4:].split("-")[0]))
+            em = os.path.join(core_dir or "", "..", "emulator")
+            have = any(os.path.isdir(os.path.join(em, d)) for d in (f[1][4:], f[1][4:].split("-")[0]))
         else:
             have = os.path.isfile(os.path.join(core_dir or "", f[1]))
         if core_dir and not have:
@@ -49,6 +55,13 @@ def main(table, path, core_dir=None):
     with open(path, encoding="utf-8") as fh:
         db = json.load(fh)
     changed = 0
+    for system, cores in sorted(ADD.items()):
+        ext = db.get(system, {}).setdefault("external", {})
+        for key, e in cores.items():
+            if ext.get(key) != e:
+                ext[key] = e
+                changed += 1
+                print(f"coredb-governors: {system}: external {key!r} added")
     for system, gov in sorted(want.items()):
         if system not in db:
             sys.exit(f"coredb-governors: no system {system!r} in {path}")

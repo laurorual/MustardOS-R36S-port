@@ -15,14 +15,26 @@
 #                              the pinned tarball of build-cores.sh (row
 #                              ppsspp) -> build/m8/ppsspp/tree/opt/muos/
 #                              share/emulator/ppsspp/ (PPSSPPSDL, assets/)
+#   build-ppsspp-sa.sh build 2021   v1.12.3 -> build/m8/ppsspp-2021/tree
+#                              (share/emulator/ppsspp-2021)
 set -euo pipefail
 export LC_ALL=C
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
-work=$repo/build/phase4 area=$repo/build/m8/ppsspp
-tree=$area/tree dest=opt/muos/share/emulator/ppsspp
+# VARIANT 2021 (M8 T3 3, the user: test dArkOSen's other PSP emulator):
+# dArkOS's "standalone-2021", tag v1.12.3 + its ppsspp-2021 patches
+# (port/patches/ppsspp-2021: 001-006, 008, 009), same flags.
+variant=${2:-}
+row=ppsspp name=ppsspp patches=ppsspp
+xc='' xcxx='' xld=''
+# 2021 code predates GCC 14's header clean-ups (strcasecmp, uint8_t)
+[ "$variant" != 2021 ] || { row=ppsspp2021 name=ppsspp-2021 patches=ppsspp-2021
+    xc='-include strings.h' xcxx='-include cstdint -include strings.h'
+    xld=-no-pie; } # its bundled FFmpeg .a files are not PIC (dArkOS rebuilds them)
+work=$repo/build/phase4 area=$repo/build/m8/$name
+tree=$area/tree dest=opt/muos/share/emulator/$name
 mkdir -p "$area/logs"
-read -r _ _ commit want _ < <(grep '^ppsspp ' "$repo/port/scripts/build-cores.sh")
-tarball=$repo/build/m3c/cores/cache/ppsspp-$commit.tar
+read -r _ _ commit want _ < <(grep "^$row " "$repo/port/scripts/build-cores.sh")
+tarball=$repo/build/m3c/cores/cache/$row-$commit.tar
 case "${1:-}" in
 build)
     [ -s "$tarball" ] || { echo "run build-cores.sh fetch ppsspp first" >&2; exit 1; }
@@ -33,7 +45,7 @@ build)
 sdk=/work/graphics-config/output/host
 export PATH=$sdk/bin:$PATH CCACHE_DISABLE=1
 cd /stage/src
-for p in /patches/ppsspp-patch-*.patch; do patch -s -Np1 < "$p"; done
+for p in /patches/*.patch; do patch -s -Np1 < "$p"; done
 # dArkOS builds without SDL2_ttf (not in its chroot): the atlas fonts. The
 # SDK has the library, found by pkg-config only, which then breaks the link.
 sed -i "s/^\(\s*\)pkg_check_modules(SDL2_ttf_PKGCONFIG /\1#&/" CMakeLists.txt
@@ -44,13 +56,13 @@ cmake .. -DCMAKE_TOOLCHAIN_FILE=$sdk/share/buildroot/toolchainfile.cmake \
     -DUSING_X11_VULKAN=OFF -DUSE_WAYLAND_WSI=OFF -DUSING_FBDEV=ON -DUSE_MINIUPNPC=OFF \
     -DUSING_QT_UI=OFF -DUSE_DISCORD=OFF -DUNITTEST=OFF -DHEADLESS=OFF \
     -DCMAKE_DISABLE_FIND_PACKAGE_SDL2_ttf=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_Fontconfig=TRUE \
-    -DCMAKE_C_FLAGS="-Ofast -fno-tree-slp-vectorize -D_NDEBUG -march=armv8-a+crc -mtune=cortex-a35 -ftree-vectorize -funsafe-math-optimizations -ffile-prefix-map=/stage=." \
-    -DCMAKE_CXX_FLAGS="-fpermissive -ffile-prefix-map=/stage=."
+    -DCMAKE_C_FLAGS="-Ofast -fno-tree-slp-vectorize -D_NDEBUG -march=armv8-a+crc -mtune=cortex-a35 -ftree-vectorize -funsafe-math-optimizations -ffile-prefix-map=/stage=. $XC" \
+    -DCMAKE_CXX_FLAGS="-fpermissive -ffile-prefix-map=/stage=. $XCXX" -DCMAKE_EXE_LINKER_FLAGS="$XLD"
 make -j8 PPSSPPSDL
 aarch64-buildroot-linux-gnu-strip PPSSPPSDL'
     podman run --rm --network=none --read-only --cap-drop=all --security-opt=no-new-privileges \
-        --userns=keep-id --tmpfs /tmp:rw,nosuid,nodev,exec -v "$work:/work:ro,z" -v "$stage:/stage:rw,z" \
-        -v "$repo/port/patches/ppsspp:/patches:ro,z" "$(cat "$work/rootfs-container.iid")" sh -c "$code" \
+        --userns=keep-id --tmpfs /tmp:rw,nosuid,nodev,exec -e XC="$xc" -e XCXX="$xcxx" -e XLD="$xld" -v "$work:/work:ro,z" -v "$stage:/stage:rw,z" \
+        -v "$repo/port/patches/$patches:/patches:ro,z" "$(cat "$work/rootfs-container.iid")" sh -c "$code" \
         > "$area/logs/build.log" 2>&1 ||
         { tail -25 "$area/logs/build.log"; echo "build failed (log $area/logs/build.log)" >&2; exit 1; }
     mkdir -p "$tree/$dest"
@@ -63,5 +75,5 @@ aarch64-buildroot-linux-gnu-strip PPSSPPSDL'
     rm -rf "$stage"
     (cd "$tree/$dest" && find . -type f | sort | xargs -d '\n' sha256sum > "$area/SHA256SUMS")
     du -sh "$tree/$dest"; grep -c . "$area/SHA256SUMS" ;;
-*) sed -n '3,17p' "$0"; exit 2 ;;
+*) sed -n '3,21p' "$0"; exit 2 ;;
 esac

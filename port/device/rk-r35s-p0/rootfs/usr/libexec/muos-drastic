@@ -1,0 +1,38 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-drastic ROM: DraStic (NDS, decision 23: the fastest emulator, closed
+# source allowed; dArkOSen's default for NDS), run by muos-frontend for the
+# NDS "ext-drastic" assignment. DraStic keeps everything in its working
+# directory (config/, backup/ saves, savestates/, cheats/, slot2/, ...), as
+# dArkOS runs it from /opt/drastic: here p3 MUOS/port/drastic, with the
+# image's binary, BIOS replacements, game database and logos
+# (/opt/muos/share/emulator/drastic, build-drastic.sh) copied in when they
+# differ. Settings: dArkOS's RG351MP drastic.cfg with the controls moved to
+# the muOS-Keys pad (/usr/share/muos-r35s/drastic), copied once; changes in
+# DraStic's own menu stay. Fn = DraStic's menu (save/load state, settings,
+# exit); Fn+Start quits (muos-standalone-quit); L3 = touch press, R3 = swap
+# screens, L2/R2 = screen layouts, right stick = touch cursor.
+# Video: SDL's KMSDRM renderer needs vsync here (without it the page flip
+# fails with -22 and the screen stays black, M8 night 1).
+# Sleep: muos-suspend stops and continues the process.
+set -u
+emu=/opt/muos/share/emulator/drastic
+w=/userdata/MUOS/port/drastic
+rom=${1:?rom}
+say() { echo "muos-drastic: $*"; }
+mkdir -p "$w/config" "$w/system" || exit 1
+for d in backup savestates cheats slot2 profiles input_record microphone scripts unzip_cache; do
+    mkdir -p "$w/$d"
+done
+for f in drastic game_database.xml drastic_logo_0.raw drastic_logo_1.raw system/drastic_bios_arm7.bin system/drastic_bios_arm9.bin; do
+    if ! cmp -s "$emu/$f" "$w/$f"; then
+        { cp "$emu/$f" "$w/$f.new" && mv -f "$w/$f.new" "$w/$f"; } || say "copy of $f failed"
+    fi
+done
+chmod 755 "$w/drastic"
+[ -s "$w/config/drastic.cfg" ] || cp /usr/share/muos-r35s/drastic/drastic.cfg "$w/config/drastic.cfg"
+say "start rom=$rom"
+cd "$w" || exit 1
+# T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file
+[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && export LD_PRELOAD=/run/muos/swapstat.so
+SDL_RENDER_VSYNC=1 HOME=$w exec ./drastic "$rom"

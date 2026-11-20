@@ -94,6 +94,7 @@ launch_content() {
     case "$core $launch" in
         *ext-mupen64plus*) ext=mupen64plus ;;
         *ext-ppsspp*) ext=ppsspp ;; # M8
+        *ext-drastic*) ext=drastic ;; # M8, decision 23
         *ext-*) say "external launcher $launch not supported yet"; return 1 ;;
     esac
     [ -n "$ext" ] || [ -f "/opt/muos/share/core/$core" ] || { say "missing core $core"; return 1; }
@@ -108,6 +109,8 @@ launch_content() {
             variant=$core; case "$variant" in ext-*) ;; *) variant=$launch ;; esac
             run_child /usr/libexec/muos-mupen64plus "$variant" "$content" "${file%.*}" \
                 >> /opt/muos/log/frontend.log 2>&1
+        elif [ "$ext" = ppsspp ] && case "$core $launch" in *ext-ppsspp-2021*) true ;; *) false ;; esac; then
+            run_child /usr/libexec/muos-ppsspp --2021 "$content" >> /opt/muos/log/frontend.log 2>&1
         else
             run_child "/usr/libexec/muos-$ext" "$content" >> /opt/muos/log/frontend.log 2>&1
         fi

@@ -2,6 +2,11 @@
 # SPDX-License-Identifier: MIT
 """Pinned prebuilt inputs of the M3a firmware (port/packaging/firmware-inputs.json).
 
+M8: pin-tree MANIFEST TREE PREFIX   (re)pin every dir and file under
+        TREE/PREFIX (e.g. build/m8/drastic/tree opt/muos/share/emulator/drastic)
+        as /PREFIX/..., replacing the entries there;
+    pin-file MANIFEST DEST SRC      (re)pin one file at DEST from SRC.
+
   firmware-inputs.py store    MANIFEST STORE          copy (reflink) each origin into STORE/<sha256>
   firmware-inputs.py verify   MANIFEST STORE          every stored blob present and matching
   firmware-inputs.py install  MANIFEST STORE TARGET   Buildroot post-build: install into TARGET
@@ -251,8 +256,62 @@ def generate(live, target, overlay, hostmatch, pulled, manifest, report):
         print(f'{len(notes[kind]):5d}  {kind}')
 
 
+def save(manifest, m):
+    with open(manifest, 'w') as f:
+        json.dump(m, f, indent=1)
+        f.write('\n')
+
+
+def entry(dest, src):
+    st = os.lstat(src)
+    e = {'path': dest, 'type': 'dir' if os.path.isdir(src) else 'file', 'mode': '%o' % (st.st_mode & 0o7777)}
+    if e['type'] == 'file':
+        e['sha256'] = sha(src)
+        e['origin'] = os.path.relpath(os.path.abspath(src), REPO)
+    return e
+
+
+def pin_tree(manifest, root, prefix):
+    m, prefix = load(manifest), prefix.strip('/')
+    base = os.path.join(root, prefix)
+    if not os.path.isdir(base):
+        sys.exit('pin-tree: no directory ' + base)
+    top = '/' + prefix
+    under = lambda e: e['path'] == top or e['path'].startswith(top + '/')
+    at = next((i for i, e in enumerate(m['entries']) if under(e)), len(m['entries']))
+    new = []
+    for d, dirs, names in os.walk(base):
+        dirs.sort()
+        rel = os.path.relpath(d, root)
+        new.append(entry('/' + rel, d))
+        for n in sorted(names):
+            new.append(entry('/' + os.path.join(rel, n), os.path.join(d, n)))
+    keep = [e for e in m['entries'] if not under(e)]
+    at -= sum(1 for e in m['entries'][:at] if under(e))
+    m['entries'] = keep[:at] + new + keep[at:]
+    save(manifest, m)
+    print('pinned', sum(1 for e in m['entries'] if e['path'] == top or e['path'].startswith(top + '/')), 'entries under', top)
+
+
+def pin_file(manifest, dest, src):
+    m = load(manifest)
+    old = [i for i, e in enumerate(m['entries']) if e['path'] == dest]
+    if old:
+        m['entries'][old[0]] = entry(dest, src)
+    else:
+        m['entries'].append(entry(dest, src))
+    save(manifest, m)
+    print('pinned', dest)
+
+
 if __name__ == '__main__':
     cmd, args = sys.argv[1], sys.argv[2:]
+    if cmd == 'pin-tree':
+        pin_tree(*args)
+        sys.exit(0)
+    if cmd == 'pin-file':
+        pin_file(*args)
+        sys.exit(0)
     if cmd == 'store':
         store(*args)
     elif cmd == 'verify':
