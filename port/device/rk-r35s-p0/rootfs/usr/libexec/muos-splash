@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: MIT
 # Show a raw 640x480 XRGB8888 image (gzip) on the framebuffer console once
 # the UI has released the display (M4a: the low-battery poweroff splash,
-# usr/share/muos-r35s/battery-empty.fb.gz, made by make-battery-splash.py).
+# usr/share/muos-r35s/battery-empty.fb.gz, made by make-battery-splash.py;
+# M8: the boot logo at the start of muos-rc, bootlogo.fb.gz from
+# make-boot-logo.py).
 #   muos-splash [FILE.fb.gz]
 f=${1:-/usr/share/muos-r35s/battery-empty.fb.gz}
 [ -c /dev/fb0 ] && [ -f "$f" ] || exit 1

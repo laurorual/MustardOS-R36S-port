@@ -39,6 +39,8 @@ void sha256_csum_wd(const unsigned char *in, unsigned int len, unsigned char *ou
 int fdt_check_header(const void *fdt);
 u32 fdt_totalsize(const void *fdt);
 void lcd_clear(void);
+int lcd_init(void);
+int show_bmp(unsigned long bmp_mem);
 void lcd_printf(int x, int y, int size, const char *fmt, ...);
 void panic(const char *fmt, ...) __attribute__((noreturn));
 #endif

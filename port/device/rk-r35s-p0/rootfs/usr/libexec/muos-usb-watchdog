@@ -13,7 +13,8 @@
 # while dwc2 is bound (an unclocked controller must not be touched). A stop
 # (TERM) during a rebind still binds first, and dwc2 found unbound for 10 s
 # is bound again (M4f T2: a test killed between unbind and bind left the
-# port dead until a reboot).
+# port dead until a reboot), except while muos-suspend defers Wi-Fi until
+# the game ends (network/deferred, M8).
 # M7: Wi-Fi liveness. The 8821cu firmware can fall into a C2H/H2C error
 # loop while connected: the address stays, nothing gets through (M5
 # incident). Every 60 s while the network is "ready": C2H errors logged
@@ -69,8 +70,9 @@ trap '[ "$rebinding" = 0 ] || bind; exit 0' TERM INT HUP
 bad=0 gone=0
 say "started (device $dev)"
 while sleep 2; do
-    # muos-suspend unbinds dwc2 itself around "mem" (net_down/net_up).
-    if busy; then bad=0 gone=0; continue; fi
+    # muos-suspend unbinds dwc2 itself around "mem" (net_down/net_up) and,
+    # woken in a game, leaves it unbound until the game ends (M8).
+    if busy || [ -e "$net/deferred" ]; then bad=0 gone=0; continue; fi
     if [ ! -e "$drv/$dwc" ]; then
         gone=$((gone + 1)); bad=0
         [ "$gone" -ge 5 ] || continue

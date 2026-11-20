@@ -112,6 +112,13 @@ mcopy -o -i "$p1" "$kimg" "::$kin"
 mcopy -o -i "$p1" "$kdtb" "::$kdn"
 mcopy -n -i "$p1" "::$kin" "$work/chk.img"; mcopy -n -i "$p1" "::$kdn" "$work/chk.dtb"
 cmp "$kimg" "$work/chk.img" && cmp "$kdtb" "$work/chk.dtb"
+# M8: the boot logo U-Boot shows (uboot-boot/boot.c), derived from the
+# rootfs splash so both stages show the same picture.
+python3 "$repo/port/scripts/make-boot-logo.py" --bmp \
+    "$repo/port/device/rk-r35s-p0/rootfs/usr/share/muos-r35s/bootlogo.fb.gz" "$work/bootlogo.bmp"
+mcopy -o -i "$p1" "$work/bootlogo.bmp" ::bootlogo.bmp
+mcopy -n -i "$p1" ::bootlogo.bmp "$work/chk.bmp"; cmp "$work/bootlogo.bmp" "$work/chk.bmp"
+rm -f "$work/bootlogo.bmp" "$work/chk.bmp"
 # Phase 4 leftovers on the M2 base's p1 (M3e): the DIAGnn log folders,
 # PROBE.TXT and the empty tools folder. Nothing in the boot chain reads
 # them (U-Boot loads only the files the boot records name). DIAG.ID stays

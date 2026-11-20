@@ -13,13 +13,18 @@
 # CORE_DIR/../emulator/NAME. M7c: the coredb's external N64 entries the
 # image does not build are dropped (Glide64mk2; "- Full" = the 4:3 entry on
 # this 640x480 panel), so the assignment list only offers what runs.
+# M8: the same for the heavy systems (no external emulator shipped), and a
+# default core marked "extra" (hidden unless Advanced -> Extra Cores) is
+# unmarked: it is the only core the image has for its system.
 #   coredb-governors.py CORE_ASSIGN_TXT CORE_JSON [CORE_DIR]
 import json
 import os
 import sys
 
 # external cores the image ships, per system (others in that system dropped)
-EXTERNAL = {"Nintendo N64": {"ext-mupen64plus-rice", "ext-mupen64plus-gliden64"}}
+EXTERNAL = {"Nintendo N64": {"ext-mupen64plus-rice", "ext-mupen64plus-gliden64"},
+            "Sega Dreamcast": set(), "Sony PlayStation Portable": set(),
+            "Nintendo DS": set(), "Sega Saturn": set()}
 
 
 def main(table, path, core_dir=None):
@@ -66,6 +71,9 @@ def main(table, path, core_dir=None):
             db[system]["default"] = key
             changed += 1
             print(f"coredb-governors: {system} default -> {key}")
+        if db[system][section][key].pop("extra", 0):
+            changed += 1
+            print(f"coredb-governors: {system}: {key!r} no longer extra")
     if changed:
         with open(path, "w", encoding="utf-8") as fh:
             json.dump(db, fh, indent=4, ensure_ascii=False)

@@ -9,7 +9,9 @@
 #                                    or prints its SHA256
 #   build-cores.sh build [NAME...]   offline, in the phase4-rootfs container:
 #                                    unpack, make, copy the .so to
-#                                    build/m3c/cores/out (+ SHA256SUMS)
+#                                    build/m3c/cores/out (+ SHA256SUMS);
+#                                    ppsspp also its system assets
+#                                    (out/ppsspp-assets)
 #   CORE_DEBUG=1 build NAME          -g build for gdb: unstripped .so in
 #                                    build/m3c/cores/debug, the stripped one
 #                                    in debug/stripped (out/ untouched)
@@ -42,6 +44,10 @@ fbneo https://github.com/libretro/FBNeo 12ec3ca2de7e5677d03b533c12cd9395a28212b0
 mame2003_plus https://github.com/libretro/mame2003-plus-libretro dce2e9a2ef1ccdca174b1ab870f29bd2fed1a97b 00c3ce1b2a07393581fe0e9d245d6a0cbeb353356833e33191a8f75afe7964d6 mame2003_plus_libretro.so non-commercial(mame)
 mupen64plus_next https://github.com/libretro/mupen64plus-libretro-nx 15bada85906593376e8fd697f1b0b3af3a20f512 62fb1629e12283f5eb9ddd951285eae5a6743e5a67b08c4857198ebc3aec2686 mupen64plus_next_libretro.so GPL-2.0
 dosbox_pure https://github.com/libretro/dosbox-pure e39497e7c2a32c67c26e6598dd14f6d58c384bfd 37652b8c45d1ef176c1eecbbb6b2c5cb9444bd7d3e0cffb803006e183a6a882b dosbox_pure_libretro.so GPL-2.0
+flycast https://github.com/libretro/flycast 328a768ab56b84623974b935b20d5a518265ba4e 3119db6b76cbbdceee304dc8b9f39fc1b9dff64c8aa5e4054068c717d1c4c565 parallel_dc_libretro.so GPL-2.0
+ppsspp https://github.com/hrydgard/ppsspp fa50bb1976065c4f8b1b47af227d367fe9771555 8e8c50a3f7f5d40c9ac4207ce2dc4df1107ed97d9494b14c64ab9602df2b44a2 b/lib/ppsspp_libretro.so GPL-2.0
+melonds https://github.com/libretro/melonds 4081e8358e66f1ea11879560be6b813dfeaab75a cc4b9d3290e4c829981858d1f0278d8f12d183bebf1b06825ea606ce4f02a707 melonds_libretro.so GPL-3.0
+yabasanshiro https://github.com/libretro/yabause 09ed8e5b2e97e7a848ea2514545c34c7b809e399 6b8f29e7754143971c5db22fcdaafb8ad0ce237a04bb53fd1f71a959403d6cab yabause/src/libretro/yabasanshiro_libretro.so GPL-2.0
 EOF
 }
 # make invocation per core (inside the container, in the source dir)
@@ -65,6 +71,13 @@ make_cmd() {
         mupen64plus_next) echo 'make -j8 platform=unix GLES3=1 FORCE_GLES3=1 ARCH=aarch64 WITH_DYNAREC=aarch64 HAVE_PARALLEL_RSP=0 HAVE_THR_AL=1 LLE=0' ;;
         # its unix rule picks CPU flags from the build host (uname -m)
         dosbox_pure) echo 'make -j8 platform=unix CPUFLAGS="-DPAGESIZE=4096 -mcpu=cortex-a35"' ;;
+        # M8 (decision 20): GLES3 through muxretro's hw render, CMake from the
+        # Buildroot SDK with its toolchain file
+        # libretro/flycast is the Makefile fork; its RK3326-class platform
+        flycast) echo 'make -j8 platform=arm64_cortex_a53_gles2 AS="$CC"' ;; # its .S go through ASFLAGS = gcc flags
+        ppsspp) echo 'mkdir -p b && (cd b && $sdk/bin/cmake .. -DCMAKE_TOOLCHAIN_FILE=$sdk/share/buildroot/toolchainfile.cmake -DCMAKE_BUILD_TYPE=Release -DLIBRETRO=ON -DUSING_GLES2=ON -DUSING_EGL=OFF -DUSING_FBDEV=OFF -DVULKAN=OFF -DUSING_X11_VULKAN=OFF -DUSE_WAYLAND_WSI=OFF -DUSE_DISCORD=OFF -DUSE_MINIUPNPC=OFF -DUSE_FFMPEG=ON -DUSE_SYSTEM_FFMPEG=OFF -DARM64=ON -DUNITTEST=OFF -DHEADLESS=OFF && make -j8 ppsspp_libretro)' ;;
+        melonds) echo 'make -j8 platform=odroidgoa' ;;
+        yabasanshiro) echo 'make -j8 -C yabause/src/libretro platform=arm64_cortex_a53_gles3' ;;
     esac
 }
 # T1: every undefined dynamic symbol must be defined by the target's libc,
@@ -120,6 +133,7 @@ build)
 export CC=${t}gcc CXX=${t}g++ AR=${t}ar LD=${t}gcc STRIP=${t}strip CROSS_COMPILE=$t
 export CFLAGS="-O2 -mcpu=cortex-a35 -fstack-protector-strong -ffile-prefix-map=/stage=.'"${CORE_DEBUG:+ -g}"'" CXXFLAGS="-O2 -mcpu=cortex-a35 -fstack-protector-strong -ffile-prefix-map=/stage=.'"${CORE_DEBUG:+ -g}"'"
 export LDFLAGS="-Wl,-z,relro,-z,now"
+export CCACHE_DISABLE=1 # the SDK toolchain file wraps ccache; its dir is read-only here
 cd /stage/src
 '"$(make_cmd "$n")"'
 '"${CORE_DEBUG:+cp \"$so\" /stage/unstripped.so}"'
@@ -134,6 +148,11 @@ ${t}strip --strip-unneeded '"$so"''
             out=$area/debug/stripped; mkdir -p "$out"
         fi
         cp "$stage/src/$so" "$out/$b"
+        if [ "$n" = ppsspp ]; then # M8: what the libretro core reads from system/PPSSPP
+            rm -rf "$out/ppsspp-assets"; mkdir -p "$out/ppsspp-assets"
+            (cd "$stage/src/assets" && cp -r --parents flash0/font ppge_atlas.zim ppge_atlas.meta \
+                compat.ini knownfuncs.ini langregion.ini "$out/ppsspp-assets/")
+        fi
         rm -rf "$stage"
         check_symbols "$out/$b" || exit 1
         echo "$n built $(sha256sum "$out/$b" | cut -c1-16) $(du -h "$out/$b" | cut -f1)"

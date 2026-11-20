@@ -10,6 +10,13 @@
 #   2-3 s of IRQ/kworker load that stalled frames, M3d), at most 6 s, and
 #   not at all while the dongle settles in CD-ROM mode (M4b); association
 #   and DHCP continue in the background.
+# M8 (M7 T3: a libretro game stuttered for a while after the wake): woken
+# in a game, Wi-Fi stays down until the game ends (the dongle's CD-ROM
+# settle, mode switch and 8821cu firmware load land 4-8 s after the wake,
+# in the middle of play); nothing in a game needs the network. A watcher
+# brings it up when the game process exits; network/deferred keeps the USB
+# watchdog from binding dwc2 meanwhile. T2 hook: /run/muos/wifi-wake-in-game
+# (the old behaviour, SSH back during the game).
 # settings/power/shutdown (upstream default 600): seconds asleep before a
 # clean poweroff through init (RTC alarm); -1 sleep until woken; 2 power
 # off instead of sleeping. Charger connected: "fake sleep" (screen off,
@@ -76,6 +83,12 @@ track_event() { # suspend|resume|stop [END]
     TRACK_END=${2:-} /opt/muos/script/mux/track.sh "$t_name" "$t_core" "$t_rom" "$1" > /dev/null 2>&1 9>&- || :
 }
 
+deferred=/run/muos/network/deferred
+stop_watcher() {
+    [ -s "$run/net-deferred.pid" ] && kill "$(cat "$run/net-deferred.pid")" 2>/dev/null
+    rm -f "$run/net-deferred.pid"
+}
+
 if [ "$shutdown" = 2 ]; then
     save_retro
     track_event stop poweroff
@@ -84,6 +97,7 @@ if [ "$shutdown" = 2 ]; then
 fi
 
 # ---- SLEEP
+stop_watcher # a new one starts at the wake if a game still runs
 save_retro
 [ -z "$sa" ] || kill -STOP "$sa"
 track_event suspend
@@ -161,14 +175,36 @@ fi
 /usr/libexec/muos-governor "$saved_gov"
 echo "$bright" > "$bl"
 wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null
+defer=0
 if [ "$fake" != 1 ]; then
-    net_up
-    [ -z "$retro$sa" ] || wait_radio
+    if [ -n "$retro$sa" ] && [ ! -e "$run/wifi-wake-in-game" ]; then
+        defer=1
+        mkdir -p "${deferred%/*}"; : > "$deferred"
+        say "Wi-Fi deferred until the game ends"
+    else
+        rm -f "$deferred"
+        net_up
+        [ -z "$retro$sa" ] || wait_radio
+    fi
 fi
 # The game resumes on CPU0-2, away from the 8821cu association (CPU3).
 [ -z "$retro" ] || /usr/libexec/muos-cpu-pin 7 "$retro"
 [ -z "$retro" ] || kill -USR2 "$retro" 2>/dev/null
 [ -z "$sa" ] || { /usr/libexec/muos-cpu-pin 7 "$sa"; kill -CONT "$sa" 2>/dev/null; }
 ( track_event resume ) 9>&- &
+if [ "$defer" = 1 ]; then
+    game=${retro:-$sa}
+    (
+        while kill -0 "$game" 2>/dev/null; do sleep 1; done
+        exec 9>"$run/suspend.lock"; flock 9 # after any sleep in progress
+        if [ -e "$deferred" ]; then
+            rm -f "$deferred"
+            say "game ended: Wi-Fi up"
+            net_up
+        fi
+        rm -f "$run/net-deferred.pid"
+    ) 9>&- &
+    echo $! > "$run/net-deferred.pid"
+fi
 cut -d' ' -f1 /proc/uptime > "$run/input_resume"
 say "resumed"

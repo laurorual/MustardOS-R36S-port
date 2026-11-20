@@ -24,7 +24,8 @@ r "$env_pw; /opt/muos/script/device/audio.sh 10 >/dev/null 2>&1" || :
 trap 'r "$env_pw; /opt/muos/script/device/audio.sh $vol >/dev/null 2>&1" || :' EXIT
 printf '%-10s %6s %6s %6s %6s %6s %5s %5s %5s %5s  %s\n' dir hz mean p95 peak core 18-25 25-50 50+ temp rom
 for d in "${dirs[@]}"; do
-    rom=$(r "ls '/userdata/ROMS/$d' | grep -v '/$' | head -n1")
+    # M8: a disc's index file (cue/m3u/gdi...) rather than its first track
+    rom=$(r "cd '/userdata/ROMS/$d' && { ls | grep -i -E '\\.(m3u|cue|gdi|chd|cdi|iso|cso)\$' || ls; } | head -n1")
     game_start "$rom" "$d"
     sleep "$secs"
     t=$(r 'cat /sys/class/thermal/thermal_zone0/temp')

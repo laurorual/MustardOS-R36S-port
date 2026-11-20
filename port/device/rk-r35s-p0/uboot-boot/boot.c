@@ -6,6 +6,8 @@
  * is size- and SHA256-checked against its record before booti; a failed
  * record falls through to the next one. Never executes an SD script and
  * never writes anything but the trial record sector.
+ * M8: quiet LCD. The boot logo (p1 bootlogo.bmp) instead of text; text
+ * only for a failure (report, stop_boot).
  */
 #include <common.h>
 #include <command.h>
@@ -29,6 +31,9 @@
 #define KERNEL_SPAN_WIDE 0x02000000UL
 #define KERNEL_SPAN_M2 0x00ec0000UL
 #define ARM64_IMAGE_MAGIC 0x644d5241U /* "ARMd" */
+#define LOGO_NAME "bootlogo.bmp"
+#define LOGO_PIXEL_BYTES (640UL * 480UL * 3UL)
+#define LOGO_MAX 0x00200000UL
 
 static ulong kernel_span;
 static int lcd_line = 8;
@@ -48,6 +53,54 @@ static void report(const char *slot, const char *what)
 		lcd_printf(0, lcd_line, 0, "%s: %s", slot, what);
 		lcd_line += 2;
 	}
+}
+
+static u32 get_le32(const u8 *p)
+{
+	return p[0] | p[1] << 8 | p[2] << 16 | (u32)p[3] << 24;
+}
+
+/* The decoder (bmpdecoder) has no bounds checks: only an uncompressed
+ * 640x480 24-bit BMP (rows of 1920 bytes, no padding) whose pixel data
+ * lies inside the N bytes read may reach it. The header's file-size field
+ * is not trusted (one upstream theme logo has it wrong). */
+static int logo_valid(const u8 *b, ulong n)
+{
+	u32 off, height;
+
+	if (n < 54 || b[0] != 'B' || b[1] != 'M')
+		return 0;
+	off = get_le32(b + 10);
+	height = get_le32(b + 22);
+	if (get_le32(b + 18) != 640 || (height != 480 && height != (u32)-480))
+		return 0;
+	if ((b[28] | b[29] << 8) != 24 || get_le32(b + 30) != 0)
+		return 0;
+	return off >= 54 && off <= n && n - off >= LOGO_PIXEL_BYTES;
+}
+
+/* Loaded into the kernel window (reserved, overwritten by the kernel next);
+ * a missing or invalid file leaves the screen black. */
+static void show_logo(void)
+{
+	char command[96];
+	ulong n;
+
+	if (lcd_init())
+		return;
+	snprintf(command, sizeof(command), "fatload mmc 1:1 %lx %s %lx",
+		 KERNEL_ADDR, LOGO_NAME, LOGO_MAX);
+	if (run_command(command, 0)) {
+		printf("muOS boot: no %s\n", LOGO_NAME);
+		return;
+	}
+	n = env_get_hex("filesize", 0);
+	if (n >= LOGO_MAX || !logo_valid((const u8 *)ram(KERNEL_ADDR), n)) {
+		printf("muOS boot: %s is not a 640x480 24-bit BMP\n", LOGO_NAME);
+		return;
+	}
+	if (show_bmp((ulong)ram(KERNEL_ADDR)))
+		printf("muOS boot: %s not shown\n", LOGO_NAME);
 }
 
 /* Loads NAME (exactly BYTES, read limit BYTES+1 inside WINDOW) and checks
@@ -113,8 +166,6 @@ static void try_record(const char *slot, const struct bootrec *rec)
 	snprintf(args, sizeof(args), "%s muos_slot=%s%s", saved, slot,
 		 strcmp(slot, "trial") ? "" : " panic=10");
 	env_set("bootargs", args);
-	lcd_printf(0, 2, 0, "muOS - R35S / Panel 0");
-	lcd_printf(0, 4, 0, "Boot %s: %s", slot, rec->label);
 	printf("muOS boot: %s (%s): %s + %s\n", slot, rec->label, rec->image,
 	       rec->fdt);
 	/* booti checks the header, relocates to 0x02080000 and applies the DT
@@ -169,6 +220,7 @@ static int do_muos_boot(cmd_tbl_t *cmdtp, int flag, int argc,
 	desc = blk_get_dev("mmc", 1);
 	if (!desc)
 		stop_boot("SD block device missing");
+	show_logo();
 
 	if (!read_record(desc, BOOTREC_SECTOR_TRIAL, BOOTREC_TRIAL_ARMED,
 			 sector, &rec, "trial")) {

@@ -7,7 +7,8 @@
 ref:  the M2 card's U-Boot (Phase 4 "ext4-diagnostic" profile: compiled-in
       asset pins, header taken from the Phase 4 probe tree); used only to
       prove this assembly reproduces the card's uboot.img byte for byte.
-boot: the M3b U-Boot: boot records (uboot-boot/boot.c + bootrec), no pins.
+boot: the M3b U-Boot: boot records (uboot-boot/boot.c + bootrec), no pins;
+      M8: no autoboot delay, no LCD text (probe-quiet.patch), boot logo.
 Mirrors prepare-phase4-uboot-sd.py --linux-assets (ext4) otherwise.
 """
 import hashlib
@@ -62,15 +63,20 @@ else:
     objects.append('muos-bootrec.o')
 for name, target in owned.items():
     shutil.copy2(dev/name, src/target)
+# M8: the product boot has no autoboot delay (as the stock odroidgoa
+# config) and no diagnostic text on the LCD (muos_boot shows the logo).
+delay = 3 if profile == 'ref' else 0
+if profile == 'boot':
+    subprocess.run(['git', 'apply', str(dev/'uboot-boot/probe-quiet.patch')], cwd=src, check=True)
 with (src/'arch/arm/dts/rk3326-muos-r35s-panel0-uboot.dts').open('a') as f:
-    f.write('\n/ { config { bootdelay = <3>; }; };\n')
+    f.write(f'\n/ {{ config {{ bootdelay = <{delay}>; }}; }};\n')
 with (src/'board/rockchip/odroidgoa/Makefile').open('a') as f:
     f.write('\nobj-y += ' + ' '.join(objects) + '\n')
 if profile == 'ref':
     hdr = 'include/configs/muos-r35s-linux-assets.h'
     shutil.copy2(REF_PROBE/'source'/hdr, src/hdr)
 
-fragment = (dev/'uboot-sd/config.fragment').read_text().replace('CONFIG_BOOTDELAY=-1', 'CONFIG_BOOTDELAY=3')
+fragment = (dev/'uboot-sd/config.fragment').read_text().replace('CONFIG_BOOTDELAY=-1', f'CONFIG_BOOTDELAY={delay}')
 key = lambda l: (m := re.match(r'(?:# )?(CONFIG_[A-Z0-9_]+)(?:=| is not set)', l)) and m[1]
 keys = {key(l) for l in fragment.splitlines()} - {None}
 config = '\n'.join(l for l in (base/'configs/odroidgoa_defconfig').read_text().splitlines() if key(l) not in keys)

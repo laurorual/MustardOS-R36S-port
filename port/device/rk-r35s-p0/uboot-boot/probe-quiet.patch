@@ -1,0 +1,32 @@
+--- a/board/rockchip/odroidgoa/muos-r35s-probe.c
++++ b/board/rockchip/odroidgoa/muos-r35s-probe.c
+@@ -88,28 +88,7 @@
+     lcd_setfg_color("white");
+     lcd_setbg_color("black");
+     lcd_clear();
+-    lcd_printf(0, 1, 0, "muOS - R35S / Panel 0");
+-#ifdef MUOS_LINUX_DIAGNOSTIC
+-    lcd_printf(0, 3, 0, "Linux diagnostic: U-Boot reached");
+-#ifdef MUOS_EXT4_DIAGNOSTIC
+-    lcd_printf(0, 5, 0, "Linux + ext4 init will start automatically");
+-#else
+-    lcd_printf(0, 5, 0, "Linux + RAM init will start automatically");
+-#endif
+-#else
+-    lcd_printf(0, 3, 0, "SD monitor: U-Boot reached");
+-    lcd_printf(0, 5, 0, "Automatic kernel boot: OFF");
+-#endif
+-    lcd_printf(0, 7, 0, "RAM top    %08lx", gd->ram_top);
+-    lcd_printf(0, 8, 0, "Video      %08lx-%08lx", gd->video_bottom, gd->video_top);
+-    lcd_printf(0, 9, 0, "U-Boot     %08lx", gd->relocaddr);
+-    lcd_printf(0, 10, 0, "Stack      %08lx", gd->start_addr_sp);
+-    lcd_printf(0, 11, 0, "Control DTB %08lx", MUOS_CONTROL_FDT_BASE);
+-#ifdef MUOS_LINUX_DIAGNOSTIC
+-    lcd_printf(0, 13, 0, "No product frontend or network");
+-#else
+-    lcd_printf(0, 13, 0, "No Linux or frontend started");
+-#endif
++    /* M8 (boot profile): no diagnostic text; muos_boot shows the logo. */
+     puts("muOS R35S Panel 0 SD probe: automatic boot disabled\n");
+     return 0;
+ }

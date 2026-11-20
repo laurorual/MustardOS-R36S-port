@@ -1,0 +1,83 @@
+From: muOS R35S port
+Subject: [PATCH] mmc: host and mmcblk index from the "mmcN" DT alias
+
+Slot 1 must be mmcblk0 whichever card initialises first, so that the
+root can be named by device (root=/dev/mmcblk0p2) with an image copy in
+slot 2 (same PARTUUID). Backport of the upstream behaviour (v5.9 host
+index, v5.10 block index).
+
+diff -ru a/drivers/mmc/card/block.c b/drivers/mmc/card/block.c
+--- a/drivers/mmc/card/block.c	2026-11-20 01:39:12.059953428 -0300
++++ b/drivers/mmc/card/block.c	2026-11-20 01:39:12.074409738 -0300
+@@ -19,6 +19,7 @@
+  */
+ #include <linux/moduleparam.h>
+ #include <linux/module.h>
++#include <linux/of.h>
+ #include <linux/init.h>
+ 
+ #include <linux/kernel.h>
+@@ -2460,7 +2461,22 @@
+ 	struct mmc_blk_data *md;
+ 	int devidx, ret;
+ 
+-	devidx = find_first_zero_bit(dev_use, max_devices);
++	/*
++	 * muOS R35S port: the main area of a card on a host with an "mmcN"
++	 * DT alias is mmcblkN (upstream v5.10 behaviour); others take the
++	 * first free index after the highest alias.
++	 */
++	devidx = max_devices;
++	if (!subname && card->host->index < max_devices &&
++	    of_alias_get_highest_id("mmc") >= (int)card->host->index &&
++	    !test_bit(card->host->index, dev_use))
++		devidx = card->host->index;
++	if (devidx >= max_devices) {
++		int first = of_alias_get_highest_id("mmc") + 1;
++
++		devidx = find_next_zero_bit(dev_use, max_devices,
++					    first > 0 ? first : 0);
++	}
+ 	if (devidx >= max_devices)
+ 		return ERR_PTR(-ENOSPC);
+ 	__set_bit(devidx, dev_use);
+diff -ru a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
+--- a/drivers/mmc/core/host.c	2026-11-20 01:39:12.058716213 -0300
++++ b/drivers/mmc/core/host.c	2026-11-20 01:39:12.074149133 -0300
+@@ -325,9 +325,22 @@
+  *
+  *	Initialise the per-host structure.
+  */
++/*
++ * muOS R35S port: a host with an "mmcN" DT alias gets index N (upstream
++ * commit fa2d0aa96941, v5.9), so slot 1 is always mmc0/mmcblk0 whichever
++ * card initialises first; hosts without an alias are numbered after the
++ * highest alias.
++ */
++static int mmc_first_nonreserved_index(void)
++{
++	int max = of_alias_get_highest_id("mmc");
++
++	return max < 0 ? 0 : max + 1;
++}
++
+ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
+ {
+-	int err;
++	int err, alias_id;
+ 	struct mmc_host *host;
+ 
+ 	host = kzalloc(sizeof(struct mmc_host) + extra, GFP_KERNEL);
+@@ -338,7 +351,11 @@
+ 	host->rescan_disable = 1;
+ 	idr_preload(GFP_KERNEL);
+ 	spin_lock(&mmc_host_lock);
+-	err = idr_alloc(&mmc_host_idr, host, 0, 0, GFP_NOWAIT);
++	alias_id = dev && dev->of_node ? of_alias_get_id(dev->of_node, "mmc") : -ENODEV;
++	if (alias_id >= 0)
++		err = idr_alloc(&mmc_host_idr, host, alias_id, alias_id + 1, GFP_NOWAIT);
++	else
++		err = idr_alloc(&mmc_host_idr, host, mmc_first_nonreserved_index(), 0, GFP_NOWAIT);
+ 	if (err >= 0)
+ 		host->index = err;
+ 	spin_unlock(&mmc_host_lock);

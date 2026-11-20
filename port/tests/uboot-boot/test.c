@@ -125,6 +125,14 @@ static u32 be32(const unsigned char *p) { return (u32)p[0] << 24 | p[1] << 16 | 
 int fdt_check_header(const void *f) { return be32(f) == 0xd00dfeed ? 0 : -1; }
 u32 fdt_totalsize(const void *f) { return be32((const unsigned char *)f + 4); }
 void lcd_clear(void) {}
+static int lcd_init_fails, logo_shown;
+int lcd_init(void) { return lcd_init_fails ? -19 : 0; }
+int show_bmp(unsigned long bmp_mem) { // the real decoder: 640x480x24 rows into the 921600-byte fb
+    const unsigned char *b = (const unsigned char *)bmp_mem;
+    if (b[0] != 'B' || b[1] != 'M') abort();
+    logo_shown++;
+    return 0;
+}
 void lcd_printf(int x, int y, int s, const char *fmt, ...) { (void)x; (void)y; (void)s; (void)fmt; }
 void panic(const char *fmt, ...) {
     va_list ap;
@@ -168,6 +176,7 @@ static void reset(void) {
     memset(disk, 0, sizeof(disk));
     fail_write = fail_wide = booti_returns = booti_calls = panicked = writes = 0;
     trial_state_at_booti = 0;
+    lcd_init_fails = logo_shown = 0;
     booted_args[0] = panic_msg[0] = 0;
     lcd_line = 8;
     strcpy(env_bootargs, "console=tty0 root=PARTUUID=4d554432-02 ro panic=0");
@@ -280,6 +289,38 @@ int main(int argc, char **argv) {
     reset(); put_record(32, BOOTREC_VALID, "Image", "Image-new", "x");
     put_record(33, BOOTREC_VALID, "Image", "rk3326-muos-r35s-panel0.dtb", "m2"); run();
     expect("non-DTB rejected (size or header) -> previous", !strcmp(slot_of(booted_args), "previous"));
+
+    // M8: the boot logo. Valid = 640x480, 24 bpp, uncompressed, pixels inside the file.
+    size_t lsz = 54 + 640 * 480 * 3;
+    unsigned char *logo = calloc(1, lsz + 84);
+    logo[0] = 'B'; logo[1] = 'M'; logo[10] = 54; logo[18] = 0x80; logo[19] = 2; // off 54, w 640
+    logo[22] = 0xe0; logo[23] = 1; logo[26] = 1; logo[28] = 24;                  // h 480, 24 bpp
+    add_file("bootlogo.bmp", logo, lsz);
+    reset(); put_record(32, BOOTREC_VALID, "Image", "rk3326-muos-r35s-panel0.dtb", "m2"); run();
+    expect("valid logo shown, main boots", logo_shown == 1 && !strcmp(slot_of(booted_args), "main"));
+    logo[22] = 0x20; logo[23] = 0xfe; logo[24] = 0xff; logo[25] = 0xff;          // h -480 (top-down)
+    reset(); put_record(32, BOOTREC_VALID, "Image", "rk3326-muos-r35s-panel0.dtb", "m2"); run();
+    expect("top-down logo shown", logo_shown == 1);
+    logo[22] = 0xe0; logo[23] = 1; logo[24] = 0; logo[25] = 0;
+    struct { const char *what; int off; unsigned char v; long len; } bad_logo[] = {
+        {"32 bpp", 28, 32, 0}, {"width 384", 19, 1, 0}, {"height 496", 22, 0xf0, 0},
+        {"RLE compressed", 30, 1, 0}, {"no BM signature", 0, 'X', 0}, {"pixel data past the end", 10, 138, 0},
+        {"truncated file", -1, 0, -1}, {"data offset beyond the file", 12, 0x10, 0},
+    };
+    for (size_t i = 0; i < sizeof(bad_logo) / sizeof(bad_logo[0]); i++) {
+        unsigned char keep_b = 0;
+        if (bad_logo[i].off >= 0) { keep_b = logo[bad_logo[i].off]; logo[bad_logo[i].off] = bad_logo[i].v; }
+        else find("bootlogo.bmp")->len = lsz - 1;
+        reset(); put_record(32, BOOTREC_VALID, "Image", "rk3326-muos-r35s-panel0.dtb", "m2"); run();
+        if (bad_logo[i].off >= 0) logo[bad_logo[i].off] = keep_b; else find("bootlogo.bmp")->len = lsz;
+        char name[96]; snprintf(name, sizeof(name), "logo rejected (%s), main boots", bad_logo[i].what);
+        expect(name, logo_shown == 0 && !strcmp(slot_of(booted_args), "main"));
+    }
+    reset(); lcd_init_fails = 1; put_record(32, BOOTREC_VALID, "Image", "rk3326-muos-r35s-panel0.dtb", "m2"); run();
+    expect("no LCD -> no logo, main boots", logo_shown == 0 && !strcmp(slot_of(booted_args), "main"));
+    find("bootlogo.bmp")->name = "gone.bmp";
+    reset(); put_record(32, BOOTREC_VALID, "Image", "rk3326-muos-r35s-panel0.dtb", "m2"); run();
+    expect("missing logo -> black, main boots", logo_shown == 0 && !strcmp(slot_of(booted_args), "main"));
 
     printf("%s: %d failure(s)\n", failures ? "FAIL" : "PASS", failures);
     return failures != 0;
