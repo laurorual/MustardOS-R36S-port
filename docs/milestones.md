@@ -4,7 +4,7 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M8 — card layout and the heavy systems (in progress; night 2026-11-20, unattended)
+## M8 — card layout and the heavy systems (in progress; night 1 and day 2026-11-20)
 
 Logs `build/logs/m8/`. Image `test128-m8-20261120` (raw `fbd4871c…`, p2
 `0f723304…`) on p2 since 2026-11-20 ~03:05; U-Boot `159e086c…` written
@@ -78,6 +78,56 @@ and p2 writes allowed while away, avoiding writes likely to lose SSH).
     start/quit; written to p2 (previous p2 `50a5c24d…` saved).
 12. `trial-guard.sh` (p3 user init, unattended trial boots) is in the
     repo now; removed from the card at the end (user_init back to 0).
+13. **Night-1 T3 (2026-11-20, the user):** 1, 2, 4, 6 ok; 3 PSP runs but
+    slow (asked: dArkOSen's PPSSPP settings, or its other PSP emulator);
+    5 micro stutters after a wake, and the Power press felt slow (game
+    froze late, screen off later); 7 after the new emulator. Decisions:
+    23 the fastest emulator for every system, closed source allowed; 24
+    BIOS provided (`dc_boot.bin`, `dc_flash.bin`, `saturn_bios.bin`); 25
+    layout session accepted (user present).
+14. **Sleep/wake (T3 5) — done to T2:** muos-suspend turns the screen off,
+    stops a standalone emulator and mutes first (muxretro's ~1.3 s
+    auto-save now runs behind a black screen; dArkOSen's sleep hook also
+    blanks first). Woken in a game, the paused frame shows for 3 s
+    (`settings/power/wake_hold`, ms), then sound and game resume:
+    `t2-wake-frames.sh` (NES, 2 wakes) 10-11 slow frames up to 238 ms in
+    the first 2.8 s (page flip) -> none. dArkOSen does nothing special on
+    wake (kernel thaw, then its post hook).
+15. **PSP (T3 3) — done to T2:** dArkOSen runs `ppsspp.ini.sdl` (copied
+    over ppsspp.ini each start; not the file we had seeded) and offers
+    `standalone-2021` (v1.12.3). `t2-psp-fps.sh` (the user's states; v1.12
+    loads its state with L3): see hardware-findings "PSP performance".
+    Default now `ext-ppsspp-2021` (`build-ppsspp-sa.sh build 2021`: dArkOS
+    2021 patches, `-include` fixes for GCC 13, `-no-pie` for its
+    non-PIC bundled FFmpeg; own memory stick p3
+    `MUOS/port/ppsspp-2021/ppsspp`, SAVEDATA linked to the 1.20 one;
+    defaults from dArkOS 2021 sdl ini with InternalResolution 1 and
+    FrameSkip 1). v1.20.4 stays as `ext-ppsspp`. God of War ~31 emulated
+    fps (full speed) in the user's scene.
+16. **NDS — DraStic, done to T2:** `build-drastic.sh stage` (dArkOS
+    binary r2.5.2.2 + BIOS replacements, database, logos; no usrcheat.dat),
+    `muos-drastic` (working dir p3 `MUOS/port/drastic`, binary copied in),
+    drastic.cfg = dArkOS RG351MP with the controls moved to muOS-Keys;
+    `ext-drastic` added to the coredb (upstream has no NDS external).
+    NSMB full speed; sleep/wake ok; Fn+Start quits (SIGKILL after 2 s).
+17. **DC — Flycast v2.7 (flyinghead), done to T2:** `build-cores.sh`
+    row `flycast2` (CMake, LIBRETRO, GLES3), installed as
+    `flycast_libretro.so`; Power Stone 2 with the BIOS 36-43 fps.
+    Saturn with the BIOS ~21 fps (Sonic R).
+18. **One-shot migration `m8-heavy-defaults` (S91):** folder seeds and
+    per-game assignments equal to the old defaults move (PSP ext-ppsspp
+    -> ext-ppsspp-2021, NDS melonDS -> DraStic).
+19. **Image `test128-m8b-20261120` — p2 1 GiB (items 3):** firmware.defconfig
+    1G; firmware-image.sh moves the M2 base p3 behind the new p2 and
+    rewrites the MBR (same disk id); `firmware-inputs.py pin-tree/pin-file`.
+    Trial root T2: sweep 44 ok / 10 bounces, NES 59.98, t2-sdcard,
+    t2-sftp-jail, Wi-Fi toggle 2/3 then 4/4 (one cycle SCANNING 150 s),
+    PSP/NDS/DC start and quit, wake frames 2/2. Flashed with the user
+    present (2026-11-20 ~17:25, host reader): `card-p3.sh backup`,
+    `flash-card.sh host ... --grow`, `card-p3.sh restore` (6539 entries);
+    first boot: p2 1 GiB (468 MB free), p3 116 GiB, migration ran, NES
+    59.98, menu sleep 1/1. `make-recovery-image.sh`/`device.sh capture`
+    now take the 1152 MiB prefix.
 
 ## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 

@@ -12,49 +12,41 @@ milestones with their results and T3 checklists in
 ## Current phase
 
 **Phase 5 (own-card firmware). M1–M5 and M7 done. Current: M8 (card
-layout and the heavy systems), first night done 2026-11-20 (unattended):
-image m8 on p2 and the new U-Boot (root by device, quiet boot, boot
-logo) on the card, both T2-passed; T3 checklist below. Recovery image:
-m7d (its U-Boot is the old one; the m8 image carries the new one).**
+layout and the heavy systems). 2026-11-20 day (user present): the night-1
+T3 fixes, PSP/NDS/DC emulators and the 1 GiB p2 layout: image m8b
+flashed with the host reader and p3 restored; T3 checklist below.
+Recovery image: m7d (old 512 MiB p2 layout; flashing it rewrites the
+whole card, so it still works); m8b becomes recovery after its T3.**
 
 ## Next session — read first
 
-- Device on main = **M8 p2** (`0f723304…`, written 2026-11-20 ~03:05 by
-  `write-p2`; previous p2 `50a5c24d…` in `MUOS/trial/p2-previous.img`)
-  and the **M8 U-Boot** (`159e086c…`, written ~03:10 with read-back; the
-  M7 one `65fb3dcd…` in `MUOS/trial/uboot-previous.img` and
-  `build/m8/uboot-previous.img`). p1 has `bootlogo.bmp`. Boot records:
-  main = `Image-331eebd4a643` + `panel0-c97151d0ec1a.dtb` (mmc aliases),
-  previous = the M7 kernel/DTB. No live installs on top.
-- If the U-Boot ever fails: write `build/m8/uboot-previous.img` to
-  sectors 16384–24575 of the card from the host reader (p3 untouched):
-  `dd if=build/m8/uboot-previous.img of=/dev/sdX bs=512 seek=16384
-  conv=fsync`.
-- CTR test state (the user's scene, mid-race, unpaused): p3
-  `MUOS/port/t2/ctr-race` (`t2-long-play.sh --state`, `t2-soak.sh`).
-- Idle discharge run done (report in hardware-findings, logger stopped).
-- Device volume 35 at the end of the M8 night (40 before; T2 runs set
-  10 and restore what they read).
-- The standalone N64 SRAM of DK64 and MK64 was migrated from the
-  libretro .srm on 2026-11-19 (`MUOS/t2-bak` deleted after the M7c T3).
-- New-system ROMs from `port/roms/` on p3 (2026-11-19): 32X, ATARI2600,
-  ATARI7800, GG, LYNX, SMS, PCE, SEGACD (Sonic CD), PCECD (Dracula X);
-  BIOS `bios_CD_U.bin`, `syscard3.pce` in p3 `MUOS/bios`. M8
-  (2026-11-20): DC (Power Stone 2), PSP (God of War CoO), NDS (NSMB),
-  SATURN (Sonic R); core options: `melonds_threaded_renderer=enabled`.
-- DraStic test copy (dArkOS binary + RG351MP cfg) in p3 `MUOS/t2/drastic`.
-- Smoke ROMs deleted from p3 (2026-11-19); `make-smoke-roms.py` makes
-  them again for T2.
+- Device = **m8b flashed whole** (2026-11-20 ~17:25, raw `fea0b63a…`,
+  p2 `d1411860…`, M8 U-Boot `159e086c…`), p3 restored from
+  `build/m8/p3-backup/p3.tar` (**private**: delete it once the m8b T3
+  confirms the restored card). New layout: p2 1 GiB (468 MB free), p3 at
+  1152 MiB. Boot records: main = `Image-331eebd4a643` +
+  `panel0-c97151d0ec1a.dtb`, previous = the M2 kernel (image default).
+  No live installs on top.
+- Test data on p3 `MUOS/t2`: `state-v120`/`state-v112` (the user's God of
+  War states for v1.20.4 / v1.12.3; v1.12 needs `T2_PSP_BYKEY=1`),
+  `ppsspp-2021` (test copy, now in the image: removable), `drastic`
+  (night-1 copy, removable), `m1-backup` (old flycast; removable).
+- CTR test state: p3 `MUOS/port/t2/ctr-race`.
+- Device volume as the user left it (T2 runs set 10 and restore).
+- New-system ROMs (p3, also in `port/roms/`): 32X, 2600, 7800, GG, LYNX,
+  SMS, PCE, SEGACD, PCECD, DC (Power Stone 2), PSP (God of War CoO), NDS
+  (NSMB), SATURN (Sonic R); BIOS incl. `dc/dc_boot.bin`, `dc/dc_flash.bin`,
+  `saturn_bios.bin`.
 - The user's spare card is in slot 2 (exFAT, `ROMS/megadrive`); it never
   initialises (open problem). Slot 1 is mmcblk0 by DT alias since M8.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
-  test128 in slot 1, the user's spare card (exFAT) in slot 2: M4b image
-  flashed 2026-11-14, then p2 written in place (`write-p2`) for M4d,
-  M4e.1, M4f, M4g, M5, M7 (m7, m7t3, m7c, m7d) and M8 (m8); U-Boot
-  rewritten in place for M8. `user_init` = 0. Time zone −03.
+  test128 in slot 1, the user's spare card (exFAT) in slot 2: m8b
+  flashed whole 2026-11-20 (1 GiB p2 layout; p3 restored), after the M4b
+  image of 2026-11-14 and p2 writes up to m8. `user_init` = 0. Time
+  zone −03.
   - Boot records: main = `Image-331eebd4a643` + `panel0-c97151d0ec1a.dtb`
     (M8: mmc DT aliases; CPU OPPs to 1512 MHz, cap 1296); previous =
     `Image-ea8ac0033c0e` + `panel0-0475265be8ac.dtb` (M7).
@@ -72,14 +64,14 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m8-20261120.img.zst` (raw `fbd4871c…`, p2 `0f723304…`, U-Boot `159e086c…`) | M8 night 1: mmc aliases, quiet U-Boot + boot logo, Wi-Fi deferred on wake in a game, standalone PPSSPP, DC/NDS/Saturn cores | on the device (p2 + U-Boot); T3 pending (the M8 checklist) |
+| `dist/firmware/test128-m8b-20261120.img.zst` (raw `fea0b63a…`, p2 `d1411860…`, U-Boot `159e086c…`) | M8 day: **1 GiB p2 layout**, instant screen-off sleep + 3 s wake hold, PSP PPSSPP v1.12.3 + FrameSkip 1 (v1.20.4 second), NDS DraStic, DC Flycast v2.7 | **on the device (flashed whole)**; trial-root T2 passed; T3 pending (the M8b checklist) |
+| `dist/firmware/test128-m8-20261120.img.zst` (raw `fbd4871c…`, p2 `0f723304…`, U-Boot `159e086c…`) | M8 night 1: mmc aliases, quiet U-Boot + boot logo, Wi-Fi deferred on wake in a game, standalone PPSSPP, DC/NDS/Saturn cores | T3 2026-11-20: 1, 2, 4, 6 ok; 3 slow, 5 stutters (fixed in m8b) |
 | **`dist/firmware/test128-m7d-20261119.img.zst`** (raw `67ae7da4…`, p2 `176c691a…`) | **Recovery image since 2026-11-20.** M7 final: m7c + N64 defaults to the standalone Rice (decision 22), pruned N64 core list | on the device; T3 2026-11-20: 1–8 passed |
 | `dist/firmware/test128-m7c-20261119.img.zst` (raw `5878d3b3…`, p2 `701eb2a8…`) | M7c: the M7 T3-fix fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal (recovery until m7d) | T3 2026-11-19: 1–8 passed (4 partial: no level bar or screenshot feedback in the standalone N64) |
-| `dist/firmware/test128-m7t3-20261119.img.zst` (raw `9c60175f…`, p2 `c1f45838…`) | M7 + its T3 fixes (recovery until m7c) | T3 2026-11-19: 1–5 passed, 6 partial (Danger screen, fixed in m7c) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-5/5 versions in `storage-retention.json` (m8 added 2026-11-20). The next
-image retires m7t3.
+5/5 versions in `storage-retention.json` (m8b added, m7t3 retired
+2026-11-20). The next image retires m7c.
 
 ## What works (T3-confirmed)
 
@@ -122,16 +114,18 @@ CD; Wi-Fi dongle plugged during boot; 15 min of CTR/MK64 without cuts;
   gauge's charge-finish step (dsoc → 100 on charge done) doesn't run
   while suspended, and/or the low learned FCC. Low priority; look at it
   with the M7 power items.
-- **p2 space:** 488 MB root, ~85 MB free in m8 (PPSSPP 48 MB, parallel-dc
-  32 MB added). ScummVM, CJK fonts and DraStic wait for the 1 GiB p2
-  (decision 17; layout session with the user).
-- **Heavy systems (M8):** PSP standalone runs (God of War: 30 Hz content,
-  mostly 7–8 presented frames/s after the menus with auto frameskip; the
-  heaviest PSP game, verdict is T3); DC and Saturn need BIOS (decision
-  24: parallel-dc's HLE hangs on Power Stone 2, YabaSanshiro refuses
-  without BIOS); NDS: melonDS 22–23 fps, DraStic not integrated
-  (decision 23). The coredb PSP default key `ppsspp` also names the
-  unshipped libretro entry (folders assigned by name may pick it).
+- **p2 space:** 1 GiB since m8b, 468 MB free. ScummVM and the CJK fonts
+  (decision 17) are next (by `write-p2`, no reflash).
+- **Heavy systems (M8, T2; verdicts are the m8b T3):** PSP = PPSSPP
+  v1.12.3 + FrameSkip 1: God of War ~31 emulated fps (full speed) in the
+  user's scene; CPU-bound and thermally held at ~1000 MHz under the 1296
+  cap. NDS = DraStic, full speed (NSMB). DC = Flycast v2.7: Power Stone 2
+  36–43 fps (attract loop; options not tuned). Saturn = YabaSanshiro
+  libretro, Sonic R ~21 fps (dArkOSen's standalone YabaSanshiro not
+  tried). Details in hardware-findings "Standalone emulators (M8)".
+- **Wi-Fi toggle (m8b trial T2):** one of 7 toggles sat in SCANNING for
+  150 s (no AP found), the next came back in 9 s; network code unchanged
+  in m8b; two SSH drops earlier the same day under heavy load.
 - **Wi-Fi zombie (M5 incident):** handled since M7: while connecting by
   the worker (dongle reset), while "ready" by `muos-usb-watchdog` (C2H
   errors or a silent gateway → dwc2 rebind; T2 with injected errors and
@@ -162,7 +156,9 @@ CD; Wi-Fi dongle plugged during boot; 15 min of CTR/MK64 without cuts;
   M4c); no software power cycle.
 - **Wake:** in the menu Wi-Fi returns ~9.3–10.2 s after wake (M7
   timeline in hardware-findings). Woken in a game (M8), Wi-Fi stays down
-  until the game ends (no stutter: T2 peak 40 ms); T3 to confirm.
+  until the game ends and the paused frame is held 3 s (m8b: no slow
+  frames after it in T2); night-1 T3 still felt micro stutters (before
+  the hold); m8b T3 to confirm.
 - **Boot logo (M8):** U-Boot shows p1 `bootlogo.bmp` (own art), the
   kernel console is serial-only and quiet, muos-rc shows the same logo
   until the menu. The gap between the kernel taking the display (~4 s,
@@ -226,62 +222,66 @@ Standalone - Rice" (done to T2: seed, migration, coredb default; the
 assignment list offers only Rice and Glide, the "- Full" entries equal
 4:3 on this panel and GlideMk2 isn't built).
 
+Answered 2026-11-20 (night-1 T3): 23 the emulator with the most FPS for
+every system, closed source allowed (done: PSP v1.12.3, NDS DraStic, DC
+Flycast v2.7); 24 DC/Saturn BIOS provided (done); 25 layout session
+(done: m8b flashed, p3 restored).
+
 ## Decisions for the user
 
-23. **NDS emulator.** dArkOSen uses DraStic (closed source, free to use;
-    its binary is in the dArkOS repo; no explicit redistribution licence).
-    melonDS (GPL) is 22–23 fps here. Recommendation: DraStic in the
-    developer image now (needs the 1 GiB p2 or ~5 MB of the 85 MB left,
-    plus a launcher with remapped controls), public image only after
-    the licence check (pending-licenses, M9); melonDS stays as the
-    fallback core.
-24. **BIOS for DC and Saturn.** Please add to `port/roms/bios`: DC
-    `dc_boot.bin` (+ `dc_flash.bin`), Saturn `saturn_bios.bin` (or
-    `sega_101.bin` / `mpr-17933.bin`). Without them DC hangs at boot
-    (HLE) and Saturn does not start; dArkOSen's DC also uses the BIOS.
-25. **Card layout session (M8 items 1–4 left):** p2 1 GiB means moving
-    p3 (ROMs, saves, Wi-Fi profile): recommendation: with you present,
-    back up p3 on the PC, flash the 1 GiB-layout image with the host
-    reader, restore p3 (one session, ~30 min of your time), then the
-    slot-2 swap test with the two cards.
+26. **Slot-2 swap test (M8 item 4):** flash our image on the spare card
+    (the former original32, now exFAT with `ROMS/megadrive`; **its
+    contents are erased**), boot it in slot 1 with test128 in slot 2.
+    Recommendation: yes, with you present (~10 min); copy anything you
+    want from the spare card first.
+27. **Public image and closed source (M9):** DraStic has no explicit
+    redistribution licence. Recommendation: developer image now; for the
+    public image either a licence answer or a first-run download script.
 
 ## T3 queue
 
-**M8 checklist, night 1 (image m8 + new U-Boot, on the device; pt-BR
-labels).** Items 4 and 5 on battery (on the charger sleep is the fake
-one).
+**M8b checklist (image m8b, flashed 2026-11-20; pt-BR labels).** Sleep
+items on battery (on the charger sleep is the fake one).
 
-1. **Boot logo:** Desligar, power on: from the first light to the menu a
-   black screen with "muOS / R36S / R35S / unofficial port" and no
-   scrolling text; note any black gap or flicker and the seconds from
-   power-on to the menu (M7: ~15 s).
-2. **Regression after boot:** menu in pt-BR, Wi-Fi connects (header
-   icon), Configuração → Conectividade unchanged.
-3. **PSP** (Explorar conteúdo → PSP → God of War - Chains of Olympus
-   (USA)): starts in PPSSPP; Cross = B, Circle = A, Square = Y,
-   Triangle = X, L1/R1 = L/R, Start/Select, d-pad and stick; play a few
-   minutes: is it playable? Fn opens PPSSPP's menu (B or Fn closes it);
-   Fn+Start returns to the muOS menu.
-4. **Sleep in PSP (battery):** short Power → screen off; Power → the game
-   continues where it was, sound back.
-5. **Sleep in a libretro game (battery):** NES (Explorar conteúdo → NES),
-   short Power, wake after ~30 s: the game continues at once with no
-   stutter; the Wi-Fi icon stays off while in the game; Fn+Start to the
-   menu: Wi-Fi icon back within ~15 s.
-6. **N64 regression** (Explorar conteúdo → N64 → Mario Kart 64 (USA)):
-   starts, Fn+Start back to the menu.
-7. **NDS / DC / Saturn (known):** NDS (Explorar conteúdo → NDS) starts
-   in melonDS but slow (~22 fps); DC and Saturn need BIOS (decision 24):
-   no need to test.
+1. **Restored card:** menu in pt-BR, Wi-Fi connects (header icon); in
+   Explorar conteúdo your systems and games are all there; open a game
+   that had a save (e.g. Explorar conteúdo → GBA or SNES → a game you
+   played) and check the save/resume is there.
+2. **Sleep in the menu:** short Power → the screen goes off at once;
+   Power → the menu is back.
+3. **Sleep in a game (NES):** Explorar conteúdo → NES → a game, short
+   Power: the screen goes off at once (no visible freeze first); wake
+   after ~30 s: the paused picture for ~3 s, then game and sound come
+   back together with no stutter.
+4. **PSP** (Explorar conteúdo → PSP → God of War - Chains of Olympus
+   (USA)): starts in PPSSPP 1.12.3; L3 loads your 1.12 state (saved
+   16:02); play a few minutes: game speed close to normal (fewer frames
+   on screen, frameskip 1), sound clean, controls as before; Fn opens
+   PPSSPP's menu; Fn+Start back to the muOS menu.
+5. **Sleep in PSP (battery):** short Power, Power: continues, sound back.
+6. **NDS** (Explorar conteúdo → NDS → New Super Mario Bros. (USA)):
+   starts in DraStic; d-pad and left stick, A/B/X/Y, L1/R1, Start,
+   Select; right stick = touch cursor, L3 = touch; R3 swaps the screens;
+   L2/R2 change the layout; Fn opens DraStic's menu (B/Back closes it).
+   Save in the game, Fn+Start, open it again: the save is there.
+7. **Sleep in NDS (battery):** short Power, Power: continues.
+8. **Dreamcast** (Explorar conteúdo → DC → Power Stone 2 (USA)): the
+   Dreamcast BIOS logo, then the game; is it playable? (T2: 36–43 fps).
+9. **Saturn** (Explorar conteúdo → SATURN → Sonic R (USA, Brazil)):
+   starts; slow (~21 fps) is expected.
+10. **N64 regression** (Explorar conteúdo → N64 → Mario Kart 64 (USA)):
+    starts; Fn+Start back to the menu.
 
 ## Current milestone: M8 — card layout and the heavy systems (decisions 16, 17, 20)
 
 Started 2026-11-20. Night 1 (unattended, 2026-11-20 01:30–03:30): items
 1 (U-Boot root by device, written), 2 (quiet boot + logo, written), 7
 (PSP standalone), 10 (wake in a game) done to T2; 6/8/9 built, blocked by
-decisions 23/24; 3/4 need decision 25. Details: milestones.md M8.
-The bootloader and partition-table writes need the user present, except
-the night-1 exception.
+decisions 23/24; 3/4 need decision 25. Day (user present): night-1 T3
+fixes (sleep screen-off, 3 s wake hold), PSP v1.12.3, DraStic, Flycast
+v2.7, item 3 (m8b flashed, p3 restored). Details: milestones.md M8.
+**Left:** 4 (decision 26), 5 (ScummVM, CJK: by write-p2), 9 (Saturn
+standalone, lowest), 11, 12; then the M8 T3 and promotion of m8b.
 
 Items:
 1. Clean U-Boot build (from source, no dirty tree), `root=` by the

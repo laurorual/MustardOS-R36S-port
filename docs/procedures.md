@@ -18,10 +18,11 @@ put together. Current state and the recovery image are in
   - Bootloader at sectors 64 / 16384 / 24576; boot records at sectors
     32 (main), 33 (previous), 34 (trial).
   - p1: FAT `MUOSDIAG`, 16 MiB+100 MiB, ro at `/boot`.
-  - p2: ext4 root, 128 MiB+512 MiB, ro at runtime.
-  - p3: ext4 `MUOSDATA`, 640 MiB to the end, rw at `/userdata`. 1 GiB in
-    images; `flash-card.sh --grow` or the first boot (`muos-grow-p3`, since
-    M3d) extends it.
+  - p2: ext4 root, 128 MiB+1 GiB (M8 image m8b on; 512 MiB before, the
+    m7d recovery image and older still have that layout), ro at runtime.
+  - p3: ext4 `MUOSDATA`, 1152 MiB (640 MiB in the old layout) to the end,
+    rw at `/userdata`. 1 GiB in images; `flash-card.sh --grow` or the
+    first boot (`muos-grow-p3`, since M3d) extends it.
 - **original32 (stock dArkOSen):** the flasher station, in slot 1 with
   the target card in slot 2. Never write original32 itself.
 
@@ -42,6 +43,14 @@ previous kept image the same way.
      the SHA256 (`verified raw_sha256=…`), then grows p3 (`p3 grown and
      clean`).
 4. Put the card in slot 1 (slot 2 empty), power on.
+
+**Keep p3 across a reflash (M8, layout change):** a flash rewrites p3
+(ROMs, saves, states, BIOS, Wi-Fi profile). With the card in the reader:
+`port/scripts/card-p3.sh backup /dev/sdX` (p3 read-only → private
+`build/m8/p3-backup/p3.tar`, MUOS/trial left out), the flash above with
+`--grow`, then `port/scripts/card-p3.sh restore /dev/sdX` (file-count
+check). Both use sudo. Delete the tar once the restored card is
+T3-checked. (M8: 6539 entries, 5.5 GiB, ~15 min for all three steps.)
 
 **Flash via dArkOSen (fallback, no reader):**
 1. Power off. Put original32 in slot 1 and the target card in slot 2.

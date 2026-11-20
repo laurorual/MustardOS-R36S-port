@@ -4,7 +4,7 @@
 #
 #   make-recovery-image.sh [--p3-mib N] [--strip-seed] CAPTURE_DIR OUT.img.zst
 #
-# Layout: the captured 0..640 MiB prefix (idbloader/U-Boot/trust, p1 FAT,
+# Layout: the captured 0..1152 MiB prefix (M8; 640 before the 1 GiB p2) (idbloader/U-Boot/trust, p1 FAT,
 # p2 ext4 root) followed by a fresh N MiB (default 1024) p3 ext4 rebuilt
 # from the captured p3 tar with the same label, UUID and 4.4-safe features.
 # The MBR p3 entry is shrunk to match; flash-card.sh --grow extends it.
@@ -29,7 +29,8 @@ for f in prefix.img.gz prefix.sha256 p3.tar p3-head.img table.sfdisk; do
 done
 
 mib=$((1024 * 1024)) sec=512
-prefix_mib=640 p2_start=262144 p2_sectors=1048576 p3_start=1310720
+# M8: the 1 GiB p2 layout (p3 at sector 2359296 = 1152 MiB)
+prefix_mib=1152 p2_start=262144 p2_sectors=2097152 p3_start=2359296
 work=$(mktemp -d "$(dirname "$out")/.work.XXXXXX")
 trap 'podman unshare rm -rf "$work"' EXIT
 img=$work/card.img

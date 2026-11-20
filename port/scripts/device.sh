@@ -163,7 +163,7 @@ case "$cmd" in
     done
     die "no new boot id after reboot" ;;
  capture)
-    # Consistent card capture for make-recovery-image.sh: 0..640 MiB raw
+    # Consistent card capture for make-recovery-image.sh: 0..1152 MiB raw (M8 layout)
     # (bootloader, p1, p2), a tar of p3, the p3 superblock and the table.
     [ $# -eq 1 ] || die "capture OUTDIR"
     out=$1; mkdir -p "$out"; ip=$(target)
@@ -179,8 +179,8 @@ case "$cmd" in
         ! grep -q "^/dev/mmcblk0p3 " /proc/mounts' || die "need root ro, p1 not rw and p3 unmounted"
     ssh_dev "$ip" 'sfdisk -d /dev/mmcblk0' > "$out/table.sfdisk"
     ssh_dev "$ip" 'dd if=/dev/mmcblk0p3 bs=1M count=4 2>/dev/null' > "$out/p3-head.img"
-    ssh_dev "$ip" 'dd if=/dev/mmcblk0 bs=1M count=640 2>/dev/null | gzip -1' > "$out/prefix.img.gz"
-    remote=$(ssh_dev "$ip" 'dd if=/dev/mmcblk0 bs=1M count=640 2>/dev/null | sha256sum' | cut -d' ' -f1)
+    ssh_dev "$ip" 'dd if=/dev/mmcblk0 bs=1M count=1152 2>/dev/null | gzip -1' > "$out/prefix.img.gz"
+    remote=$(ssh_dev "$ip" 'dd if=/dev/mmcblk0 bs=1M count=1152 2>/dev/null | sha256sum' | cut -d' ' -f1)
     local_sum=$(gzip -dc "$out/prefix.img.gz" | sha256sum | cut -d' ' -f1)
     [ "$remote" = "$local_sum" ] || die "prefix hash mismatch $remote != $local_sum"
     echo "$local_sum  prefix.img" > "$out/prefix.sha256"

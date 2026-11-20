@@ -481,13 +481,13 @@ The open problems behind each "partial" are in STATUS.
   |---|---|
   | sector 64 / 16384 / 24576 | idbloader / U-Boot / trust |
   | p1 (16 MiB, 100 MiB) | FAT32 `MUOSDIAG`, boot flag |
-  | p2 (128 MiB, 512 MiB) | ext4 `ROOTFS`, PARTUUID `4d554432-02`, mounted RO |
-  | p3 (640 MiB to end, ~118 GiB) | ext4 `MUOSDATA`, PARTUUID `4d554432-03`, UUID `6d756f73-c020-4000-8000-000000000001` |
+  | p2 (128 MiB, 1 GiB; 512 MiB before M8 m8b) | ext4 `ROOTFS`, PARTUUID `4d554432-02`, mounted RO |
+  | p3 (1152 MiB to end, ~116 GiB; 640 MiB before m8b) | ext4 `MUOSDATA`, PARTUUID `4d554432-03`, UUID `6d756f73-c020-4000-8000-000000000001` |
 
   - (phase4-userdata-offline.md, phase4-card-image.md)
 - **Write and data rules (M1):** the whole card is disposable and is
   rewritten with the images in `dist/recovery` (STATUS). These hold
-  0–640 MiB (bootloader, p1, p2) plus a 1 GiB p3. `flash-card.sh --grow`
+  0–1152 MiB (bootloader, p1, p2; 0–640 MiB before m8b) plus a 1 GiB p3. `flash-card.sh --grow`
   extends p3 to the end of the card.
   - p3 holds `ROMS/<system>` (`ROMS/GB/private.gb`), the muOS storage tree
     `MUOS/*` (saves and states in `MUOS/pickles`), `MUOS/port`
@@ -1015,3 +1015,32 @@ The open problems behind each "partial" are in STATUS.
 - **muxretro core options:** `pickles/coreopt/core/<core>.ini`, section
   `[options]`, `key=value` without spaces (mini trims the key only).
 
+- **PSP performance (M8 T3 fixes, `t2-psp-fps.sh`, God of War CoO from a
+  fixed state, presented frames by swapstat):** CPU-bound and thermally
+  limited. At a fixed 1008 MHz: v1.20.4 11.1 fps, v1.12.3 13.0 (+17 %);
+  BloomHack 3 and a 400 MHz GPU cap change nothing; resolution Auto (2x
+  on 640x480) is slower than 1x. At the 1296 cap the soc zone's
+  power_allocator (750 mW, the same in the stock DTB) holds the CPU at
+  ~900–1150 MHz after a minute (82–83 °C). FrameSkip 1 roughly doubles
+  the emulated rate: v1.12.3 15.5 presented = ~31 emulated fps (GoW's
+  30 Hz, full speed) at 1146 MHz. The two versions' states are not
+  compatible (each its own memory stick, SAVEDATA shared).
+- **PPSSPP v1.12.3 quirks:** `--state=` makes it die with SIGBUS (load
+  with L3 instead); with the root remounted rw and 100 % full it died with
+  SIGBUS at start until a reboot (seen once, cause not isolated).
+- **DraStic:** catches SIGTERM but does not quit (Fn+Start: SIGKILL after
+  2 s, as dArkOSen's killer_daemon); SIGINT ignored; SIGHUP kills it
+  (rc 129). Its frame timer resyncs after SIGSTOP/SIGCONT (sleep). Codes
+  in drastic.cfg: 1024 + button, 1088 + SDL hat value, 1152/1216 + axis
+  (+/−). NSMB ~80 % of one core, full speed.
+- **Dreamcast:** libretro/flycast is now the parallel_dc fork: with the
+  real BIOS it still never shows a frame (the CPU thread spins). Flyinghead
+  Flycast v2.7 (libretro, GLES 3.2 on the Mali) boots Power Stone 2: 36–43
+  fps in the attract loop (core 14–17 ms, present ~10 ms).
+- **Saturn:** YabaSanshiro libretro with `saturn_bios.bin` runs Sonic R at
+  ~21 fps (core 44 ms per frame).
+- **Wake in a game (M8 T3 5, `t2-wake-frames.sh`):** with Wi-Fi deferred,
+  the slow frames after a wake all land in the first ~2.8 s and nearly all
+  in the page flip (present_flip up to 230 ms): the display path settles
+  after resume. Holding the paused game 3 s (muos-suspend
+  `settings/power/wake_hold`) leaves none.
