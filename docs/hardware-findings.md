@@ -922,6 +922,10 @@ The open problems behind each "partial" are in STATUS.
     udhcpc, `RTW_CMD_THREAD`) to CPU3 and the game to CPU0–2 removes the
     long frame (129 → 33 ms max); the dwc2 IRQ on CPU3 too adds nothing.
     The kernel is PREEMPT_VOLUNTARY: a driver busy-wait owns its CPU.
+    M7 T3 (user, m7d): a libretro game (NES) is back almost at once and
+    stutters briefly before it settles; the standalone N64 shows its
+    last frame for ~1 s and then runs smoothly. Holding the game a little
+    longer reads better than resuming into slow frames (M8).
   - *Volume/brightness (still open):* unchanged by the governor (vol 44–48,
     bright 22 slow frames per 14 s) and by priority (renice −10 of every
     muxretro thread, SCHED_RR 5 of the main thread: no gain or worse).

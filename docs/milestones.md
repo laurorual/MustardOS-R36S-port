@@ -4,9 +4,9 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M7 — polish: language, performance, power (done to T2 2026-11-19; image m7d on p2, T3 pending)
+## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 
-Logs `build/logs/m7/`. Images m7 → m7t3 → m7c (recovery) → m7d.
+Logs `build/logs/m7/`. Images m7 → m7t3 → m7c → m7d (recovery).
 
 1. **Languages — done to T2:** the pinned upstream language pack
    (MustardOS/language `3db301a`, `muos-language.txt`) replaces
@@ -168,6 +168,15 @@ Logs `build/logs/m7/`. Images m7 → m7t3 → m7c (recovery) → m7d.
     the previous resume) but muos-suspend exited without a trace (its
     lock or the recent-wake guard); rerun 5/5. Both silent exits now log
     (next image).
+27. **M7 T3 (2026-11-20, image m7d):** 1–8 ok (N64 default and core
+    list, DK64, dongle during boot, long play, menu sleep 3/3, game
+    sleep, regression). Notes: (a) there is no boot logo: the kernel
+    console scrolls on the LCD (U-Boot env `console=tty0 loglevel=7`) →
+    M8 with the clean U-Boot; (b) on wake a libretro game (NES) is back
+    almost at once but stutters briefly before it settles (the known
+    ~0.7 s of slow frames), while the standalone N64 holds its last frame
+    ~1 s and then runs smoothly → M8. m7d promoted to recovery, m7
+    retired.
 
 ## M6 — systems, cores, build from source (done to T2 2026-11-19; p2 never written, superseded by M7)
 

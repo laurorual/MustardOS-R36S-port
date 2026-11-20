@@ -201,3 +201,10 @@ At the end of each milestone report briefly:
 - The T3 checklist for the user.
 - Decisions needed, what remains unverified or risky, and the next
   milestone from the release plan.
+  
+## Telegram Communication
+
+- Use the official Telegram plugin's `reply` tool to notify me whenever you need information, clarification, decisions, or my intervention during a task.
+- When my input is required, clearly explain what you need and wait for my response before proceeding.
+- Upon completing a task, send a summary via Telegram outlining the results and any remaining issues.
+- Avoid unnecessary notifications during routine operations.

@@ -11,18 +11,19 @@ milestones with their results and T3 checklists in
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M5 done; M6 folded into M7. M7
-(polish) done to T2 2026-11-19: image `test128-m7d-20261119` on p2, its
-T3 (the M7 checklist below) pending. Recovery image: m7c. Next: M8 (needs
-the user present).**
+**Phase 5 (own-card firmware). M1–M5 and M7 done (M6 folded into M7;
+M7 T3 passed 2026-11-20). Recovery image: m7d (on the device). Current:
+M8 (card layout and the heavy systems); its bootloader and
+partition-table writes need the user present.**
 
 ## Next session — read first
 
 - Device on main = **M7d p2** (`176c691a…`, build `r35s-1ed3ce6`;
   written 2026-11-19 ~22:00 by `write-p2` from the trial root; the
   previous p2 saved as `MUOS/trial/p2-previous.img` `21fbc43b…`), no
-  live installs on top. The muos-suspend/muos-hotkey logging of silent
-  sleep exits (M7 item 26) is in the repo only (next image). Boot
+  live installs on top; it is also the recovery image. The
+  muos-suspend/muos-hotkey logging of silent sleep exits (M7 item 26) is
+  in the repo only (next image). Boot
   records: main = the M7 DTB.
 - CTR test state (the user's scene, mid-race, unpaused): p3
   `MUOS/port/t2/ctr-race` (`t2-long-play.sh --state`, `t2-soak.sh`).
@@ -63,15 +64,14 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m7d-20261119.img.zst` (raw `67ae7da4…`, p2 `176c691a…`) | M7 final: m7c + N64 defaults to the standalone Rice (decision 22), pruned N64 core list | on the device; T3 pending (the M7 checklist); promote on pass |
-| `dist/firmware/test128-m7-20261119.img.zst` (raw `528da83a…`, p2 `c24516fb…`) | M7 so far (contains M6): language pack + pt-BR, Wi-Fi liveness, 1512 MHz opt-in DTB, faster boot | T3 2026-11-19: N64 crash, blink, archive mark (fixed in m7t3) |
-| **`dist/firmware/test128-m7c-20261119.img.zst`** (raw `5878d3b3…`, p2 `701eb2a8…`) | **Recovery image since 2026-11-19.** M7c: the M7 T3-fix fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal | T3 2026-11-19: 1–8 passed (4 partial: no level bar or screenshot feedback in the standalone N64) |
+| **`dist/firmware/test128-m7d-20261119.img.zst`** (raw `67ae7da4…`, p2 `176c691a…`) | **Recovery image since 2026-11-20.** M7 final: m7c + N64 defaults to the standalone Rice (decision 22), pruned N64 core list | on the device; T3 2026-11-20: 1–8 passed |
+| `dist/firmware/test128-m7c-20261119.img.zst` (raw `5878d3b3…`, p2 `701eb2a8…`) | M7c: the M7 T3-fix fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal (recovery until m7d) | T3 2026-11-19: 1–8 passed (4 partial: no level bar or screenshot feedback in the standalone N64) |
 | `dist/firmware/test128-m7t3-20261119.img.zst` (raw `9c60175f…`, p2 `c1f45838…`) | M7 + its T3 fixes (recovery until m7c) | T3 2026-11-19: 1–5 passed, 6 partial (Danger screen, fixed in m7c) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-5/5 versions in `storage-retention.json` (m5 retired 2026-11-19 when
-m7c became recovery, 530 MiB). The next image (or m7d's promotion)
-retires m7.
+4/5 versions in `storage-retention.json` (m7 retired 2026-11-20 when
+m7d became recovery, 447 MiB). The next image fits; the one after
+retires m7t3.
 
 ## What works (T3-confirmed)
 
@@ -89,8 +89,10 @@ gauge, % kept across a power-off; battery-empty splash; headphone path
 switching; flashing with the host card reader; p3 auto-grow; `panic=10`;
 themes (six bundled, download, switching), profiles, Task Toolkit,
 screenshots (menu), Date and Time; N64 with the standalone Mupen64Plus
-Rice (saves, resume, sleep, levels; GLideN64 works but slow); 32X, 2600,
-7800, GG, Lynx, SMS, PCE, Sega CD and PCE CD.
+Rice (saves, resume, sleep, levels; GLideN64 works but slow, the
+default since M7); 32X, 2600, 7800, GG, Lynx, SMS, PCE, Sega CD and PCE
+CD; Wi-Fi dongle plugged during boot; 15 min of CTR/MK64 without cuts;
+3 menu sleeps in a row (M7 T3).
 
 ## Open problems
 
@@ -141,11 +143,15 @@ Rice (saves, resume, sleep, levels; GLideN64 works but slow); 32X, 2600,
   silently (its lock or the recent-wake guard); not reproduced in 5 more
   cycles. Both exits log from the next image on.
 - **Wi-Fi dongle (RTL8821CU):** the warm-reboot H2C case (1 in 7 since
-  M4c); no software power cycle; inserting the dongle during boot is
-  unqualified.
+  M4c); no software power cycle.
 - **Wake:** Wi-Fi returns ~9.3–10.2 s after wake (M7 timeline in
   hardware-findings: the 4 s CD-ROM settle dominates); ~0.7 s of slow
-  frames in a game; felt stronger in M5 T3 (likely the slot-2 card).
+  frames in a libretro game (M7 T3: NES back at once, then stutters
+  until it settles; the standalone N64 holds its last frame ~1 s and
+  then runs smoothly, which reads better). M8 item.
+- **No boot logo (M7 T3):** the kernel console scrolls on the LCD from
+  power-on to the menu (U-Boot env `console=tty0 loglevel=7`). Must be
+  fixed before the public image (M8, with the clean U-Boot).
 - **Power:** menu idle 407–425 mA (M7 discharge run, backlight 60,
   Wi-Fi up); no controllable LEDs.
 - **Audio:** PipeWire sink stall now and then (no sound, standalone
@@ -211,58 +217,50 @@ None open.
 
 ## T3 queue
 
-**M7 checklist (image m7d, on the device; pt-BR menu labels).** The
-M6/M7, M7 T3-fix and M7c checklists are done (milestones.md M7 items 11,
-13, 20). CPU stays at the default 1296 MHz for all of it.
+Empty. The M7 checklist passed 2026-11-20 (milestones.md M7 item 27).
+M8's checklist is written at its end.
 
-1. **N64 default** (Explorar conteúdo → N64 → Mario Kart 64 (USA)): it
-   starts in the standalone Mupen64Plus without choosing a core; your
-   time-trial save is there; Fn+Start quits; start it again: it resumes.
-2. **N64 core list** (Explorar conteúdo → N64 → focus a game → Select →
-   OPÇÕES DO CONTEÚDO → Núcleo do conteúdo → "Nintendo N64"): among the
-   standalone entries only "Mupen64Plus - Standalone - Glide" and
-   "- Rice" (no "Full", no "GlideMk2").
-3. **DK64** (Explorar conteúdo → N64 → Donkey Kong 64): still Rice, save
-   and resume as in the M7c T3.
-4. **Dongle inserted during boot:** main menu → Desligar; take the Wi-Fi
-   dongle out; power on; plug it in while the boot logo shows. In the
-   menu: Configuração → Conectividade → Rede Wi-Fi: it connects (network
-   icon in the header within ~30 s).
-5. **Long play (~15 min):** CTR (Explorar conteúdo → PSX) or MK64,
-   really playing: no slowdowns beyond the game's own, no sound cuts; the
-   console gets warm (~80 °C is normal).
-6. **Sleep in the menu, 3× in a row:** short Power → screen off; Power
-   again → menu back; repeat about 20 s after each wake. Every press must
-   sleep (note any press that does nothing).
-7. **Sleep in a game:** one libretro game (e.g. NES) and MK64: short
-   Power, wake after ~1 min: the game continues where it was, sound back.
-8. **Regression:** Desligar, power on: menu in pt-BR; in a libretro game
-   volume and brightness show the bar; Wi-Fi connects; Fn+Start from
-   N64 back to the menu.
+## Current milestone: M8 — card layout and the heavy systems (decisions 16, 17, 20)
 
-Not for this checklist (known limitations): the standalone N64 has no
-level bar and no screenshot feedback (Fn+X still saves); 1512 MHz is not
-recommended for long sessions (thermal, M7 item 23).
+Started 2026-11-20. Goal: the final card layout (clean U-Boot, `root=`
+by the slot-1 device, p2 at 1 GiB) with a quiet boot and a boot logo,
+and the systems the user wants in v1.0. The bootloader and
+partition-table writes (items 1–4) need a session with the user
+present; everything else runs before it.
 
-## Current milestone: M7 — done to T2 2026-11-19, T3 pending
+Items:
+1. Clean U-Boot build (from source, no dirty tree), `root=` by the
+   slot-1 device (decision 16). T0–T2 through the trial boot path; the
+   bootloader write with the user there.
+2. Quiet boot and a boot logo (M7 T3): no kernel console on the LCD
+   (`console=tty0`/`loglevel` out of the bootargs), a logo from U-Boot or
+   early userspace until the frontend; the developer image keeps the log
+   on serial and in a file.
+3. Card layout with p2 at 1 GiB (decision 17) and a matching recovery
+   image.
+4. Slot-2 swap test (our image on the former original32 in slot 1,
+   test128 in slot 2) to close the slot-2 problem.
+5. ScummVM and the CJK fonts (decision 17).
+6. Dreamcast (Flycast).
+7. PSP (PPSSPP, standalone, `muos-mupen64plus` launcher pattern).
+8. NDS (DraStic licence check for a public image, else melonDS or
+   DeSmuME; standalone like PSP).
+9. Saturn last (YabaSanshiro or Beetle), lowest priority.
+10. Wake in a libretro game: hold the game until the wake bring-up
+    settles, like the standalone N64 (M7 T3 note), instead of resuming
+    into slow frames.
+11. The sleep-exit logging (M7 item 26) in the image; follow the missed
+    menu press if it shows again.
+12. Battery % short of 100 after sleeping on the charger (low priority).
 
-Items 1–26 and their results: [milestones.md](milestones.md) (M7). All
-work items are done to T0–T2; only the T3 checklist above remains. On a
-pass: m7d → recovery, m7 retired (rule 2026-11-13).
+Tests: T0 builds and shellcheck; T1 the new emulators under qemu-user
+and ELF/ABI checks; T2 trial root (sweep, fps per new system with the
+user's ROMs, sleep, wake frame times), trial boot for the U-Boot and
+bootargs change. Expected T3: the boot logo, the U-Boot/layout flash
+with the user present, the slot-2 swap, a game each in DC, PSP, NDS
+(and Saturn), ScummVM, a CJK language, wake in NES.
 
-## Next milestone: M8 — card layout and the heavy systems (decisions 16, 17, 20)
+## Next milestone: M9 — public v1.0
 
-Plan (roadmap.md M8), **needs the user present** for the bootloader and
-partition-table writes:
-1. Clean U-Boot build, `root=` by the slot-1 device (decision 16): T0–T2
-   on the trial path first; the bootloader write with the user there.
-2. Card layout with p2 at 1 GiB (decision 17), a matching recovery image.
-3. Slot-2 swap test (our image on the former original32 in slot 1,
-   test128 in slot 2).
-4. ScummVM and the CJK fonts (decision 17).
-5. Dreamcast (Flycast), PSP (PPSSPP), NDS (licence check for DraStic,
-   else melonDS/DeSmuME), Saturn last (decision 20); PSP/NDS standalone
-   with the `muos-mupen64plus` launcher pattern.
-6. The M7 T3 results and the sleep-exit logging (item 26) folded in.
-Work that needs no user (emulator builds, T1, launchers) can start
-before the bootloader session.
+Plan in roadmap.md M9 (licences, the public variant, install guide,
+rc1 → T3 on a blank card with the user present).

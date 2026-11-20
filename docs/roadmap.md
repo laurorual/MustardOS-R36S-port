@@ -10,7 +10,7 @@ after it. Rewritten 2026-11-18. The current state is in
 
 Phases 0–4 (inventory, first native component, display/input, the menu on
 the Debian bench, the standalone firmware base) are done. Phase 5 (own
-card) has delivered M1–M7 (M7's T3 pending): a flashable image that
+card) has delivered M1–M7 (M7 T3 passed 2026-11-20): a flashable image that
 boots straight to the muOS menu in English or Português (BR), with
 display, controls, audio, Wi-Fi + SSH/SFTP (jailed), battery gauge,
 sleep/resume, poweroff, time zone/NTP, about 20 libretro cores plus the
@@ -37,8 +37,8 @@ screens call.
 | Screens without a backend | Bluetooth, HDMI, USB gadget, News | shown | hidden by flags or 0008/0009 (M5) |
 | Cores | 125 systems, 236 core entries (`core.json`) | 6 cores | M6: 20 cores, 28 folders (N64 trial; ScummVM waits for p2 space) |
 | Build from source | — | muxfrontend, libui, cores, kernel modules pinned as binaries | M6: release frontend + muxretro and all `build-cores.sh` cores from source; modules proven identical (`modules-check`) |
-| Languages | 35 language files | English + Português (BR) (incomplete) | M7 |
-| Performance/power | — | wake dip, audio underruns, CPU capped at 1296 MHz | M7 |
+| Languages | 35 language files | upstream language pack + pt-BR overlay; CJK fonts out until p2 has room | done (M7); CJK in M8 |
+| Performance/power | — | 1512 MHz opt-in, underruns measured, PipeWire self-heal; wake dip in libretro games | done (M7); wake hold in M8 |
 | Public release | — | licences, GPL bundle, public image T3, docs | M9 |
 | Applications | PortMaster, RetroArch, PPSSPP, ScummVM, standalone emulators | Mupen64Plus standalone (M7) | ScummVM, PPSSPP and the NDS emulator in M8 (decisions 17, 20); the rest after v1.0 |
 | Bluetooth | `bt_*.sh`, bluez | none (no bluez; dongle only) | after v1.0 |
@@ -103,7 +103,9 @@ closed source: check its licence for a public image, else melonDS or
 DeSmuME), then Saturn (lowest priority: YabaSanshiro or Beetle). PSP and
 NDS likely standalone (exceptions to decision 14 like N64), with the
 launcher pattern of `muos-mupen64plus`. Out of v1.0: Atari 5200, Virtual
-Boy, Jaguar, Jaguar CD, CD-i.
+Boy, Jaguar, Jaguar CD, CD-i. From the M7 T3: a quiet boot with a boot logo
+instead of the scrolling kernel console (needed before any public
+image), and a libretro game held on wake until the bring-up settles.
 
 ### M9 — Public v1.0
 

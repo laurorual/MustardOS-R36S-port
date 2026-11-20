@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m7-20261119": {
-      "reason": "M7 (a868092; contains M6): upstream language pack + pt-BR overlay (100% of frontend strings), Wi-Fi liveness watchdog, DTB with stock OPPs to 1512 MHz (cap 1296 by default, Danger opt-in; already main on the card), assign.sh skipped when unchanged, build id; developer image; trial root T2 passed 2026-11-19; written to p2 2026-11-19",
-      "files": [
-        "dist/firmware/test128-m7-20261119.img.zst",
-        "dist/firmware/test128-m7-20261119.img.zst.sha256",
-        "dist/firmware/test128-m7-20261119.manifest",
-        "build/m3a/test128-m7-20261119.p2.img"
-      ]
-    },
     "m7t3-20261119": {
       "reason": "M7 T3 fixes (5e72cfa): N64 core built for GLES3 (GLES2 crashed in GLideN64 BufferedDrawer), bright.sh forced fb0 unblank skipped (blink after fade-in), /opt/muos/update bound to p3 (archive install marks), BIOS Report closing dialog + case renames, empty folders hidden; developer image; trial root T2 passed 2026-11-19; written to p2 2026-11-19; T3 2026-11-19: items 1-5 passed, 6 partial (Danger screen focus/direction, cap kept 1512 after switching back; fixed in the next image), N64 resume missing (fixed); recovery image 2026-11-19 until m7c",
       "files": [
@@ -30,7 +21,7 @@
       ]
     },
     "m7c-20261119": {
-      "reason": "M7c (187b089): T3 fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal; developer image; raw 5878d3b3, p2 701eb2a8; trial root T2 passed and written to p2 2026-11-19; T3 2026-11-19: items 1-8 passed (4 partial: no volume/brightness bar and no screenshot feedback in the standalone N64, minor): recovery image since 2026-11-19",
+      "reason": "M7c (187b089): T3 fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal; developer image; raw 5878d3b3, p2 701eb2a8; trial root T2 passed and written to p2 2026-11-19; T3 2026-11-19: items 1-8 passed (4 partial: no volume/brightness bar and no screenshot feedback in the standalone N64, minor): recovery image 2026-11-19 until m7d",
       "files": [
         "dist/firmware/test128-m7c-20261119.img.zst",
         "dist/firmware/test128-m7c-20261119.img.zst.sha256",
@@ -39,7 +30,7 @@
       ]
     },
     "m7d-20261119": {
-      "reason": "M7 final (1ed3ce6): m7c + N64 defaults to the standalone Rice (decision 22: seed, n64-standalone migration, coredb default, unbuilt external entries dropped); developer image; raw 67ae7da4, p2 176c691a",
+      "reason": "M7 final (1ed3ce6): m7c + N64 defaults to the standalone Rice (decision 22: seed, n64-standalone migration, coredb default, unbuilt external entries dropped); developer image; raw 67ae7da4, p2 176c691a; trial root T2 passed and written to p2 2026-11-19; T3 2026-11-20: items 1-8 passed: recovery image since 2026-11-20",
       "files": [
         "dist/firmware/test128-m7d-20261119.img.zst",
         "dist/firmware/test128-m7d-20261119.img.zst.sha256",
