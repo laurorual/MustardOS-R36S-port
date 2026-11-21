@@ -40,7 +40,7 @@ screens call.
 | Languages | 35 language files | upstream language pack + pt-BR overlay; CJK fonts out until p2 has room | done (M7); CJK in M8 |
 | Performance/power | — | 1512 MHz opt-in, underruns measured, PipeWire self-heal; wake dip in libretro games | done (M7); wake hold in M8 |
 | Public release | — | licences, GPL bundle, public image T3, docs | M9 |
-| Applications | PortMaster, RetroArch, PPSSPP, ScummVM, standalone emulators | Mupen64Plus standalone (M7) | ScummVM, PPSSPP and the NDS emulator in M8 (decisions 17, 20); the rest after v1.0 |
+| Applications | PortMaster, RetroArch, PPSSPP, ScummVM, standalone emulators | Mupen64Plus (M7); PPSSPP, DraStic, YabaSanshiro, Flycast, ScummVM core + standalone (M8) | the rest after v1.0 |
 | Bluetooth | `bt_*.sh`, bluez | none (no bluez; dongle only) | after v1.0 |
 | Web services | ttyd, Syncthing, mDNS, landing page | hidden (decision 7) | after v1.0 |
 

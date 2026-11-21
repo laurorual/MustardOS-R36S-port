@@ -266,6 +266,47 @@ to dark. The rest of the night unattended.
     smooth at 60, with random returns of the skipping feel (thermal?).
     6: two DraStic entries for NDS: keep only the advanced one. m8e
     promoted to recovery (better than m8c everywhere); m8b retired.
+38. **Thermal research (2026-11-21):** dArkOSen ref updated to 28f5427;
+    its DTB thermal zones, CPU voltages, caps and game governors equal the
+    port's (hardware-findings). `t2-thermal.sh` (per-second temperature,
+    clocks, cooling states, battery mA joined with the core's real speed):
+    DC baseline 79.3 °C, 94.7 %, 159 s below 95 %; throttling to 1008 MHz
+    is the "frame-skip feel" (88 % there). Cap 1200: 77.4 °C, 96.5 %.
+39. **Undervolt (T6, the user asked to include it):** `make-dtb-uv.sh`
+    trial DTBs. CPU+GPU −50: 75.9 °C, 97.0 %, 102 s; −75: 74.8 °C but Mali
+    GPU faults in PSP (also at GPU −50). CPU −50 / GPU −25
+    (`84611ef0394d`): PSP 5 min and DC 8 min clean; trial-boot T2 (NES,
+    DC, PSP, `build/logs/m8f/trial-uv`), **promoted as the main DTB**
+    (previous = the stock DTB). Charger: +5 °C and throttling to 408 MHz;
+    a test kernel patch for the RK817 charge/input limits (0011) wrote the
+    fields but changed nothing measurable: dropped, kernel back to
+    be499e33.
+40. **DC defaults (M8e T3 1):** migration m8f-dc-sync: Synchronous
+    Rendering on, Anisotropic Filtering off (the 2022 core's LOW_END
+    default drops a frame whenever the GPU is late).
+41. **NDS (M8e T3 6):** upstream's "Drastic - Standalone" coredb row
+    dropped; one "DraStic (Advanced)".
+42. **Flycast standalone (T9):** dArkOSen's binary is damaged in their
+    repo (eol=lf), so `build-flycast-sa.sh` builds v2.7 as dArkOS does
+    (system SDL2), `muos-flycast` (dArkOSen's emu.cfg + auto save/load
+    state), coredb "Flycast - Standalone (dArkOSen)". T2: runs, quits in
+    ~4 s, state saved; ~15 presented fps, CPU-bound (Flycast 2022: ~51).
+43. **ScummVM (item 5):** v2026.4.0 (dArkOSen's version; their binary
+    needs Debian libs), `build-scummvm.sh` builds the standalone and the
+    libretro core from one tree with the 34 "lite" engines, FLAC/Vorbis,
+    MT-32. The core deadlocked under muxretro (libco context created on
+    the main thread, retro_run on muxretro's worker): built with
+    USE_LIBCO=0 (pthreads). Content as upstream: NAME.scummvm next to the
+    game folder (S91 creates it; the standalone detects and writes the
+    id). T2 (Monkey Island CD): core 100 % speed, 14.5 ms/frame, 50
+    frames/s (the core's own thread pacing); standalone ~24 % CPU, quits
+    in ~1 s. `muos-suspend` now also stops YabaSanshiro (missing since
+    M8), ScummVM and Flycast.
+44. **Image m8f** (raw `fe44baad…`, p2 `15b51793…`): trial-root T2
+    (`build/m8f/t2-m8f.sh`, logs `build/logs/m8f/trial-m8f/`): sweep, NES
+    59.97, sdcard, SFTP jail, ScummVM core + standalone, Flycast
+    standalone, DC 2022 97.8 %, NDS, Saturn, PSP, wake: all pass; p2
+    written 2026-11-21 ~15:30.
 
 ## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 

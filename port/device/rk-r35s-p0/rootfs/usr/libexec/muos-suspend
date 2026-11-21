@@ -53,7 +53,7 @@ bright=$(cat "$bl"); [ "$bright" -gt 0 ] 2>/dev/null || bright=$(cfg settings/ge
 echo 0 > "$bl"
 sa=$(for p in /proc/[0-9]*; do
     case "$(readlink "$p/exe")" in
-        */emulator/mupen64plus/mupen64plus|*/PPSSPPSDL|*/drastic) echo "${p#/proc/}" ;;
+        */emulator/mupen64plus/mupen64plus|*/PPSSPPSDL|*/drastic|*/yabasanshiro|*/scummvm|*/emulator/flycast/flycast) echo "${p#/proc/}" ;;
     esac
 done | head -n1)
 [ -z "$sa" ] || kill -STOP "$sa"

@@ -1,0 +1,38 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-scummvm FILE.scummvm: standalone ScummVM (M8 item 5; v2026.4.0 as
+# dArkOSen ships it, built by build-scummvm.sh with the classic 2D engines),
+# run by muos-frontend for the SCUMMVM "ext-scummvm" assignment. Content as
+# muOS upstream (ext-scummvm.sh): ROMS/SCUMMVM/NAME.scummvm next to the game
+# folder NAME (or .NAME / _NAME); the file holds the ScummVM game id, found
+# by --detect on the first start when it is empty. S91 creates the empty
+# NAME.scummvm for every game folder that has none.
+# Data p3 MUOS/port/scummvm: scummvm.ini (settings), saves/, scummvm.log.
+# Fn+Start quits (muos-standalone-quit: SIGTERM); sleep stops it.
+set -u
+emu=/opt/muos/share/emulator/scummvm
+w=/userdata/MUOS/port/scummvm
+file=${1:?file}
+say() { echo "muos-scummvm: $*"; }
+dir=${file%/*} name=${file##*/}; name=${name%.*}
+game=
+for d in "$dir/$name" "$dir/.$name" "$dir/_$name"; do [ -d "$d" ] && { game=$d; break; }; done
+case $file in *.scummvm) ;; *) game=$dir ;; esac # any game file: its folder
+[ -n "$game" ] || { say "no game folder for $file"; exit 1; }
+mkdir -p "$w/saves" || exit 1
+cd "$w" || exit 1
+run() { HOME=$w "$emu/scummvm" --config="$w/scummvm.ini" --logfile="$w/scummvm.log" --savepath="$w/saves" \
+    --extrapath="$emu" --themepath="$emu" "$@"; }
+id=
+[ "${file##*.}" != scummvm ] || id=$(tr -d '[:space:]' < "$file" 2>/dev/null)
+case $id in *:*) id=${id#*:} ;; esac # engine:gameid (older stubs)
+if [ -z "$id" ]; then
+    # "GameID  Description  Full Path" table: the first detected game
+    id=$(run --detect -p "$game" 2>/dev/null | awk '$1 ~ /:/ { sub(/^[^:]*:/, "", $1); print $1; exit }')
+    [ -n "$id" ] || { say "no game detected in $game"; exit 1; }
+    case $file in *.scummvm) printf '%s\n' "$id" > "$file" ;; esac
+    say "detected $id"
+fi
+say "start id=$id path=$game"
+exec env HOME="$w" "$emu/scummvm" --config="$w/scummvm.ini" --logfile="$w/scummvm.log" --savepath="$w/saves" \
+    --extrapath="$emu" --themepath="$emu" --fullscreen --joystick=0 -p "$game" "$id"

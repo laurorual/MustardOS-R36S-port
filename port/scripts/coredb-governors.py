@@ -28,15 +28,21 @@ import sys
 
 # external cores the image ships, per system (others in that system dropped)
 EXTERNAL = {"Nintendo N64": {"ext-mupen64plus-rice", "ext-mupen64plus-gliden64"},
-            "Sega Dreamcast": set(), "Sony PlayStation Portable": {"ext-ppsspp", "ext-ppsspp-2021"},
+            "Sega Dreamcast": {"ext-flycast"}, "Sony PlayStation Portable": {"ext-ppsspp", "ext-ppsspp-2021"},
             "Nintendo DS": {"ext-drastic"}, "Sega Saturn": {"ext-yabasanshiro"}}
 # M8 (decision 23): external emulators upstream's coredb has no entry for
-ADD = {"Nintendo DS": {"drastic": {"name": "DraStic", "core": "ext-drastic",
+ADD = {"Nintendo DS": {"drastic": {"name": "DraStic (Advanced)", "core": "ext-drastic",
                                    "launcher": "drastic.sh", "control": "modern"}},
        "Sony PlayStation Portable": {"ppsspp-2021": {"name": "PPSSPP 2021 (v1.12)", "core": "ext-ppsspp-2021",
                                                      "launcher": "ppsspp.sh", "control": "modern"}},
+       # M8 thermal block T9: dArkOSen's standalone Flycast (build-flycast-sa.sh)
+       "Sega Dreamcast": {"flycast-sa": {"name": "Flycast - Standalone (dArkOSen)", "core": "ext-flycast",
+                                         "launcher": "flycast.sh", "control": "modern"}},
        "Sega Saturn": {"yabasanshiro-sa": {"name": "YabaSanshiro - Standalone (dArkOSen)", "core": "ext-yabasanshiro",
                                         "launcher": "yabasanshiro.sh", "control": "modern"}}}
+# M8e T3 6: upstream's own entry for the same emulator (two "DraStic" rows
+# that both start the advanced DraStic)
+DROP = {"Nintendo DS": {"drastic - standalone"}, "Sega Dreamcast": {"flycast"}}
 # M8 T3 8: libretro cores upstream's coredb has no entry for
 ADD_LIBRETRO = {"Sega Dreamcast": {"flycast 2022": {"name": "Flycast 2022 (dArkOSen)",
                                                     "core": "flycast2022_libretro.so"}}}
@@ -86,6 +92,12 @@ def main(table, path, core_dir=None):
             db[system]["governor"] = gov
             changed += 1
             print(f"coredb-governors: {system} -> {gov}")
+    for system, keys in sorted(DROP.items()):
+        ext = db.get(system, {}).get("external", {})
+        for key in sorted(keys & ext.keys()):
+            del ext[key]
+            changed += 1
+            print(f"coredb-governors: {system}: external {key!r} dropped (duplicate)")
     for system, keep in sorted(EXTERNAL.items()):
         ext = db.get(system, {}).get("external", {})
         for key in [k for k, e in ext.items() if e.get("core") not in keep]:

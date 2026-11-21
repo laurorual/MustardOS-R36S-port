@@ -228,6 +228,11 @@ byte-identical.
    `muos-boot-slot status` shows the records; `t2-boot-slot.sh` checks
    the fallbacks (3 reboots).
 - Never overwrite or delete a p1 file that main or previous points to.
+- The label is short (about 20 characters; longer ones: "bad argument").
+- Undervolt DTBs (M8f): `port/scripts/make-dtb-uv.sh MAIN.dtb OUT.dtb CPU_MV
+  GPU_MV` from the main DTB (pull `/boot/<fdt>`), then a DTB-only trial
+  with the main `Image`. Stability T2: PSP God of War for 5 min (GPU
+  faults show as "GPU fault 0x4002" in dmesg) and the DC thermal run.
 
 ## Risky init changes
 

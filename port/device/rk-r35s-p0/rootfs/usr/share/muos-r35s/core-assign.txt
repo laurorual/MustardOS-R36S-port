@@ -59,6 +59,10 @@ NDS|ext-drastic|Nintendo DS|ext-drastic|performance
 SATURN|ext-yabasanshiro|Sega Saturn|ext-yabasanshiro-sa|performance
 NEOGEO|fbneo_libretro.so|SNK Neo Geo|mu-finalburn neo|performance
 DOS|dosbox_pure_libretro.so|PC DOS|mu-dosbox-pure|performance
+# M8 item 5: ScummVM v2026.4.0 (classic 2D engines), the libretro core and
+# the standalone (ext-scummvm) built from one tree; content NAME.scummvm
+# next to the game folder NAME (S91 creates it), as muOS upstream.
+SCUMMVM|scummvm_libretro.so|ScummVM|mu-scummvm|schedutil
 # N64: the standalone Mupen64Plus with Rice (M7c T3, the user's choice:
 # steadier than mupen64plus-next, DK64 intro 58 VI/s vs 30.6 fps). An
 # ext-NAME-* core is installed when /opt/muos/share/emulator/NAME exists;

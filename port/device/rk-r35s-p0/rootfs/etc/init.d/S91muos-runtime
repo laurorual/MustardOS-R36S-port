@@ -191,6 +191,19 @@ case "${1:-}" in
         echo "runtime: flycast speed limiter on"
         echo m8e-dc-limiter >> "$mig"; sync
     fi
+    # m8f-dc-sync (M8e T3 1: 60 fps shown but felt like heavy frame
+    # skipping): the 2022 core's LOW_END default drops a frame whenever
+    # the GPU is late (Synchronous Rendering off); the user's fix, on +
+    # Anisotropic Filtering off, is the default now. A value set stays.
+    if ! grep -qx m8f-dc-sync "$mig"; then
+        o=/userdata/MUOS/pickles/coreopt/core/flycast2022.ini
+        mkdir -p "${o%/*}"; grep -q '^\[options\]' "$o" 2>/dev/null || echo '[options]' >> "$o"
+        for kv in reicast_synchronous_rendering=enabled reicast_anisotropic_filtering=disabled; do
+            grep -q "^${kv%%=*}=" "$o" || sed -i "/^\[options\]/a $kv" "$o"
+        done
+        echo "runtime: flycast2022 synchronous rendering"
+        echo m8f-dc-sync >> "$mig"; sync
+    fi
     # M3c: default ROM folders + core assignments for installed cores.
     grep -v '^#' /usr/share/muos-r35s/core-assign.txt 2>/dev/null |
     while IFS='|' read -r dir core sys launch gov; do
@@ -206,6 +219,16 @@ case "${1:-}" in
         printf '%s\n%s\n%s\n0\n%s\n' "$core" "$sys" "$sys" "$launch" > "$c/core.cfg"
         echo system > "$c/core.con"; echo "${gov:-performance}" > "$c/core.gov"; echo false > "$c/core.rac"
         echo "runtime: assigned $dir -> $core ($gov)"
+    done
+    # M8 item 5: ScummVM content is NAME.scummvm next to the game folder
+    # NAME (muOS upstream's layout); an empty one for every game folder that
+    # has none, so a copied-in game shows up as one entry (the launchers
+    # find the game id).
+    for g in /userdata/ROMS/SCUMMVM/*/; do
+        [ -d "$g" ] || continue
+        n=${g%/}; n=${n##*/}
+        case $n in .*|_*) continue ;; esac
+        [ -e "/userdata/ROMS/SCUMMVM/$n.scummvm" ] || { : > "/userdata/ROMS/SCUMMVM/$n.scummvm"; echo "runtime: scummvm entry $n"; }
     done
     # game-governor (M3d): M3c seeded schedutil, which idles at the 1008 MHz
     # floor through per-frame bursts (PSX 59.1 fps, missed vsyncs); games

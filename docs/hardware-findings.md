@@ -943,6 +943,42 @@ The open problems behind each "partial" are in STATUS.
     efficient step below the 1350 mV band.
   - *Charger:* RK817 input up to 2 A (`ac` CURRENT_MAX); charging during
     play adds heat inside the shell (many T2 runs were on the charger).
+  - *M8 thermal block (`t2-thermal.sh`, DC Power Stone 2 fight with the
+    user's per-game options, 8 min on battery from 55 °C, minute 1
+    skipped; speed = core audio frames/s, logs build/logs/m8f/thermal):*
+
+    | run | °C | CPU MHz | mA | speed | s < 95 % |
+    |---|---|---|---|---|---|
+    | stock (cap 1296) | 79.3 | 1234 | 811 | 94.7 % | 159 |
+    | cap 1200 | 77.4 | 1195 | 781 | 96.5 % | 129 |
+    | CPU+GPU −50 mV | 75.9 | 1296 | 758 | 97.0 % | 102 |
+    | CPU+GPU −75 mV | 74.8 | 1296 | 741 | 97.2 % | 98 |
+    | CPU −50 mV only | 78.9 | 1279 | 823 | 96.1 % | 122 (battery 20→9 %) |
+
+    The DC "random frame skipping" is throttling: per second, at 1008 MHz
+    the game runs 88 % (52 of 75 s below 95 %), at 1296 97 %. What stays
+    below 95 % at a steady 1296 is heavy scenes. Undervolt trial DTBs
+    (`make-dtb-uv.sh`: CPU OPPs ≥ 1008 MHz and GPU OPPs, target = min =
+    table − N mV): the real vdd_arm at 1296 is the table −25 mV
+    (`rockchip,evb-irdrop`), so stock runs 1325 mV, −50 runs 1250 mV.
+    This chip: bin 0, leakage 19, pvtm-volt-sel 2. **GPU (vdd_logic)
+    undervolt is unstable in PSP** (PPSSPP v1.12 God of War: −75 and −50
+    mV both give Mali "GPU fault 0x4002" / job hard-stops, 6–55 faults,
+    freezes of 8–17 s; DC was clean for 8 min at −75). CPU −50 mV with the
+    stock GPU table: PSP 4 min clean (12.3 presented fps vs 11.6–11.9
+    stock), DC clean. **CPU −50 / GPU −25 mV** (`uvc50g25.dtb`, sha
+    84611ef0394d): PSP 5 min clean (12.4 fps, worst gap 170 ms vs 174–189
+    stock), DC 8 min clean: the candidate for this unit. Other units may
+    have less margin (do not assume; bin/leakage/pvtm differ).
+  - *Charging during play is the biggest heat source:* the same DC run on
+    the 2 A adapter (battery charging at ~1.3 A) with CPU −50/GPU −25:
+    81.5 °C, CPU down to 408 MHz, 93.5 % speed, 179 s below 95 % (worse
+    than stock on battery). The RK817 charge current (CHRG_CUR_SEL) and
+    input limit (USB_ILIM_SEL) written at run time through a test
+    module_param (dmesg confirmed the writes) changed nothing measurable:
+    even 450 mA input kept the battery charging at ~1.2 A, so the path is
+    not limited by those fields on this board (the patch was dropped).
+    Heavy systems: play on battery.
   - *Wake:* muxretro was resumed before the USB/Wi-Fi bring-up: DWC2 up to
     32k IRQ/s, udevd, kworkers and the 8821cu firmware load stalled frames
     for ~3 s (max 89 ms). All device IRQs land on CPU0. With the game

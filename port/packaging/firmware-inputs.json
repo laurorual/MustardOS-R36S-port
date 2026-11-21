@@ -17205,6 +17205,149 @@
    "mode": "755",
    "sha256": "e0cc73ab6887cba7bff090886ba852a46b2d92572ca70be3b311d52c13137993",
    "origin": "build/m8/yabasanshiro/tree/opt/muos/share/emulator/yabasanshiro/yabasanshiro"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/COPYING",
+   "type": "file",
+   "mode": "644",
+   "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/COPYING"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/cryo.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "71b5e3d68848e67ae3d17eb63ed168d2fce788d3e408b79f025107eab082aa43",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/cryo.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/drascula.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6da45e0e6d8eb04f5f826836f0ddf85c7e41ed32c64c587cea985974b2f76975",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/drascula.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/fonts.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "b25946aa6ff9c7bbef9d6e5a8fa7b33cf1230fbddfaa5262e19288387c493b95",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/fonts.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/hugo.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "228dd029399ce7318a60aebed762ee628b9092ece36a824cb005a55534b9995f",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/hugo.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/kyra.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6b2cc168d3201305039e78bc067f3cd10c1267d3c12a8aad12ab0656920318a8",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/kyra.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/lure.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "9c17cfb5349c4bd13e56b0652f81fd2bdec849de7bd875bfedf654a08916b568",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/lure.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/macgui.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5e55c29903809bf5297a28fee22e203b6dc6f56240900036b9bd8036c0a67660",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/macgui.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/mort.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ed4f797fd4aff885000ebe589bbac9faa3dd09dd2bee1dee7b20c0d82636f4c1",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/mort.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/scummclassic.zip",
+   "type": "file",
+   "mode": "644",
+   "sha256": "39b823b709213006b00246e2d0c5c49f5475dc2257434fb2e860b442892e2fe1",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/scummclassic.zip"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/scummremastered.zip",
+   "type": "file",
+   "mode": "644",
+   "sha256": "0a3df174f3a271cfa384ce524e423cf25f35ee6c873772372ae954f2973e477a",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/scummremastered.zip"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/scummvm",
+   "type": "file",
+   "mode": "755",
+   "sha256": "470dafd432aae1c644a1ae74b457c21e3c5664c85d056862193562df95abba27",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/scummvm"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/teenagent.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1c60a898b61bc39b38fa4e5ec5c3d78de666c10d1af7a3ffd36e9bbc234488ab",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/teenagent.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/tony.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5537b209e5243f0a1c5e7f1e5024585caa9a63c959339dbdb2402038bcedf58c",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/tony.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/toon.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "eb7d5855ea3f69f0d1f618baf8e6c8e580c019b6f2fd2c0937dc664740baa252",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/toon.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/translations.dat",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e4c716eab6d53c864b5f15c58815d87c638fadd091fe31a2621904a92cf5d217",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/translations.dat"
+  },
+  {
+   "path": "/opt/muos/share/emulator/flycast",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/flycast/LICENSE",
+   "type": "file",
+   "mode": "644",
+   "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+   "origin": "build/m8f/flycast-sa/tree/opt/muos/share/emulator/flycast/LICENSE"
+  },
+  {
+   "path": "/opt/muos/share/emulator/flycast/flycast",
+   "type": "file",
+   "mode": "755",
+   "sha256": "c345d09ccfbbef169bef8007a3547ffab32ab78dc1a5b10221c5cdea8c348457",
+   "origin": "build/m8f/flycast-sa/tree/opt/muos/share/emulator/flycast/flycast"
+  },
+  {
+   "path": "/opt/muos/share/core/scummvm_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "778a99e486ead09a9c5b612bc57135a70594afab14cf1d6ebda1546f39ab5e81",
+   "origin": "build/m8f/scummvm/scummvm_libretro.so"
   }
  ],
  "remove": [

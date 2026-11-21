@@ -96,6 +96,8 @@ launch_content() {
         *ext-ppsspp*) ext=ppsspp ;; # M8
         *ext-drastic*) ext=drastic ;; # M8, decision 23
         *ext-yabasanshiro*) ext=yabasanshiro ;; # M8 item 17
+        *ext-scummvm*) ext=scummvm ;; # M8 item 5
+        *ext-flycast*) ext=flycast ;; # M8 thermal block T9
         *ext-*) say "external launcher $launch not supported yet"; return 1 ;;
     esac
     [ -n "$ext" ] || [ -f "/opt/muos/share/core/$core" ] || { say "missing core $core"; return 1; }
@@ -121,6 +123,22 @@ launch_content() {
         default_governor
         sync
         return 0
+    fi
+    # M8 item 5: the ScummVM core autodetects the game in the folder of the
+    # file it gets. NAME.scummvm sits next to the game folder NAME (muOS
+    # upstream's layout, lr-scummvm.sh): with a game id in it, a copy goes
+    # into the folder (the core then launches that id there); empty, the
+    # core gets the folder's first file and detects the game itself.
+    if [ "$core" = scummvm_libretro.so ] && [ "${content##*.}" = scummvm ]; then
+        n=${file%.*} g=
+        for d in "$dir1$dir2/$n" "$dir1$dir2/.$n" "$dir1$dir2/_$n"; do [ -d "$d" ] && { g=$d; break; }; done
+        if [ -n "$g" ] && [ -n "$(tr -d '[:space:]' < "$content")" ]; then
+            cp "$content" "$g/$n.scummvm" && content=$g/$n.scummvm
+        elif [ -n "$g" ]; then
+            f=$(find "$g" -maxdepth 1 -type f ! -name '*.scummvm' | sort | head -n1)
+            [ -z "$f" ] || content=$f
+        fi
+        say "scummvm content $content"
     fi
     foreground muxretro
     # T2 hook: /run/muos/perf-capture arms muxretro's own frame-time capture
