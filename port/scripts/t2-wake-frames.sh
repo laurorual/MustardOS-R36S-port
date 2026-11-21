@@ -11,6 +11,12 @@
 # and Wi-Fi comes back. The host then prints every slow frame (>18.5 ms,
 # muxretro patch 0001: frames over 20 ms) by its time since "resumed" in suspend.log.
 #   t2-wake-frames.sh [CYCLES] [WAKE] [SECS]   (default 1 10 30)
+#   env: T2_WAKE_SAMPLE=1: every 0.1 s from the Power press to the end of
+#        the cycle: uptime, VOP (vblank) and GPU interrupt counts, GPU, DDR
+#        and CPU0 kHz -> t2wake/sample-cN.log; every 0.5 s each thread's
+#        CPU ticks (tid comm utime+stime) -> t2wake/procs-cN.log;
+#        T2_WAKE_STACKS=1: 25 sysrq-l backtraces of every CPU in the ~3 s
+#        after the resume -> t2wake/stacks-cN.log (System.map symbols)
 set -euo pipefail
 dev=$(dirname "$0")/device.sh
 repo=$(cd "$(dirname "$0")/../.." && pwd)
@@ -30,10 +36,27 @@ i=0
 while [ \$i -lt $cycles ]; do
     i=\$((i+1))
     n0=\$(cat \$log 2>/dev/null | grep -c '^[0-9.]* resumed')
+    if [ -n "${T2_WAKE_SAMPLE:-}" ]; then # M8: display/clock timeline
+        rm -f /run/t2wake/stop
+        ( while [ ! -e /run/t2wake/stop ]; do
+              echo "\$(cut -d' ' -f1 /proc/uptime) \$(awk '/ff460000.vop/ {print \$2}' /proc/interrupts) \$(awk '/ff400000.gpu/ {s+=\$2} END {print s}' /proc/interrupts) \$(cat /sys/class/devfreq/ff400000.gpu/cur_freq) \$(cat /sys/class/devfreq/dmc/cur_freq) \$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq)"
+              sleep 0.1
+          done > /run/t2wake/sample-c\$i.log ) &
+        ( while [ ! -e /run/t2wake/stop ]; do
+              echo "T \$(cut -d' ' -f1 /proc/uptime)"
+              for s in /proc/[0-9]*/task/[0-9]*/stat; do cat "\$s" 2>/dev/null; done | awk '{c=\$2; i=2; while (c !~ /\)\$/) {i++; c=c" "\$i}; print \$1, c, \$(i+12)+\$(i+13)}'
+              sleep 0.5
+          done > /run/t2wake/procs-c\$i.log ) &
+    fi
     /usr/libexec/muos-press power
     t=0; while [ "\$(cat \$log 2>/dev/null | grep -c '^[0-9.]* resumed')" -le "\$n0" ] && [ \$t -lt 120 ]; do sleep 0.5; t=\$((t+1)); done
     res=\$(grep '^[0-9.]* resumed' \$log | tail -n1 | cut -d' ' -f1)
     echo "cycle \$i resumed \$res"
+    if [ -n "${T2_WAKE_STACKS:-}" ]; then # M8: what the CPUs run (sysrq l)
+        dmesg -c > /dev/null; n=0
+        while [ \$n -lt 25 ]; do echo l > /proc/sysrq-trigger; n=\$((n+1)); sleep 0.1; done
+        dmesg -c > /run/t2wake/stacks-c\$i.log
+    fi
     last=\$(stat -c %Y \$csv 2>/dev/null || echo 0); k=0
     end=\$(( \$(cut -d. -f1 /proc/uptime) + $secs ))
     while [ \$(cut -d. -f1 /proc/uptime) -lt \$end ]; do
@@ -44,6 +67,7 @@ while [ \$i -lt $cycles ]; do
         fi
         sleep 0.3
     done
+    : > /run/t2wake/stop
     sleep 7  # past the recent_wake guard
 done
 rm -f /run/muos/suspend-test-wake /run/muos/perf-capture

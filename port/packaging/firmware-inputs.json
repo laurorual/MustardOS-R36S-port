@@ -15232,58 +15232,6 @@
    "origin": "build/m8/ppsspp/tree/opt/muos/share/emulator/ppsspp/assets/vfpu/vfpu_sqrt_lut.dat"
   },
   {
-   "path": "/opt/muos/share/emulator/drastic",
-   "type": "dir",
-   "mode": "755"
-  },
-  {
-   "path": "/opt/muos/share/emulator/drastic/drastic",
-   "type": "file",
-   "mode": "755",
-   "sha256": "dab3275ef772451b9235b78e64b2d0d041a28ac22937668231088c76b709e218",
-   "origin": "build/m8/drastic/tree/opt/muos/share/emulator/drastic/drastic"
-  },
-  {
-   "path": "/opt/muos/share/emulator/drastic/drastic_logo_0.raw",
-   "type": "file",
-   "mode": "644",
-   "sha256": "b0dd0be2ae50cae4d2940d6bbdd4efdcf973c91a7bc1943970bb5ff6b860e2eb",
-   "origin": "build/m8/drastic/tree/opt/muos/share/emulator/drastic/drastic_logo_0.raw"
-  },
-  {
-   "path": "/opt/muos/share/emulator/drastic/drastic_logo_1.raw",
-   "type": "file",
-   "mode": "644",
-   "sha256": "3dfe0b34d12199fa7893587bf2a1a675e1f545b5d8ca040d13c4bc452e4492c7",
-   "origin": "build/m8/drastic/tree/opt/muos/share/emulator/drastic/drastic_logo_1.raw"
-  },
-  {
-   "path": "/opt/muos/share/emulator/drastic/game_database.xml",
-   "type": "file",
-   "mode": "644",
-   "sha256": "799fa38ede70742fa8ca297e295caf3b878d0c7ee34643f1f4499d59b7ee4123",
-   "origin": "build/m8/drastic/tree/opt/muos/share/emulator/drastic/game_database.xml"
-  },
-  {
-   "path": "/opt/muos/share/emulator/drastic/system",
-   "type": "dir",
-   "mode": "755"
-  },
-  {
-   "path": "/opt/muos/share/emulator/drastic/system/drastic_bios_arm7.bin",
-   "type": "file",
-   "mode": "644",
-   "sha256": "6ad5072c3920fd6c8eba2c49d2dd058c296564a11d6013807124a919cf0d66e6",
-   "origin": "build/m8/drastic/tree/opt/muos/share/emulator/drastic/system/drastic_bios_arm7.bin"
-  },
-  {
-   "path": "/opt/muos/share/emulator/drastic/system/drastic_bios_arm9.bin",
-   "type": "file",
-   "mode": "644",
-   "sha256": "0a4e88c5dfd20ce669b8df45d009974f23fe7cb9b1f2148dbf30b6445eca9bc5",
-   "origin": "build/m8/drastic/tree/opt/muos/share/emulator/drastic/system/drastic_bios_arm9.bin"
-  },
-  {
    "path": "/opt/muos/share/emulator/ppsspp-2021",
    "type": "dir",
    "mode": "755"
@@ -16110,6 +16058,1134 @@
    "mode": "644",
    "sha256": "b7ad563bc5027028e464a7dacf4e1fde5c1d4ebcc3b04c189b25f66d90c88659",
    "origin": "build/m8/ppsspp-2021/tree/opt/muos/share/emulator/ppsspp-2021/assets/shaders/vignette.fsh"
+  },
+  {
+   "path": "/opt/muos/frontend/lib/libmucursor.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "5386dc63eca9cd54dcc11c4477b5ad50d05125d2bdac7a693e64d0d7fbe6001d",
+   "origin": "build/m4c/frontend-libs/tree/opt/muos/frontend/lib/libmucursor.so"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/drastic",
+   "type": "file",
+   "mode": "755",
+   "sha256": "dab3275ef772451b9235b78e64b2d0d041a28ac22937668231088c76b709e218",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/drastic"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/game_database.xml",
+   "type": "file",
+   "mode": "644",
+   "sha256": "799fa38ede70742fa8ca297e295caf3b878d0c7ee34643f1f4499d59b7ee4123",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/game_database.xml"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/libs",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/libs/libadvdrastic.so",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ffa77841f7537f4474bb6128d769ecc36bdf2359a96815c0d6d365579b3fef07",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/libs/libadvdrastic.so"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/libs/libjson-c.so.5",
+   "type": "file",
+   "mode": "644",
+   "sha256": "35c940c7b15f3533d100764977e2998121193153b88cb76945ee9a5eef3907e3",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/libs/libjson-c.so.5"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/microphone",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/microphone/microphone.wav",
+   "type": "file",
+   "mode": "644",
+   "sha256": "216909da4d354c6bfc114bfd85757b80c0b496206c443327f5c7b401fe6278e4",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/microphone/microphone.wav"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/layout.json",
+   "type": "file",
+   "mode": "644",
+   "sha256": "7d41b18f675e7679368098f2956c535e168d350a7c65650b63ed0b9fb09db70f",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/layout.json"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_h0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "442eaf684dd157ab1b0485818d10dd17378fdac6b2bf245f517a502f76437890",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_h0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_h1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "b46df4014375a936e7f0388fac6e28593ec7e0d8710bb5c2f65b26c2d1699c4f",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_h1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_hh0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a37af1f2fcf39db7276f1afd65fa437a89a9e1db98d803ad5770632b56d1c0fc",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_hh0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_hres0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "4dc6c5eb23e6d857162eaddfeba841cd306b1a9ead9fe2ad18f5b58aa9f63bed",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_hres0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a6757f4654ce047f05c21c2ad953c94e39fb648a53114951d8dcbff5d23bf95e",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_v0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "248b49404925c6c44bbaeaf72b7ff28ea2bd570303664fef111650714f051f75",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_v0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_v1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d045ad5fef7047cdf6e829fd615d37b675cd2c62bafd4b43af11a2268cf9846a",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_v1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_vh_c0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "fd40c7fc3f27a765b318f6bfa401bf2fc798096cee458bc7779ba9aa91445e76",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_vh_c0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_vh_c1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ebf4f6565ef540e24e881785589f63f66f6583c6e401d63ed66671cda2404bea",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_vh_c1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_vh_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e4ecc972d65ad0fb6ef7e797df2d268c1cfb840307ac2ab864b883d2102e5da1",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_vh_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_vh_s1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d4ed6b74960b3b00043d2ddee0ce30968bbb5bdbd6c829bb650082ad68a97d26",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_vh_s1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_vh_s2.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ee3c518cbe2e64e377cb23b7b5c63ae8d276f5304c2ec4c6d5fc1c66df128b47",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/1/bg_vh_s2.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_h0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "7ce844fabb6caee359140addcfe83d8c544de66767f17ddc377821b2db98e632",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_h0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_h1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1db45cc8c0ac1bda32a859fe4c6976b2a7ddfbb5c37d642308c4cb853206aac5",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_h1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_hh0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e464af5a18bc27d5dfaf2527c8a4e8fd5d58fa4ab4aa357ac3634545860349ce",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_hh0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_hres0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f24d0a570736cea674d8c40abd7f13d4471df621aa3225e3dbf3a21efc4a1c99",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_hres0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "4708251213543234434e1aa38dca9b153bb9ebf558f34298d8a94416529a5f6f",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_v0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1e17d517c4de872357a0b8b1c226370b8d266233d26fab2727ff4cca84decad8",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_v0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_v1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6e53f89901733c363530e2e23165a3354114a98278e5fca5532a1f8ecaf0703e",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_v1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_vh_c0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "379f7d61dbb934bd2df152f8eca1cbaa13b400db2ae883f33cb9aaa00e3fbff4",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_vh_c0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_vh_c1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "531b6ad17cc8272a9f65642d6aba3fdaf23df0f374d5475d00f7871d4a43834c",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_vh_c1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_vh_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "99bcbe3387c698d0ae0bae987a7e45bfca0ce8ef6d0d0cdede89251e1843b649",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_vh_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_vh_s1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2f31e3210e544874ab9d7cf0fee93f916d08ec8f3ae1fd8affa178ed6b6434c7",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_vh_s1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_vh_s2.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "38bc824ae276c2a5bf0925a9e26748847d13b955a17587e26d61af4ee6581772",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/2/bg_vh_s2.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_h0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "852a8ae0e9ea94b40b086a7bdb9e79112c108d4ee2cf9f3fff1d1dcbeb942740",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_h0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_h1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "840dea700b8892ca6b8ae392112972be8ac6e64d075e76e605303e6a90dc7626",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_h1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_hh0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "dd876a5e9e3e7be1e9df38c20aa6d5f1f871f0e345df80971272e847f2dc0c4a",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_hh0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_hres0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1043a555a328493999a6c2869f0954754866f5811cdd08a668ad9f7e08091e90",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_hres0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e64dd6457fef891b8e110ba0b895adf1611fbdee7eddad8a9df69c59c6afef43",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_v0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d43444455666918064534ad50f49f4e9fc6143da34da70f86980d1a703eca1e6",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_v0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_v1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "4977d710d7f895637d74c2fccb06010362709d64cf15f704124cfcf1701d269c",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_v1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_vh_c0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "4637945138e7429343280ef7a7a2d2dfef85e8379c9ee3990be5f477421ff714",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_vh_c0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_vh_c1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "44d070ccd22ee25a5470071f35452540cb63d1dc41b10b80d3d7f637c638f0e9",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_vh_c1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_vh_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "abfad5f0568ba1e5ea581aae206a1b22b4401a4904955b74d0c84000ee41a435",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_vh_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_vh_s1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "b0420ba7b028293588601d64cc3a41a67df3fe5508ffbebf88da350d956e489e",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_vh_s1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_vh_s2.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "4ec04759a9c8fca696c0f936dbbbd3a666495df3f2b022f9e624144194ffc73c",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/3/bg_vh_s2.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_h0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "327a3d8274357f4cc9f5abf159d438804784b5806d43a7442c633f6f8f0cfa29",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_h0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_h1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "053c572f5e11cc373f28160aa05a35f61d69f6b96f355e8a93dd1998e87ac407",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_h1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_hh0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2aaadcc8f0518d1750d23a744025b74bab76306293751ce9f262e8f1e1ecfd20",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_hh0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_hres0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e4fe7f37027343e4ccad00619b2f912c24ea0dab3ae3f58e5773bcb2bda6131a",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_hres0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "94bdf76a79684950a091f7fe7107bb8dd48c8c759493b5eb49d5fa87ee82cbc7",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_v0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "23f0b8d99cc3500b83fea48dd904548d931eb19cab199ac907a1c82bc1bd2c0e",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_v0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_v1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "71dc6d04d5886bcf93dff33172c92d4faf0ee894690892e603092b23ebe19356",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_v1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_vh_c0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "55739ced11aa1ed7f1d479e04ae440d4e04978ab0793eda8e24924a4eda59aaf",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_vh_c0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_vh_c1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1935026e999a886068e97f7d342efd1f316ddd518864670e0b5152d574f6e566",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_vh_c1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_vh_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "69a8a1717a8e6098c5dd197d578a62a6c9055fed5a2b9dd134065e0eccf2b313",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_vh_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_vh_s1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e2dff47d7dba9eb975d99f2ec117d1f0acd5186e582ef3677f42c461550f9bc5",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_vh_s1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_vh_s2.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "166dadd4065fc3ac90ba7b509a5a6e699ae27c3eac9c7f6dfac147cac9f23a5c",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/4/bg_vh_s2.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_h0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f148c5300cf8fd9cd116bf9553a769b3378599813d92a9b575bf3621513c2b93",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_h0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_h1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "746c98fc3c4e824754ce6ea19e077ed1d8b9133564aca330034194ad0f059049",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_h1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_hh0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f521a88e62f8666c52b4a57d50b9a58d69cb82681f071d90da51abfb2f522aaf",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_hh0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_hres0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "37b29c02789beb389cdcfe3ff5668b9676bd4cdd3253407ca5240f9cb72fc16a",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_hres0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2f4adbe3716b64fc7eed1d9bd575390b61c39a6860a883c87e16a29701b814b5",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_v0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e92b5df2d4b38773c73f84dfa7a754d657ed26e50fad10f411739440078993b8",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_v0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_v1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "b8a5ea6a0af44a4d9de175eb9f383d9aed3504d8786a5d4a0e506e05a56ddf15",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_v1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_vh_c0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "cf2c8344e02d9ef6eb0c1b4cc1768bf5e8031a698905f1d58025e5a655173c90",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_vh_c0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_vh_c1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "04590c776174df49cc33af4f0c75d05c0143ab4fe421e7a7ad5943d321fc69c2",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_vh_c1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_vh_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "8c23a46fc8df5ad61dc7cdda34793131ca578f57b07c4c8cb48e5957786f5d89",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_vh_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_vh_s1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "468db245401236ab992fe3a693a6f58947b9ee59980f2b1692769f1f5b2cee6b",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_vh_s1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_vh_s2.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "3801d85b064b5abc607ef31831795c407a6864052aad0e12f8d4366abb433691",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/5/bg_vh_s2.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_h0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5490abd33993255436c9c13fe570b22e2a7484d4352c929985cce94cb48d0065",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_h0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_h1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c50f3eabeb0cba70ceb6e3eeccb2ab1fbded0f9557c6c40b6c82c6a155613e0f",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_h1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_hh0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "319bc72a4dd5cc89a31d6f5458550d455cab70fdace78864fc59ffcd7e2b9820",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_hh0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_hres0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "08c3f1be2471e0a86a284b9fdbcb7dfc4984246ebe85d5ca5391e07969c7a093",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_hres0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "263159b2911de16a363c0366841db629c9e3169f8456aae23a361adecb363153",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_v0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e9263211fdcf08d60c87e3f91606b855661dd9b0c67e06fa6eba66861f79a7e1",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_v0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_v1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "120006afd59b75a4c7ce16cff7ab2dbb72e4a0be05aaa6ee84cbafbd8c7506cc",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_v1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_vh_c0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "396f673aff882971fbeb3e727a09ccc2304866f813a9324ec077f68276c2b40a",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_vh_c0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_vh_c1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c20b634f48cbfe7a60c411dd857c8729a8346e33284947a0e31440307ca1e5d5",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_vh_c1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_vh_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "70c15f04fc2667d314cee3b02c4a3112c209ca96dde16fa3bee6a6055f02e00f",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_vh_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_vh_s1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "06aed1c0b81c7ab8fc31cc353d7d586fe7905b20196e4185268d4db55cc20b6e",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_vh_s1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_vh_s2.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c4d8da2d68f5660f65e6c987e859dbde4a7b6bc13bd90246127372eadb6fe7b1",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/6/bg_vh_s2.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_h0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "439f6bfd48092202498f87022ba27bd3497d3d075520f153e83e4d604f505532",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_h0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_h1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "9938451b750045a50c777cd8df85b6491bc8bae56cbe3b950e782ee115762416",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_h1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_hh0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "8680852a9fcec85b0628023dac71d29fcc3b7d314e9a970bb07676e232a68b67",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_hh0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_hres0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "c7dc6b6b99982831fdea55b6fff3e399334ee5cfbaec5222468bda53cbca622a",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_hres0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "0d8714f8274dbdf05c3756fe7fcff5a3c0c630cc3702cb3ed1b3771f2b6cdba6",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_v0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "232722c32af6d2402b7c0a4cc73e7cbde343731cb54d645184f055a9dbb15db9",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_v0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_v1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "109960d8cc646dc60f7448905f3957be8095a4067d554ee62bba33857d89530e",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_v1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_c0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "35dc80956147c9c99c52e64c8c5112a1e1d2027120b24f64384686a971b07955",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_c0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_c1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5cba63d33b588c4d638ee60b38f215441bfae5a6ac61a6094985d9c9d708b7f5",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_c1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "e23fe62113658edc0339cc8520bfaee406aaaa41eb0532b7650e26e756a4467e",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_s01.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "15fb04b24101467153cf5e60a7b56e647b727deb9ddb821d928d8ce38634f4c3",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_s01.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_s1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "78320ed47c9eccc162ed8bb625d66d32747e6cbbd442a2efa4e98d034d187a1f",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_s1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_s2.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "1602dc715b1454b13b312da19dedb36d6351b71ae091d84c8abd4d5fb4b5a188",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/7/bg_vh_s2.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_h0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "742c818d95db06641ead19e6e2fbce65296dbf417894fe7a12298d154bdd8e5c",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_h0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_h1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "de5f56b107a84d51668ebf81641a27cdc3f8876024b14101111ae20e60f494e7",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_h1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_hh0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "161d94dc590df3132ea24180331d01a0970b54cffedb20e50c8e3a371977092d",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_hh0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_hres0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "0afc36e8f3591059e6c9ec1250717803488f58903e2f67228814984fef1929b4",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_hres0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "0afc36e8f3591059e6c9ec1250717803488f58903e2f67228814984fef1929b4",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_v0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "57be24886d6ddc22131040c34e8e7fedfcfb289ee4c9d5223bf40f309ea7b3fd",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_v0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_v1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "fb647f7ec53b6fc34e31dab8d744607e9cdb25bfdc625fa316653122d448c8e6",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_v1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_vh_c0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d037e920a6b98a067f272488c777a37b4d7fbab6ee3b2333205d3a1a75825e23",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_vh_c0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_vh_c1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "89fda7fbf7e4c103f0267f537d3e2a389b30a0636e1d9c3908d90c2ac581c2a3",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_vh_c1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_vh_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "88fda3a502d4fcfe91442444e02ff4bb815a30f3b012558d64234a12ef2a1cc0",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_vh_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_vh_s1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5fe7381dde8a9e2aae4de437d20c75a6e4e33ee4c34a41744cab0b6fa81590dd",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_vh_s1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_vh_s2.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6ddf06e47b94a6a1270ba9b53d49d531d255f08d3c178a3bec954011e732be12",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/8/bg_vh_s2.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_h0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "35bea359855f000c84cf629bc1840fc4e0f611e98e4dbdee2601e283e3cc7400",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_h0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_h1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "587fea7f683b34409c41f7304dd37ccb19bdd9fc6871f2a88aa52ad415180ec8",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_h1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_hh0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ceb8e8598392f0b40f427c781c8ba571b4f8ae8362ac8458f3e42e94e7f53d46",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_hh0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_hres0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "07332adf09578238c246b7c2823537f586238f85f7f7a34af4d4c05f46dfb109",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_hres0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "07332adf09578238c246b7c2823537f586238f85f7f7a34af4d4c05f46dfb109",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_v0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "4c6655fce6f4dafb25c9bc0f29361590dd0dfcfd427566bf3bed679583809ed4",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_v0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_v1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "22a2e522caa2a887117a8c55e584b3b8b44b50eb64d966f2ca5f1ebff04e8926",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_v1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_vh_c0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "d7699ef145f26aa41edbd01b0489e526e64e56feb30addd3b09a52378c901330",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_vh_c0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_vh_c1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "72db288f6ef7cfbcd9a0179495babd41e560177311be2f4575602678ce129a16",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_vh_c1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_vh_s0.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "b75baa89adc39fd7b4e98c1c22413834c110a03fb1dd63641feb2136667d0af6",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_vh_s0.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_vh_s1.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "9bcf1c94a9b9a9760afb86186eb6a3200bca9a4acf5a91a6157bec0c17d9558d",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_vh_s1.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_vh_s2.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2aa7f3325f1eb9e44e9c75590b099d3d64925d548c3b89c5404351302b563cd6",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/bg/640x480/9/bg_vh_s2.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/font",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/font/NotoSansKR-Medium.ttf",
+   "type": "file",
+   "mode": "644",
+   "sha256": "8eb10746734fbd0d42fc4bf05bc0c279d2cc4185263652489338609c3f248a8f",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/font/NotoSansKR-Medium.ttf"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/font/OFL.txt",
+   "type": "file",
+   "mode": "644",
+   "sha256": "92c343f7e7caebff8bace350bc091b79755f4d0c8b70bb0df21570a1828917b8",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/font/OFL.txt"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/lang",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/lang/chinese_cn",
+   "type": "file",
+   "mode": "644",
+   "sha256": "7b5e3004535edee55a477bd3aa95dd6a786475f50c297787921e59871614d812",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/lang/chinese_cn"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/lang/chinese_tw",
+   "type": "file",
+   "mode": "644",
+   "sha256": "630f73adf150143f09c5c0d7927460b7ec177307fef2e3a75a47648e833b0976",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/lang/chinese_tw"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/lang/german_deu",
+   "type": "file",
+   "mode": "644",
+   "sha256": "693c17b2afca745191f0f041d6dc17099bf92507a2e6c678541bceed2affc294",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/lang/german_deu"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/lang/korean_kr",
+   "type": "file",
+   "mode": "644",
+   "sha256": "64f363f60bf4567cb169f47e6070400b64255e8015135a9a25dcd302475b438f",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/lang/korean_kr"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/1",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/1/cursor.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6e32bc7147707522a2ffa3c6762607efbe5dcb8a34c9f82b53401722a9025c35",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/1/cursor.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/1/drastic_cursor.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6e32bc7147707522a2ffa3c6762607efbe5dcb8a34c9f82b53401722a9025c35",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/1/drastic_cursor.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/1/drastic_no.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "58d447b8aab996115251dbf6f21bf94845b3691f166f966d1e48b1bb1f4f676d",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/1/drastic_no.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/1/drastic_yes.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ff2ca218bdb36de229ab454e24889cbdef57ba1fac00887dc2dccb0584f68b24",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/1/drastic_yes.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/2",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/2/cursor.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "add45611c4971799fd0d1c38a51561a75a797f409987c7af5e5b38e408b0a3ce",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/2/cursor.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/2/drastic_cursor.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "f9884dd347778c5d5c97b2dd13410fde01b1cc1cc371c3511fc6666710573471",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/2/drastic_cursor.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/2/drastic_no.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a86b70ce2af530168e32b937efa37767a24a7a8bb5134b05046e718f99077af6",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/2/drastic_no.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/2/drastic_yes.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "32acbaeecae9006f91a4cc5c494732b38893596934a1ea44985de56930d4df22",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/2/drastic_yes.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/3",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/3/cursor.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "13db753aa9b24130ad8af7ac6de4f0586e68a258281b53c5870e52582bdc145e",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/3/cursor.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/3/drastic_cursor.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "13db753aa9b24130ad8af7ac6de4f0586e68a258281b53c5870e52582bdc145e",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/3/drastic_cursor.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/3/drastic_no.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "58d447b8aab996115251dbf6f21bf94845b3691f166f966d1e48b1bb1f4f676d",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/3/drastic_no.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/menu/640/3/drastic_yes.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "ff2ca218bdb36de229ab454e24889cbdef57ba1fac00887dc2dccb0584f68b24",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/menu/640/3/drastic_yes.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/pen",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/pen/1_lt.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "0c7d987925551fbe721bfd1ec5f7ac430ea654c5573c821b379933eee9beb6fd",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/pen/1_lt.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/pen/2_lb.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5791a890423456754a67342f4fc1e27d33eaa1ade9dd1a07bef3c3182d2d7b44",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/pen/2_lb.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/pen/3_rt.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "a34b457b51b57a7597c551c2c78842c6496a66114fe093a79c6f397d532355b2",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/pen/3_rt.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/pen/4_lb.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "287cc39a22a20e14e2ae6a81f88c1bd24c05343b951b05fbcd68b1471b42be35",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/pen/4_lb.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/pen/5_rb.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "5ba5747fcf1d2b2b13c8554eec03e458753170bfc2f9c050751a6f2865af8a0f",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/pen/5_rb.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/pen/6_cp.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "356234dd9c3706033ae00cf43f8894d9c852b330ea9112818dc244850db7c6c9",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/pen/6_cp.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/resources/pen/7_lb.png",
+   "type": "file",
+   "mode": "644",
+   "sha256": "11bbd76a3b94ddf5f10570b62c441fef631d5fabcee5c1efd3274839a9035835",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/resources/pen/7_lb.png"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/system",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/system/drastic_bios_arm7.bin",
+   "type": "file",
+   "mode": "644",
+   "sha256": "6ad5072c3920fd6c8eba2c49d2dd058c296564a11d6013807124a919cf0d66e6",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/system/drastic_bios_arm7.bin"
+  },
+  {
+   "path": "/opt/muos/share/emulator/drastic/system/drastic_bios_arm9.bin",
+   "type": "file",
+   "mode": "644",
+   "sha256": "0a4e88c5dfd20ce669b8df45d009974f23fe7cb9b1f2148dbf30b6445eca9bc5",
+   "origin": "build/m8/advdrastic/tree/opt/muos/share/emulator/drastic/system/drastic_bios_arm9.bin"
+  },
+  {
+   "path": "/opt/muos/share/core/flycast2022_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "0af9665115b4737cd9a145587f4e7c36adb5e74b5df98955a178ff7275a9dcf3",
+   "origin": "build/m3c/cores/out/flycast2022_libretro.so"
   }
  ],
  "remove": [

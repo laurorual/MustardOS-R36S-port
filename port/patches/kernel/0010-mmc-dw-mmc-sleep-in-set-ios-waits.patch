@@ -1,0 +1,99 @@
+From: muOS R35S port
+Subject: [PATCH] mmc: dw_mmc: sleep in the set_ios clock-update waits
+
+A card that holds DAT0 busy (one that never initialises; the R35S slot 2
+case) makes every clock update in dw_mci_setup_bus() spin up to 2 x 500 ms
+(udelay loop, then a tight CMD_START poll). On resume the MMC rescan of
+that slot runs on a per-CPU kworker, which then spins for ~3 s and holds
+up the other work items of that CPU, the DRM atomic commits (page flips)
+among them: 20-75 ms flips after a wake in a game (M8 T3, sysrq-l
+backtraces). .set_ios runs in process context without host spinlocks, so
+these four calls sleep instead; the other mci_send_cmd() callers (request
+path, SDIO irq, reset) keep the spinning version.
+
+diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
+index 0ed1854..839f238 100644
+--- a/drivers/mmc/host/dw_mmc.c
++++ b/drivers/mmc/host/dw_mmc.c
+@@ -1126,6 +1126,47 @@ static void mci_send_cmd(struct dw_mci_slot *slot, u32 cmd, u32 arg)
+ 		cmd, arg, cmd_status);
+ }
+ 
++/*
++ * mci_send_cmd() for dw_mci_setup_bus(), i.e. .set_ios, which the MMC core
++ * calls in process context without host spinlocks (it already sleeps in
++ * the regulator calls). A card that holds DAT0 busy (a card that fails to
++ * initialise) costs up to 2 x 500 ms per clock update; spinning there
++ * (udelay) kept a per-CPU kworker busy for seconds on every resume rescan
++ * and starved the other work items of that CPU, the DRM page flips among
++ * them (R35S: stutter after a wake with such a card in slot 2). Sleep
++ * instead, with the same timeouts and messages.
++ */
++static void mci_send_cmd_sleep(struct dw_mci_slot *slot, u32 cmd, u32 arg)
++{
++	struct dw_mci *host = slot->host;
++	unsigned long timeout = jiffies + msecs_to_jiffies(500);
++	unsigned int cmd_status = 0;
++
++	mci_writel(host, CMDARG, arg);
++	wmb(); /* drain writebuffer */
++	if ((cmd & SDMMC_CMD_PRV_DAT_WAIT) && !(cmd & SDMMC_CMD_VOLT_SWITCH)) {
++		while (mci_readl(host, STATUS) & SDMMC_STATUS_BUSY) {
++			if (time_after(jiffies, timeout)) {
++				dev_err(host->dev, "Busy; trying anyway\n");
++				break;
++			}
++			usleep_range(50, 100);
++		}
++	}
++	timeout = jiffies + msecs_to_jiffies(500);
++	mci_writel(host, CMD, SDMMC_CMD_START | cmd);
++
++	while (time_before(jiffies, timeout)) {
++		cmd_status = mci_readl(host, CMD);
++		if (!(cmd_status & SDMMC_CMD_START))
++			return;
++		usleep_range(10, 20);
++	}
++	dev_err(&slot->mmc->class_dev,
++		"Timeout sending command (cmd %#x arg %#x status %#x)\n",
++		cmd, arg, cmd_status);
++}
++
+ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
+ {
+ 	struct dw_mci *host = slot->host;
+@@ -1142,7 +1183,7 @@ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
+ 
+ 	if (!clock) {
+ 		mci_writel(host, CLKENA, 0);
+-		mci_send_cmd(slot, sdmmc_cmd_bits, 0);
++		mci_send_cmd_sleep(slot, sdmmc_cmd_bits, 0);
+ 	} else if (clock != host->current_speed || force_clkinit) {
+ 		div = host->bus_hz / clock;
+ 		if (host->bus_hz % clock && host->bus_hz > clock)
+@@ -1166,13 +1207,13 @@ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
+ 		mci_writel(host, CLKSRC, 0);
+ 
+ 		/* inform CIU */
+-		mci_send_cmd(slot, sdmmc_cmd_bits, 0);
++		mci_send_cmd_sleep(slot, sdmmc_cmd_bits, 0);
+ 
+ 		/* set clock to desired speed */
+ 		mci_writel(host, CLKDIV, div);
+ 
+ 		/* inform CIU */
+-		mci_send_cmd(slot, sdmmc_cmd_bits, 0);
++		mci_send_cmd_sleep(slot, sdmmc_cmd_bits, 0);
+ 
+ 		/* enable clock; only low power if no SDIO */
+ 		clk_en_a = SDMMC_CLKEN_ENABLE << slot->id;
+@@ -1181,7 +1222,7 @@ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
+ 		mci_writel(host, CLKENA, clk_en_a);
+ 
+ 		/* inform CIU */
+-		mci_send_cmd(slot, sdmmc_cmd_bits, 0);
++		mci_send_cmd_sleep(slot, sdmmc_cmd_bits, 0);
+ 
+ 		/* keep the clock with reflecting clock dividor */
+ 		slot->__clk_old = clock << div;

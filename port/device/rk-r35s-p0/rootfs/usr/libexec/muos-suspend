@@ -196,24 +196,31 @@ if [ "$fake" != 1 ]; then
         [ -z "$retro$sa" ] || wait_radio
     fi
 fi
-# M8 (M8 T3 5: micro stutters right after the wake): a game shows its
-# paused frame and is held a little longer while the resumed devices
-# settle (the standalone N64's ~1 s read better in the M7 T3), then the
-# sound and the game come back together. settings/power/wake_hold in ms
-# (default 3000: t2-wake-frames.sh, NES, 2 wakes each: without it 10-11
-# slow frames in the first 2.8 s, up to 238 ms, nearly all in the page
-# flip; with 3 s none; T2 hook /run/muos/wake-hold).
-hold=$(cat "$run/wake-hold" 2>/dev/null || cfg settings/power/wake_hold 3000)
-case "$hold" in ''|*[!0-9]*) hold=3000 ;; esac
+# M8 (M8 T3 5: micro stutters right after the wake): an optional hold of
+# the paused game, settings/power/wake_hold in ms (T2 hook
+# /run/muos/wake-hold). Default 0 since the m8b T3 (the 3 s hold felt
+# slow): the stutters came from the slot-2 card's resume rescan spinning on
+# CPU0 (kernel patch 0010 + the CPU1-3 pin below); t2-wake-frames.sh, NES,
+# 3 wakes: 2-4 frames of 21-27 ms, was ~10 of up to 75-238 ms.
+hold=$(cat "$run/wake-hold" 2>/dev/null || cfg settings/power/wake_hold 0)
+case "$hold" in ''|*[!0-9]*) hold=0 ;; esac
 if [ -n "$retro$sa" ] && [ "$hold" -gt 0 ]; then
     say "hold ${hold} ms"
     sleep "$((hold / 1000)).$(printf '%03d' $((hold % 1000)))"
 fi
 wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null
 # The game resumes on CPU0-2, away from the 8821cu association (CPU3).
-[ -z "$retro" ] || /usr/libexec/muos-cpu-pin 7 "$retro"
+# M8 (wake stutter, kernel patch 0010): with Wi-Fi deferred CPU3 is free,
+# while CPU0 runs the resume rescans (a slot-2 card that fails to
+# initialise spins there for ~3 s and holds up CPU0's work items, the page
+# flips queued from CPU0 among them): CPU1-3 first, all four after 5 s.
+mask=7; [ "$defer" = 1 ] && mask=e
+[ -z "$retro" ] || /usr/libexec/muos-cpu-pin $mask "$retro"
 [ -z "$retro" ] || kill -USR2 "$retro" 2>/dev/null
-[ -z "$sa" ] || { /usr/libexec/muos-cpu-pin 7 "$sa"; kill -CONT "$sa" 2>/dev/null; }
+[ -z "$sa" ] || { /usr/libexec/muos-cpu-pin $mask "$sa"; kill -CONT "$sa" 2>/dev/null; }
+if [ "$defer" = 1 ]; then
+    ( sleep 5; [ -e "$deferred" ] && /usr/libexec/muos-cpu-pin f $retro $sa ) 9>&- &
+fi
 ( track_event resume ) 9>&- &
 if [ "$defer" = 1 ]; then
     game=${retro:-$sa}

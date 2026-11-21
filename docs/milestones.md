@@ -128,6 +128,47 @@ and p2 writes allowed while away, avoiding writes likely to lose SSH).
     first boot: p2 1 GiB (468 MB free), p3 116 GiB, migration ran, NES
     59.98, menu sleep 1/1. `make-recovery-image.sh`/`device.sh capture`
     now take the 1152 MiB prefix.
+20. **m8b T3 (2026-11-20 evening, the user):** 1, 2, 5, 7, 10 ok; 3 sleep
+    good but the 3 s wake hold felt slow; 4 GoW playable with frameskip 1
+    but with graphics problems; 6 NDS ok, a small black cursor at the top
+    left, no auto load of the state, wants dArkOSen's two-screen layout;
+    8 DC not playable; 9 Saturn slow (try dArkOSen's standalone). New
+    rule (AGENTS.md "Heavy Systems"): heavy systems = maximum performance
+    first (closed source, standalone, R36S settings, overclock), dArkOSen
+    first reference; native touches second. Decisions 26 (slot-2 swap,
+    the spare card may be erased) and 27 (DraStic and other closed parts in
+    the developer and the public image; publication only after the
+    licence answers).
+21. **PSP graphics — done to T2:** screenshots of GL emulators
+    (`t2-swapstat.sh grab`, `t2-psp-fps.sh` T2_PSP_GRAB): dArkOSen's
+    v1.12 ini renders non-buffered (`RenderingMode = 0`): no sky, no
+    post-processing. Buffered: ~8 % slower at a fixed clock; default now,
+    applied once to a seeded ini (`.muos-buffered`).
+22. **NDS — advanced DraStic, done to T2:** `build-drastic.sh stage-adv`
+    (trngaje advanced_drastic `d445a56` dArkOS lib, drastic_layout
+    `e8dc3eb` 640x480 art, upstream muOS's drastic-trngaje drastic.cfg with
+    the muOS-Keys controls and dArkOS's performance settings), installed at
+    the m8b path `/opt/muos/share/emulator/drastic`; `muos-drastic` keeps
+    p3 `MUOS/port/drastic` (saves kept; the m8b drastic.cfg becomes
+    drastic.cfg.plain once). Layout vh_s0 by default, auto save state on
+    exit/SIGTERM (slot 10, ~0.5 s) and auto load; no cursor plane. NSMB 60
+    fps. `libmucursor.so` (upstream cursor shim) built and shipped.
+23. **DC — Flycast 2022, done to T2:** `build-cores.sh` row `flycast2022`
+    (libretro/parallel-dc `4c293f3` + dArkOS's makefile/per-pixel patches
+    from `port/patches/cores/`, goadvance platform tuned for the A35, no
+    OpenMP), coredb "Flycast 2022 (dArkOSen)" default, migration
+    `m8c-dc-2022`. `t2-dc-fps.sh` (user's fight state on v2.7: 38 ms
+    frames; attract: core 6.5 ms vs 11.6 ms).
+24. **Wake stutter — root cause, done to T2:** the slot-2 card's resume
+    rescan spins on CPU0 (hardware-findings "Wake in a game"). Kernel patch
+    0010 (dw_mmc set_ios waits sleep; trial boot, t2-sdcard, NES 59.94,
+    promoted: main `Image-be499e33d4eb`), muos-suspend resumes the game on
+    CPU1-3 while Wi-Fi is deferred, wake hold default 0.
+25. **Saturn:** dArkOSen runs YabaSanshiro standalone (christianhaitian
+    `pi4-1-9-0`, retro_arena port, low-res mode, SH2 cache off); it needs
+    Boost (system, filesystem, date_time, locale), not in the SDK/rootfs.
+    The libretro core runs with threads off (only the sound thread).
+    Not done yet.
 
 ## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 

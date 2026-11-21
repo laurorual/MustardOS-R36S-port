@@ -362,6 +362,17 @@ cores). Smoke content without game dumps: `make-smoke-roms.py DIR` then
 equal the shipped .so) and gdb with a sysroot whose core path points at
 `build/m3c/cores/debug/<so>`. Kernel modules:
 `build-boot.sh modules-check` after a kernel build.
+Core patches (M8): `port/patches/cores/<row>/*.patch` (git apply, see its
+README). Standalone emulators (M8): `build-ppsspp-sa.sh`,
+`build-drastic.sh stage-adv` (advanced DraStic tree + config), then
+`firmware-inputs.py pin-tree`/`pin-file`. Screenshots of a GL emulator
+for T2 (M8): `t2-swapstat.sh arm`, launch, `t2-swapstat.sh grab FILE.png`
+(the next frame's default framebuffer; PPSSPP, DraStic, Mupen64Plus);
+`t2-psp-fps.sh` takes `T2_PSP_GRAB=1`. Heavy-system speed: compare
+settings at a fixed CPU cap (`T2_CAP`), not under thermal throttling;
+DC: `t2-dc-fps.sh` (variants, `T2_DC_SO`, `T2_DC_STATE=none`). Wake
+diagnosis: `t2-wake-frames.sh` with `T2_WAKE_SAMPLE` / `T2_WAKE_STACKS`
+(sysrq-l backtraces, symbols from `build/m3b/kernel-output/System.map`).
 
 **Safe mode:** create `/boot/muos-noui` on the FAT partition; the UI is
 skipped, SSH still comes up.

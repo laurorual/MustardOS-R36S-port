@@ -8,12 +8,40 @@
 // new_vi(): 60 a second = full speed, whatever the game's own frame rate).
 // Built by t2-swapstat.sh; muos-mupen64plus preloads /run/muos/swapstat.so
 // only while /run/muos/perf-capture exists.
+// M8: while /run/swapstat-grab exists, the next frame (default framebuffer,
+// read before the swap) is written to /run/swapstat-grab.ppm and the
+// trigger file is removed: screenshots of GL emulators for T2.
 #define _GNU_SOURCE
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
+
+// GLES2 entry points by dlsym (no link-time GL dependency)
+static void grab(void) {
+    void (*get_iv)(unsigned, int *) = (void (*)(unsigned, int *)) dlsym(RTLD_DEFAULT, "glGetIntegerv");
+    void (*bind_fb)(unsigned, unsigned) = (void (*)(unsigned, unsigned)) dlsym(RTLD_DEFAULT, "glBindFramebuffer");
+    void (*read_px)(int, int, int, int, unsigned, unsigned, void *) =
+        (void (*)(int, int, int, int, unsigned, unsigned, void *)) dlsym(RTLD_DEFAULT, "glReadPixels");
+    if (!get_iv || !bind_fb || !read_px) return;
+    int fb = 0;
+    get_iv(0x8CA6 /* GL_FRAMEBUFFER_BINDING */, &fb);
+    bind_fb(0x8D40 /* GL_FRAMEBUFFER */, 0);
+    const int w = 640, h = 480;
+    unsigned char *px = malloc((size_t) w * h * 4);
+    FILE *f = px ? fopen("/run/swapstat-grab.ppm", "w") : NULL;
+    if (f) {
+        read_px(0, 0, w, h, 0x1908 /* GL_RGBA */, 0x1401 /* GL_UNSIGNED_BYTE */, px);
+        fprintf(f, "P6\n%d %d\n255\n", w, h);
+        for (int y = h - 1; y >= 0; y--)
+            for (int x = 0; x < w; x++) fwrite(px + ((size_t) y * w + x) * 4, 1, 3, f);
+        fclose(f);
+    }
+    free(px);
+    bind_fb(0x8D40, (unsigned) fb);
+}
 
 static void (*real_swap)(void *);
 static double last, window_start, max_gap, in_swap;
@@ -53,6 +81,10 @@ void SDL_GL_SwapWindow(void *window) {
         const char *path = getenv("SWAPSTAT_OUT");
         out = fopen(path ? path : "/run/swapstat.log", "a");
         window_start = last = now();
+    }
+    if (access("/run/swapstat-grab", F_OK) == 0) {
+        grab();
+        unlink("/run/swapstat-grab");
     }
     const double before = now();
     real_swap(window);

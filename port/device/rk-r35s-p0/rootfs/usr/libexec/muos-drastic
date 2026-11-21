@@ -2,16 +2,24 @@
 # SPDX-License-Identifier: MIT
 # muos-drastic ROM: DraStic (NDS, decision 23: the fastest emulator, closed
 # source allowed; dArkOSen's default for NDS), run by muos-frontend for the
-# NDS "ext-drastic" assignment. DraStic keeps everything in its working
-# directory (config/, backup/ saves, savestates/, cheats/, slot2/, ...), as
-# dArkOS runs it from /opt/drastic: here p3 MUOS/port/drastic, with the
-# image's binary, BIOS replacements, game database and logos
-# (/opt/muos/share/emulator/drastic, build-drastic.sh) copied in when they
-# differ. Settings: dArkOS's RG351MP drastic.cfg with the controls moved to
-# the muOS-Keys pad (/usr/share/muos-r35s/drastic), copied once; changes in
-# DraStic's own menu stay. Fn = DraStic's menu (save/load state, settings,
-# exit); Fn+Start quits (muos-standalone-quit); L3 = touch press, R3 = swap
-# screens, L2/R2 = screen layouts, right stick = touch cursor.
+# NDS "ext-drastic" assignment, with trngaje's advanced_drastic hook (M8 T3
+# 6; upstream muOS's "drastic-trngaje"): screen layouts with background art
+# (default "vh_s0": top screen big at the top left, touch screen small at
+# the bottom right), its own menu, auto save state on exit (also on
+# SIGTERM, i.e. Fn+Start) and auto load on start.
+# DraStic keeps everything in its working directory (config/, backup/
+# saves, savestates/, cheats/, slot2/, ...): p3 MUOS/port/drastic (the
+# saves of the plain DraStic of m8b stay). The image's binary, BIOS
+# replacements and game database (/opt/muos/share/emulator/drastic,
+# build-drastic.sh stage-adv) are copied in when they differ; resources/
+# links the image's art and fonts, its settings.json is the user's.
+# Settings: /usr/share/muos-r35s/drastic-trngaje/drastic.cfg once (the
+# m8b plain-DraStic drastic.cfg is kept as drastic.cfg.plain), then the
+# user's (DraStic's menu writes it).
+# Keys (upstream muOS's mapping): Fn = hotkey: Fn+X menu, Fn+Start quit,
+# Fn+Left/Right layout, Fn+Y background, Fn+L2/R2 load/save state, Fn+R1
+# fast forward, Fn+B smooth/pixel, Fn+L1 d-pad as stylus; R2 swaps the
+# screens, right stick = stylus, L3 = touch, R3 = microphone.
 # Video: SDL's KMSDRM renderer needs vsync here (without it the page flip
 # fails with -22 and the screen stays black, M8 night 1).
 # Sleep: muos-suspend stops and continues the process.
@@ -20,19 +28,30 @@ emu=/opt/muos/share/emulator/drastic
 w=/userdata/MUOS/port/drastic
 rom=${1:?rom}
 say() { echo "muos-drastic: $*"; }
-mkdir -p "$w/config" "$w/system" || exit 1
-for d in backup savestates cheats slot2 profiles input_record microphone scripts unzip_cache; do
+mkdir -p "$w/config" "$w/system" "$w/resources" || exit 1
+for d in backup savestates cheats slot2 profiles input_record scripts unzip_cache; do
     mkdir -p "$w/$d"
 done
-for f in drastic game_database.xml drastic_logo_0.raw drastic_logo_1.raw system/drastic_bios_arm7.bin system/drastic_bios_arm9.bin; do
+for f in drastic game_database.xml system/drastic_bios_arm7.bin system/drastic_bios_arm9.bin; do
     if ! cmp -s "$emu/$f" "$w/$f"; then
         { cp "$emu/$f" "$w/$f.new" && mv -f "$w/$f.new" "$w/$f"; } || say "copy of $f failed"
     fi
 done
 chmod 755 "$w/drastic"
-[ -s "$w/config/drastic.cfg" ] || cp /usr/share/muos-r35s/drastic/drastic.cfg "$w/config/drastic.cfg"
+for d in font lang menu pen bg; do
+    [ "$(readlink "$w/resources/$d")" = "$emu/resources/$d" ] || { rm -rf "$w/resources/$d"; ln -s "$emu/resources/$d" "$w/resources/$d"; }
+done
+[ "$(readlink "$w/microphone")" = "$emu/microphone" ] || { rm -rf "$w/microphone"; ln -s "$emu/microphone" "$w/microphone"; }
+[ -s "$w/resources/settings.json" ] || cp /usr/share/muos-r35s/drastic-trngaje/settings.json "$w/resources/settings.json"
+if [ ! -e "$w/config/.muos-advanced" ]; then
+    [ -f "$w/config/drastic.cfg" ] && mv -f "$w/config/drastic.cfg" "$w/config/drastic.cfg.plain"
+    cp /usr/share/muos-r35s/drastic-trngaje/drastic.cfg "$w/config/drastic.cfg" && : > "$w/config/.muos-advanced"
+fi
+[ -s "$w/config/drastic.cfg" ] || cp /usr/share/muos-r35s/drastic-trngaje/drastic.cfg "$w/config/drastic.cfg"
 say "start rom=$rom"
 cd "$w" || exit 1
+pre=$emu/libs/libadvdrastic.so
 # T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file
-[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && export LD_PRELOAD=/run/muos/swapstat.so
-SDL_RENDER_VSYNC=1 HOME=$w exec ./drastic "$rom"
+[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && pre="$pre:/run/muos/swapstat.so"
+LD_LIBRARY_PATH=$emu/libs${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH} LD_PRELOAD=$pre \
+    SDL_RENDER_VSYNC=1 HOME=$w exec ./drastic "$rom"

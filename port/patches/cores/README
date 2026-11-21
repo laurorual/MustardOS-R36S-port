@@ -1,0 +1,9 @@
+Patches for build-cores.sh rows: <row name>/*.patch, applied in name order
+with `git apply` to the extracted source before the build.
+
+flycast2022/ (M8, Dreamcast): from christianhaitian/rk3326_core_builds
+(MIT License, Copyright Christian Haitian), commit
+5feb01b03c980528fca60cc64c71f5d56a72a542, patches/flycast-patch-makefile.patch
+and flycast-patch-per_pixel.patch, unchanged: the build dArkOS ships as its
+64-bit "flycast" core (libretro/flycast, now libretro/parallel-dc, at
+4c293f3; platform "goadvance": LOW_END and LOW_RES defaults).

@@ -77,6 +77,16 @@
    "source": "port/scripts/build-cores.sh (pinned commits; source tarballs in build/m3c/cores/cache)",
    "status": "GPL-2.0: stella2014, prosystem, beetle cores, blueMSX, dosbox-pure; GPL-3.0: gearcoleco, gearsystem, pokemini; Zlib: handy; non-commercial: FBNeo and MAME 2003-Plus (no sale, no bundling in a commercial product). Ship or offer the pinned source with any distributed image; check blueMSX's licence file before M8",
    "reference": "docs/milestones.md M6"
+  },
+  {
+   "id": "nds-drastic-m8",
+   "component": "NDS: DraStic r2.5.2.2 aarch64 binary (closed source, Exophase), trngaje advanced_drastic hook (libadvdrastic.so, dArkOS build, no licence file) + libjson-c.so.5, steward-fu/trngaje layout art (drastic_layout, no licence file)",
+   "source": "https://github.com/trngaje/advanced_drastic d445a56349cce68f5337d02c9fe890de9d390f3f; https://github.com/trngaje/drastic_layout e8dc3eb5bb51351bf3e93229e388ae9e5fea9adc",
+   "status": "decision 27 (2026-11-20): shipped in the developer and the public image; the public image is published only after explicit answers for every non-open component",
+   "questions": [
+    "Redistribution of the DraStic binary",
+    "Licence of libadvdrastic.so and the layout art"
+   ]
   }
  ]
 }

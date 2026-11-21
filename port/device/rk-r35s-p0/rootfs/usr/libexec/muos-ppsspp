@@ -38,6 +38,13 @@ if [ "$name" = ppsspp-2021 ] && [ ! -e "$cfg/ppsspp/PSP/SAVEDATA" ]; then
     ln -s /userdata/MUOS/port/ppsspp/PSP/SAVEDATA "$cfg/ppsspp/PSP/SAVEDATA"
 fi
 sed -i '/^GraphicsBackend =/c\GraphicsBackend = 0 (OPENGL)' "$sys/ppsspp.ini"
+# M8 T3 4 (God of War: black sky, no post-processing): v1.12's
+# RenderingMode 0 is non-buffered rendering (dArkOSen's ini); buffered
+# costs ~8 % at a fixed CPU clock (t2-psp-fps.sh). Once for an ini seeded
+# before (the user can still pick non-buffered in PPSSPP's menu).
+if [ "$name" = ppsspp-2021 ] && [ ! -e "$sys/.muos-buffered" ]; then
+    sed -i '/^RenderingMode =/c\RenderingMode = 1' "$sys/ppsspp.ini" && : > "$sys/.muos-buffered"
+fi
 map=/userdata/MUOS/port/gamecontrollerdb/retro.txt
 [ -s "$map" ] || map=/opt/muos/share/info/gamecontrollerdb/retro.txt
 SDL_GAMECONTROLLERCONFIG=$(grep -v '^#' "$map" | grep -m1 'muOS-Keys')

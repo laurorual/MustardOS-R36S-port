@@ -4,13 +4,13 @@
 # quits a standalone emulator that has no such combo of its own, as
 # dArkOSen's killer_daemon (pkill, then kill -9 if still there): SIGTERM,
 # which SDL turns into a normal quit (PPSSPP saves its settings).
-# Mupen64Plus maps Fn+Start itself (autosave). DraStic catches SIGTERM but
-# does not quit on it (M8 T2): SIGKILL after 2 s; it writes a game's
-# backup memory (.dsv) when the game saves, settings only from its menu.
+# Mupen64Plus maps Fn+Start itself (autosave). DraStic with the advanced
+# hook (M8) writes its auto save state on SIGTERM and quits (~0.5 s for
+# NSMB); SIGKILL only if it is still there after 5 s.
 for e in PPSSPPSDL drastic; do
     pid=$(pidof "$e") || continue
     kill -TERM "$pid"
-    n=0; while [ "$n" -lt 20 ] && kill -0 "$pid" 2>/dev/null; do sleep 0.1; n=$((n+1)); done
+    n=0; while [ "$n" -lt 50 ] && kill -0 "$pid" 2>/dev/null; do sleep 0.1; n=$((n+1)); done
     [ "$e" = drastic ] && kill -0 "$pid" 2>/dev/null && kill -KILL "$pid"
 done
 exit 0

@@ -18,6 +18,8 @@
 #        command line: the state goes to slot 0 for the run (the user's
 #        slot 0 kept in /run and put back), the game boots and L3 (Load
 #        State) loads it after 30 s
+#        T2_PSP_GRAB=1: a screenshot every 5 s (t2-swapstat.sh grab) into
+#        build/logs/m8/psp-LABEL-N.png
 set -euo pipefail
 dev=$(dirname "$0")/device.sh
 repo=$(cd "$(dirname "$0")/../.." && pwd)
@@ -58,8 +60,9 @@ r 'pidof PPSSPPSDL >/dev/null' || fail "PPSSPP did not start"
 if [ -n "${T2_PSP_BYKEY:-}" ]; then sleep 30; r '/usr/libexec/muos-press l3'; fi
 sleep 15  # boot + state load (the report skips the first 15 s of swaps)
 : > "$logs/psp-$label.samples"
-for _ in $(seq 1 $((secs / 5))); do
+for i in $(seq 1 $((secs / 5))); do
     sleep 5
+    [ -z "${T2_PSP_GRAB:-}" ] || "$(dirname "$0")/t2-swapstat.sh" grab "$logs/psp-$label-$i.png" >/dev/null || :
     r 'echo "$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq) $(cat /sys/class/thermal/thermal_zone0/temp) $(cat /sys/class/devfreq/dmc/cur_freq) $(cat /sys/class/devfreq/ff400000.gpu/cur_freq)"' >> "$logs/psp-$label.samples"
 done
 rep=$("$(dirname "$0")/t2-swapstat.sh" report $(( ${T2_PSP_BYKEY:+30} + 15 )))

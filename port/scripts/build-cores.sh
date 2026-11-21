@@ -18,6 +18,7 @@
 #
 # NAME: a table row (default: all). Each line of
 # the table: name repo commit tarball-sha256 output-so license.
+# Patches for a row: port/patches/cores/NAME/*.patch (git apply).
 set -euo pipefail
 export LC_ALL=C
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
@@ -49,6 +50,7 @@ ppsspp https://github.com/hrydgard/ppsspp fa50bb1976065c4f8b1b47af227d367fe97715
 flycast2 https://github.com/flyinghead/flycast 5aa091fde632fb332c8d8c34e280d62dc951954c 6b39696378b3662c95a22c31790f54665f817cf741175c63309351c4ca8401a5 b/flycast_libretro.so GPL-2.0
 ppsspp2021 https://github.com/hrydgard/ppsspp ce0a45cf0fcdd5bebf32208b9998f68dfc1107b7 e212d1389dcac45d4835db97a510e425e4768a4775c93d30c69a02e2324bbdae PPSSPPSDL GPL-2.0
 melonds https://github.com/libretro/melonds 4081e8358e66f1ea11879560be6b813dfeaab75a cc4b9d3290e4c829981858d1f0278d8f12d183bebf1b06825ea606ce4f02a707 melonds_libretro.so GPL-3.0
+flycast2022 https://github.com/libretro/parallel-dc 4c293f306bc16a265c2d768af5d0cea138426054 235422df11e9cf3d5d6eb45dfd69e1b21fd5665ca40777cd833b75327857869b flycast2022_libretro.so GPL-2.0
 yabasanshiro https://github.com/libretro/yabause 09ed8e5b2e97e7a848ea2514545c34c7b809e399 6b8f29e7754143971c5db22fcdaafb8ad0ce237a04bb53fd1f71a959403d6cab yabause/src/libretro/yabasanshiro_libretro.so GPL-2.0
 EOF
 }
@@ -81,6 +83,11 @@ make_cmd() {
         # Flycast v2.7 (the upstream libretro/flycast is now the parallel_dc
         # fork, which hangs at boot here), GLES3, arm64 dynarec
         flycast2) echo 'mkdir -p b && (cd b && $sdk/bin/cmake .. -DCMAKE_TOOLCHAIN_FILE=$sdk/share/buildroot/toolchainfile.cmake -DCMAKE_BUILD_TYPE=Release -DLIBRETRO=ON -DUSE_GLES=ON -DUSE_VULKAN=OFF -DUSE_OPENMP=ON && make -j8 flycast_libretro)' ;;
+        # M8 (M8 T3 8: Power Stone 2 unplayable on v2.7): the libretro Flycast
+        # dArkOS ships (April 2022, its goadvance platform: LOW_END/LOW_RES
+        # defaults, arm64 dynarec), tuned for the A35 instead of A55; no
+        # OpenMP (the SDK has no libgomp)
+        flycast2022) echo 'sed -i "s/-mtune=cortex-a55 -mcpu=cortex-a55/-mcpu=cortex-a35/; s/ -ggdb3 -fno-omit-frame-pointer//" Makefile && make -j8 platform=goadvance TARGET_NAME=flycast2022 HAVE_OPENMP=0 AS="$CC"' ;;
         ppsspp) echo 'mkdir -p b && (cd b && $sdk/bin/cmake .. -DCMAKE_TOOLCHAIN_FILE=$sdk/share/buildroot/toolchainfile.cmake -DCMAKE_BUILD_TYPE=Release -DLIBRETRO=ON -DUSING_GLES2=ON -DUSING_EGL=OFF -DUSING_FBDEV=OFF -DVULKAN=OFF -DUSING_X11_VULKAN=OFF -DUSE_WAYLAND_WSI=OFF -DUSE_DISCORD=OFF -DUSE_MINIUPNPC=OFF -DUSE_FFMPEG=ON -DUSE_SYSTEM_FFMPEG=OFF -DARM64=ON -DUNITTEST=OFF -DHEADLESS=OFF && make -j8 ppsspp_libretro)' ;;
         melonds) echo 'make -j8 platform=odroidgoa' ;;
         yabasanshiro) echo 'make -j8 -C yabause/src/libretro platform=arm64_cortex_a53_gles3' ;;
@@ -135,6 +142,13 @@ build)
         [ "$want" = - ] || [ "$(sha256sum "$tarball" | cut -d' ' -f1)" = "$want" ] || { echo "$n: tarball SHA256 mismatch" >&2; exit 1; }
         stage=$area/stage-$n; rm -rf "$stage"; mkdir -p "$stage"
         tar -C "$stage" -xf "$tarball"
+        # port/patches/cores/NAME/*.patch (M8), in name order; the ceiling
+        # keeps git from finding this repository above build/ (it would
+        # skip every path then)
+        for p in "$repo/port/patches/cores/$n"/*.patch; do
+            [ -e "$p" ] || continue
+            GIT_CEILING_DIRECTORIES=$stage git -C "$stage/src" apply "$p" || { echo "$n: $(basename "$p") does not apply" >&2; exit 1; }
+        done
         code='sdk=/work/graphics-config/output/host t=$sdk/bin/aarch64-buildroot-linux-gnu-
 export CC=${t}gcc CXX=${t}g++ AR=${t}ar LD=${t}gcc STRIP=${t}strip CROSS_COMPILE=$t
 export CFLAGS="-O2 -mcpu=cortex-a35 -fstack-protector-strong -ffile-prefix-map=/stage=.'"${CORE_DEBUG:+ -g}"'" CXXFLAGS="-O2 -mcpu=cortex-a35 -fstack-protector-strong -ffile-prefix-map=/stage=.'"${CORE_DEBUG:+ -g}"'"

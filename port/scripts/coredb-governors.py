@@ -30,6 +30,9 @@ ADD = {"Nintendo DS": {"drastic": {"name": "DraStic", "core": "ext-drastic",
                                    "launcher": "drastic.sh", "control": "modern"}},
        "Sony PlayStation Portable": {"ppsspp-2021": {"name": "PPSSPP 2021 (v1.12)", "core": "ext-ppsspp-2021",
                                                      "launcher": "ppsspp.sh", "control": "modern"}}}
+# M8 T3 8: libretro cores upstream's coredb has no entry for
+ADD_LIBRETRO = {"Sega Dreamcast": {"flycast 2022": {"name": "Flycast 2022 (dArkOSen)",
+                                                    "core": "flycast2022_libretro.so"}}}
 
 
 def main(table, path, core_dir=None):
@@ -62,6 +65,13 @@ def main(table, path, core_dir=None):
                 ext[key] = e
                 changed += 1
                 print(f"coredb-governors: {system}: external {key!r} added")
+    for system, cores in sorted(ADD_LIBRETRO.items()):
+        lr = db.get(system, {}).setdefault("libretro", {})
+        for key, e in cores.items():
+            if lr.get(key) != e:
+                lr[key] = e
+                changed += 1
+                print(f"coredb-governors: {system}: libretro {key!r} added")
     for system, gov in sorted(want.items()):
         if system not in db:
             sys.exit(f"coredb-governors: no system {system!r} in {path}")

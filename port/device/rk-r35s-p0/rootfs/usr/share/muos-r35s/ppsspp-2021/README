@@ -7,5 +7,7 @@ https://github.com/christianhaitian/dArkOS commit
       -> ppsspp.ini, changed (M8 T2, t2-psp-fps.sh, God of War CoO):
          InternalResolution 0 -> 1 (Auto renders 2x on 640x480: slower),
          FrameSkip 0 -> 1 (about 23 emulated fps instead of 13),
+         RenderingMode 0 -> 1 (buffered: God of War's sky and
+         post-processing; ~8 % slower at a fixed CPU clock),
          AudioBackend 1 -> 0 and no AudioDevice (SDL audio through PipeWire)
   ppsspp/controls.ini.rg351mp -> controls.ini (as ../ppsspp)

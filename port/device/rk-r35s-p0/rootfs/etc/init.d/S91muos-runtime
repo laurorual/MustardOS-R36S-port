@@ -135,6 +135,19 @@ case "${1:-}" in
         done
         echo m8-heavy-defaults >> "$mig"; sync
     fi
+    # m8c-dc-2022 (M8 T3 8): DC defaults to dArkOSen's 2022 Flycast; the
+    # same rule (only assignments equal to the old default move).
+    if ! grep -qx m8c-dc-2022 "$mig"; then
+        if [ -f /opt/muos/share/core/flycast2022_libretro.so ]; then
+            for f in "$port/info-content/DC"/*.cfg; do
+                [ -f "$f" ] || continue
+                if [ "${f##*/}" = core.cfg ]; then a=1 b=5; else a=2 b=6; fi
+                [ "$(sed -n "${a}p" "$f")" = flycast_libretro.so ] && [ "$(sed -n "${b}p" "$f")" = mu-flycast ] || continue
+                sed -i "${a}s/.*/flycast2022_libretro.so/;${b}s/.*/mu-flycast 2022/" "$f" && echo "runtime: migrated ${f#"$port"/} -> flycast2022"
+            done
+        fi
+        echo m8c-dc-2022 >> "$mig"; sync
+    fi
     # M3c: default ROM folders + core assignments for installed cores.
     grep -v '^#' /usr/share/muos-r35s/core-assign.txt 2>/dev/null |
     while IFS='|' read -r dir core sys launch gov; do

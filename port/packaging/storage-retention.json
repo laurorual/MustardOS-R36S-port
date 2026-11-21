@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m7c-20261119": {
-      "reason": "M7c (187b089): T3 fixes (Danger screen, cap switch, N64 warm-up), standalone Mupen64Plus, suspend stop/continue, PipeWire stall self-heal; developer image; raw 5878d3b3, p2 701eb2a8; trial root T2 passed and written to p2 2026-11-19; T3 2026-11-19: items 1-8 passed (4 partial: no volume/brightness bar and no screenshot feedback in the standalone N64, minor): recovery image 2026-11-19 until m7d",
-      "files": [
-        "dist/firmware/test128-m7c-20261119.img.zst",
-        "dist/firmware/test128-m7c-20261119.img.zst.sha256",
-        "dist/firmware/test128-m7c-20261119.manifest",
-        "build/m3a/test128-m7c-20261119.p2.img"
-      ]
-    },
     "m7d-20261119": {
       "reason": "M7 final (1ed3ce6): m7c + N64 defaults to the standalone Rice (decision 22: seed, n64-standalone migration, coredb default, unbuilt external entries dropped); developer image; raw 67ae7da4, p2 176c691a; trial root T2 passed and written to p2 2026-11-19; T3 2026-11-20: items 1-8 passed: recovery image since 2026-11-20",
       "files": [
@@ -45,6 +36,15 @@
         "dist/firmware/test128-m8b-20261120.img.zst.sha256",
         "dist/firmware/test128-m8b-20261120.manifest",
         "build/m3a/test128-m8b-20261120.p2.img"
+      ]
+    },
+    "m8c-20261120": {
+      "reason": "M8c (m8b T3 round): advanced DraStic (vh_s0 layout, auto save state), DC Flycast 2022 (dArkOSen) default, PSP v1.12 buffered rendering, wake without hold (kernel 0010 dw_mmc sleep + CPU1-3 pin), libmucursor; developer image; raw b0ca0ac9, p2 51788316",
+      "files": [
+        "dist/firmware/test128-m8c-20261120.img.zst",
+        "dist/firmware/test128-m8c-20261120.img.zst.sha256",
+        "dist/firmware/test128-m8c-20261120.manifest",
+        "build/m3a/test128-m8c-20261120.p2.img"
       ]
     }
   },

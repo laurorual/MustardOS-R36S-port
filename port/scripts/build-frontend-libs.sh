@@ -31,6 +31,8 @@
 # (`check`).
 # M4g: also builds the upstream tool musftpjail (the SFTP jail, unchanged
 # source, upstream's tool flags) into tree/opt/muos/frontend/musftpjail.
+# M8: and upstream's libmucursor.so (hides the SDL cursor of standalone
+# emulators) into tree/opt/muos/frontend/lib.
 # The image takes the result as a pinned input (firmware-inputs.json);
 # for a quick test: `install-rootfs.sh --tree build/m4c/frontend-libs/tree
 # opt/muos/frontend/lib/libmuxmod.so`.
@@ -96,6 +98,11 @@ compile_jail() {
             -Werror=return-type -Wformat-truncation=2 -Werror=format-truncation -Werror=unused-function \
             -I. module/musftpjail.c common/storage/mount.c -o ../frontend-bin/musftpjail \
             -Wl,--gc-sections -pie -Wl,-z,relro,-z,now -s
+        # M8: upstream $(CURSOR_LIB) (SDL_ShowCursor(0) shim that
+        # SETUP_SDL_ENVIRONMENT preloads; the standalone emulators here)
+        $cc -mcpu=cortex-a35 -std=c11 -O2 -pipe -Wall -fstack-protector-strong -D_GNU_SOURCE -fno-ident \
+            -shared -fPIC common/compat/sdl_cursor.c -o ../frontend-bin/lib/libmucursor.so -ldl \
+            -Wl,-z,relro,-z,now -s
         ' >> "$log" 2>&1 || { tail -30 "$log" >&2; exit 1; }
 }
 
@@ -108,6 +115,9 @@ build)
     t=$tool_out/musftpjail
     cp "$src/frontend-bin/musftpjail" "$t.tmp" && mv "$t.tmp" "$t"
     echo "musftpjail: $(sha256sum "$t" | cut -c1-16) ($(stat -c %s "$t") bytes)"
+    l=$out/libmucursor.so
+    cp "$src/frontend-bin/lib/libmucursor.so" "$l.tmp" && mv "$l.tmp" "$l"
+    echo "libmucursor.so: $(sha256sum "$l" | cut -c1-16) ($(stat -c %s "$l") bytes)"
     l=$out/libmuxmod.so
     cp "$src/frontend-bin/lib/libmuxmod.so" "$l.tmp" && mv "$l.tmp" "$l"
     echo "frontend-libs: warnings=$(grep -c ' warning: ' "$log" || :) (log $log)"

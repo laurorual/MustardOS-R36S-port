@@ -1025,10 +1025,26 @@ The open problems behind each "partial" are in STATUS.
   the emulated rate: v1.12.3 15.5 presented = ~31 emulated fps (GoW's
   30 Hz, full speed) at 1146 MHz. The two versions' states are not
   compatible (each its own memory stick, SAVEDATA shared).
+  M8 T3 4 (God of War "graphics problems"; screenshots by
+  `t2-swapstat.sh grab`): dArkOSen's v1.12 ini has `RenderingMode = 0`
+  (non-buffered): no sky and no post-processing in GoW. Buffered costs
+  ~8 % at a fixed CPU clock (6.1 → 5.6 presented fps at 408 MHz); GPU
+  skinning and a 222 MHz emulated CPU change nothing. Unpinned runs on
+  the charger are dominated by heat (CPU averages 600–1000 MHz at
+  82–84 °C), so compare settings at a fixed cap.
 - **PPSSPP v1.12.3 quirks:** `--state=` makes it die with SIGBUS (load
   with L3 instead); with the root remounted rw and 100 % full it died with
   SIGBUS at start until a reboot (seen once, cause not isolated).
-- **DraStic:** catches SIGTERM but does not quit (Fn+Start: SIGKILL after
+- **DraStic (advanced, M8 T3 6):** trngaje's advanced_drastic hook
+  (LD_PRELOAD `libadvdrastic.so`, the dArkOS build; upstream muOS's
+  "drastic-trngaje") on the same r2.5.2.2 binary: layouts from
+  `resources/bg/640x480/layout.json` (index 8 "vh_s0" = top screen 480x360
+  at the top left, touch screen 160x120 at the bottom right), stored as
+  `layout_index` in drastic.cfg (settings.json "mode" is not the layout);
+  `enable_autosavestate` writes slot 10 on exit and on SIGTERM (~0.5 s for
+  NSMB) and loads it on start; no SDL cursor plane (the plain DraStic
+  showed a black cursor at the top left). Plain DraStic:
+  catches SIGTERM but does not quit (Fn+Start: SIGKILL after
   2 s, as dArkOSen's killer_daemon); SIGINT ignored; SIGHUP kills it
   (rc 129). Its frame timer resyncs after SIGSTOP/SIGCONT (sleep). Codes
   in drastic.cfg: 1024 + button, 1088 + SDL hat value, 1152/1216 + axis
@@ -1037,10 +1053,29 @@ The open problems behind each "partial" are in STATUS.
   real BIOS it still never shows a frame (the CPU thread spins). Flyinghead
   Flycast v2.7 (libretro, GLES 3.2 on the Mali) boots Power Stone 2: 36–43
   fps in the attract loop (core 14–17 ms, present ~10 ms).
+  M8 T3 (Power Stone 2 "not playable", `t2-dc-fps.sh`): v2.7 waits for
+  the GPU (synchronous rendering), so a heavy fight runs in slow motion
+  (user's mid-fight state: 38 ms frames, ~44 % game speed; dArkOSen's
+  standalone emu.cfg options made it worse, 50 ms). dArkOSen's default is
+  the libretro Flycast of April 2022 (libretro/parallel-dc `4c293f3`,
+  dArkOS goadvance build: LOW_END/LOW_RES defaults: 320x240, per-strip
+  sorting, DSP off, no synchronous rendering): attract loop core 6.5 ms vs
+  11.6 ms on v2.7; game logic at full speed, rendered frames dropped when
+  the GPU lags (~30 shown). Shipped as `flycast2022_libretro.so`, the DC
+  default; v2.7 stays as "Flycast". Its states differ (per-core state
+  directories, no cross-loading).
 - **Saturn:** YabaSanshiro libretro with `saturn_bios.bin` runs Sonic R at
   ~21 fps (core 44 ms per frame).
 - **Wake in a game (M8 T3 5, `t2-wake-frames.sh`):** with Wi-Fi deferred,
-  the slow frames after a wake all land in the first ~2.8 s and nearly all
-  in the page flip (present_flip up to 230 ms): the display path settles
-  after resume. Holding the paused game 3 s (muos-suspend
-  `settings/power/wake_hold`) leaves none.
+  the slow frames after a wake all land in the first ~2.8 s, nearly all in
+  the page flip (up to 75–238 ms), at the ~0.55 s rhythm of the slot-2
+  card's init retries. Cause (m8b T3 round, sysrq-l backtraces with
+  T2_WAKE_STACKS, per-thread CPU with T2_WAKE_SAMPLE): the resume rescan of
+  slot 2 (a card that holds DAT0 busy, see the slot-2 problem) runs on a
+  CPU0 kworker that busy-waits in dw_mmc (`dw_mci_wait_while_busy` and the
+  CMD_START poll, 500 ms each per clock update): ~1.3 s of CPU in 3 s, and
+  the other CPU0 work items, the DRM atomic commits of flips issued from
+  CPU0, wait behind it. Vblanks stay regular. Kernel patch 0010 makes the
+  set_ios clock updates sleep (kworker ~0.4 s); muos-suspend resumes the
+  game on CPU1-3 while Wi-Fi is deferred (all four after 5 s): 2–4 frames
+  of 21–27 ms per wake, no hold (the 3 s hold of m8b is gone, default 0).

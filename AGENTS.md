@@ -91,6 +91,20 @@ and the next milestone), stale docs fixed, a short report (below).
 Explain tradeoffs only for non-obvious decisions. Trivial edits need no
 write-up.
 
+## Heavy Systems (user rule, 2026-11-20)
+
+For systems the muOS cores can't run stably and fast (PSP, NDS, DC,
+Saturn, N64...), maximum performance comes first:
+
+- Closed-source and standalone emulators and R36S-specific settings are
+  all allowed; overclocking is an option for stubborn emulators.
+- Main reference: dArkOSen (how it runs each heavy system on the R36S).
+  Also consider findings from the web (Reddit, other R36S systems) and
+  own ideas that may perform better.
+- Integrate standalone emulators as "native" as possible (auto save state
+  on exit and load on start, volume/brightness overlay, shortcuts close
+  to the other systems), but never above performance in priority.
+
 ## Test Levels
 
 - T0 — Host static: build, compiler warnings, shellcheck, unit/lint checks.

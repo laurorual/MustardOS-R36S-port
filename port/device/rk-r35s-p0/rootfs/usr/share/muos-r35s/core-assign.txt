@@ -44,9 +44,13 @@ ARCADE|fbneo_libretro.so|Arcade|mu-finalburn neo|performance
 # NDS = DraStic (muos-drastic); melonDS stays as the libretro choice.
 # PSP = PPSSPP v1.12.3 (dArkOSen's standalone-2021, faster here), v1.20.4
 # stays as the second choice.
-# flycast_libretro.so is libretro/flycast (parallel-dc), the coredb's
-# "Flycast" entry; DC and Saturn need their BIOS (MUOS/bios).
-DC|flycast_libretro.so|Sega Dreamcast|mu-flycast|performance
+# DC (M8 T3 8: Power Stone 2 slow on Flycast v2.7, flycast_libretro.so,
+# kept as the second choice): dArkOSen's libretro Flycast of April 2022
+# (flycast2022_libretro.so, LOW_END defaults: 320x240, no synchronous
+# rendering, i.e. full game speed with dropped frames instead of slow
+# motion; core 6.5 ms per frame vs 11.6 ms on v2.7). DC and Saturn need
+# their BIOS (MUOS/bios).
+DC|flycast2022_libretro.so|Sega Dreamcast|mu-flycast 2022|performance
 PSP|ext-ppsspp-2021|Sony PlayStation Portable|ext-ppsspp-2021|performance
 NDS|ext-drastic|Nintendo DS|ext-drastic|performance
 SATURN|yabasanshiro_libretro.so|Sega Saturn|mu-yabasanshiro|performance
