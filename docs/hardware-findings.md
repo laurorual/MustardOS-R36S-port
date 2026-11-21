@@ -923,6 +923,26 @@ The open problems behind each "partial" are in STATUS.
     433 underrun events. Sustained load is thermally limited: 1512 only
     helps short bursts and costs more than it gives under a long load,
     which matches the user's CTR slowdowns at 1512 (M7 T3).
+  - *dArkOSen does nothing different thermally* (ref updated to
+    upstream 28f5427, 2026-11-14; live DTB vs stock Panel 0 DTB
+    decompiled): the same soc/gpu thermal zones (power_allocator,
+    sustainable 750 mW, trips 70/85/115 °C, CPU + GPU cooling maps), the
+    same CPU voltages (1008 1175 mV, 1200 1300, 1248/1296/1368 1350,
+    1416–1512 1400; L0–L3 identical, so no binning gain), PREEMPT_VOLUNTARY
+    250 Hz. Boot: `max_cpufreq=1512 boot_cpufreq=1296`, then
+    `/etc/cpu-settings.conf` GOV=ondemand FREQ=1296000 (scaling_max);
+    games: `perfmax` = performance on CPU, GPU and DMC, as the port
+    does; no GPU/DMC caps by default (`gpu-settings.conf`,
+    `dmc-settings.conf` absent), no core pinning, no undervolt. Its
+    stock DTB has no CPU OPP below 1008 MHz (the port adds 408). New in
+    upstream: a standalone Flycast (`opt/flycastsa`, `dreamcast.sh
+    standalone-Flycast`), standalone ScummVM (`opt/scummvm`), a beta BSP
+    5.10 kernel (`BETA/BSP_5.10_kernel.zip`).
+  - *Relative dynamic CPU power* (f·V²): 1296 MHz 100 %, 1248 96 %,
+    1200 86 %, 1008 59 %. 1248 buys nothing over 1296; 1200 is the
+    efficient step below the 1350 mV band.
+  - *Charger:* RK817 input up to 2 A (`ac` CURRENT_MAX); charging during
+    play adds heat inside the shell (many T2 runs were on the charger).
   - *Wake:* muxretro was resumed before the USB/Wi-Fi bring-up: DWC2 up to
     32k IRQ/s, udevd, kworkers and the 8821cu firmware load stalled frames
     for ~3 s (max 89 ms). All device IRQs land on CPU0. With the game

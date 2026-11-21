@@ -258,6 +258,14 @@ to dark. The rest of the night unattended.
     presented (thermal), wake: all pass; written to p2 2026-11-21 ~03:50
     (unattended, pre-authorized). m8 retired. Not done tonight: ScummVM
     (no game data to test; a full scummvm build), CJK fonts, overclock.
+    **M8e T3 (user, 2026-11-21): 2–9 ok** (Saturn picture, menu, save
+    and load state also across a restart, quit, core lists, NDS R3/L3,
+    fade, regression). 1 DC: no longer accelerated, but the fight felt
+    like heavy frame skipping at 60 fps shown; the user turned on the
+    core option Synchronous Rendering and off Anisotropic Filtering:
+    smooth at 60, with random returns of the skipping feel (thermal?).
+    6: two DraStic entries for NDS: keep only the advanced one. m8e
+    promoted to recovery (better than m8c everywhere); m8b retired.
 
 ## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 

@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m8b-20261120": {
-      "reason": "M8b: 1 GiB p2 layout (decision 17), PSP PPSSPP v1.12.3 + FrameSkip 1 default (v1.20.4 second), NDS DraStic, DC Flycast v2.7 (flyinghead), instant screen-off sleep + 3 s wake hold; developer image; raw fea0b63a, p2 d1411860; trial root T2 passed 2026-11-20",
-      "files": [
-        "dist/firmware/test128-m8b-20261120.img.zst",
-        "dist/firmware/test128-m8b-20261120.img.zst.sha256",
-        "dist/firmware/test128-m8b-20261120.manifest",
-        "build/m3a/test128-m8b-20261120.p2.img"
-      ]
-    },
     "m8c-20261120": {
       "reason": "M8c (m8b T3 round): advanced DraStic (vh_s0 layout, auto save state), DC Flycast 2022 (dArkOSen) default, PSP v1.12 buffered rendering, wake without hold (kernel 0010 dw_mmc sleep + CPU1-3 pin), libmucursor; developer image; raw b0ca0ac9, p2 51788316",
       "files": [
