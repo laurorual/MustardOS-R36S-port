@@ -364,7 +364,10 @@ equal the shipped .so) and gdb with a sysroot whose core path points at
 `build-boot.sh modules-check` after a kernel build.
 Core patches (M8): `port/patches/cores/<row>/*.patch` (git apply, see its
 README). Standalone emulators (M8): `build-ppsspp-sa.sh`,
-`build-drastic.sh stage-adv` (advanced DraStic tree + config), then
+`build-drastic.sh stage-adv` (advanced DraStic tree + config),
+`build-yabasanshiro-sa.sh build` (static Boost; its offline inputs:
+`build/m8/dl` tarballs and `build/yabasanshiro-sa-deps` clones, pinned
+in the script), then
 `firmware-inputs.py pin-tree`/`pin-file`. Screenshots of a GL emulator
 for T2 (M8): `t2-swapstat.sh arm`, launch, `t2-swapstat.sh grab FILE.png`
 (the next frame's default framebuffer; PPSSPP, DraStic, Mupen64Plus);

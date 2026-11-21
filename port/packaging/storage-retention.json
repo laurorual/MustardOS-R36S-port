@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m7d-20261119": {
-      "reason": "M7 final (1ed3ce6): m7c + N64 defaults to the standalone Rice (decision 22: seed, n64-standalone migration, coredb default, unbuilt external entries dropped); developer image; raw 67ae7da4, p2 176c691a; trial root T2 passed and written to p2 2026-11-19; T3 2026-11-20: items 1-8 passed: recovery image since 2026-11-20",
-      "files": [
-        "dist/firmware/test128-m7d-20261119.img.zst",
-        "dist/firmware/test128-m7d-20261119.img.zst.sha256",
-        "dist/firmware/test128-m7d-20261119.manifest",
-        "build/m3a/test128-m7d-20261119.p2.img"
-      ]
-    },
     "m8-20261120": {
       "reason": "M8 so far (2be5a66+): kernel mmc DT aliases, quiet U-Boot + boot logo (root=/dev/mmcblk0p2), Wi-Fi deferred on wake in a game, standalone PPSSPP (dArkOSen), parallel-dc/melonDS/YabaSanshiro cores; developer image; raw fbd4871c, p2 0f723304",
       "files": [
@@ -45,6 +36,15 @@
         "dist/firmware/test128-m8c-20261120.img.zst.sha256",
         "dist/firmware/test128-m8c-20261120.manifest",
         "build/m3a/test128-m8c-20261120.p2.img"
+      ]
+    },
+    "m8d-20261120": {
+      "reason": "M8d (m8c T3 round): NDS Fn+Start quit fix (auto state saved), stylus on the right stick, quit dimming, DC Flycast 2022 at 640x480 + framerate normal, Saturn standalone YabaSanshiro default (static Boost); developer image; raw c7520a89, p2 37d7194d",
+      "files": [
+        "dist/firmware/test128-m8d-20261120.img.zst",
+        "dist/firmware/test128-m8d-20261120.img.zst.sha256",
+        "dist/firmware/test128-m8d-20261120.manifest",
+        "build/m3a/test128-m8d-20261120.p2.img"
       ]
     }
   },

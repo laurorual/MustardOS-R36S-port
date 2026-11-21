@@ -207,6 +207,15 @@ half resolution; 9 slot-2 swap: spare card flashed with m8c.
     fps, intro/race 10-20 swaps/s at 1008 MHz (thermal, 81-83 °C); the
     libretro core in the race 18.6 of 60 emulated fps (31 %). Game speed
     of the standalone not measured (frame skip): T3 compares both.
+31. **Image m8d** (raw `c7520a89…`, p2 `37d7194d…`): trial-root T2
+    (`build/m8/t2-m8d.sh`): sweep 44 ok, NES 59.96, sdcard, SFTP jail,
+    Wi-Fi toggle, DC 640x480 steady 33 ms frames (75 °C), NDS quit ~1 s
+    with the state written, Saturn start/quit, PSP 11.9 presented (m8c
+    11.7), wake 3 slow frames ≤ 25 ms: all pass; written to p2
+    2026-11-20 ~23:50. m8c promoted to recovery, m7d retired.
+32. **Slot-2 swap (decision 26):** the spare card flashed with m8c boots in
+    slot 1 (SDR50); test128 in slot 2 runs at SDR104, ~62 MB/s, no errors:
+    the slot-2 problem was that card in slot 2. Slot 2 stays empty.
 
 ## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 

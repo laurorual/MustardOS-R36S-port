@@ -12,27 +12,28 @@ milestones with their results and T3 checklists in
 ## Current phase
 
 **Phase 5 (own-card firmware). M1–M5 and M7 done. Current: M8 (card
-layout and the heavy systems). 2026-11-20 evening: the m8b T3 round
-(heavy systems = performance first, AGENTS.md): advanced DraStic, DC
-Flycast 2022, PSP buffered rendering, the wake-stutter root cause (slot-2
-rescan; kernel 0010): image m8c written to p2; T3 checklist below.
-Recovery image: m7d (old 512 MiB p2 layout; flashing it rewrites the
-whole card, so it still works); m8c becomes recovery after its T3.**
+layout and the heavy systems). 2026-11-20 night: the m8c T3 round (NDS
+quit/save state, stylus stick, quit dimming, DC 640x480 + steady 30,
+Saturn standalone YabaSanshiro with static Boost; slot-2 swap closed):
+image m8d, trial-root T2; T3 checklist below. Recovery image: m8c
+(promoted 2026-11-20 after its T3; m7d retired).**
 
 ## Next session — read first
 
-- Device = **m8c on p2** (written 2026-11-20 ~21:10 after its trial-root
-  T2; old p2 in p3 `MUOS/trial/p2-previous.img`), on the m8b card layout
-  (flashed whole 2026-11-20; p3 restored, confirmed by the m8b T3; the
-  host backup is deleted). p2 1 GiB (442 MB free). Boot records: main =
+- Device = **m8d on p2** (written 2026-11-20 ~23:50 after its trial-root
+  T2, `build/m8/t2-m8d.sh`, logs `build/logs/m8/trial-m8d/`; old p2 =
+  m8c + the night's live installs in p3 `MUOS/trial/p2-previous.img`),
+  on the 1 GiB p2 card layout. p2 ~506 MB free. Boot records: main =
   `Image-be499e33d4eb` (patch 0010) + `panel0-c97151d0ec1a.dtb`,
   previous = `Image-331eebd4a643` (m8b kernel). No live installs on top.
+- The NDS slot-10 state on p3 is still the old T2 one (the user's
+  progress was lost to the quit bug): the first start after m8d loads it.
 - Test data on p3 `MUOS/t2`: `state-v120`/`state-v112` (the user's God of
   War states for v1.20.4 / v1.12.3; v1.12 needs `T2_PSP_BYKEY=1`),
   `ppsspp-2021` (test copy, now in the image: removable), `drastic`
   (night-1 copy, removable), `m1-backup` (old flycast; removable),
   `dc-fight` (the user's Power Stone 2 mid-fight state, Flycast v2.7
-  only), `emu` (advanced DraStic trial copy, removable),
+  only), `dc-fight-2022` (the user's fight on Flycast 2022, M8c T3), `emu` (advanced DraStic trial copy, removable),
   `drastic-config-m8b` (the plain DraStic config before the switch).
 - CTR test state: p3 `MUOS/port/t2/ctr-race`.
 - Device volume as the user left it (T2 runs set 10 and restore).
@@ -40,15 +41,14 @@ whole card, so it still works); m8c becomes recovery after its T3.**
   SMS, PCE, SEGACD, PCECD, DC (Power Stone 2), PSP (God of War CoO), NDS
   (NSMB), SATURN (Sonic R); BIOS incl. `dc/dc_boot.bin`, `dc/dc_flash.bin`,
   `saturn_bios.bin`.
-- The user's spare card is in slot 2 (exFAT, `ROMS/megadrive`); it never
-  initialises (open problem). Slot 1 is mmcblk0 by DT alias since M8.
+- Slot 2 is empty (the spare card now holds m8c, flashed for the swap
+  test; the user keeps it). Slot 1 is mmcblk0 by DT alias since M8.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
-  test128 in slot 1, the user's spare card (exFAT) in slot 2: m8b
-  flashed whole 2026-11-20 (1 GiB p2 layout; p3 restored), m8c written to
-  p2 the same evening. `user_init` = 0. Time zone −03.
+  test128 in slot 1, slot 2 empty: m8b flashed whole 2026-11-20 (1 GiB
+  p2 layout; p3 restored), m8c then m8d written to p2 the same night. `user_init` = 0. Time zone −03.
   - Boot records: main = `Image-be499e33d4eb` + `panel0-c97151d0ec1a.dtb`
     (M8: mmc DT aliases, dw_mmc set_ios sleeps; CPU OPPs to 1512 MHz, cap
     1296); previous = `Image-331eebd4a643` (m8b).
@@ -66,15 +66,14 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m8c-20261120.img.zst` (raw `b0ca0ac9…`, p2 `51788316…`, U-Boot `159e086c…`) | m8b T3 round: advanced DraStic (two-screen layout, auto save state), DC Flycast 2022 (dArkOSen), PSP buffered rendering, wake without hold (kernel 0010 + CPU1-3), libmucursor | **on the device (p2 written)**; trial-root T2 passed; T3 pending (the M8c checklist) |
+| `dist/firmware/test128-m8d-20261120.img.zst` (raw `c7520a89…`, p2 `37d7194d…`, U-Boot `159e086c…`) | m8c T3 round: NDS Fn+Start quit fix + right-stick stylus, quit dimming, DC Flycast 2022 at 640x480 + framerate normal, Saturn standalone YabaSanshiro default | **on the device (p2 written)**; trial-root T2 passed; T3 pending (the M8d checklist) |
+| **`dist/firmware/test128-m8c-20261120.img.zst`** (raw `b0ca0ac9…`, p2 `51788316…`, U-Boot `159e086c…`) | **Recovery image since 2026-11-20 (1 GiB p2 layout).** m8b T3 round: advanced DraStic (two-screen layout, auto save state), DC Flycast 2022 (dArkOSen), PSP buffered rendering, wake without hold (kernel 0010 + CPU1-3), libmucursor | T3 2026-11-20: 1, 2, 3, 6, 8 ok; 4 stylus stick, 5 NDS resume/quit freeze, 7 DC uneven/half resolution (fixed in m8d); also boots the spare card in slot 1 |
 | `dist/firmware/test128-m8b-20261120.img.zst` (raw `fea0b63a…`, p2 `d1411860…`, U-Boot `159e086c…`) | M8 day: **1 GiB p2 layout**, instant screen-off sleep + 3 s wake hold, PSP PPSSPP v1.12.3 + FrameSkip 1 (v1.20.4 second), NDS DraStic, DC Flycast v2.7 | T3 2026-11-20: 1, 2, 5, 7, 10 ok; restored card ok; 3 wake hold slow, 4 GoW graphics, 6 NDS cursor/layout/resume, 8 DC unplayable, 9 Saturn slow (fixed in m8c, Saturn open) |
 | `dist/firmware/test128-m8-20261120.img.zst` (raw `fbd4871c…`, p2 `0f723304…`, U-Boot `159e086c…`) | M8 night 1: mmc aliases, quiet U-Boot + boot logo, Wi-Fi deferred on wake in a game, standalone PPSSPP, DC/NDS/Saturn cores | T3 2026-11-20: 1, 2, 4, 6 ok; 3 slow, 5 stutters (fixed in m8b) |
-| **`dist/firmware/test128-m7d-20261119.img.zst`** (raw `67ae7da4…`, p2 `176c691a…`) | **Recovery image since 2026-11-20.** M7 final: m7c + N64 defaults to the standalone Rice (decision 22), pruned N64 core list | on the device; T3 2026-11-20: 1–8 passed |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-5/5 versions in `storage-retention.json` (m8c added, m7c retired
-2026-11-20). The next image retires m8 (keep m7d until m8c is
-recovery).
+5/5 versions in `storage-retention.json` (m8d added, m7d retired
+2026-11-20, m8c promoted). The next image retires m8.
 
 ## What works (T3-confirmed)
 
@@ -102,17 +101,13 @@ controls and saves.
 
 ## Open problems
 
-- **Slot 2 does not initialise the card (M5 T3 10; M7 T3: reseated,
-  same):** the card is the former original32 (SDHC, worked in slot 1
-  under stock at 1.8 V SDR50); test128 worked in slot 2 under stock.
-  Port side: at
-  boot and on hotplug the card holds DAT0 busy before the first command
-  and DAT3 reads low (as if unpowered); `mmc1: error -110`. DT, kernel
-  source/config, regulators (vcc_sd LDO6 3.0 V, shared with slot 1),
-  pinmux/pulls and GRF IO_VSEL match stock dArkOSen, whose log shows
-  test128 at SDR104 in slot 2 of this unit. Next (M8, after the U-Boot
-  root-by-slot change): our image on the former original32 in slot 1,
-  test128 in slot 2.
+- **Slot 2 (closed 2026-11-20, swap test):** with our image, test128
+  runs in slot 2 at SDR104 (150 MHz, ~62 MB/s read, no errors) and the
+  spare card (former original32) boots in slot 1 (SDR50): the failure is
+  that card in slot 2 (contact or card), not the port. Slot 2 is left
+  empty on the bench. muOS automounts a slot-2 card's first partition
+  rw at `/mnt/sdcard` and creates `ARCHIVE`, `ROMS`, `ports` there (as
+  upstream; it did so on test128's FAT p1).
 - **Battery % short of 100 after sleeping on the charger (user,
   2026-11-19):** sleep with the charger in overnight, wake: 95 %, not
   100 %. The next boot logged dsoc 93.9 %, rsoc 92.9 %, OCV 4149 mV,
@@ -123,14 +118,15 @@ controls and saves.
 - **p2 space:** 1 GiB since m8b, 468 MB free. ScummVM and the CJK fonts
   (decision 17) are next (by `write-p2`, no reflash).
 - **Heavy systems (M8; performance first, AGENTS.md):** PSP = PPSSPP
-  v1.12.3 + FrameSkip 1, buffered since m8c (GoW's sky/effects; ~8 %
-  slower); CPU-bound and thermally held at ~1000 MHz (82–84 °C on the
-  charger) under the 1296 cap, so a higher cap buys little sustained.
-  NDS = advanced DraStic, full speed (NSMB). DC = Flycast 2022 (dArkOSen;
-  full game speed, dropped frames) since m8c; v2.7 selectable. Saturn =
-  YabaSanshiro libretro, Sonic R ~21 fps: dArkOSen's standalone needs
-  Boost in the rootfs (next). Details in hardware-findings "Standalone
-  emulators (M8)".
+  v1.12.3 + FrameSkip 1, buffered since m8c (~8 % slower, accepted by the
+  user); CPU-bound and thermally held at ~1000 MHz (78–84 °C) under the
+  1296 cap. NDS = advanced DraStic, full speed. DC = Flycast 2022 at
+  640x480 + framerate normal since m8d (steady 30 shown, full game
+  speed); v2.7 selectable. Saturn = standalone YabaSanshiro since m8d
+  (Sonic R race speed unmeasured: frame skip; the libretro core is at
+  31 % there), libretro selectable. The user wants any future FPS gain
+  (other settings, emulator versions, a newer kernel with Vulkan) for
+  PSP. Details in hardware-findings "Standalone emulators (M8)".
 - **Wi-Fi toggle (m8b trial T2):** one of 7 toggles sat in SCANNING for
   150 s (no AP found), the next came back in 9 s; network code unchanged
   in m8b; two SSH drops earlier the same day under heavy load.
@@ -166,9 +162,9 @@ controls and saves.
   timeline in hardware-findings). Woken in a game (M8), Wi-Fi stays down
   until the game ends. The post-wake stutters were the slot-2 card's
   resume rescan spinning on CPU0 (m8c: kernel 0010, game on CPU1-3, no
-  hold: 2–4 frames of 21–27 ms per wake in T2); m8c T3 to confirm. The
-  slot-2 rescan also costs ~3 s of CPU at boot and on every wake while
-  that card is in.
+  hold: 2–4 frames of 21–27 ms per wake in T2; m8c T3: fine). The
+  slot-2 rescan cost ~3 s of CPU at boot and on every wake while the
+  spare card was in slot 2 (now empty).
 - **Boot logo (M8):** U-Boot shows p1 `bootlogo.bmp` (own art), the
   kernel console is serial-only and quiet, muos-rc shows the same logo
   until the menu. The gap between the kernel taking the display (~4 s,
@@ -250,37 +246,32 @@ performance first.
 
 ## T3 queue
 
-**M8c checklist (image m8c on p2 since 2026-11-20 ~21:10; pt-BR
-labels).** Sleep items on battery (on the charger sleep is the fake one).
+**M8d checklist (image m8d; pt-BR labels).** Sleep items on battery.
 
-1. **Wake in a game (NES, battery):** Explorar conteúdo → NES → a game,
-   short Power, wait ~30 s, Power: the game and sound continue at once
-   (no 3 s pause any more) with at most a barely visible hitch.
-2. **PSP** (Explorar conteúdo → PSP → God of War - Chains of Olympus
-   (USA)): L3 loads your state; the sky, fog and lighting are there (no
-   black sky / flat picture); speed close to before (a little lower).
-3. **NDS layout** (Explorar conteúdo → NDS → New Super Mario Bros.
-   (USA)): top screen big at the top left, touch screen small at the
-   bottom right, DS-console art around them; no black cursor at the top
-   left. Fn+Right / Fn+Left cycle the layouts; Fn+Y changes the art; R2
-   swaps the screens.
-4. **NDS controls:** d-pad, A/B/X/Y, L1/R1, Start, Select as before;
-   right stick moves the stylus, L3 touches; Fn+X opens the advanced
-   DraStic menu (B leaves it); Fn+R2 / Fn+L2 save / load a state; Fn+R1
-   fast forward.
-5. **NDS resume:** play a little, Fn+Start (back to the list), open NSMB
-   again: it continues where you left off; your in-game save is there.
-6. **NDS sleep (battery):** short Power, Power: continues.
-7. **Dreamcast** (Explorar conteúdo → DC → Power Stone 2 (USA)): now the
-   2022 Flycast that dArkOSen uses (your v2.7 save state does not load
-   in it: start a new fight). Is the fight at normal game speed, not slow
-   motion? (Visible frame rate ~30.)
-8. **Regression:** Explorar conteúdo → GBA or SNES → a game with a save:
-   resume and save still there; Power sleep in the menu works.
-9. **Slot-2 swap (decision 26, with you, ~10 min):** tell me when the
-   spare card is in the PC's card reader: I flash m8c on it; then it
-   goes into slot 1 and test128 into slot 2; I check over SSH whether
-   test128 initialises in slot 2; then both back.
+1. **NDS stylus** (Explorar conteúdo → NDS → New Super Mario Bros.
+   (USA)): the right stick moves the stylus, L3 touches; d-pad, A/B/X/Y,
+   L1/R1, Start, Select as before.
+2. **NDS resume:** the first start may still load the old state once
+   (the one from before the fix). Play a little, Fn+Start: the screen
+   dims and the game closes in about a second (no freeze). Open NSMB
+   again: it continues exactly where you left off.
+3. **PSP closing** (Explorar conteúdo → PSP → God of War - Chains of
+   Olympus (USA)): Fn+Start dims the screen until it is back in the list.
+4. **Dreamcast** (Explorar conteúdo → DC → Power Stone 2 (USA)): your
+   last fight loads; text sharp (640x480); speed steady (a constant ~30
+   pictures per second, no "fast here, slow there").
+5. **Saturn standalone** (Explorar conteúdo → SATURN → Sonic R (USA,
+   Brazil)): it starts (BIOS logo, then the game, no RetroArch-style
+   menu). Controls: Saturn A/B/C = Y/B/A, X/Y/Z = X/L1/R1, L/R = L2/R2,
+   Start; Select opens the emulator's own menu (save/load state; how to
+   leave it is not yet checked). Play one race: is the speed right?
+   Fn+Start closes it.
+6. **Saturn comparison:** on Sonic R press X → Opções do conteúdo →
+   Núcleo do conteúdo → YabaSanshiro (the libretro one), play the same
+   race, then set it back to "YabaSanshiro - Standalone (dArkOSen)". Which
+   one is faster / looks better?
+7. **Regression:** Explorar conteúdo → GBA or SNES → a game with a save:
+   resume and save still there; short Power in the menu sleeps and wakes.
 
 ## Current milestone: M8 — card layout and the heavy systems (decisions 16, 17, 20)
 
@@ -290,17 +281,21 @@ Started 2026-11-20. Night 1 (unattended, 2026-11-20 01:30–03:30): items
 decisions 23/24; 3/4 need decision 25. Day (user present): night-1 T3
 fixes (sleep screen-off, 3 s wake hold), PSP v1.12.3, DraStic, Flycast
 v2.7, item 3 (m8b flashed, p3 restored). Details: milestones.md M8.
-**Left:** 4 (decision 26), 5 (ScummVM, CJK: by write-p2), 9 (Saturn
-standalone, lowest), 11, 12; then the M8 T3 and promotion of m8b.
+**Left:** see the m8c T3 round below.
 
 **m8b T3 round (2026-11-20 evening; heavy systems = performance first,
 AGENTS.md):** done to T2 and in m8c: 13 PSP buffered rendering (GoW
 graphics), 14 advanced DraStic (layout vh_s0, auto save/load state, no
 cursor), 15 DC Flycast 2022 (dArkOSen's default), 16 wake stutter root
-cause (kernel 0010 + CPU1-3, no hold). **Left:** 17 Saturn standalone
-YabaSanshiro (Boost in the rootfs), 18 overclock only where heat allows
-(PSP/DC are thermally held at ~1000 MHz; dArkOSen's Flycast standalone
-v2.6 as a DC alternative if the m8c T3 still finds it slow), the M8c T3.
+cause (kernel 0010 + CPU1-3, no hold).
+
+**m8c T3 round (2026-11-20 night):** done to T2 and in m8d (milestones.md
+M8 26–30): NDS Fn+Start quit/save-state fix, right-stick stylus, quit
+dimming, DC 2022 at 640x480 + framerate normal, 17 Saturn standalone
+YabaSanshiro (Boost static, not in the rootfs); item 4 (slot-2 swap)
+closed. **Left:** 18 overclock only where heat allows (PSP/DC/Saturn
+are thermally held at ~1000 MHz; the user's room is now air-conditioned,
+re-measure), 5 (ScummVM, CJK), 11, 12, the M8d T3.
 
 Items:
 1. Clean U-Boot build (from source, no dirty tree), `root=` by the
