@@ -12,22 +12,23 @@ milestones with their results and T3 checklists in
 ## Current phase
 
 **Phase 5 (own-card firmware). M1–M5 and M7 done. Current: M8 (card
-layout and the heavy systems). 2026-11-20 night: the m8c T3 round (NDS
-quit/save state, stylus stick, quit dimming, DC 640x480 + steady 30,
-Saturn standalone YabaSanshiro with static Boost; slot-2 swap closed):
-image m8d, trial-root T2; T3 checklist below. Recovery image: m8c
-(promoted 2026-11-20 after its T3; m7d retired).**
+layout and the heavy systems). 2026-11-21 night (unattended): the m8d
+T3 round (DC speed limiter, Saturn page flips + menu crash, core lists,
+NDS touch on R3, Fn+Start fade): image m8e, trial-root T2 passed, p2
+written; T3 checklist below. Recovery image: m8c (m8d was not promoted:
+its T3 had gameplay problems in DC/Saturn).**
 
 ## Next session — read first
 
-- Device = **m8d on p2** (written 2026-11-20 ~23:50 after its trial-root
-  T2, `build/m8/t2-m8d.sh`, logs `build/logs/m8/trial-m8d/`; old p2 =
-  m8c + the night's live installs in p3 `MUOS/trial/p2-previous.img`),
-  on the 1 GiB p2 card layout. p2 ~506 MB free. Boot records: main =
+- Device = **m8e on p2** (written 2026-11-21 ~03:50 after its trial-root
+  T2, `build/m8e/t2-m8e.sh`, logs `build/logs/m8e/trial-m8e/`; old p2 =
+  m8d as run, sha 62c8557e, in p3 `MUOS/trial/p2-previous.img`), on the
+  1 GiB p2 card layout. Trial guard removed, `user_init` 0. Boot records: main =
   `Image-be499e33d4eb` (patch 0010) + `panel0-c97151d0ec1a.dtb`,
   previous = `Image-331eebd4a643` (m8b kernel). No live installs on top.
-- The NDS slot-10 state on p3 is still the old T2 one (the user's
-  progress was lost to the quit bug): the first start after m8d loads it.
+- T2 left on p3: `pickles/settings/core/flycast{,2022}.ini`
+  (speed_limiter=1, as the migration writes them); YabaSanshiro's per-game
+  `Sonic R ... .cue.config` and `save/backup.bin` (race tests).
 - Test data on p3 `MUOS/t2`: `state-v120`/`state-v112` (the user's God of
   War states for v1.20.4 / v1.12.3; v1.12 needs `T2_PSP_BYKEY=1`),
   `ppsspp-2021` (test copy, now in the image: removable), `drastic`
@@ -48,7 +49,7 @@ image m8d, trial-root T2; T3 checklist below. Recovery image: m8c
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1, slot 2 empty: m8b flashed whole 2026-11-20 (1 GiB
-  p2 layout; p3 restored), m8c then m8d written to p2 the same night. `user_init` = 0. Time zone −03.
+  p2 layout; p3 restored), m8c, m8d, then m8e (2026-11-21) written to p2. `user_init` = 0. Time zone −03.
   - Boot records: main = `Image-be499e33d4eb` + `panel0-c97151d0ec1a.dtb`
     (M8: mmc DT aliases, dw_mmc set_ios sleeps; CPU OPPs to 1512 MHz, cap
     1296); previous = `Image-331eebd4a643` (m8b).
@@ -66,14 +67,14 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m8d-20261120.img.zst` (raw `c7520a89…`, p2 `37d7194d…`, U-Boot `159e086c…`) | m8c T3 round: NDS Fn+Start quit fix + right-stick stylus, quit dimming, DC Flycast 2022 at 640x480 + framerate normal, Saturn standalone YabaSanshiro default | **on the device (p2 written)**; trial-root T2 passed; T3 pending (the M8d checklist) |
+| `dist/firmware/test128-m8e-20261121.img.zst` (raw `2f0293a2…`, p2 `e43458ce…`, U-Boot `159e086c…`) | m8d T3 round: DC Flycast speed limiter, Saturn vblank flips + menu crash fix + SCSP wait, core lists by installed cores, NDS touch on R3, Fn+Start fade | **on the device (p2 written 2026-11-21)**; trial-root T2 passed; T3 pending (the M8e checklist) |
+| `dist/firmware/test128-m8d-20261120.img.zst` (raw `c7520a89…`, p2 `37d7194d…`, U-Boot `159e086c…`) | m8c T3 round: NDS Fn+Start quit fix + right-stick stylus, quit dimming, DC Flycast 2022 at 640x480 + framerate normal, Saturn standalone YabaSanshiro default | T3 2026-11-21: 1, 2, 3, 7 ok; 4 DC uneven, 5 Saturn slow + Select crash, 6 core list (fixed in m8e) |
 | **`dist/firmware/test128-m8c-20261120.img.zst`** (raw `b0ca0ac9…`, p2 `51788316…`, U-Boot `159e086c…`) | **Recovery image since 2026-11-20 (1 GiB p2 layout).** m8b T3 round: advanced DraStic (two-screen layout, auto save state), DC Flycast 2022 (dArkOSen), PSP buffered rendering, wake without hold (kernel 0010 + CPU1-3), libmucursor | T3 2026-11-20: 1, 2, 3, 6, 8 ok; 4 stylus stick, 5 NDS resume/quit freeze, 7 DC uneven/half resolution (fixed in m8d); also boots the spare card in slot 1 |
 | `dist/firmware/test128-m8b-20261120.img.zst` (raw `fea0b63a…`, p2 `d1411860…`, U-Boot `159e086c…`) | M8 day: **1 GiB p2 layout**, instant screen-off sleep + 3 s wake hold, PSP PPSSPP v1.12.3 + FrameSkip 1 (v1.20.4 second), NDS DraStic, DC Flycast v2.7 | T3 2026-11-20: 1, 2, 5, 7, 10 ok; restored card ok; 3 wake hold slow, 4 GoW graphics, 6 NDS cursor/layout/resume, 8 DC unplayable, 9 Saturn slow (fixed in m8c, Saturn open) |
-| `dist/firmware/test128-m8-20261120.img.zst` (raw `fbd4871c…`, p2 `0f723304…`, U-Boot `159e086c…`) | M8 night 1: mmc aliases, quiet U-Boot + boot logo, Wi-Fi deferred on wake in a game, standalone PPSSPP, DC/NDS/Saturn cores | T3 2026-11-20: 1, 2, 4, 6 ok; 3 slow, 5 stutters (fixed in m8b) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-5/5 versions in `storage-retention.json` (m8d added, m7d retired
-2026-11-20, m8c promoted). The next image retires m8.
+5/5 versions in `storage-retention.json` (m8e added, m8 retired
+2026-11-21). The next image retires m8b (or m8d if m8e is promoted).
 
 ## What works (T3-confirmed)
 
@@ -121,10 +122,11 @@ controls and saves.
   v1.12.3 + FrameSkip 1, buffered since m8c (~8 % slower, accepted by the
   user); CPU-bound and thermally held at ~1000 MHz (78–84 °C) under the
   1296 cap. NDS = advanced DraStic, full speed. DC = Flycast 2022 at
-  640x480 + framerate normal since m8d (steady 30 shown, full game
-  speed); v2.7 selectable. Saturn = standalone YabaSanshiro since m8d
-  (Sonic R race speed unmeasured: frame skip; the libretro core is at
-  31 % there), libretro selectable. The user wants any future FPS gain
+  640x480 + framerate normal + muxretro's Speed Limiter since m8e (the
+  user's fight 100 %, ~52 pictures/s; heavy attract scenes ~86 %); v2.7
+  selectable. Saturn = standalone YabaSanshiro (Sonic R race 20-25 of 60
+  emulated fps: the sound thread is the limit, too heavy for the RK3326;
+  2D games untested), libretro selectable. The user wants any future FPS gain
   (other settings, emulator versions, a newer kernel with Vulkan) for
   PSP. Details in hardware-findings "Standalone emulators (M8)".
 - **Wi-Fi toggle (m8b trial T2):** one of 7 toggles sat in SCANNING for
@@ -246,31 +248,35 @@ performance first.
 
 ## T3 queue
 
-**M8d checklist (image m8d; pt-BR labels).** Sleep items on battery.
+**M8e checklist (image m8e; pt-BR labels).** Sleep items on battery.
 
-1. **NDS stylus** (Explorar conteúdo → NDS → New Super Mario Bros.
-   (USA)): the right stick moves the stylus, L3 touches; d-pad, A/B/X/Y,
-   L1/R1, Start, Select as before.
-2. **NDS resume:** the first start may still load the old state once
-   (the one from before the fix). Play a little, Fn+Start: the screen
-   dims and the game closes in about a second (no freeze). Open NSMB
-   again: it continues exactly where you left off.
-3. **PSP closing** (Explorar conteúdo → PSP → God of War - Chains of
-   Olympus (USA)): Fn+Start dims the screen until it is back in the list.
-4. **Dreamcast** (Explorar conteúdo → DC → Power Stone 2 (USA)): your
-   last fight loads; text sharp (640x480); speed steady (a constant ~30
-   pictures per second, no "fast here, slow there").
-5. **Saturn standalone** (Explorar conteúdo → SATURN → Sonic R (USA,
-   Brazil)): it starts (BIOS logo, then the game, no RetroArch-style
-   menu). Controls: Saturn A/B/C = Y/B/A, X/Y/Z = X/L1/R1, L/R = L2/R2,
-   Start; Select opens the emulator's own menu (save/load state; how to
-   leave it is not yet checked). Play one race: is the speed right?
-   Fn+Start closes it.
-6. **Saturn comparison:** on Sonic R press X → Opções do conteúdo →
-   Núcleo do conteúdo → YabaSanshiro (the libretro one), play the same
-   race, then set it back to "YabaSanshiro - Standalone (dArkOSen)". Which
-   one is faster / looks better?
-7. **Regression:** Explorar conteúdo → GBA or SNES → a game with a save:
+1. **Dreamcast speed** (Explorar conteúdo → DC → Power Stone 2 (USA)):
+   start it from the list and watch the BIOS logo and the Capcom screen:
+   normal speed, not accelerated. In a fight: steady speed, no "fast here,
+   slow there"; the sound in sync with the picture (it lagged ~0.8 s).
+2. **Saturn picture and menu** (Explorar conteúdo → SATURN → Sonic R (USA,
+   Brazil)): the picture moves more evenly than before (frames were being
+   dropped). The race is still slow: expected, Sonic R is too heavy for
+   this chip (about a third of full speed). Select opens the YabaSanshiro
+   menu (Player1, Config, Exit, Reset, Save State, Load State...): d-pad
+   moves, A chooses, B or Select closes it and the game continues.
+3. **Saturn save state:** in that menu Save State → a slot; later Load
+   State → the same slot brings you back there.
+4. **Saturn closing:** Fn+Start in the game and once with the menu open:
+   the screen fades out and you are back in the list (no black screen).
+5. **Saturn core list:** on Sonic R press X → Opções do conteúdo → Núcleo
+   do conteúdo: it offers "YabaSanshiro" (libretro) and the standalone,
+   no Yabadabadoo. Start the libretro one once (it should start), then set
+   it back to "YabaSanshiro - Standalone (dArkOSen)".
+6. **Other core lists:** X → Opções do conteúdo → Núcleo do conteúdo on any
+   NDS and N64 game: every core listed starts (cores that are not
+   installed are hidden now).
+7. **NDS controls** (Explorar conteúdo → NDS → New Super Mario Bros.
+   (USA)): R3 touches (your setting, now the default), L3 is the
+   microphone (it was also on R3).
+8. **Fn+Start fade** on NDS and PSP (God of War): the screen fades to
+   black smoothly, then the list fades in (no abrupt dimming).
+9. **Regression:** Explorar conteúdo → GBA or SNES → a game with a save:
    resume and save still there; short Power in the menu sleeps and wakes.
 
 ## Current milestone: M8 — card layout and the heavy systems (decisions 16, 17, 20)
@@ -293,9 +299,16 @@ cause (kernel 0010 + CPU1-3, no hold).
 M8 26–30): NDS Fn+Start quit/save-state fix, right-stick stylus, quit
 dimming, DC 2022 at 640x480 + framerate normal, 17 Saturn standalone
 YabaSanshiro (Boost static, not in the rootfs); item 4 (slot-2 swap)
-closed. **Left:** 18 overclock only where heat allows (PSP/DC/Saturn
+closed.
+
+**m8d T3 round (2026-11-21 night, unattended):** done to T2 and in m8e
+(milestones.md M8 33-36): DC speed limiter, Saturn vblank flips + menu
+crash + SCSP wait, core lists by installed cores, NDS touch on R3,
+Fn+Start fade, `t2-coremeter`. **Left:** 18 overclock only where heat allows (PSP/DC/Saturn
 are thermally held at ~1000 MHz; the user's room is now air-conditioned,
-re-measure), 5 (ScummVM, CJK), 11, 12, the M8d T3.
+re-measure; tonight DC/Saturn/PSP still hit 81-84 °C on the charger), 5
+(ScummVM: a libretro core build from scummvm/scummvm plus game data to
+test, none yet; CJK fonts), 11, 12, the M8e T3.
 
 Items:
 1. Clean U-Boot build (from source, no dirty tree), `root=` by the

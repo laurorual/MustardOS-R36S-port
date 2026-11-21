@@ -217,6 +217,48 @@ half resolution; 9 slot-2 swap: spare card flashed with m8c.
     slot 1 (SDR50); test128 in slot 2 runs at SDR104, ~62 MB/s, no errors:
     the slot-2 problem was that card in slot 2. Slot 2 stays empty.
 
+**M8d T3 (2026-11-21 night, image m8d, the user):** 1 stylus, 2 NDS
+resume/quit, 3 PSP closing, 7 regression ok; 4 DC still fast in the BIOS
+and Capcom logos and slow mid-fight; 5 Saturn standalone slow (sound
+fine), Select closed the game or left a black screen; 6 the only other
+Saturn core offered was Yabadabadoo, which fails. Notes: NDS touch on R3
+(the user's choice, default from now on); Fn+Start should fade, not jump
+to dark. The rest of the night unattended.
+
+33. **DC speed — done to T2:** `t2-coremeter.c/.sh` (dlsym hook entered by
+    a tail jump, so RTLD_NEXT callers keep working) measures the core's
+    audio frames per second. Flycast threaded + muxretro's Speed Limiter
+    off by default: ~830 ms audio queue, 108-123 % catch-up bursts.
+    Migration m8e-dc-limiter turns it on in both Flycasts' core settings:
+    queue ~30 ms, the user's fight at 100 % (~52 pictures/s at 1008 MHz),
+    heavy attract scenes ~86 % (frame skipping 1: 100 % at ~28/s, left
+    off). Threaded rendering off hangs the 2022 core.
+34. **Saturn — done to T2:** our YabaSanshiro patches (vblank page
+    flips: the ~30/s refused async flips; the SCSP realtime wait's broken
+    deadline; MUOS_YABA_FPSLOG; a crash stack handler) and the menu crash
+    root cause (nanogui's older nanovg ABI; build copies src/nanovg):
+    Select opens the menu 4 of 4, Fn+Start quits without the SIGSEGV.
+    Sonic R race 20-25 of 60 emulated fps (the sound thread is the limit;
+    C68K no better): the game is too heavy for the RK3326 (T3 note).
+35. **Core lists — done to T2:** `coredb-governors.py` marks libretro
+    entries extra by installed cores (151 hidden, YabaSanshiro and melonDS
+    shown).
+36. **NDS touch on R3, Fn+Start fade — done to T2:** build-drastic.sh and
+    the shipped drastic.cfg (touch 1036, fake microphone 1035 = L3), a
+    one-time migration of the user's config (`.muos-r3touch`; their R3
+    touch kept, the microphone moved off R3); muos-standalone-quit fades
+    the backlight to black in ~0.35 s over the game picture before the
+    signal, keeps it dark until the emulator is gone, fades back in ~0.3 s.
+37. **Image m8e** (raw `2f0293a2…`, p2 `e43458ce…`): trial-root T2
+    (`build/m8e/t2-m8e.sh`, logs `build/logs/m8e/trial-m8e/`): migrations
+    (both Flycast limiters, DraStic R3/L3), coredb (Yabadabadoo hidden,
+    YabaSanshiro shown), sweep, NES 59.97, sdcard, SFTP jail, Wi-Fi
+    toggle, DC 98.8 % speed, NDS quit ~1 s with the state written, Saturn
+    race + Select menu + quit without SIGSEGV, quit fade, PSP 11.6
+    presented (thermal), wake: all pass; written to p2 2026-11-21 ~03:50
+    (unattended, pre-authorized). m8 retired. Not done tonight: ScummVM
+    (no game data to test; a full scummvm build), CJK fonts, overclock.
+
 ## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 
 Logs `build/logs/m7/`. Images m7 → m7t3 → m7c → m7d (recovery).

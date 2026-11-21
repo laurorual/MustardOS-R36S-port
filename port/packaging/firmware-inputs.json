@@ -17203,7 +17203,7 @@
    "path": "/opt/muos/share/emulator/yabasanshiro/yabasanshiro",
    "type": "file",
    "mode": "755",
-   "sha256": "47b38dcffb3be66f216bd78fc0b9d6a0cd166979188ee4ac12f4e9f85890cf8b",
+   "sha256": "e0cc73ab6887cba7bff090886ba852a46b2d92572ca70be3b311d52c13137993",
    "origin": "build/m8/yabasanshiro/tree/opt/muos/share/emulator/yabasanshiro/yabasanshiro"
   }
  ],

@@ -19,7 +19,7 @@
 # Keys (upstream muOS's mapping): Fn = hotkey: Fn+X menu, Fn+Start quit,
 # Fn+Left/Right layout, Fn+Y background, Fn+L2/R2 load/save state, Fn+R1
 # fast forward, Fn+B smooth/pixel, Fn+L1 d-pad as stylus; R2 swaps the
-# screens, right stick = stylus, L3 = touch, R3 = microphone.
+# screens, right stick = stylus, R3 = touch, L3 = microphone (M8d T3).
 # Video: SDL's KMSDRM renderer needs vsync here (without it the page flip
 # fails with -22 and the screen stays black, M8 night 1).
 # Sleep: muos-suspend stops and continues the process.

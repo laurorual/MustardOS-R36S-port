@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m8-20261120": {
-      "reason": "M8 so far (2be5a66+): kernel mmc DT aliases, quiet U-Boot + boot logo (root=/dev/mmcblk0p2), Wi-Fi deferred on wake in a game, standalone PPSSPP (dArkOSen), parallel-dc/melonDS/YabaSanshiro cores; developer image; raw fbd4871c, p2 0f723304",
-      "files": [
-        "dist/firmware/test128-m8-20261120.img.zst",
-        "dist/firmware/test128-m8-20261120.img.zst.sha256",
-        "dist/firmware/test128-m8-20261120.manifest",
-        "build/m3a/test128-m8-20261120.p2.img"
-      ]
-    },
     "m8b-20261120": {
       "reason": "M8b: 1 GiB p2 layout (decision 17), PSP PPSSPP v1.12.3 + FrameSkip 1 default (v1.20.4 second), NDS DraStic, DC Flycast v2.7 (flyinghead), instant screen-off sleep + 3 s wake hold; developer image; raw fea0b63a, p2 d1411860; trial root T2 passed 2026-11-20",
       "files": [
@@ -45,6 +36,15 @@
         "dist/firmware/test128-m8d-20261120.img.zst.sha256",
         "dist/firmware/test128-m8d-20261120.manifest",
         "build/m3a/test128-m8d-20261120.p2.img"
+      ]
+    },
+    "m8e-20261121": {
+      "reason": "M8e (m8d T3 round): Saturn standalone vblank page flips + menu crash fix (nanovg ABI) + SCSP realtime wait, DC Flycast speed limiter on, coredb hides missing libretro cores, NDS touch on R3, Fn+Start fade, T2 core speed meter; developer image; raw 2f0293a2, p2 e43458ce",
+      "files": [
+        "dist/firmware/test128-m8e-20261121.img.zst",
+        "dist/firmware/test128-m8e-20261121.img.zst.sha256",
+        "dist/firmware/test128-m8e-20261121.manifest",
+        "build/m3a/test128-m8e-20261121.p2.img"
       ]
     }
   },

@@ -1004,7 +1004,14 @@ The open problems behind each "partial" are in STATUS.
 - **SDL renderer apps need vsync on KMSDRM:** without it SDL queues
   asynchronous page flips, which this 4.4 kernel refuses ("Could not
   queue pageflip: -22", nothing shown): DraStic needs `SDL_RENDER_VSYNC=1`
-  (Mupen64Plus: `VerticalSync`, PPSSPP: `VSyncInterval = True`).
+  (Mupen64Plus: `VerticalSync`, PPSSPP: `VSyncInterval = True`,
+  YabaSanshiro: our patch calls `SDL_GL_SetSwapInterval(1)`). The
+  symptom is "Could not queue pageflip: -22" in the frontend log.
+- **Core lists (M8e):** the image's coredb marks every libretro entry by
+  what is installed (installed = shown, missing = "extra", hidden unless
+  Advanced -> Extra Cores; `coredb-governors.py`); upstream marked
+  installed cores extra and missing ones not (Saturn offered only the
+  missing Yabadabadoo).
 - **Input:** SDL sees one pad, the virtual `muOS-Keys` (b0 B, b1 A, b2 X,
   b3 Y, b4/b5 L1/R1, b6/b7 L2/R2, b8 select, b9 start, b10 Fn, b11/b12
   L3/R3, hat d-pad, axes 0–3); the physical node is grabbed by muinput.
@@ -1074,6 +1081,18 @@ The open problems behind each "partial" are in STATUS.
   16/33 ms pictures (felt as speed changes) with audio underruns, `normal`
   shows a steady 30 at 60 emulated fps; synchronous rendering shows ~59
   but emulates 53 (slow motion). Defaults since m8d: 640x480 + normal.
+  M8d T3 4 (still fast in the BIOS and Capcom logos, slow mid-fight;
+  measured with `t2-coremeter.sh`, the core's audio frames per second =
+  real game speed): Flycast renders threaded, so its emulation thread is
+  paced only by the audio it pushes, and muxretro's Speed Limiter (audio
+  backpressure, a muxretro setting) is off by default: the queue grew to
+  ~830 ms (0 backpressure waits) and the game ran 108-123 % after every
+  slow patch, 100 % then 86 % in the attract loop. Speed Limiter on (core
+  settings `pickles/settings/core/flycast2022.ini`, migration
+  m8e-dc-limiter): queue ~30 ms, no bursts above 103 %, the user's fight
+  100 % at ~52 pictures/s even at 1008 MHz; heavy attract scenes still
+  ~86 % (frame skipping 1: 100 % at ~28 pictures/s, not the default).
+  Threaded rendering off hangs the 2022 core (no audio, no frames).
 - **Saturn:** YabaSanshiro libretro with `saturn_bios.bin` runs Sonic R at
   ~21 fps (core 44 ms per frame); in the race 18.6 of 60 emulated fps.
   Standalone (dArkOSen's retro_arena build, low-res, SH2 cache off,
@@ -1081,6 +1100,24 @@ The open problems behind each "partial" are in STATUS.
   thermally held at 1008 MHz (81–83 °C), main thread ~55–65 % of a core.
   Needs `-r 3`; reads an EmulationStation input list (input.cfg) and
   writes keymapv2.json once; quits on SIGTERM (~1 s).
+  M8d T3 5/6 (slow, Select closed the game), our patches in
+  `port/patches/yabasanshiro-sa`: (1) it never set a swap interval, so
+  SDL's KMSDRM queued asynchronous page flips, which this kernel refuses
+  (~30 "Could not queue pageflip: -22" a second: frames dropped or drawn
+  into the scanned-out buffer); now `SDL_GL_SetSwapInterval(1)` (the
+  emulator paces itself, SDL triple-buffers). (2) The menu crash
+  (`glnvg__renderFill`, also the SIGSEGV on quit): nanogui compiled its own
+  older nanovg (renderFill without the compositeOperation argument)
+  against src/nanovg's newer nanovg.c, so every menu fill ran with shifted
+  arguments; the build copies src/nanovg over nanogui's. (3) The SCSP
+  "realtime" thread's Linux wait passed `ctime()` as the deadline
+  (EINVAL at once): a real CLOCK_REALTIME deadline now. Speed (emulated
+  fps by `MUOS_YABA_FPSLOG`, Sonic R race): 20-25 of 60 at 1008 MHz
+  (81-83 °C), with frame skip on. The limit is the sound thread (68K +
+  SCSP in real time, ~100 % of a core, ~21 waits/s = it never keeps real
+  time; the SH2 thread ~65 %, VDP ~60 %): C68K instead of Musashi
+  (`MUOS_YABA_M68K=1`, built in) is within the noise. Light 2D games are
+  untested (no ROM).
 - **Wake in a game (M8 T3 5, `t2-wake-frames.sh`):** with Wi-Fi deferred,
   the slow frames after a wake all land in the first ~2.8 s, nearly all in
   the page flip (up to 75–238 ms), at the ~0.55 s rhythm of the slot-2

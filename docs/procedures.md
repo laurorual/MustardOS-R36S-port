@@ -373,7 +373,15 @@ for T2 (M8): `t2-swapstat.sh arm`, launch, `t2-swapstat.sh grab FILE.png`
 (the next frame's default framebuffer; PPSSPP, DraStic, Mupen64Plus);
 `t2-psp-fps.sh` takes `T2_PSP_GRAB=1`. Heavy-system speed: compare
 settings at a fixed CPU cap (`T2_CAP`), not under thermal throttling;
-DC: `t2-dc-fps.sh` (variants, `T2_DC_SO`, `T2_DC_STATE=none`). Wake
+DC: `t2-dc-fps.sh` (variants, `T2_DC_SO`, `T2_DC_STATE=none`,
+`T2_COREMETER=1`). Real game speed of any libretro core (M8e):
+`t2-coremeter.sh build|arm|mark|report` (preloaded into muxretro by
+muos-frontend while armed; audio frames per second of the core as % of
+44100, independent of threaded rendering). YabaSanshiro: emulated fps on
+stderr with `/run/muos/perf-capture` (`yabafps 22/60 skip=11`; the
+frontend log); `build-yabasanshiro-sa.sh` keeps an unstripped
+`build/m8/yabasanshiro/yabasanshiro.debug` for its crash stacks
+(`addr2line` from the SDK). Wake
 diagnosis: `t2-wake-frames.sh` with `T2_WAKE_SAMPLE` / `T2_WAKE_STACKS`
 (sysrq-l backtraces, symbols from `build/m3b/kernel-output/System.map`).
 

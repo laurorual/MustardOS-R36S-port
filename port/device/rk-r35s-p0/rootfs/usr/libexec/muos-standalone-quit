@@ -45,9 +45,10 @@ trap 'restore; exit 0' INT TERM HUP
 for e in PPSSPPSDL drastic mupen64plus yabasanshiro; do
     pid=$(pidof "$e") || continue
     t0=$(cut -d' ' -f1 /proc/uptime)
-    # the signal first, the fade while the emulator saves
-    case $e in PPSSPPSDL|yabasanshiro) kill -TERM "$pid" ;; esac
+    # the fade over the game picture first (PPSSPP and YabaSanshiro clear
+    # the screen as soon as they get the signal), then the signal
     dim
+    case $e in PPSSPPSDL|yabasanshiro) kill -TERM "$pid" ;; esac
     case $e in
         PPSSPPSDL) wait_gone "$pid" 50 ;;
         yabasanshiro) wait_gone "$pid" 30 || { say "yabasanshiro still running, SIGKILL"; kill -KILL "$pid"; } ;;
