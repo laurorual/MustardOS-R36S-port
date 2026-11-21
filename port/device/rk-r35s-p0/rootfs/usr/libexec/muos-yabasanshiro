@@ -1,0 +1,33 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# muos-yabasanshiro ROM: standalone YabaSanshiro (Saturn; M8 item 17, heavy
+# systems = performance first), dArkOSen's Saturn emulator: the retro_arena
+# port with low-res mode and the SH2 cache off (build-yabasanshiro-sa.sh),
+# run by muos-frontend for the SATURN "ext-yabasanshiro" assignment as
+# dArkOSen's saturn.sh "standalone-bios": -r 3 (resolution mode), the BIOS
+# p3 MUOS/bios/saturn_bios.bin when it is there.
+# Data directory p3 MUOS/port/yabasanshiro: input.cfg (the EmulationStation
+# input list the emulator converts into keymapv2.json on its first start;
+# here the muOS-Keys pad; patch 04 maps Saturn A/B/C = Y/B/A (left,
+# bottom, right), X/Y/Z = X/L1/R1, L/R = L2/R2), per-game settings, and
+# save/ (backup RAM, save states). Select opens its menu (save/load state,
+# exit). Fn+Start quits (muos-standalone-quit: SIGTERM).
+# Sleep: muos-suspend stops and continues the process.
+set -u
+emu=/opt/muos/share/emulator/yabasanshiro
+w=/userdata/MUOS/port/yabasanshiro
+bios=/userdata/MUOS/bios/saturn_bios.bin
+rom=${1:?rom}
+say() { echo "muos-yabasanshiro: $*"; }
+mkdir -p "$w/save" || exit 1
+[ -s "$w/input.cfg" ] || cp /usr/share/muos-r35s/yabasanshiro/input.cfg "$w/input.cfg"
+say "start rom=$rom"
+cd "$w" || exit 1
+pre=
+# T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file
+[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && pre=/run/muos/swapstat.so
+if [ -f "$bios" ]; then
+    HOME=$w LD_PRELOAD=$pre exec "$emu/yabasanshiro" -r 3 -i "$rom" -b "$bios"
+fi
+say "no $bios: HLE BIOS"
+HOME=$w LD_PRELOAD=$pre exec "$emu/yabasanshiro" -r 3 -i "$rom"

@@ -17186,6 +17186,25 @@
    "mode": "755",
    "sha256": "0af9665115b4737cd9a145587f4e7c36adb5e74b5df98955a178ff7275a9dcf3",
    "origin": "build/m3c/cores/out/flycast2022_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/emulator/yabasanshiro",
+   "type": "dir",
+   "mode": "755"
+  },
+  {
+   "path": "/opt/muos/share/emulator/yabasanshiro/LICENSE",
+   "type": "file",
+   "mode": "644",
+   "sha256": "81d2e2140695d3a3c76c1fa48b8fc34abfee067f6197812c3e842612be5c3ff6",
+   "origin": "build/m8/yabasanshiro/tree/opt/muos/share/emulator/yabasanshiro/LICENSE"
+  },
+  {
+   "path": "/opt/muos/share/emulator/yabasanshiro/yabasanshiro",
+   "type": "file",
+   "mode": "755",
+   "sha256": "47b38dcffb3be66f216bd78fc0b9d6a0cd166979188ee4ac12f4e9f85890cf8b",
+   "origin": "build/m8/yabasanshiro/tree/opt/muos/share/emulator/yabasanshiro/yabasanshiro"
   }
  ],
  "remove": [

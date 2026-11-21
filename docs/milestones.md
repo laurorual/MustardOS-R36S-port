@@ -168,7 +168,45 @@ and p2 writes allowed while away, avoiding writes likely to lose SSH).
     `pi4-1-9-0`, retro_arena port, low-res mode, SH2 cache off); it needs
     Boost (system, filesystem, date_time, locale), not in the SDK/rootfs.
     The libretro core runs with threads off (only the sound thread).
-    Not done yet.
+    Done in the M8c T3 round (item 30).
+
+**M8c T3 (2026-11-20 night, image m8c):** 1 wake in NES, 2 PSP buffered
+(a little slower, kept), 3 NDS layout, 6 NDS sleep, 8 regression ok;
+4 stylus on the left stick (wanted right), 5 NDS resume loads an old
+state and Fn+Start freezes for seconds, 7 DC better but uneven speed and
+half resolution; 9 slot-2 swap: spare card flashed with m8c.
+
+26. **NDS quit — done to T2:** Fn+Start reached DraStic twice: the hook's
+    own HOT_QUIT started the auto save state, muos-standalone-quit's
+    SIGTERM arrived during it ("busy saving old one", deadlock), SIGKILL
+    5 s later left an empty `_savestate_temp.dss`, so the next start loaded
+    the old slot 10. muos-standalone-quit now only waits for DraStic
+    (SIGTERM after 8 s, SIGKILL 5 s later); muos-drastic drops an empty
+    temp state. T2: quit in ~1 s, slot 10 rewritten, the next start loads
+    it.
+27. **Quit indicator — done to T2:** muos-standalone-quit drops the
+    backlight to a sixth while a standalone emulator saves and quits and
+    restores it after (65 → 11 → 65).
+28. **NDS stylus on the right stick — done to T2:** touch cursor on a2/a3,
+    the vertical d-pad on the left stick (build-drastic.sh, the shipped
+    drastic.cfg and a one-time migration of the user's, marker
+    `.muos-rstick`).
+29. **DC Flycast 2022 options — done to T2** (`t2-dc-fps.sh`, now per the
+    DC folder's core, test state `MUOS/t2/dc-fight-2022` = the user's
+    fight): base (320x240) 25 ms mean frame, 16/33 ms alternating, 81
+    underruns; 640x480 costs nothing (23 ms); + `reicast_framerate=normal`
+    a steady 33 ms (30 shown), 60 emulated fps, 4 underruns; synchronous
+    rendering 59 shown but 53 emulated (slow motion) and 0.5 s audio
+    missing. Default by migration `m8d-dc-2022-opts` (640x480 + normal).
+30. **Saturn standalone YabaSanshiro — done to T2:**
+    `build-yabasanshiro-sa.sh` (static Boost 1.83.0, offline deps
+    zlib/json/libchdr/libpng pinned, GLES3 by EGL without a desktop
+    libGL), `muos-yabasanshiro` (p3 `MUOS/port/yabasanshiro`, ES-style
+    input.cfg for muOS-Keys), Fn+Start SIGTERM (quit ~1 s), default by
+    migration `m8d-saturn-sa` (libretro selectable). Sonic R: title 23-24
+    fps, intro/race 10-20 swaps/s at 1008 MHz (thermal, 81-83 °C); the
+    libretro core in the race 18.6 of 60 emulated fps (31 %). Game speed
+    of the standalone not measured (frame skip): T3 compares both.
 
 ## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 

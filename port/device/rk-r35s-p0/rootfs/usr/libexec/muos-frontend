@@ -95,6 +95,7 @@ launch_content() {
         *ext-mupen64plus*) ext=mupen64plus ;;
         *ext-ppsspp*) ext=ppsspp ;; # M8
         *ext-drastic*) ext=drastic ;; # M8, decision 23
+        *ext-yabasanshiro*) ext=yabasanshiro ;; # M8 item 17
         *ext-*) say "external launcher $launch not supported yet"; return 1 ;;
     esac
     [ -n "$ext" ] || [ -f "/opt/muos/share/core/$core" ] || { say "missing core $core"; return 1; }

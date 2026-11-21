@@ -48,6 +48,21 @@ if [ ! -e "$w/config/.muos-advanced" ]; then
     cp /usr/share/muos-r35s/drastic-trngaje/drastic.cfg "$w/config/drastic.cfg" && : > "$w/config/.muos-advanced"
 fi
 [ -s "$w/config/drastic.cfg" ] || cp /usr/share/muos-r35s/drastic-trngaje/drastic.cfg "$w/config/drastic.cfg"
+# M8c T3 4: the stylus moves to the right stick (a2/a3), the vertical d-pad
+# to the left one; once in a config written before that.
+if [ ! -e "$w/config/.muos-rstick" ]; then
+    sed -i -e 's/^\(controls_b\[CONTROL_INDEX_TOUCH_CURSOR_UP\] = \).*/\11219/' \
+        -e 's/^\(controls_b\[CONTROL_INDEX_TOUCH_CURSOR_DOWN\] = \).*/\11155/' \
+        -e 's/^\(controls_b\[CONTROL_INDEX_TOUCH_CURSOR_LEFT\] = \).*/\11218/' \
+        -e 's/^\(controls_b\[CONTROL_INDEX_TOUCH_CURSOR_RIGHT\] = \).*/\11154/' \
+        -e 's/^\(controls_b\[CONTROL_INDEX_VERTICAL_UP\] = \).*/\11216/' \
+        -e 's/^\(controls_b\[CONTROL_INDEX_VERTICAL_DOWN\] = \).*/\11152/' \
+        -e 's/^\(controls_b\[CONTROL_INDEX_VERTICAL_LEFT\] = \).*/\11153/' \
+        -e 's/^\(controls_b\[CONTROL_INDEX_VERTICAL_RIGHT\] = \).*/\11217/' "$w/config/drastic.cfg" &&
+        : > "$w/config/.muos-rstick"
+fi
+# M8c T3 5: an empty temp state left by a killed save
+[ -s "$w/savestates/_savestate_temp.dss" ] || rm -f "$w/savestates/_savestate_temp.dss"
 say "start rom=$rom"
 cd "$w" || exit 1
 pre=$emu/libs/libadvdrastic.so

@@ -24,7 +24,7 @@
 #         its control/drastic.sh derives from the board sdl_map, here the
 #         muOS-Keys map (b0 B, b1 A, b2 X, b3 Y, b4/b5 L1/R1, b6/b7 L2/R2,
 #         b8 Select, b9 Start, b10 Fn = HOT, b11/b12 L3/R3), touch press on
-#         L3, and dArkOS's performance settings (auto frameskip 1, threaded
+#         L3, the stylus on the right stick (M8c T3), and dArkOS's performance settings (auto frameskip 1, threaded
 #         3D); layout_index 8 ("vh_s0": top screen 480x360 top left, touch
 #         screen 160x120 bottom right), auto save state on.
 #   build-drastic.sh stage-adv
@@ -59,6 +59,11 @@ stage-adv)
             b["HOT_TOGGLE_BLUR_PIXEL"]=1024; b["HOT_CHANGE_THEME"]=1027; b["HOT_ENTER_MENU"]=1026
             b["HOT_TOGGLE_FAST_FORWARD"]=1029; b["HOT_SAVE_STATE"]=1031; b["HOT_LOAD_STATE"]=1030
             b["HOT_QUIT"]=1033; b["TOUCH_CURSOR_PRESS"]=1035
+            # M8c T3 4: stylus on the right stick (a2/a3; DraStic 1152 + axis
+            # positive, 1216 + axis negative), the vertical d-pad on the left
+            b["TOUCH_CURSOR_RIGHT"]=1154; b["TOUCH_CURSOR_LEFT"]=1218
+            b["TOUCH_CURSOR_DOWN"]=1155; b["TOUCH_CURSOR_UP"]=1219
+            b["VERTICAL_UP"]=1216; b["VERTICAL_DOWN"]=1152; b["VERTICAL_LEFT"]=1153; b["VERTICAL_RIGHT"]=1217
             v["frameskip_type"]=2; v["frameskip_value"]=1; v["safe_frameskip"]=0; v["threaded_3d"]=1
             v["screen_swap"]=0; v["unzip_roms"]=1
         }

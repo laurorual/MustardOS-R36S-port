@@ -148,6 +148,33 @@ case "${1:-}" in
         fi
         echo m8c-dc-2022 >> "$mig"; sync
     fi
+    # m8d-saturn-sa (M8 item 17): Saturn defaults to the standalone
+    # YabaSanshiro; as m8c-dc-2022 (only assignments equal to the old
+    # default move).
+    if ! grep -qx m8d-saturn-sa "$mig"; then
+        if [ -x /opt/muos/share/emulator/yabasanshiro/yabasanshiro ]; then
+            for f in "$port/info-content/SATURN"/*.cfg; do
+                [ -f "$f" ] || continue
+                if [ "${f##*/}" = core.cfg ]; then a=1 b=5; else a=2 b=6; fi
+                [ "$(sed -n "${a}p" "$f")" = yabasanshiro_libretro.so ] && [ "$(sed -n "${b}p" "$f")" = mu-yabasanshiro ] || continue
+                sed -i "${a}s/.*/ext-yabasanshiro/;${b}s/.*/ext-yabasanshiro-sa/" "$f" && echo "runtime: migrated ${f#"$port"/} -> ext-yabasanshiro"
+            done
+        fi
+        echo m8d-saturn-sa >> "$mig"; sync
+    fi
+    # m8d-dc-2022-opts (M8c T3 7: text unreadable at the build's 320x240,
+    # uneven speed): Flycast 2022 at 640x480 with framerate "normal" (one
+    # picture per rendered game frame: full game speed, a steady 30 shown
+    # in Power Stone 2; t2-dc-fps.sh r640n). Keys the user's ini lacks only.
+    if ! grep -qx m8d-dc-2022-opts "$mig"; then
+        o=/userdata/MUOS/pickles/coreopt/core/flycast2022.ini
+        mkdir -p "${o%/*}"; grep -q '^\[options\]' "$o" 2>/dev/null || echo '[options]' >> "$o"
+        for kv in reicast_internal_resolution=640x480 reicast_framerate=normal; do
+            grep -q "^${kv%%=*}=" "$o" || sed -i "/^\[options\]/a $kv" "$o"
+        done
+        echo "runtime: flycast2022 options $(grep -c '^reicast_' "$o")"
+        echo m8d-dc-2022-opts >> "$mig"; sync
+    fi
     # M3c: default ROM folders + core assignments for installed cores.
     grep -v '^#' /usr/share/muos-r35s/core-assign.txt 2>/dev/null |
     while IFS='|' read -r dir core sys launch gov; do

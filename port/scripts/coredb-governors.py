@@ -24,12 +24,14 @@ import sys
 # external cores the image ships, per system (others in that system dropped)
 EXTERNAL = {"Nintendo N64": {"ext-mupen64plus-rice", "ext-mupen64plus-gliden64"},
             "Sega Dreamcast": set(), "Sony PlayStation Portable": {"ext-ppsspp", "ext-ppsspp-2021"},
-            "Nintendo DS": {"ext-drastic"}, "Sega Saturn": set()}
+            "Nintendo DS": {"ext-drastic"}, "Sega Saturn": {"ext-yabasanshiro"}}
 # M8 (decision 23): external emulators upstream's coredb has no entry for
 ADD = {"Nintendo DS": {"drastic": {"name": "DraStic", "core": "ext-drastic",
                                    "launcher": "drastic.sh", "control": "modern"}},
        "Sony PlayStation Portable": {"ppsspp-2021": {"name": "PPSSPP 2021 (v1.12)", "core": "ext-ppsspp-2021",
-                                                     "launcher": "ppsspp.sh", "control": "modern"}}}
+                                                     "launcher": "ppsspp.sh", "control": "modern"}},
+       "Sega Saturn": {"yabasanshiro-sa": {"name": "YabaSanshiro - Standalone (dArkOSen)", "core": "ext-yabasanshiro",
+                                        "launcher": "yabasanshiro.sh", "control": "modern"}}}
 # M8 T3 8: libretro cores upstream's coredb has no entry for
 ADD_LIBRETRO = {"Sega Dreamcast": {"flycast 2022": {"name": "Flycast 2022 (dArkOSen)",
                                                     "core": "flycast2022_libretro.so"}}}

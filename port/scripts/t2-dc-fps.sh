@@ -2,11 +2,13 @@
 # SPDX-License-Identifier: MIT
 # shellcheck disable=SC2016,SC2034
 # T2: Dreamcast (libretro Flycast) speed per core-option set (M8 T3 8:
-# "not playable"). Each VARIANT writes pickles/coreopt/core/flycast.ini,
-# starts Power Stone 2 from a test state (p3 MUOS/t2/dc-fight, the user's
-# mid-fight state, paused: A = Cancel), runs SECS seconds and reads
-# muxretro's performance.csv (present Hz, core ms per frame). The user's
-# flycast.ini is restored afterwards.
+# "not playable"). The core is the DC folder's assignment (core.cfg):
+# Flycast v2.7 (flycast) or Flycast 2022 (flycast2022, M8c). Each VARIANT
+# writes pickles/coreopt/core/<core>.ini, starts Power Stone 2 from a test
+# state (p3 MUOS/t2/dc-fight for v2.7: the user's mid-fight state, paused:
+# A = Cancel; MUOS/t2/dc-fight-2022 for 2022: the user's M8c T3 fight),
+# runs SECS seconds and reads muxretro's performance.csv (present Hz,
+# core ms per frame). The user's ini is restored afterwards.
 #   t2-dc-fps.sh [SECS] VARIANT...   variants: see opts() below
 #   env: T2_DC_SO=host .so: bind-mounted over the image's
 #        flycast_libretro.so for the run (another Flycast build);
@@ -20,7 +22,8 @@ cd "$(dirname "$0")/../.."
 secs=${1:-60}; shift || :
 [ $# -gt 0 ] || set -- base dark
 out=build/logs/m8/dc-fps; mkdir -p "$out"
-ini=/userdata/MUOS/pickles/coreopt/core/flycast.ini
+dccore=$(r "sed -n 1p /opt/muos/share/info/content/DC/core.cfg") dccore=${dccore%_libretro.so}
+ini=/userdata/MUOS/pickles/coreopt/core/$dccore.ini
 p=reicast
 dark="${p}_frame_skipping=1
 ${p}_auto_skip_frame=more
@@ -38,6 +41,15 @@ opts() {
     auto) grep -v frame_skipping <<< "$dark" ;; # auto skip only
     skip2) sed 's/frame_skipping=1/frame_skipping=2/' <<< "$dark" ;;
     halfauto) grep -v frame_skipping <<< "$dark"; echo "${p}_internal_resolution=320x240" ;;
+    # Flycast 2022 (LOW_RES build: 320x240 default; M8c T3 7: text
+    # unreadable, uneven speed)
+    r640) echo "${p}_internal_resolution=640x480" ;;
+    r640n) echo "${p}_internal_resolution=640x480"; echo "${p}_framerate=normal" ;;
+    r640s) echo "${p}_internal_resolution=640x480"; echo "${p}_synchronous_rendering=enabled" ;;
+    r640nt) echo "${p}_internal_resolution=640x480"; echo "${p}_framerate=normal"; echo "${p}_threaded_rendering=disabled" ;;
+    r640f1) echo "${p}_internal_resolution=640x480"; echo "${p}_frame_skipping=1" ;;
+    r480) echo "${p}_internal_resolution=480x360" ;;
+    norm) echo "${p}_framerate=normal" ;;
     *) fail "unknown variant $1" ;;
     esac
 }
@@ -45,10 +57,11 @@ env_pw='export PIPEWIRE_RUNTIME_DIR=/run XDG_RUNTIME_DIR=/run'
 vol=$(r 'cat /opt/muos/config/settings/general/volume')
 r "$env_pw; /opt/muos/script/device/audio.sh 10 >/dev/null 2>&1" || :
 r "test -f $ini && cp $ini /run/t2-flycast.ini || rm -f /run/t2-flycast.ini"
+echo "core $dccore"
 trap 'cleanup; r "$env_pw; /opt/muos/script/device/audio.sh $vol >/dev/null 2>&1; if test -f /run/t2-flycast.ini; then cp /run/t2-flycast.ini '$ini'; else rm -f '$ini'; fi" || :' EXIT
-game_state=/userdata/MUOS/t2/dc-fight
-core=/opt/muos/share/core/flycast_libretro.so
-st="/userdata/MUOS/pickles/state/flycast/DC/Power Stone 2 (USA)"
+game_state=/userdata/MUOS/t2/dc-fight; [ "$dccore" = flycast ] || game_state=$game_state-2022
+core=/opt/muos/share/core/${dccore}_libretro.so
+st="/userdata/MUOS/pickles/state/$dccore/DC/Power Stone 2 (USA)"
 if [ -n "${T2_DC_SO:-}" ]; then
     "$dev" push "$T2_DC_SO" /run/t2dc >/dev/null
     r "mount --bind '/run/t2dc/${T2_DC_SO##*/}' $core"

@@ -3,14 +3,41 @@
 # M8: Fn+Start (hotkey QUIT_STANDALONE, opt/muos/share/hotkey/standalone.json)
 # quits a standalone emulator that has no such combo of its own, as
 # dArkOSen's killer_daemon (pkill, then kill -9 if still there): SIGTERM,
-# which SDL turns into a normal quit (PPSSPP saves its settings).
-# Mupen64Plus maps Fn+Start itself (autosave). DraStic with the advanced
-# hook (M8) writes its auto save state on SIGTERM and quits (~0.5 s for
-# NSMB); SIGKILL only if it is still there after 5 s.
-for e in PPSSPPSDL drastic; do
+# which SDL turns into a normal quit (PPSSPP saves its settings;
+# YabaSanshiro, M8 item 17: SIGKILL after 3 s if it is still there).
+# Emulators that quit on Fn+Start themselves are only waited for:
+# Mupen64Plus (its own combo, autosave) and DraStic with the advanced hook
+# (its HOT_QUIT = Fn+Start writes the auto save state and quits; M8c T3 5:
+# a SIGTERM during that save deadlocked the hook, "busy saving old one",
+# and the SIGKILL 5 s later left an empty temp state, so the next start
+# loaded an old one). DraStic gets SIGTERM only if it is still there after
+# 8 s, SIGKILL 5 s after that.
+# M8c T3 5: the backlight drops to a sixth while the emulator saves and
+# quits (the picture freezes meanwhile), restored once it is gone.
+bl=/sys/class/backlight/backlight/brightness
+say() { echo "muos-standalone-quit: $*"; }
+gone() { ! kill -0 "$1" 2>/dev/null; }
+wait_gone() { # PID TENTHS
+    n=0; while [ "$n" -lt "$2" ] && ! gone "$1"; do sleep 0.1; n=$((n+1)); done
+    gone "$1"
+}
+level=$(cat "$bl" 2>/dev/null) || level=0
+dim() { [ "$level" -gt 0 ] 2>/dev/null && echo $((level / 6 + 1)) > "$bl" 2>/dev/null; }
+restore() { [ "$level" -gt 0 ] 2>/dev/null && echo "$level" > "$bl" 2>/dev/null; }
+trap 'restore; exit 0' INT TERM HUP
+for e in PPSSPPSDL drastic mupen64plus yabasanshiro; do
     pid=$(pidof "$e") || continue
-    kill -TERM "$pid"
-    n=0; while [ "$n" -lt 50 ] && kill -0 "$pid" 2>/dev/null; do sleep 0.1; n=$((n+1)); done
-    [ "$e" = drastic ] && kill -0 "$pid" 2>/dev/null && kill -KILL "$pid"
+    dim
+    t0=$(cut -d' ' -f1 /proc/uptime)
+    case $e in
+        PPSSPPSDL) kill -TERM "$pid"; wait_gone "$pid" 50 ;;
+        yabasanshiro) kill -TERM "$pid"; wait_gone "$pid" 30 || { say "yabasanshiro still running, SIGKILL"; kill -KILL "$pid"; } ;;
+        drastic)
+            wait_gone "$pid" 80 || { say "drastic still running, SIGTERM"; kill -TERM "$pid"; wait_gone "$pid" 50 || {
+                say "drastic still running, SIGKILL"; kill -KILL "$pid"; }; } ;;
+        mupen64plus) wait_gone "$pid" 100 ;;
+    esac
+    say "$e $pid quit $t0 -> $(cut -d' ' -f1 /proc/uptime)"
 done
+restore
 exit 0

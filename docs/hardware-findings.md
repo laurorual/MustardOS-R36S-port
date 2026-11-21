@@ -1049,6 +1049,10 @@ The open problems behind each "partial" are in STATUS.
   (rc 129). Its frame timer resyncs after SIGSTOP/SIGCONT (sleep). Codes
   in drastic.cfg: 1024 + button, 1088 + SDL hat value, 1152/1216 + axis
   (+/−). NSMB ~80 % of one core, full speed.
+  The hook's HOT_QUIT is Fn+Start: it saves and quits by itself (~1 s);
+  a SIGTERM during that save deadlocks it ("Can't savestate, busy saving
+  old one", M8c T3 5), so muos-standalone-quit only waits for DraStic.
+  Stylus: TOUCH_CURSOR on the right stick (1154/1218 a2, 1155/1219 a3).
 - **Dreamcast:** libretro/flycast is now the parallel_dc fork: with the
   real BIOS it still never shows a frame (the CPU thread spins). Flyinghead
   Flycast v2.7 (libretro, GLES 3.2 on the Mali) boots Power Stone 2: 36–43
@@ -1064,8 +1068,19 @@ The open problems behind each "partial" are in STATUS.
   the GPU lags (~30 shown). Shipped as `flycast2022_libretro.so`, the DC
   default; v2.7 stays as "Flycast". Its states differ (per-core state
   directories, no cross-loading).
+  M8c T3 7 (uneven speed, half resolution; user's fight state, 60 s,
+  `t2-dc-fps.sh`): the core is not the limit (4–6 ms); 640x480 internal
+  costs nothing over 320x240; `reicast_framerate=fullspeed` alternates
+  16/33 ms pictures (felt as speed changes) with audio underruns, `normal`
+  shows a steady 30 at 60 emulated fps; synchronous rendering shows ~59
+  but emulates 53 (slow motion). Defaults since m8d: 640x480 + normal.
 - **Saturn:** YabaSanshiro libretro with `saturn_bios.bin` runs Sonic R at
-  ~21 fps (core 44 ms per frame).
+  ~21 fps (core 44 ms per frame); in the race 18.6 of 60 emulated fps.
+  Standalone (dArkOSen's retro_arena build, low-res, SH2 cache off,
+  frame skip on): title 23–24 fps, intro/race 10–20 pictures/s, CPU
+  thermally held at 1008 MHz (81–83 °C), main thread ~55–65 % of a core.
+  Needs `-r 3`; reads an EmulationStation input list (input.cfg) and
+  writes keymapv2.json once; quits on SIGTERM (~1 s).
 - **Wake in a game (M8 T3 5, `t2-wake-frames.sh`):** with Wi-Fi deferred,
   the slow frames after a wake all land in the first ~2.8 s, nearly all in
   the page flip (up to 75–238 ms), at the ~0.55 s rhythm of the slot-2
