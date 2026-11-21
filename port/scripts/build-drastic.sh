@@ -53,12 +53,12 @@ stage-adv)
     git -C "$up" show "$up_commit:device/rg35xx-h/control/drastic-trngaje/drastic.cfg" | tr -d '\r' | awk '
         BEGIN {
             b["A"]=1025; b["B"]=1024; b["X"]=1026; b["Y"]=1027; b["L"]=1028; b["R"]=1029
-            b["START"]=1033; b["SELECT"]=1032; b["SWAP_SCREENS"]=1031; b["FAKE_MICROPHONE"]=1036
+            b["START"]=1033; b["SELECT"]=1032; b["SWAP_SCREENS"]=1031; b["FAKE_MICROPHONE"]=1035
             b["UI_SELECT"]=1025; b["UI_BACK"]=1026; b["UI_EXIT"]=1024; b["UI_PAGE_UP"]=1028
             b["UI_PAGE_DOWN"]=1029; b["UI_SWITCH"]=1027; b["HOT"]=1034; b["HOT_TOGGLE_DPAD_MOUSE"]=1028
             b["HOT_TOGGLE_BLUR_PIXEL"]=1024; b["HOT_CHANGE_THEME"]=1027; b["HOT_ENTER_MENU"]=1026
             b["HOT_TOGGLE_FAST_FORWARD"]=1029; b["HOT_SAVE_STATE"]=1031; b["HOT_LOAD_STATE"]=1030
-            b["HOT_QUIT"]=1033; b["TOUCH_CURSOR_PRESS"]=1035
+            b["HOT_QUIT"]=1033; b["TOUCH_CURSOR_PRESS"]=1036  # R3 (M8d T3)
             # M8c T3 4: stylus on the right stick (a2/a3; DraStic 1152 + axis
             # positive, 1216 + axis negative), the vertical d-pad on the left
             b["TOUCH_CURSOR_RIGHT"]=1154; b["TOUCH_CURSOR_LEFT"]=1218

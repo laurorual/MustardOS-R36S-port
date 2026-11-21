@@ -127,11 +127,14 @@ launch_content() {
     # (writes /run/muos/storage/pickles/performance.csv periodically).
     MUXRETRO_PERF_CAPTURE=0; [ ! -e "$run/perf-capture" ] || MUXRETRO_PERF_CAPTURE=1
     export MUXRETRO_PERF_CAPTURE
+    # M8e T2 hook: the core speed meter (t2-coremeter.c), only with a
+    # test-pushed /run file
+    pre=; [ ! -e "$run/perf-capture" ] || [ ! -f "$run/coremeter.so" ] || pre=$run/coremeter.so
     # M4f: Activity (playtime), as upstream launch.sh (track.sh honours
     # settings/advanced/activity itself; missing = on, the frontend default).
     TRACK_SYSTEM=$assign "$track" "$name" "$core" "$content" start >> /opt/muos/log/frontend.log 2>&1 || :
     # shellcheck disable=SC2086  # $fresh is empty or one flag
-    run_child /opt/muos/frontend/muxretro "/opt/muos/share/core/$core" "$content" $fresh \
+    run_child env LD_PRELOAD="$pre" /opt/muos/frontend/muxretro "/opt/muos/share/core/$core" "$content" $fresh \
         >> /opt/muos/log/frontend.log 2>&1
     rc=$?
     say "muxretro exit rc=$rc"

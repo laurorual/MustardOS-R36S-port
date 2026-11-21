@@ -61,6 +61,13 @@ if [ ! -e "$w/config/.muos-rstick" ]; then
         -e 's/^\(controls_b\[CONTROL_INDEX_VERTICAL_RIGHT\] = \).*/\11217/' "$w/config/drastic.cfg" &&
         : > "$w/config/.muos-rstick"
 fi
+# M8d T3 (the user): the stylus touches with R3, the fake microphone moves
+# to L3; once (the user's own R3 setting stays).
+if [ ! -e "$w/config/.muos-r3touch" ]; then
+    sed -i -e 's/^\(controls_b\[CONTROL_INDEX_TOUCH_CURSOR_PRESS\] = \)1035$/\11036/' \
+        -e 's/^\(controls_b\[CONTROL_INDEX_FAKE_MICROPHONE\] = \)1036$/\11035/' "$w/config/drastic.cfg" &&
+        : > "$w/config/.muos-r3touch"
+fi
 # M8c T3 5: an empty temp state left by a killed save
 [ -s "$w/savestates/_savestate_temp.dss" ] || rm -f "$w/savestates/_savestate_temp.dss"
 say "start rom=$rom"

@@ -175,6 +175,22 @@ case "${1:-}" in
         echo "runtime: flycast2022 options $(grep -c '^reicast_' "$o")"
         echo m8d-dc-2022-opts >> "$mig"; sync
     fi
+    # m8e-dc-limiter (M8d T3 4: DC still fast in the BIOS/Capcom logos and
+    # slow mid-fight): Flycast renders threaded, so only the audio paces its
+    # emulation thread, and muxretro's Speed Limiter (audio backpressure) is
+    # off by default: the core ran free in light scenes and its audio queue
+    # grew to ~830 ms, then caught up after every heavy patch (t2-coremeter:
+    # 108-123 % bursts). On: queue ~30 ms, the user's fight at 100 %. Core
+    # settings of both Flycasts; a value the user set stays.
+    if ! grep -qx m8e-dc-limiter "$mig"; then
+        for c in flycast2022 flycast; do
+            o=/userdata/MUOS/pickles/settings/core/$c.ini
+            mkdir -p "${o%/*}"; grep -q '^\[settings\]' "$o" 2>/dev/null || echo '[settings]' >> "$o"
+            grep -q '^speed_limiter=' "$o" || sed -i '/^\[settings\]/a speed_limiter=1' "$o"
+        done
+        echo "runtime: flycast speed limiter on"
+        echo m8e-dc-limiter >> "$mig"; sync
+    fi
     # M3c: default ROM folders + core assignments for installed cores.
     grep -v '^#' /usr/share/muos-r35s/core-assign.txt 2>/dev/null |
     while IFS='|' read -r dir core sys launch gov; do

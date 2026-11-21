@@ -48,6 +48,7 @@ opts() {
     r640s) echo "${p}_internal_resolution=640x480"; echo "${p}_synchronous_rendering=enabled" ;;
     r640nt) echo "${p}_internal_resolution=640x480"; echo "${p}_framerate=normal"; echo "${p}_threaded_rendering=disabled" ;;
     r640f1) echo "${p}_internal_resolution=640x480"; echo "${p}_frame_skipping=1" ;;
+    r640nf1) echo "${p}_internal_resolution=640x480"; echo "${p}_framerate=normal"; echo "${p}_frame_skipping=1" ;;
     r480) echo "${p}_internal_resolution=480x360" ;;
     norm) echo "${p}_framerate=normal" ;;
     *) fail "unknown variant $1" ;;
@@ -73,6 +74,9 @@ fi
 cleanup() {
     r "umount $core 2>/dev/null; for f in /run/t2dc/state/autosave.*; do [ -e \"\$f\" ] && mv \"\$f\" '$st'/; done; :" || :
 }
+# M8e: T2_COREMETER=1 also measures the game's real speed (audio frames per
+# second from the core, t2-coremeter.sh), written to $out/VARIANT.speed
+[ -z "${T2_COREMETER:-}" ] || port/scripts/t2-coremeter.sh arm
 rom="Power Stone 2 (USA).cue"
 printf '%-9s %6s %6s %6s %6s %6s %5s %5s %5s %5s %5s\n' variant hz mean p95 peak core 18-25 25-50 50+ temp mhz
 for v in "$@"; do
@@ -85,7 +89,9 @@ for v in "$@"; do
         sleep 30                       # BIOS logo, title, into the attract loop
     fi
     r 'rm -f /run/muos/storage/pickles/performance.csv'
+    [ -z "${T2_COREMETER:-}" ] || port/scripts/t2-coremeter.sh mark
     sleep "$secs"
+    [ -z "${T2_COREMETER:-}" ] || port/scripts/t2-coremeter.sh report > "$out/$v.speed" || :
     t=$(r 'cat /sys/class/thermal/thermal_zone0/temp')
     f=$(r 'cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq')
     r 'cat /run/muos/storage/pickles/performance.csv' > "$out/$v.csv" || :
@@ -99,4 +105,5 @@ for v in "$@"; do
         /^frame_histogram_25_to_50_ms,/{b=$2}
         /^frame_histogram_50_to_250_ms,/{c=$2}
         END{printf "%-9s %6s %6s %6s %6s %6s %5s %5s %5s %5d %5d\n", v, hz, mean, p95, pk, core, a, b, c, t/1000, f/1000}' "$out/$v.csv"
+    [ ! -s "$out/$v.speed" ] || sed 's/^/  speed: /' "$out/$v.speed"
 done

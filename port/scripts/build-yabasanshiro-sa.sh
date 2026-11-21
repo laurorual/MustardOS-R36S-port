@@ -11,7 +11,9 @@
 # -mtune=cortex-a35. dArkOS links the system Boost (libboost-all-dev); here
 # Boost 1.83.0 (system, filesystem, date_time, locale without ICU) is
 # built static in the same container and linked in, so the rootfs needs
-# no Boost. The data directory (patch 04's /opt/yabasanshiro/) becomes p3
+# no Boost. Our patches (port/patches/yabasanshiro-sa) go on top: vblank
+# page flips (this kernel refuses SDL's asynchronous ones), MUOS_YABA_FPSLOG
+# (emulated fps on stderr), a crash stack. The data directory (patch 04's /opt/yabasanshiro/) becomes p3
 # MUOS/port/yabasanshiro (input.cfg, keymapv2.json, states).
 #
 #   build-yabasanshiro-sa.sh build   offline, in the phase4-rootfs
@@ -51,6 +53,8 @@ build)
     rm -rf "$stage" "$tree"; mkdir -p "$stage/patches" "$area/boost"
     cp -r --reflink=auto "$src/yabause" "$stage/yabause"
     for n in 01 02 03 04 05 06 08; do cp "$dpatches"/yabasanshirosa-patch-$n-*.patch "$stage/patches/"; done
+    # ours after dArkOS's (M8d T3): vsync flips, the T2 fps log, a crash stack
+    for p in "$repo"/port/patches/yabasanshiro-sa/*.patch; do cp "$p" "$stage/patches/zz-${p##*/}"; done
     code='set -eu
 sdk=/work/graphics-config/output/host
 export PATH=$sdk/bin:$PATH CCACHE_DISABLE=1
@@ -81,6 +85,12 @@ sed -i "s#^\( *\)\\\${ADDITIONAL_CMAKE_ARGS}#\1\\\${ADDITIONAL_CMAKE_ARGS} -DCMA
     yabause/CMake/Packages/external_zlib.cmake yabause/CMake/Packages/external_libchdr.cmake \
     yabause/CMake/Packages/external_libpng.cmake
 grep -q "/deps/libchdr" yabause/CMake/Packages/external_libchdr.cmake && grep -q "/deps/json" yabause/src/retro_arena/CMakeLists.txt
+# M8d T3 5 (Select closed the game): the menu (nanogui) compiled an older
+# nanovg_gl.h/nanovg.h whose renderFill lacks the compositeOperation
+# argument, against the newer src/nanovg/nanovg.c: every menu fill got
+# shifted arguments (a garbage scissor pointer, SIGSEGV in
+# glnvg__renderFill). The menu builds with the same nanovg as the emulator.
+for f in nanovg.c nanovg.h nanovg_gl.h nanovg_gl_utils.h fontstash.h stb_image.h stb_truetype.h; do cp yabause/src/nanovg/$f yabause/src/retro_arena/nanogui-sdl/ext/nanovg/; done
 # patch 04 points the data directory at /opt/yabasanshiro/ (read-only p2 here)
 grep -rl "/opt/yabasanshiro/" yabause/src/retro_arena | xargs sed -i "s#/opt/yabasanshiro/#/userdata/MUOS/port/yabasanshiro/#g"
 # patch 05 keeps backup RAM and states in /roms2 or /roms saturn/yabasanshiro/
@@ -93,13 +103,14 @@ CXXFLAGS=$CFLAGS
 # patch 01 adds "#include <core.h>" (src/) to threads.h
 CFLAGS="$CFLAGS -I/stage/yabause/src" CXXFLAGS="$CXXFLAGS -I/stage/yabause/src"
 cmake ../yabause -DCMAKE_TOOLCHAIN_FILE=$sdk/share/buildroot/toolchainfile.cmake \
-    -DYAB_PORTS=retro_arena -DYAB_WANT_DYNAREC_DEVMIYAX=ON -DYAB_WANT_ARM7=ON -DYAB_WANT_VULKAN=OFF \
+    -DYAB_PORTS=retro_arena -DYAB_WANT_DYNAREC_DEVMIYAX=ON -DYAB_WANT_ARM7=ON -DYAB_WANT_C68K=${YABA_C68K:-ON} -DYAB_WANT_VULKAN=OFF \
     -DCMAKE_BUILD_TYPE=Release -DUSE_EGL=True -DCMAKE_C_FLAGS="$CFLAGS -D_POSIX_C_SOURCE=199309L -D__N2__ -D__RETORO_ARENA__" \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS -D__N2__ -D__RETORO_ARENA__" \
     -DBoost_USE_STATIC_LIBS=ON -DBoost_DIR=/boost/lib/cmake/Boost-1.83.0 -DBoost_NO_SYSTEM_PATHS=ON \
     -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=BOTH \
     -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH
 make -j8
+cp src/retro_arena/yabasanshiro /stage/yabasanshiro.debug
 $cross-strip src/retro_arena/yabasanshiro'
     podman run --rm --network=none --read-only --cap-drop=all --security-opt=no-new-privileges \
         --userns=keep-id --tmpfs /tmp:rw,nosuid,nodev,exec -v "$work:/work:ro,z" -v "$stage:/stage:rw,z" \
@@ -108,6 +119,8 @@ $cross-strip src/retro_arena/yabasanshiro'
         { tail -40 "$area/logs/build.log"; echo "build failed (log $area/logs/build.log)" >&2; exit 1; }
     mkdir -p "$tree/$dest"
     cp "$stage/build/src/retro_arena/yabasanshiro" "$tree/$dest/"
+    # unstripped copy for addr2line on a crash stack (not shipped)
+    mv "$stage/yabasanshiro.debug" "$area/yabasanshiro.debug"
     cp "$src/yabause/COPYING" "$tree/$dest/" 2>/dev/null || cp "$src/LICENSE" "$tree/$dest/" 2>/dev/null || :
     rm -rf "$stage"
     (cd "$tree/$dest" && find . -type f | sort | xargs -d '\n' sha256sum > "$area/SHA256SUMS")

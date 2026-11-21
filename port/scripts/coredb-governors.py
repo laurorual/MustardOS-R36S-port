@@ -16,6 +16,11 @@
 # M8: the same for the heavy systems (no external emulator shipped), and a
 # default core marked "extra" (hidden unless Advanced -> Extra Cores) is
 # unmarked: it is the only core the image has for its system.
+# M8d T3 6 (Saturn's core list offered only the missing Yabadabadoo, while
+# the installed YabaSanshiro libretro was "extra"): with CORE_DIR, every
+# libretro entry is marked by what the image has: installed = shown
+# (extra 0), not installed = extra 1 (hidden unless Advanced -> Extra
+# Cores), so the lists offer what runs.
 #   coredb-governors.py CORE_ASSIGN_TXT CORE_JSON [CORE_DIR]
 import json
 import os
@@ -89,6 +94,18 @@ def main(table, path, core_dir=None):
             print(f"coredb-governors: {system}: external {key!r} dropped")
         if {e.get("core") for e in ext.values()} != keep:
             sys.exit(f"coredb-governors: {system}: external cores {sorted(keep)} not all in {path}")
+    if core_dir:
+        for system, entry in sorted(db.items()):
+            if not isinstance(entry, dict):
+                continue
+            for key, e in sorted(entry.get("libretro", {}).items()):
+                if not isinstance(e, dict) or not e.get("core"):
+                    continue
+                want_extra = 0 if os.path.isfile(os.path.join(core_dir, e["core"])) else 1
+                if int(e.get("extra", 0)) != want_extra:
+                    e["extra"] = want_extra
+                    changed += 1
+                    print(f"coredb-governors: {system}: libretro {key!r} extra -> {want_extra}")
     for system, (key, section) in sorted(default.items()):
         if key not in db.get(system, {}).get(section, {}):
             sys.exit(f"coredb-governors: no {section} core {key!r} for {system!r} in {path}")

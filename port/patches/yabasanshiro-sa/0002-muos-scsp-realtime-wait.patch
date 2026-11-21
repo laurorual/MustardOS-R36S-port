@@ -1,0 +1,25 @@
+--- a/yabause/src/scsp.c
++++ b/yabause/src/scsp.c
+@@ -5699,14 +5699,16 @@
+         }
+         pthread_mutex_unlock(&sync_mutex);
+ #elif defined(ARCH_IS_LINUX)    
+-        time(&tm);    
+-        long n = tm.tv_nsec;
++        // muOS (M8e): upstream filled tm with time() and passed ctime(&tm)
++        // (a string) as the deadline: the wait failed at once (EINVAL) and
++        // this thread spun for the rest of every frame (a whole core at
++        // 100 %, heat that held the CPU at 1008 MHz; SH2 wake-ups lost).
++        // A real CLOCK_REALTIME deadline, as the Android branch above.
++        clock_gettime(CLOCK_REALTIME, &tm);
+         tm.tv_nsec += sleeptime;
+-        if( n > tm.tv_nsec){
+-          tm.tv_sec += 1;
+-        }
++        while (tm.tv_nsec >= 1000000000L) { tm.tv_nsec -= 1000000000L; tm.tv_sec += 1; }
+         pthread_mutex_lock(&sync_mutex);
+-        int rtn = pthread_cond_timedwait(&sync_cnd,&sync_mutex,ctime(&tm));
++        int rtn = pthread_cond_timedwait(&sync_cnd,&sync_mutex,&tm);
+         if(rtn == 0){
+           for (i = 0; i < samplecnt; i += step) {
+             MM68KExec(step);

@@ -1,0 +1,74 @@
+--- a/yabause/src/retro_arena/main.cpp
++++ b/yabause/src/retro_arena/main.cpp
+@@ -212,7 +212,13 @@
+ 
+   Preference pre( cdpath );
+ 
+-  yinit.m68kcoretype = M68KCORE_MUSASHI;
++  // muOS (M8e): the sound thread (68K + SCSP in real time) holds Sonic R
++  // at ~22 of 60 fps; C68K (MUOS_YABA_M68K=1, built in) measured within
++  // the noise of Musashi (3, upstream's choice, the default)
++  {
++    const char *m = getenv("MUOS_YABA_M68K");
++    yinit.m68kcoretype = m ? atoi(m) : M68KCORE_MUSASHI;
++  }
+   yinit.percoretype = PERCORE_DUMMY;
+ #if defined(__PC__)
+   yinit.sh2coretype = 0;
+@@ -282,8 +288,26 @@
+   return 0;
+ }
+ 
++// muOS (M8d T3): a SIGSEGV/SIGBUS/SIGABRT handler that prints the stack
++// (raw addresses and the load base, for addr2line on the unstripped build)
++#include <execinfo.h>
++#include <signal.h>
++static void muos_crash(int sig){
++  void *pc[48];
++  char line[256];
++  int n = backtrace(pc, 48);
++  int l = snprintf(line, sizeof line, "muos-yabasanshiro: signal %d, stack:\n", sig);
++  write(2, line, l);
++  backtrace_symbols_fd(pc, n, 2);
++  FILE *m = fopen("/proc/self/maps", "r");
++  if (m) { while (fgets(line, sizeof line, m)) if (strstr(line, "yabasanshiro")) { write(2, line, strlen(line)); break; } fclose(m); }
++  signal(sig, SIG_DFL);
++  raise(sig);
++}
++
+ int main(int argc, char** argv)
+ {
++  signal(SIGSEGV, muos_crash); signal(SIGBUS, muos_crash); signal(SIGABRT, muos_crash);
+   inputmng = InputManager::getInstance();
+   
+   //printf("\033[2J");
+@@ -429,6 +453,16 @@
+     printf("Fail to SDL_GL_CreateContext Bye! (%s)", SDL_GetError() );
+     return -1;
+   }
++  // muOS (M8d T3): this 4.4 kernel refuses asynchronous page flips
++  // (SDL KMSDRM with swap interval 0: "Could not queue pageflip: -22",
++  // frames dropped or drawn into the scanned-out buffer): flip on vblank.
++  // The emulator paces itself (frameSkipAndLimit); SDL's triple buffering
++  // only waits for the previous flip. MUOS_YABA_VSYNC=0 restores upstream.
++  {
++    const char *v = getenv("MUOS_YABA_VSYNC");
++    int iv = v ? atoi(v) : 1;
++    if (SDL_GL_SetSwapInterval(iv) != 0) printf("SDL_GL_SetSwapInterval(%d): %s\n", iv, SDL_GetError());
++  }
+ 
+   printf("context renderer string: \"%s\"\n", glGetString(GL_RENDERER));
+   printf("context vendor string: \"%s\"\n", glGetString(GL_VENDOR));
+--- a/yabause/src/vdp2.cpp
++++ b/yabause/src/vdp2.cpp
+@@ -1144,6 +1144,10 @@
+   {
+     fps = fpsframecount;
+     fpsframecount = 0;
++    // muOS T2: emulated frames, skipped and VDP1 frames per second
++    static int muos_fpslog = -1;
++    if (muos_fpslog < 0) muos_fpslog = getenv("MUOS_YABA_FPSLOG") != NULL;
++    if (muos_fpslog) fprintf(stderr, "yabafps %d/%d skip=%u vdp1=%d\n", fps, yabsys.IsPal ? 50 : 60, skipped_frame, vdp1_frame);
+     show_vdp1_frame = vdp1_frame;
+     vdp1_frame = 0;
+     show_skipped_frame = skipped_frame;
