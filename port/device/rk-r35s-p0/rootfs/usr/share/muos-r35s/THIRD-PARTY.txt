@@ -2,7 +2,8 @@ muOS for R36S/R35S (unofficial port): third-party components
 =============================================================
 Each component keeps its own licence. GPL/LGPL sources: the exact
 revisions below, the port's patches and build scripts are published with
-the release (source bundle on the project's GitHub page). Non-commercial
+the release (source bundle on the project's GitHub page; on request for
+three years after the last release, see the project page). Non-commercial
 licences (marked) forbid selling this firmware or bundling it with a
 commercial product.
 

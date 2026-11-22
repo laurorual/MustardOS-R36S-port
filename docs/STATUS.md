@@ -286,7 +286,13 @@ performance first.
 
 ## Decisions for the user
 
-None open.
+32. **Where the GPL source lives for v1.0:** (a) the port repository on
+    GitHub plus the full source bundle (`make-source-bundle.sh bundle`,
+    several GB, split per component) as assets of the GitHub release;
+    or (b) the port repository plus a written offer (source on request
+    for three years; the agent keeps the build caches). Recommendation:
+    (a), it is the cleanest GPL compliance and needs no promise to keep
+    the host caches.
 
 ## T3 queue
 
@@ -330,13 +336,16 @@ retired). Plan in roadmap.md M9. **Items:**
 
 **State:** 1–4 done (m9a, T3 passed; recovery). Added: Traditional
 Chinese overlay, CPU/GPU undervolt rows (on the bench, next image).
-Item 5 started: `THIRD-PARTY.txt` in the image (`third-party.sh`, every
-pinned component with its licence); permission drafts in
-`docs/license-requests.md` (Hardkernel follow-up, DraStic, trngaje,
-steward-fu, MustardOS team; the user sends them). Next: item 6, a
-`make-source-bundle.sh` (port repo archive, core tarballs from the cache,
-kernel/U-Boot/ScummVM archives, Buildroot legal-info) run at rc1 only
-(disk), then the public variant T2, docs, update path.
+Item 5: `THIRD-PARTY.txt` in the image (`third-party.sh`, every pinned
+component with its licence, source offer); permission drafts in
+`docs/license-requests.md` (the user sends them). Item 6:
+`make-source-bundle.sh check|bundle` (all pinned sources present on the
+host; the bundle is several GB, built at release only; Buildroot
+`build-image.sh legal-info`); public variant built 2026-11-22: all 18
+`check-public-image.sh` checks pass (image deleted, rc1 rebuilds it).
+Next: item 8 update path (proposal: an update image on p3 installed by
+a Task Toolkit task through the trial root + `write-p2`), item 7 docs,
+item 9 battery, rc1.
 
 Tests: T0 builds/shellcheck; T1 ELF checks; T2 trial root (sweep, NES,
 ScummVM core + standalone, the undervolt round trip on and off, CJK

@@ -7,6 +7,8 @@
 #   build-image.sh source|build   Buildroot job (detached; source may use the network;
 #                                 GOAL="pkg-reconfigure" runs that first in build)
 #   build-image.sh status|stop
+#   build-image.sh legal-info     M9: Buildroot legal-info (licences + package
+#                                 sources) -> build/m3a/output/legal-info
 #   build-image.sh image NAME [--public]
 #                                 card image dist/firmware/NAME.img.zst (+ .sha256, .manifest);
 #                                 --public: no developer identity (firmware-image.sh)
@@ -129,6 +131,11 @@ source|build)
         echo \$r > /m3a/logs/\$M3A_STAGE.exit; exit \$r" >/dev/null
     echo "started $stage; use: build-image.sh status"
     ;;
+legal-info)
+    ctr_opts
+    podman run --rm --network=none "${opts[@]}" "$(iid)" sh -euc "make $make_args legal-info" \
+        > "$m3a/logs/legal-info.log" 2>&1 || { tail -20 "$m3a/logs/legal-info.log"; exit 1; }
+    du -sh "$m3a/output/legal-info" ;;
 status)
     if podman container exists "$name"; then
         podman inspect --format '{{if .State.Running}}running{{else}}exited={{.State.ExitCode}}{{end}} since={{.State.StartedAt}}' "$name"
