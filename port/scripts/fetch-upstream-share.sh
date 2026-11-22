@@ -7,7 +7,7 @@
 # separate sparse clone in build/upstream/internal at the pinned commit,
 # limited to the 640x480 variants (no other resolutions, no video walls)
 # and without upstream's music, credits and factory-reset media (55 MiB)
-# or the CJK fonts (no room on p2 yet, decision 17).
+# (the CJK fonts ship since M8, decision 17: the 1 GiB p2).
 # M7: the languages come from the pinned upstream language pack
 # (port/packaging/muos-language.txt) instead of internal's share/language,
 # which upstream no longer updates; the port's additions are merged in.
@@ -28,8 +28,7 @@ patterns() {
     sed -n 's|^[0-9a-f]\{40\} \(.*\)$|/\1/|p' "$list"
     # theme variants other than 640x480, video walls and previews of others
     printf '%s\n' '!/share/theme/*/[0-9]*x[0-9]*/' '/share/theme/*/640x480/' '!*.mp4' \
-        '!/share/media/music/' '!/share/media/credits/' '!/share/media/factory.mp3' \
-        '!/share/font/internal/*/' '/share/font/internal/Arabic/'
+        '!/share/media/music/' '!/share/media/credits/' '!/share/media/factory.mp3'
 }
 langcfg=$repo/port/packaging/muos-language.txt
 langdir=$repo/build/upstream/language

@@ -220,16 +220,50 @@ case "${1:-}" in
         echo system > "$c/core.con"; echo "${gov:-performance}" > "$c/core.gov"; echo false > "$c/core.rac"
         echo "runtime: assigned $dir -> $core ($gov)"
     done
-    # M8 item 5: ScummVM content is NAME.scummvm next to the game folder
-    # NAME (muOS upstream's layout); an empty one for every game folder that
-    # has none, so a copied-in game shows up as one entry (the launchers
-    # find the game id).
+    # M8 item 5 / M8f T3 4: a ScummVM game is its folder NAME with
+    # NAME/NAME.scummvm inside (muOS upstream's self-contained layout: the
+    # explorer then lists the folder as one game entry). The M8f layout
+    # (NAME.scummvm next to the folder) listed the folder too, and the core
+    # launcher's copy inside made it a second, broken entry: the outer file
+    # moves in (an inner one with an id wins), an empty one is created for a
+    # copied-in game; the launchers find the game id. Hidden folders
+    # (.NAME, _NAME) keep their outer NAME.scummvm (upstream's other form).
     for g in /userdata/ROMS/SCUMMVM/*/; do
         [ -d "$g" ] || continue
         n=${g%/}; n=${n##*/}
         case $n in .*|_*) continue ;; esac
-        [ -e "/userdata/ROMS/SCUMMVM/$n.scummvm" ] || { : > "/userdata/ROMS/SCUMMVM/$n.scummvm"; echo "runtime: scummvm entry $n"; }
+        o=/userdata/ROMS/SCUMMVM/$n.scummvm i=$g$n.scummvm
+        if [ -f "$o" ]; then
+            if [ -s "$i" ] && [ -n "$(tr -d '[:space:]' < "$i")" ]; then rm -f "$o"; else mv -f "$o" "$i"; fi
+            echo "runtime: scummvm entry $n moved into its folder"
+        elif [ ! -e "$i" ]; then
+            : > "$i"; echo "runtime: scummvm entry $n"
+        fi
     done
+    # m8g-scummvm-sa (M8f T3 5): the standalone's coredb key is scummvm-sa
+    # (upstream's shared key "scummvm" showed one row for both); an old
+    # assignment moves to it.
+    if ! grep -qx m8g-scummvm-sa "$mig"; then
+        for f in "$port/info-content/SCUMMVM"/*.cfg; do
+            [ -f "$f" ] || continue
+            if [ "${f##*/}" = core.cfg ]; then b=5; else b=6; fi
+            [ "$(sed -n "${b}p" "$f")" = ext-scummvm ] || continue
+            sed -i "${b}s/.*/ext-scummvm-sa/" "$f" && echo "runtime: migrated ${f#"$port"/} -> ext-scummvm-sa"
+        done
+        echo m8g-scummvm-sa >> "$mig"; sync
+    fi
+    # M8f T3 4: the ScummVM core looks for its engine data and the virtual
+    # keyboard packs in BIOS/scummvm/extra (themes in .../theme): the
+    # standalone's data directory serves both.
+    b=/userdata/MUOS/bios/scummvm
+    if [ -d /opt/muos/share/emulator/scummvm ]; then
+        mkdir -p "$b"
+        for l in extra theme; do
+            [ -L "$b/$l" ] || [ ! -e "$b/$l" ] || continue
+            [ "$(readlink "$b/$l" 2>/dev/null)" = /opt/muos/share/emulator/scummvm ] ||
+                ln -sfn /opt/muos/share/emulator/scummvm "$b/$l"
+        done
+    fi
     # game-governor (M3d): M3c seeded schedutil, which idles at the 1008 MHz
     # floor through per-frame bursts (PSX 59.1 fps, missed vsyncs); games
     # now default to performance (muos-governor also pins GPU and DDR).

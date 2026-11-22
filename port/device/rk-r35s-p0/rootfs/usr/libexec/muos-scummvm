@@ -3,10 +3,11 @@
 # muos-scummvm FILE.scummvm: standalone ScummVM (M8 item 5; v2026.4.0 as
 # dArkOSen ships it, built by build-scummvm.sh with the classic 2D engines),
 # run by muos-frontend for the SCUMMVM "ext-scummvm" assignment. Content as
-# muOS upstream (ext-scummvm.sh): ROMS/SCUMMVM/NAME.scummvm next to the game
-# folder NAME (or .NAME / _NAME); the file holds the ScummVM game id, found
-# by --detect on the first start when it is empty. S91 creates the empty
-# NAME.scummvm for every game folder that has none.
+# muOS upstream: ROMS/SCUMMVM/NAME/NAME.scummvm (the folder is the game
+# entry; M8f T3 4) or NAME.scummvm next to a hidden .NAME / _NAME folder;
+# the file holds the ScummVM game id, found by --detect on the first start
+# when it is empty. S91 creates the empty NAME/NAME.scummvm for every game
+# folder that has none.
 # Data p3 MUOS/port/scummvm: scummvm.ini (settings), saves/, scummvm.log.
 # Fn+Start quits (muos-standalone-quit: SIGTERM); sleep stops it.
 set -u
@@ -16,7 +17,8 @@ file=${1:?file}
 say() { echo "muos-scummvm: $*"; }
 dir=${file%/*} name=${file##*/}; name=${name%.*}
 game=
-for d in "$dir/$name" "$dir/.$name" "$dir/_$name"; do [ -d "$d" ] && { game=$d; break; }; done
+case $dir in */"$name") game=$dir ;; esac # NAME/NAME.scummvm
+[ -n "$game" ] || for d in "$dir/$name" "$dir/.$name" "$dir/_$name"; do [ -d "$d" ] && { game=$d; break; }; done
 case $file in *.scummvm) ;; *) game=$dir ;; esac # any game file: its folder
 [ -n "$game" ] || { say "no game folder for $file"; exit 1; }
 mkdir -p "$w/saves" || exit 1

@@ -970,6 +970,25 @@ The open problems behind each "partial" are in STATUS.
     84611ef0394d): PSP 5 min clean (12.4 fps, worst gap 170 ms vs 174–189
     stock), DC 8 min clean: the candidate for this unit. Other units may
     have less margin (do not assume; bin/leakage/pvtm differ).
+  - *Overclock does not help DC on battery (M8g, CPU −50 / GPU −25 mV
+    DTB, `t2-thermal.sh --cap 1512000`, logs build/logs/m8f/thermal/oc1512):*
+    1512 MHz holds for ~3 min, then the SoC sits at 81–83 °C and the
+    power allocator trades CPU (mean 1414 MHz, dips to 1008) against the
+    GPU (400–520 MHz): 95.6 % speed, 154 s below 95 % vs 97.0 % / 102 s at
+    a steady 1296. The minutes that are slow at 1296 (heavy scenes) stay
+    slow. The 1296 cap with the undervolt is the DC optimum on this unit.
+  - *Overclock does not help PSP either (M8g, God of War v1.12.3 state,
+    300 s from 60 °C, `build/m8g/t2-psp-oc.sh`):* cap 1296: 12.6 presented
+    fps, CPU mean 1065 MHz, max 84.2 °C (it throttles at the stock cap
+    already); cap 1512: 12.3 fps, mean 1024 MHz, 83.8 °C. On this unit
+    the heavy systems are held by heat, not by the clock cap: no game
+    overclock (M8 item 18 closed). Gains for PSP need less work per
+    frame (emulator, settings, a newer kernel/GPU driver), not MHz.
+  - *Flycast 2022 DSP off (M8g, `reicast_enable_dsp=disabled` per game,
+    1296 cap): 96.7 %, 121 s below 95 %:* no gain; the slow minutes are
+    the same scenes in every run (minute 2 ~92 %, minute 7 ~95 %). The
+    residual DC dips are game content beyond the RK3326 at 640x480, not
+    heat (frame skipping 1 or 320x240 would hide them, both rejected).
   - *Charging during play is the biggest heat source:* the same DC run on
     the 2 A adapter (battery charging at ~1.3 A) with CPU −50/GPU −25:
     81.5 °C, CPU down to 408 MHz, 93.5 % speed, 179 s below 95 % (worse

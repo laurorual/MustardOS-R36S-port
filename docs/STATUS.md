@@ -12,25 +12,26 @@ milestones with their results and T3 checklists in
 ## Current phase
 
 **Phase 5 (own-card firmware). M1–M5 and M7 done. Current: M8 (card
-layout and the heavy systems). 2026-11-21 night (unattended): the m8d
-T3 round (DC speed limiter, Saturn page flips + menu crash, core lists,
-NDS touch on R3, Fn+Start fade): image m8e; M8e T3 2–9 ok → m8e is the
-recovery image. 2026-11-21 day: the thermal block (undervolt CPU −50 /
-GPU −25 mV promoted as the main DTB on this unit), ScummVM (core +
-standalone), dArkOSen's standalone Flycast: image m8f, trial-root T2
-passed, p2 written; the M8f T3 checklist below.**
+layout and the heavy systems), closing with the m8g round; next M9
+(public v1.0). 2026-11-21: m8e (recovery until 22), then the thermal
+block (undervolt CPU −50 / GPU −25 mV as this unit's main DTB), ScummVM,
+Flycast standalone: m8f, T3 2/6/7/8 ok → m8f is the recovery image.
+2026-11-22 night: the M8f T3 round (ScummVM one entry + both cores in
+the list + virtual keyboard, CJK languages), overclock measured and
+dropped (heat-bound, item 18 closed): image m8g; the M8g T3 below.**
 
 ## Next session — read first
 
-- Device = **m8f on p2** (written 2026-11-21 ~15:30 after its trial-root
-  T2, `build/m8f/t2-m8f.sh`, logs `build/logs/m8f/trial-m8f/`; old p2 =
-  m8e as run, sha 141504d3, in p3 `MUOS/trial/p2-previous.img`), on the
-  1 GiB p2 card layout. `user_init` 0. Boot records: main =
-  `Image-be499e33d4eb` + **`panel0-84611ef0394d.dtb` (undervolt CPU −50 /
-  GPU −25 mV, `make-dtb-uv.sh`; trial-boot T2 `build/logs/m8f/trial-uv`)**,
-  previous = the same Image + `panel0-c97151d0ec1a.dtb` (stock
-  voltages). A crash or freeze that looks like instability: `muos-boot-slot`
-  back to the stock DTB (previous). No live installs on top.
+- Device = **m8f on p2** (written 2026-11-21; the m8g trial root ran
+  2026-11-22 00:50–01:12 and passed). p3 `MUOS/trial/rootfs.img` = the
+  first m8g p2 (`ff031e2f…`, without the CJK language files): replace it
+  with `build/m8g/rootfs.img.gz` (`4ca8c058…`), arm, reboot, short T2,
+  `write-p2`. Old p2 copy: `MUOS/trial/p2-previous.img` (m8e). 1 GiB p2
+  layout, `user_init` 0. Boot records: main = `Image-be499e33d4eb` +
+  **`panel0-84611ef0394d.dtb` (undervolt CPU −50 / GPU −25 mV)**,
+  previous = the same Image + `panel0-c97151d0ec1a.dtb` (stock). A
+  freeze that looks like instability: `muos-boot-slot` back to the stock
+  DTB. No live installs on top.
 - T2 left on p3: `pickles/settings/core/flycast{,2022}.ini`
   (speed_limiter=1, as the migration writes them); YabaSanshiro's per-game
   `Sonic R ... .cue.config` and `save/backup.bin` (race tests).
@@ -85,14 +86,14 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m8f-20261121.img.zst` (raw `fe44baad…`, p2 `15b51793…`, U-Boot `159e086c…`) | M8e T3 round + thermal block: ScummVM v2026.4.0 core + standalone, Flycast v2.7 standalone, DC synchronous rendering default, one DraStic, sleep stops YabaSanshiro/ScummVM/Flycast (the image's p1 DTB is the stock one; the undervolt DTB is a boot record on this card only) | **on the device (p2 written 2026-11-21)**; trial-root T2 passed; T3 pending (the M8f checklist) |
-| **`dist/firmware/test128-m8e-20261121.img.zst`** (raw `2f0293a2…`, p2 `e43458ce…`, U-Boot `159e086c…`) | **Recovery image since 2026-11-21 (1 GiB p2 layout).** m8d T3 round: DC Flycast speed limiter, Saturn vblank flips + menu crash fix + SCSP wait, core lists by installed cores, NDS touch on R3, Fn+Start fade | T3 2026-11-21: 2–9 ok; 1 DC uneven (frame-skip feel) |
-| `dist/firmware/test128-m8d-20261120.img.zst` (raw `c7520a89…`, p2 `37d7194d…`, U-Boot `159e086c…`) | m8c T3 round: NDS Fn+Start quit fix + right-stick stylus, quit dimming, DC Flycast 2022 at 640x480 + framerate normal, Saturn standalone YabaSanshiro default | T3 2026-11-21: 1, 2, 3, 7 ok; 4 DC uneven, 5 Saturn slow + Select crash, 6 core list (fixed in m8e) |
-| `dist/firmware/test128-m8c-20261120.img.zst` (raw `b0ca0ac9…`, p2 `51788316…`, U-Boot `159e086c…`) | Recovery 2026-11-20 → 21. m8b T3 round: advanced DraStic (two-screen layout, auto save state), DC Flycast 2022 (dArkOSen), PSP buffered rendering, wake without hold (kernel 0010 + CPU1-3), libmucursor | T3 2026-11-20: 1, 2, 3, 6, 8 ok; 4 stylus stick, 5 NDS resume/quit freeze, 7 DC uneven/half resolution (fixed in m8d); also boots the spare card in slot 1 |
+| `dist/firmware/test128-m8g-20261122.img.zst` (raw `81613024…`, p2 `4ca8c058…`, U-Boot `159e086c…`) | M8f T3 round: ScummVM games as NAME/NAME.scummvm (one entry), "ScummVM - Standalone" in the core list, virtual keyboard (Select) in both, CJK languages with their fonts | trial-root T2 passed (`build/m8g/t2-m8g.sh`); T3 pending (the M8g checklist) |
+| **`dist/firmware/test128-m8f-20261121.img.zst`** (raw `fe44baad…`, p2 `15b51793…`, U-Boot `159e086c…`) | **Recovery image since 2026-11-22.** M8e T3 round + thermal block: ScummVM core + standalone, Flycast v2.7 standalone, DC synchronous rendering, one DraStic (the image's p1 DTB is the stock one; the undervolt DTB is a boot record on this card only) | T3 2026-11-21: 2, 6, 7, 8 ok; 1 DC dips as before, 3 PSP as before; 4/5 ScummVM entry, keyboard, core list (fixed in m8g) |
+| `dist/firmware/test128-m8e-20261121.img.zst` (raw `2f0293a2…`, p2 `e43458ce…`, U-Boot `159e086c…`) | Recovery 2026-11-21 → 22. m8d T3 round: DC speed limiter, Saturn vblank flips + menu crash fix + SCSP wait, core lists by installed cores, NDS touch on R3, Fn+Start fade | T3 2026-11-21: 2–9 ok; 1 DC uneven |
+| `dist/firmware/test128-m8d-20261120.img.zst` (raw `c7520a89…`, p2 `37d7194d…`, U-Boot `159e086c…`) | m8c T3 round: NDS quit fix + right-stick stylus, DC Flycast 2022 at 640x480, Saturn standalone YabaSanshiro | T3 2026-11-21: 1, 2, 3, 7 ok (rest fixed in m8e) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-5/5 versions in `storage-retention.json` (m8f added 2026-11-21). The
-next image retires m8c (or m8d).
+5/5 versions in `storage-retention.json` (m8c retired, m8g added
+2026-11-22). The next image retires m8d.
 
 ## What works (T3-confirmed)
 
@@ -134,26 +135,27 @@ controls and saves.
   gauge's charge-finish step (dsoc → 100 on charge done) doesn't run
   while suspended, and/or the low learned FCC. Low priority; look at it
   with the M7 power items.
-- **p2 space:** 1 GiB since m8b, 468 MB free. ScummVM and the CJK fonts
-  (decision 17) are next (by `write-p2`, no reflash).
-- **Heavy systems (M8; performance first, AGENTS.md):** M8f thermal
-  block: the DC "random frame skipping" was throttling to 1008 MHz (88 %
-  game speed there); undervolt CPU −50 / GPU −25 mV on this unit (main
-  DTB) keeps 1296 MHz on battery; GPU undervolt beyond −25 mV faults in
-  PSP; charging during play is the largest heat source and the RK817
-  limits do not act (play heavy systems on battery). PSP = PPSSPP
-  v1.12.3 + FrameSkip 1, buffered since m8c (~8 % slower, accepted by the
-  user); CPU-bound and thermally held at ~1000 MHz (78–84 °C) on the
-  charger. Flycast v2.7 standalone (dArkOSen, M8f) is CPU-bound at ~15
-  presented fps (emulation thread 100 % of a core) vs ~51 for Flycast
-  2022: selectable, not the default. NDS = advanced DraStic, full speed. DC = Flycast 2022 at
-  640x480 + framerate normal + muxretro's Speed Limiter since m8e (the
-  user's fight 100 %, ~52 pictures/s; heavy attract scenes ~86 %); v2.7
-  selectable. Saturn = standalone YabaSanshiro (Sonic R race 20-25 of 60
-  emulated fps: the sound thread is the limit, too heavy for the RK3326;
-  2D games untested), libretro selectable. The user wants any future FPS gain
-  (other settings, emulator versions, a newer kernel with Vulkan) for
-  PSP. Details in hardware-findings "Standalone emulators (M8)".
+- **p2 space:** 1 GiB since m8b; 318 MB free in m8g (ScummVM, the CJK
+  fonts in).
+- **Heavy systems (M8; performance first, AGENTS.md):** they are held
+  by heat, not by the clock cap. Undervolt CPU −50 / GPU −25 mV on this
+  unit (main DTB) keeps DC at 1296 MHz on battery (94.7 → ~97 % speed;
+  the user saw no difference, M8f T3); GPU undervolt beyond −25 mV faults
+  in PSP. **Overclock dropped (M8g, item 18 closed):** 1512 MHz throttles
+  to 81–83 °C within ~3 min and the allocator then also cuts the GPU: DC
+  95.6 % (worse), PSP 12.3 vs 12.6 fps (the CPU averages ~1050 MHz at
+  either cap); DC's Flycast DSP off: no gain. The remaining DC dips are
+  heavy scenes (the same minutes in every run), beyond the RK3326 at
+  640x480 (frame skip 1 or 320x240 would hide them; rejected). Charging
+  during play is the largest heat source (play heavy systems on
+  battery). PSP = PPSSPP v1.12.3 + FrameSkip 1, buffered. DC = Flycast
+  2022 at 640x480 + Speed Limiter + synchronous rendering; Flycast v2.7
+  standalone selectable (~15 fps, kept by decision 30). NDS = advanced
+  DraStic, full speed. Saturn = standalone YabaSanshiro (Sonic R 20–25
+  fps: too heavy), libretro selectable. The user wants any future FPS
+  gain for PSP: only less work per frame helps (emulator, settings, a
+  newer kernel/GPU driver). Details in hardware-findings "Standalone
+  emulators (M8)" and "M8 thermal block".
 - **Wi-Fi toggle (m8b trial T2):** one of 7 toggles sat in SCANNING for
   150 s (no AP found), the next came back in 9 s; network code unchanged
   in m8b; two SSH drops earlier the same day under heavy load.
@@ -177,12 +179,13 @@ controls and saves.
 - **Translation (pt-BR):** every frontend string has pt-BR text since M7
   (upstream language pack + the port's overlay). Still English, as
   upstream: task names (file names), sort tags, time zone and language
-  names. Chinese, Japanese and Korean are not shipped until p2 has room
-  for their fonts (decision 17).
+  names. Chinese (Simplified/Traditional), Japanese and Korean ship
+  since m8g with upstream's fonts (decision 17).
 - **Menu sleep, one missed press (M7 soak):** 1 of 15 Power presses
   (20 s after a resume) reached muos-hotkey but muos-suspend exited
   silently (its lock or the recent-wake guard); not reproduced in 5 more
-  cycles. Both exits log from the next image on.
+  cycles. Both exits log since M8 (item 11): no "ignored:" line in the
+  m8f day's logs.
 - **Wi-Fi dongle (RTL8821CU):** the warm-reboot H2C case (1 in 7 since
   M4c); no software power cycle.
 - **Wake:** in the menu Wi-Fi returns ~9.3–10.2 s after wake (M7
@@ -264,132 +267,76 @@ Answered 2026-11-20 (m8b T3): 26 slot-2 swap test: yes, the spare card
 hands); 27 DraStic and every other closed component stay in the
 developer and the public image; the public image is published only
 after explicit licence answers (pending-licenses.json `nds-drastic-m8`).
+Answered 2026-11-21 (M8f T3): 28 undervolt as an opt-in, stock voltages
+by default (agreed; the row goes in Configuração → Configurações
+perigosas, below "Máximo do processador", built in M9; this card keeps
+the undervolt DTB); 30 keep the Flycast standalone in the DC list.
 Standing rule (AGENTS.md "Heavy Systems"): heavy systems = maximum
 performance first.
 
 ## Decisions for the user
 
-28. **Undervolt in the public image.** It is per-chip: CPU −50 / GPU −25
-    mV is stable on this unit (bin 0, leakage 19), others may freeze.
-    Recommendation: stock voltages by default, undervolt as an opt-in
-    (a menu toggle that switches the boot DTB, with the stock one as the
-    fallback record), built in M9; this card keeps it.
 29. **ScummVM default** for the SCUMMVM folder: the libretro core
     (muxretro overlay, states, volume bar) or the standalone (its own
-    menus, 60 Hz). Recommendation: the core, after your T3.
-30. **Flycast standalone:** keep it in the DC core list or drop it
-    (~15 fps vs ~51 for Flycast 2022 in T2). Recommendation: drop it
-    unless your T3 finds a game it runs better.
+    menus, 60 Hz). Both are now in the core list (M8g T3 3).
+    Recommendation: the core, unless your T3 prefers the standalone.
 
 ## T3 queue
 
-**M8f checklist (image m8f, undervolt DTB; pt-BR labels).** Heavy games
-on battery (the charger heats the console more than the game).
+**M8g checklist (image m8g on p2; pt-BR labels).**
 
-1. **Dreamcast** (Explorar conteúdo → DC → Power Stone 2 (USA)), on
-   battery, 10 min of fights: no more "frame-skipping" spells (they were
-   the CPU throttling to 1008 MHz; with the undervolt it stays at 1296).
-   Synchronous Rendering is on by default now.
-2. **Dreamcast standalone:** on Power Stone 2 press X → Opções do
-   conteúdo → Núcleo do conteúdo → "Flycast - Standalone (dArkOSen)";
-   start it: compare speed and controls with Flycast 2022 (T2: much
-   slower). Fn+Start quits; the next start resumes where you left (auto
-   state). Set the core back to "Flycast 2022 (dArkOSen)".
-3. **PSP** (God of War), on battery, 10 min: no freezes or graphics
-   glitches (the GPU undervolt is the risky part: PSP is where too deep a
-   GPU undervolt froze it).
-4. **ScummVM standalone** (Explorar conteúdo → SCUMMVM → The Secret of
-   Monkey Island (CD DOS VGA)): it starts the game (this card's folder
-   is on the standalone); music and voices from the CD tracks; move the
-   pointer and click (note which buttons do what); save in the game
-   menu; Fn+Start quits back to the list.
-5. **ScummVM core:** X → Opções do conteúdo → Núcleo do conteúdo →
-   "ScummVM" (libretro); start the game: the same checks; Start opens
-   ScummVM's menu; the volume/brightness bar works; your save from item
-   4 may not be shared (each keeps its own saves). Which do you prefer
-   (decision 29)?
-6. **NDS core list:** X → Opções do conteúdo → Núcleo do conteúdo on
-   NSMB: only one "DraStic (Advanced)" entry.
-7. **Saturn sleep:** in Sonic R, a short Power press sleeps and the next
-   wakes into the game (sleep now stops YabaSanshiro, ScummVM and
-   Flycast like the other standalones).
-8. **Regression:** GBA or SNES game with a save: resume and save still
-   there; short Power in the menu sleeps and wakes.
+1. **ScummVM list** (Explorar conteúdo → SCUMMVM): one entry "The Secret
+   of Monkey Island (CD DOS VGA)" (no second one); it starts (on this
+   card: the standalone, as assigned before).
+2. **ScummVM standalone, typing a save name:** in the game, Start opens
+   ScummVM's own menu → Save (its menus may be in English) → pick a slot: Select opens the virtual
+   keyboard; move the pointer (stick/d-pad) and A on the keys, then its
+   Enter/OK; save. Fn+Start quits; start again, Start → Load: your save
+   is there.
+3. **ScummVM core list + core:** X on the game → Opções do conteúdo →
+   Núcleo do conteúdo: two entries, "ScummVM" and "ScummVM -
+   Standalone"; pick "ScummVM", start: the game runs, Select opens the
+   virtual keyboard, the volume/brightness bar works, saving from item 2
+   is not shared (each keeps its own). Which do you prefer (decision 29)?
+4. **Japanese / Korean / Chinese:** Configuração → Idioma → "Japanese"
+   (the list keeps English names): the menu shows Japanese text (no
+   empty boxes); the same for "Korean" and "Chinese (Simplified)"; back to
+   "Portuguese (BR)".
+5. **Regression:** a GBA or SNES game with a save resumes; DC Power
+   Stone 2 starts as before; short Power in the menu sleeps and wakes.
+
+DC note (M8f T3 1): the short dips are heavy scenes the RK3326 can't
+hold at 60 fps; nothing measured removes them (overclock makes it worse,
+see "Heavy systems"). No DC item this round.
 
 ## Current milestone: M8 — card layout and the heavy systems (decisions 16, 17, 20)
 
-Started 2026-11-20. Night 1 (unattended, 2026-11-20 01:30–03:30): items
-1 (U-Boot root by device, written), 2 (quiet boot + logo, written), 7
-(PSP standalone), 10 (wake in a game) done to T2; 6/8/9 built, blocked by
-decisions 23/24; 3/4 need decision 25. Day (user present): night-1 T3
-fixes (sleep screen-off, 3 s wake hold), PSP v1.12.3, DraStic, Flycast
-v2.7, item 3 (m8b flashed, p3 restored). Details: milestones.md M8.
-**Left:** see the m8c T3 round below.
+Started 2026-11-20; rounds m8b → m8g (per-round details and T3 results
+in milestones.md M8, items 1–46). **State of the items:** 1 clean U-Boot
++ `root=` by device, 2 quiet boot + logo, 3 the 1 GiB p2 layout, 4 the
+slot-2 swap, 5 ScummVM (core + standalone, virtual keyboard) and the CJK
+fonts, 6 DC (Flycast 2022, v2.7 standalone), 7 PSP (PPSSPP v1.12.3), 8
+NDS (advanced DraStic), 9 Saturn (standalone YabaSanshiro), 10 wake in a
+game, 11 the sleep-exit logging: done (T3 per round). 18 overclock:
+measured and dropped (heat-bound, M8g). 12 battery % after sleeping on
+the charger: moved to M9 (the BSP gauge's charge-finish step, low
+priority). Thermal block: undervolt on this unit (decision 28 makes it
+an M9 opt-in).
 
-**m8b T3 round (2026-11-20 evening; heavy systems = performance first,
-AGENTS.md):** done to T2 and in m8c: 13 PSP buffered rendering (GoW
-graphics), 14 advanced DraStic (layout vh_s0, auto save/load state, no
-cursor), 15 DC Flycast 2022 (dArkOSen's default), 16 wake stutter root
-cause (kernel 0010 + CPU1-3, no hold).
+**m8g round (2026-11-22 night):** M8f T3 fixes (ScummVM one entry,
+"ScummVM - Standalone" key, virtual keyboard, the core's extra/theme
+data), CJK languages + fonts, overclock and DSP measurements (no
+change). Trial-root T2 passed (the build before the CJK language-file
+fix); the device went off the network on the reboot after the batch
+(nothing written; the user was asked to check the screen). **Next:** the
+final p2's short trial T2 (`build/m8g/t2-cjk.sh`, checks, NES), then
+`write-p2` (pre-authorized). **M8 closes
+when the M8g T3 passes**; its findings are fixed inside M9.
 
-**m8c T3 round (2026-11-20 night):** done to T2 and in m8d (milestones.md
-M8 26–30): NDS Fn+Start quit/save-state fix, right-stick stylus, quit
-dimming, DC 2022 at 640x480 + framerate normal, 17 Saturn standalone
-YabaSanshiro (Boost static, not in the rootfs); item 4 (slot-2 swap)
-closed.
-
-**m8d T3 round (2026-11-21 night, unattended):** done to T2 and in m8e
-(milestones.md M8 33-36): DC speed limiter, Saturn vblank flips + menu
-crash + SCSP wait, core lists by installed cores, NDS touch on R3,
-Fn+Start fade, `t2-coremeter`; M8e T3 2–9 ok, m8e recovery.
-
-**Thermal block + M8e T3 round (2026-11-21 day; milestones.md M8 38–44):**
-dArkOSen manages heat as the port does; measured with `t2-thermal.sh`
-(hardware-findings "M8 thermal block"): T1 harness done; T2 cap 1200
-(−1.9 °C, small gain); T6 undervolt: CPU −50 / GPU −25 mV stable here,
-promoted as the main DTB (GPU −50/−75 fault in PSP); T5 charger heat
-measured, the RK817 limits do nothing (dropped); T3/T4 (GPU cap, IPA
-tuning) not needed after the undervolt (no throttling on battery); T7 DC
-synchronous rendering default (m8f-dc-sync); T8 one DraStic; T9 Flycast
-standalone built from source, slower than 2022 (selectable); item 5
-ScummVM core (pthreads; libco deadlocks under muxretro's worker thread)
-+ standalone. **Left:** 18 overclock (now with thermal headroom: ~75 °C
-at 1296 on battery), CJK fonts, 11, 12, the M8f T3, decisions 28–30.
-
-**Older notes:** 18 overclock only where heat allows (on the charger
-DC/Saturn/PSP hit 81-84 °C).
-
-Items:
-1. Clean U-Boot build (from source, no dirty tree), `root=` by the
-   slot-1 device (decision 16). T0–T2 through the trial boot path; the
-   bootloader write with the user there.
-2. Quiet boot and a boot logo (M7 T3): no kernel console on the LCD
-   (`console=tty0`/`loglevel` out of the bootargs), a logo from U-Boot or
-   early userspace until the frontend; the developer image keeps the log
-   on serial and in a file.
-3. Card layout with p2 at 1 GiB (decision 17) and a matching recovery
-   image.
-4. Slot-2 swap test (our image on the former original32 in slot 1,
-   test128 in slot 2) to close the slot-2 problem.
-5. ScummVM and the CJK fonts (decision 17).
-6. Dreamcast (Flycast).
-7. PSP (PPSSPP, standalone, `muos-mupen64plus` launcher pattern).
-8. NDS (DraStic licence check for a public image, else melonDS or
-   DeSmuME; standalone like PSP).
-9. Saturn last (YabaSanshiro or Beetle), lowest priority.
-10. Wake in a libretro game: hold the game until the wake bring-up
-    settles, like the standalone N64 (M7 T3 note), instead of resuming
-    into slow frames.
-11. The sleep-exit logging (M7 item 26) in the image; follow the missed
-    menu press if it shows again.
-12. Battery % short of 100 after sleeping on the charger (low priority).
-
-Tests: T0 builds and shellcheck; T1 the new emulators under qemu-user
-and ELF/ABI checks; T2 trial root (sweep, fps per new system with the
-user's ROMs, sleep, wake frame times), trial boot for the U-Boot and
-bootargs change. Expected T3: the boot logo, the U-Boot/layout flash
-with the user present, the slot-2 swap, a game each in DC, PSP, NDS
-(and Saturn), ScummVM, a CJK language, wake in NES.
+Tests: T0 builds and shellcheck; T1 ELF/ABI checks; T2 trial root
+(`build/m8g/t2-m8g.sh`: sweep, NES, sdcard, SFTP jail, ScummVM core +
+standalone, Flycast standalone, DC 2022, NDS, Saturn, PSP, wake) and
+`build/m8g/t2-cjk.sh` (menu screenshots in Japanese, Korean, Chinese).
 
 ## Next milestone: M9 — public v1.0
 

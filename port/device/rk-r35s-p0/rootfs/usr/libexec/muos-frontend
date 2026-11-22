@@ -125,15 +125,20 @@ launch_content() {
         return 0
     fi
     # M8 item 5: the ScummVM core autodetects the game in the folder of the
-    # file it gets. NAME.scummvm sits next to the game folder NAME (muOS
-    # upstream's layout, lr-scummvm.sh): with a game id in it, a copy goes
-    # into the folder (the core then launches that id there); empty, the
-    # core gets the folder's first file and detects the game itself.
+    # file it gets. M8f T3 4: a game is NAME/NAME.scummvm (S91 moves the
+    # older outer file in): with a game id in it the core launches that id
+    # there; empty, it gets the folder's first file and detects the game.
+    # Upstream's hidden-folder form (.NAME or _NAME next to NAME.scummvm):
+    # a copy goes into that folder (no second explorer entry: the folder is
+    # hidden).
     if [ "$core" = scummvm_libretro.so ] && [ "${content##*.}" = scummvm ]; then
-        n=${file%.*} g=
-        for d in "$dir1$dir2/$n" "$dir1$dir2/.$n" "$dir1$dir2/_$n"; do [ -d "$d" ] && { g=$d; break; }; done
+        n=${content##*/} g=; n=${n%.*}
+        case $content in */"$n/$n.scummvm") g=${content%/*} ;; esac
+        if [ -z "$g" ]; then
+            for d in "$dir1$dir2/.$n" "$dir1$dir2/_$n" "$dir1$dir2/$n"; do [ -d "$d" ] && { g=$d; break; }; done
+        fi
         if [ -n "$g" ] && [ -n "$(tr -d '[:space:]' < "$content")" ]; then
-            cp "$content" "$g/$n.scummvm" && content=$g/$n.scummvm
+            [ "${content%/*}" = "$g" ] || { cp "$content" "$g/$n.scummvm" && content=$g/$n.scummvm; }
         elif [ -n "$g" ]; then
             f=$(find "$g" -maxdepth 1 -type f ! -name '*.scummvm' | sort | head -n1)
             [ -z "$f" ] || content=$f

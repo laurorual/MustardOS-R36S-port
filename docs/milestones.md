@@ -307,6 +307,44 @@ to dark. The rest of the night unattended.
     59.97, sdcard, SFTP jail, ScummVM core + standalone, Flycast
     standalone, DC 2022 97.8 %, NDS, Saturn, PSP, wake: all pass; p2
     written 2026-11-21 ~15:30.
+    **M8f T3 (user, 2026-11-21): 2, 6, 7, 8 ok**; 3 PSP as before the
+    undervolt (no faults); 1 DC: the short "frame-skip" spells remain
+    (more often, shorter); 4 two Monkey Island entries, the first fails;
+    no way to type a save name; 5 only one ScummVM entry in the core
+    list. No visible change from the undervolt (expected: DC 94.7 → 97 %).
+    Decisions: 28 agreed (opt-in toggle), 30 keep Flycast standalone.
+45. **ScummVM (M8f T3 4, 5) — done to T2:** the core launcher's copy of
+    NAME.scummvm into the folder made the folder a second explorer entry
+    (muxshare `folder_has_launch_file`: NAME/NAME.scummvm), which handed
+    the inner file to muos-scummvm (no NAME/NAME folder: exit 1). Layout
+    now upstream's self-contained one: NAME/NAME.scummvm, the folder is
+    the one entry (S91 moves the outer file in; hidden .NAME/_NAME keep
+    the outer one); both launchers take it. Upstream's coredb gives the
+    libretro and external ScummVM the same key "scummvm" and muxassign
+    lists one row per key: the external is "scummvm-sa" / "ScummVM -
+    Standalone" (`coredb-governors.py`), the system's runtime preference
+    dropped (fresh folders get the core), migration m8g-scummvm-sa moves
+    old assignments. Virtual keyboard: the standalone built with
+    `--enable-vkeybd` + vkeybd_default/small packs, the core finds them
+    (and the engine data) through BIOS/scummvm/extra → the standalone's
+    data directory (S91); Select opens it in both.
+46. **CJK (decision 17):** Chinese (Simplified/Traditional), Japanese and
+    Korean ship with upstream's fonts (share/font/internal/<Language>,
+    ~33 MB); their language files were also in firmware-inputs.json
+    "remove" (the M7 exclusion), dropped from it.
+47. **Overclock (item 18) — measured, dropped:** 1512 MHz on battery is
+    heat-bound for DC (95.6 % vs 97.0 % at 1296) and PSP (12.3 vs 12.6
+    fps); Flycast DSP off: no gain (hardware-findings "M8 thermal block").
+48. **Image m8g** (raw `81613024…`, p2 `4ca8c058…`): trial-root T2 of the
+    same build before the CJK language fix (p2 `ff031e2f…`,
+    `build/m8g/t2-m8g.sh`, logs `build/logs/m8g/trial-m8g/`): sweep 44 ok,
+    NES 59.96, sdcard, SFTP jail, ScummVM core 100 % (vkeybd pack
+    loaded) + standalone from NAME/NAME.scummvm (VirtualKeyboard), the
+    S91 move and migration, Flycast standalone, DC 2022 98.1 %, NDS,
+    Saturn (race, menu, quit), PSP 12.5, wake: all pass. m8c retired.
+    The reboot back to main after the batch (2026-11-22 01:12) left the
+    device off the network (nothing written; m8f on p2); the final p2's
+    short T2 (`build/m8g/t2-cjk.sh`) and the p2 write wait for it.
 
 ## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 

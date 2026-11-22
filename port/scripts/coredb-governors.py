@@ -43,6 +43,13 @@ ADD = {"Nintendo DS": {"drastic": {"name": "DraStic (Advanced)", "core": "ext-dr
 # M8e T3 6: upstream's own entry for the same emulator (two "DraStic" rows
 # that both start the advanced DraStic)
 DROP = {"Nintendo DS": {"drastic - standalone"}, "Sega Dreamcast": {"flycast"}}
+# M8f T3 5: upstream gives ScummVM's libretro and external entries the same
+# key "scummvm" (and name), and muxassign lists one row per key, so only
+# one showed. The external one gets its own key and name; the system's
+# "runtime": "external" goes, so a fresh folder gets the default core (the
+# libretro one, core-assign.txt), and an old "ext-scummvm" assignment is
+# rewritten by S91 (migration m8g-scummvm-sa).
+RENAME_EXTERNAL = {"ScummVM": ("scummvm", "scummvm-sa", "ScummVM - Standalone")}
 # M8 T3 8: libretro cores upstream's coredb has no entry for
 ADD_LIBRETRO = {"Sega Dreamcast": {"flycast 2022": {"name": "Flycast 2022 (dArkOSen)",
                                                     "core": "flycast2022_libretro.so"}}}
@@ -78,6 +85,16 @@ def main(table, path, core_dir=None):
                 ext[key] = e
                 changed += 1
                 print(f"coredb-governors: {system}: external {key!r} added")
+    for system, (old, new, name) in sorted(RENAME_EXTERNAL.items()):
+        node = db.get(system, {})
+        ext = node.get("external", {})
+        if old in ext:
+            ext[new] = dict(ext.pop(old), name=name)
+            changed += 1
+            print(f"coredb-governors: {system}: external {old!r} -> {new!r} ({name})")
+        if node.pop("runtime", None) is not None:
+            changed += 1
+            print(f"coredb-governors: {system}: runtime preference dropped")
     for system, cores in sorted(ADD_LIBRETRO.items()):
         lr = db.get(system, {}).setdefault("libretro", {})
         for key, e in cores.items():

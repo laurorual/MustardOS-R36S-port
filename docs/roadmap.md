@@ -35,9 +35,9 @@ screens call.
 | Hotkeys | `share/hotkey/*` (screenshot, brightness, overlay…) | the port's own 2 files | screenshot done (M5) |
 | Share data | `share/{lookup,info/name,media,task}` | missing | done (M5) |
 | Screens without a backend | Bluetooth, HDMI, USB gadget, News | shown | hidden by flags or 0008/0009 (M5) |
-| Cores | 125 systems, 236 core entries (`core.json`) | 6 cores | M6: 20 cores, 28 folders (N64 trial; ScummVM waits for p2 space) |
+| Cores | 125 systems, 236 core entries (`core.json`) | 6 cores | M6: 20 cores, 28 folders; M8: the heavy systems, ScummVM (core + standalone) |
 | Build from source | — | muxfrontend, libui, cores, kernel modules pinned as binaries | M6: release frontend + muxretro and all `build-cores.sh` cores from source; modules proven identical (`modules-check`) |
-| Languages | 35 language files | upstream language pack + pt-BR overlay; CJK fonts out until p2 has room | done (M7); CJK in M8 |
+| Languages | 35 language files | upstream language pack + pt-BR overlay, CJK with their fonts (M8) | done (M7, CJK M8) |
 | Performance/power | — | 1512 MHz opt-in, underruns measured, PipeWire self-heal; wake dip in libretro games | done (M7); wake hold in M8 |
 | Public release | — | licences, GPL bundle, public image T3, docs | M9 |
 | Applications | PortMaster, RetroArch, PPSSPP, ScummVM, standalone emulators | Mupen64Plus (M7); PPSSPP, DraStic, YabaSanshiro, Flycast, ScummVM core + standalone (M8) | the rest after v1.0 |
@@ -119,7 +119,14 @@ image. The public variant: T2 checks, first-boot flow (Wi-Fi from the
 menu, SSH/SFTP toggles, empty p3 populated). The MustardOS team's answer on
 the name and theme assets. Install guide (English and pt-BR), changelog,
 known issues, SHA256. The update path for v1.x (reflash keeping p3, or a
-muxarchive update package). rc1 → T3 on a blank card with the user present
+muxarchive update package). The undervolt as an opt-in (decision 28):
+a row "Undervolt" in Configuração → Configurações perigosas (frontend
+patch to muxdanger, below "Máximo do processador"); switching it arms
+the other DTB as a trial boot (`muos-boot-slot install-trial`) and
+reboots, and a boot that reaches the menu promotes it: a unit that
+freezes before the menu falls back to the stock DTB on the next start;
+games that fault later (Mali faults, freezes) mean switching it off in
+the same row. Stock voltages by default. rc1 → T3 on a blank card with the user present
 → v1.0.
 
 Scope of v1.0: R35S/R36S **Panel 0** only (DT model R36S-V12 2023-08-18

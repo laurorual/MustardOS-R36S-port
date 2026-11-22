@@ -170,7 +170,7 @@ snapshots.
 - Upstream `share/` data (M5): refs/muos/internal is a `blob:none` sparse
   clone without `share/` (reading its blobs fetches them into refs), so
   `port/scripts/fetch-upstream-share.sh` keeps a sparse clone in
-  `build/upstream/internal` (640x480 only, no music/videos/CJK fonts);
+  `build/upstream/internal` (640x480 only, no music/videos; CJK fonts since M8);
   trees by git tree id in `port/packaging/muos-internal-share.txt`,
   removals in `muos-internal-share-exclude.txt`; `stage DIR` builds an
   install tree (`stage_overlay` uses it). The pinned inputs win where

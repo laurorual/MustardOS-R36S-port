@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m8c-20261120": {
-      "reason": "M8c (m8b T3 round): advanced DraStic (vh_s0 layout, auto save state), DC Flycast 2022 (dArkOSen) default, PSP v1.12 buffered rendering, wake without hold (kernel 0010 dw_mmc sleep + CPU1-3 pin), libmucursor; developer image; raw b0ca0ac9, p2 51788316",
-      "files": [
-        "dist/firmware/test128-m8c-20261120.img.zst",
-        "dist/firmware/test128-m8c-20261120.img.zst.sha256",
-        "dist/firmware/test128-m8c-20261120.manifest",
-        "build/m3a/test128-m8c-20261120.p2.img"
-      ]
-    },
     "m8d-20261120": {
       "reason": "M8d (m8c T3 round): NDS Fn+Start quit fix (auto state saved), stylus on the right stick, quit dimming, DC Flycast 2022 at 640x480 + framerate normal, Saturn standalone YabaSanshiro default (static Boost); developer image; raw c7520a89, p2 37d7194d",
       "files": [
@@ -45,6 +36,15 @@
         "dist/firmware/test128-m8f-20261121.img.zst.sha256",
         "dist/firmware/test128-m8f-20261121.manifest",
         "build/m3a/test128-m8f-20261121.p2.img"
+      ]
+    },
+    "m8g-20261122": {
+      "reason": "M8g (M8f T3 round): ScummVM NAME/NAME.scummvm one entry, ScummVM - Standalone coredb key, virtual keyboard (core + standalone), CJK languages + fonts; developer image; raw 81613024, p2 4ca8c058; trial-root T2 passed (the same build without the 4 CJK language files: full batch; this p2: short T2 pending)",
+      "files": [
+        "dist/firmware/test128-m8g-20261122.img.zst",
+        "dist/firmware/test128-m8g-20261122.img.zst.sha256",
+        "dist/firmware/test128-m8g-20261122.manifest",
+        "build/m3a/test128-m8g-20261122.p2.img"
       ]
     }
   },

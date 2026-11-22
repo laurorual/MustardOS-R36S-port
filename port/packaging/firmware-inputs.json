@@ -17292,7 +17292,7 @@
    "path": "/opt/muos/share/emulator/scummvm/scummvm",
    "type": "file",
    "mode": "755",
-   "sha256": "470dafd432aae1c644a1ae74b457c21e3c5664c85d056862193562df95abba27",
+   "sha256": "c4eaf0007f9c98052d311a91f099ebc1f7fa9e03fe1f5deb143f81c4166486dc",
    "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/scummvm"
   },
   {
@@ -17348,6 +17348,20 @@
    "mode": "755",
    "sha256": "778a99e486ead09a9c5b612bc57135a70594afab14cf1d6ebda1546f39ab5e81",
    "origin": "build/m8f/scummvm/scummvm_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/vkeybd_default.zip",
+   "type": "file",
+   "mode": "644",
+   "sha256": "2704048b87cc4a0915cdbffa98cd7b4ba7a195a96a76c57d5912fbcc24cc2cd2",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/vkeybd_default.zip"
+  },
+  {
+   "path": "/opt/muos/share/emulator/scummvm/vkeybd_small.zip",
+   "type": "file",
+   "mode": "644",
+   "sha256": "39460807f2fa5a39949c6db37af4eb7cbf069c59f2f1d5e9bb9693e516b0d5e8",
+   "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/vkeybd_small.zip"
   }
  ],
  "remove": [
@@ -17359,11 +17373,7 @@
   "/etc/usb_modeswitch.conf",
   "/etc/wpa_supplicant.conf",
   "/lib/udev/usb_modeswitch",
-  "/opt/muos/share/language/Chinese (Simplified).json",
-  "/opt/muos/share/language/Chinese (Traditional).json",
   "/opt/muos/share/language/Hebrew.json",
-  "/opt/muos/share/language/Japanese.json",
-  "/opt/muos/share/language/Korean.json",
   "/opt/muos/share/language/Maltese.json",
   "/usr/lib/pipewire-0.3/libpipewire-module-raop-sink.so",
   "/usr/lib/spa-0.2/ffmpeg",

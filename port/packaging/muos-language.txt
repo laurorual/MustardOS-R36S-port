@@ -7,9 +7,7 @@
 release release-main-3db301a-20261112-073445
 url https://github.com/MustardOS/language/releases/download/release-main-3db301a-20261112-073445/lang.muxzip
 sha256 30c561e5bd6b6b55b9f573c5f00ef4846cb68d063a0147d40e77196d334d0134
-# Not shipped until p2 has room for their fonts (decision 17: Noto Sans
-# SC/TC/JP/KR are 29 MiB); without the font the menu shows empty boxes.
-exclude Chinese (Simplified)
-exclude Chinese (Traditional)
-exclude Japanese
-exclude Korean
+# M8 (decision 17): every language ships, the CJK ones with their fonts
+# (share/font/internal/<Language>/, Noto Sans SC/TC/JP/KR + M+ for
+# Japanese, ~33 MB on the 1 GiB p2). An "exclude NAME" line here would
+# leave a language out.

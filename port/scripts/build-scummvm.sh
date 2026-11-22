@@ -7,8 +7,9 @@
 # device: both with the libretro port's "lite" engine list
 # (backends/platform/libretro/lite_engines.list: the classic 2D adventure
 # engines), software rendering (no OpenGL), MT-32 emulation, FLAC/Vorbis
-# (CD audio tracks), zlib, PNG, FreeType. dArkOSen's binary needs ~20
-# Debian libraries the rootfs does not have (libvpx, libFLAC, curl,
+# (CD audio tracks), zlib, PNG, FreeType, the virtual keyboard (M8f T3 4:
+# typing save names; Select opens it in both, its packs in the extra
+# path). dArkOSen's binary needs ~20 Debian libraries the rootfs does not have (libvpx, libFLAC, curl,
 # speechd...), so it is not reused. libogg/libvorbis/FLAC are built static
 # from pinned xiph tarballs for the standalone; the core uses the
 # libretro port's own pinned libretro-deps/libretro-common clones.
@@ -61,7 +62,7 @@ CXX=${X}g++ CXXFLAGS="$OPT" PKG_CONFIG_LIBDIR=$sys/usr/lib/pkgconfig PKG_CONFIG_
 ./configure --host=aarch64-buildroot-linux-gnu --backend=sdl --enable-release --disable-debug \
     --enable-optimizations --with-sdl-prefix=$sys/usr --disable-all-engines --enable-engine=$ENGINES \
     --enable-vorbis --with-vorbis-prefix=$d --with-ogg-prefix=$d --enable-flac --with-flac-prefix=$d \
-    --enable-zlib --enable-png --enable-freetype2 --enable-mt32emu --disable-mad --disable-tremor \
+    --enable-zlib --enable-png --enable-freetype2 --enable-mt32emu --enable-vkeybd --disable-mad --disable-tremor \
     --disable-fluidsynth --disable-fluidlite --disable-timidity --disable-mpeg2 --disable-a52 --disable-theoradec \
     --disable-faad --disable-jpeg --disable-gif --disable-vpx --disable-sndio --disable-fribidi \
     --disable-libcurl --disable-sdlnet --disable-cloud --disable-tts --disable-discord --disable-updates \
@@ -72,6 +73,7 @@ ${X}strip scummvm
 mkdir -p /out/tree/'"$dest"'
 cp scummvm /out/tree/'"$dest"'/
 cp gui/themes/scummremastered.zip gui/themes/scummclassic.zip gui/themes/translations.dat /out/tree/'"$dest"'/ 2>/dev/null || :
+cp backends/vkeybd/packs/vkeybd_default.zip backends/vkeybd/packs/vkeybd_small.zip /out/tree/'"$dest"'/
 for f in dists/engine-data/*.dat; do case ${f##*/} in kyra.dat|lure.dat|queen.tbl|sky.cpt|drascula.dat|teenagent.dat|tony.dat|toon.dat|hugo.dat|cryo.dat|mort.dat|fonts.dat|macgui.dat|wintermute.zip) cp $f /out/tree/'"$dest"'/ ;; esac; done
 cp COPYING /out/tree/'"$dest"'/ '
     du -sh "$area/tree/$dest"; ls -la "$area/tree/$dest" ;;
