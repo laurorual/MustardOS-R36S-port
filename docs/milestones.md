@@ -68,6 +68,18 @@ written to p2 with the user present (old p2 `0b1e8978…` kept as
    reads the values back from the booted DTB. Screenshot
    `m9b-danger-uv.png`; voltages beyond the default are untested (user's
    choice: visual check only).
+8. **Items 5–6 (licences, source):** `third-party.sh` →
+   `THIRD-PARTY.txt` in the image (every pinned component, licence,
+   source offer); `docs/license-requests.md` (drafts for Hardkernel,
+   Exophase, trngaje, steward-fu, MustardOS); `make-source-bundle.sh
+   check|bundle` + `build-image.sh legal-info`; public variant: 18/18
+   `check-public-image.sh` checks pass.
+9. **Item 8, update path — done to T2:** `muos-update stage|resume` +
+   Task Toolkit "Install Firmware Update": NAME.p2.img.gz + sha256 in
+   `MUOS/update`, unpacked to the trial root, armed, reboot; after 30 s
+   of menu `write-p2`, reboot (a failed trial falls back and is marked
+   failed). Image m9b (raw `dcd4276e…`, p2 `ce6694f8…`, T1 0 missing)
+   installed on the bench this way (stage → trial → write → main m9b).
 
 ## M8 — card layout and the heavy systems (done 2026-11-22, M8g T3 passed; m8g is recovery)
 

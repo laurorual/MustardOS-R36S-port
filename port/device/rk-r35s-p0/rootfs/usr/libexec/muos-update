@@ -1,0 +1,51 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M9 item 8: firmware updates for v1.x without a reflash (p3 kept). An
+# update is NAME.p2.img.gz plus NAME.p2.img.sha256 (the raw p2's sha256)
+# in /userdata/MUOS/update/. The Task Toolkit task "Install Firmware
+# Update" runs `stage`: unpack into MUOS/trial/rootfs.img, verify, arm the
+# trial root, reboot. On that boot muos-frontend runs `resume`: after 30 s
+# of menu the trial p2 is written to p2 (muos-root-trial write-p2, the old
+# p2 kept as MUOS/trial/p2-previous.img) and the device reboots into it.
+# A trial that never reaches the menu falls back to the old p2 by itself
+# (the marker is one-shot); `resume` there marks the update failed.
+# Kernel/DTB/U-Boot are not updated this way (p2 only).
+#   muos-update stage | resume | status
+set -eu
+upd=/userdata/MUOS/update trial=/userdata/MUOS/trial rt=/usr/libexec/muos-root-trial
+log() { echo "muos-update: $*"; echo "$(date '+%F %T') $*" >> "$upd/update.log"; }
+on_trial() { $rt status 2>/dev/null | grep -q '^trial-root yes'; }
+mkdir -p "$upd"
+case ${1:-status} in
+status)
+    [ -f "$upd/pending" ] && echo "pending $(cat "$upd/pending")" || echo idle
+    ls "$upd"/*.p2.img.gz 2>/dev/null || : ;;
+stage)
+    on_trial && { echo 'an update is already being tried; restart first' >&2; exit 1; }
+    img=$(ls -t "$upd"/*.p2.img.gz 2>/dev/null | head -n 1)
+    [ -n "$img" ] || { echo "no NAME.p2.img.gz in $upd" >&2; exit 1; }
+    want=$(cut -d' ' -f1 "${img%.gz}.sha256" 2>/dev/null) || :
+    [ ${#want} = 64 ] || { echo "missing ${img##*/} sha256 (${img%.gz}.sha256)" >&2; exit 1; }
+    free=$(df -m /userdata | awk 'NR == 2 {print $4}')
+    [ "$free" -ge 2300 ] || { echo "need 2.3 GB free on the card (have ${free} MB)" >&2; exit 1; }
+    mkdir -p "$trial"; rm -f "$trial/rootfs.img"
+    log "unpacking ${img##*/}"
+    gzip -dc "$img" > "$trial/rootfs.img.tmp"
+    got=$(sha256sum "$trial/rootfs.img.tmp" | cut -d' ' -f1)
+    [ "$got" = "$want" ] || { rm -f "$trial/rootfs.img.tmp"; log "sha256 mismatch ($got)"; echo 'the update file is damaged' >&2; exit 1; }
+    mv "$trial/rootfs.img.tmp" "$trial/rootfs.img"
+    echo "$want ${img##*/}" > "$upd/pending"
+    mount -o remount,rw / && touch /etc/muos-root-trial; sync; mount -o remount,ro / 2>/dev/null || :
+    log "staged ${img##*/} ($want), trial root armed"; sync ;;
+resume)
+    [ -f "$upd/pending" ] || exit 0
+    want=$(cut -d' ' -f1 "$upd/pending")
+    if ! on_trial; then
+        mv "$upd/pending" "$upd/failed"; log "update $want did not reach the menu: kept the old firmware"; exit 0
+    fi
+    log "trial boot reached the menu, writing p2"
+    $rt write-p2 "$trial/rootfs.img" "$want" >> "$upd/update.log" 2>&1 || { mv "$upd/pending" "$upd/failed"; log 'write-p2 failed'; exit 1; }
+    rm -f "$upd/pending" "$trial/rootfs.img"; log "installed $want"; sync
+    reboot ;;
+*) sed -n '13p' "$0"; exit 2 ;;
+esac

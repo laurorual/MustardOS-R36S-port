@@ -22,16 +22,15 @@ budget is nearly spent until 2026-11-25: plan for minimal tokens.**
 
 ## Next session — read first
 
-- Device = **m9a on p2** (written 2026-11-22 ~13:00 with the user
-  present, after its trial-root T2 `build/m9/t2-m9a.sh` passed). Old p2
-  copy: `MUOS/trial/p2-previous.img` (the used m8g p2 `678e3766…`;
-  m8g is the recovery image). 1 GiB p2 layout, `user_init` 0. Boot
-  records: main = `Image-be499e33d4eb` + **`panel0-84611ef0394d.dtb`
-  (undervolt, label `undervolt-on`)**, previous = the same Image +
-  `panel0-c97151d0ec1a.dtb` (stock, `undervolt-off`); p1
-  `dtb-variants.txt` (by hand on this card; the image build writes it
-  since m9a). The Undervolt row switches them (or `muos-undervolt`).
-- The user does the M9a T3 (below) on p2.
+- Device = **m9b on p2**, installed 2026-11-22 16:00 through the new
+  update path (Task Toolkit task / `muos-update`: staged from
+  `MUOS/update`, trial root, written after 30 s of menu; T2 passed).
+  Old p2: `MUOS/trial/p2-previous.img` (m9a as used). Powered off at
+  the user's request after the session. Boot records: main =
+  `Image-be499e33d4eb` + `panel0-84611ef0394d.dtb` (undervolt −50/−25,
+  `undervolt-on`), previous = the same Image + stock
+  `panel0-c97151d0ec1a.dtb`; p1 has all 16 undervolt DTBs and
+  `dtb-variants.txt`.
 - T2 left on p3: `pickles/settings/core/flycast{,2022}.ini`
   (speed_limiter=1, as the migration writes them); YabaSanshiro's per-game
   `Sonic R ... .cue.config` and `save/backup.bin` (race tests).
@@ -88,13 +87,14 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
+| `dist/firmware/test128-m9b-20261122.img.zst` (raw `dcd4276e…`, p2 `ce6694f8…`, U-Boot `159e086c…`) | m9a + Traditional Chinese overlay, CPU/GPU undervolt rows and 16 DTBs, THIRD-PARTY.txt, firmware update task | T1 0 missing; installed on p2 by the update task 2026-11-22; T3 pending |
 | **`dist/firmware/test128-m9a-20261122.img.zst`** (raw `093d64ce…`, p2 `ed83f5f4…`, U-Boot `159e086c…`) | M8g T3 round + M9 start: ScummVM keyboard preview + paced keys, ScummVM standalone default, Undervolt row (both DTBs on p1, stock by default), Japanese/Chinese menu overlays | **Recovery image since 2026-11-22 (afternoon).** T2 `build/m9/t2-m9a.sh`, on p2; M9a T3 1–5 ok |
 | **`dist/firmware/test128-m8g-20261122.img.zst`** (raw `81613024…`, p2 `4ca8c058…`, U-Boot `159e086c…`) | Recovery 2026-11-22 (morning). M8f T3 round: ScummVM games as NAME/NAME.scummvm (one entry), "ScummVM - Standalone" in the core list, virtual keyboard (Select) in both, CJK languages with their fonts | T3 2026-11-22: 1–5 ok; keyboard preview/in-game names and CJK text completeness fixed in m9a |
 | `dist/firmware/test128-m8f-20261121.img.zst` (raw `fe44baad…`, p2 `15b51793…`, U-Boot `159e086c…`) | Recovery 2026-11-22 (morning). M8e T3 round + thermal block: ScummVM core + standalone, Flycast v2.7 standalone, DC synchronous rendering, one DraStic | T3 2026-11-21: 2, 6, 7, 8 ok |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
 5/5 versions in `storage-retention.json` (m8d retired when m8g became
-recovery, m9a added and m8e retired 2026-11-22). The next image
+recovery, m9a and m9b added, m8e retired 2026-11-22). The next image
 retires m8f.
 
 ## What works (T3-confirmed)
@@ -296,12 +296,15 @@ performance first.
 
 ## T3 queue
 
-M9a T3 passed 2026-11-22 (1–5 ok). Next round (visual only, no voltage
-tests, the user's call): Configuração → Configurações perigosas: below
+M9a T3 passed 2026-11-22 (1–5 ok). **M9b checklist** (m9b on p2):
+1. Configuração → Tarefas (Task Toolkit): the task "Install Firmware
+   Update" is listed; run it with nothing in `MUOS/update`: it ends with
+   an error message ("no NAME.p2.img.gz…"), nothing restarts.
+2. Visual only, no voltage tests (the user's call): Configuração → Configurações perigosas: below
 "Undervolt" the rows "Undervolt do processador" (−25…−100 mV, default
 −50) and "Undervolt dos gráficos" (0…−75 mV, default −25) look right
-(checked by screenshot `build/logs/m5/shots/m9b-danger-uv.png`); the
-Chinese (Traditional) menus.
+(screenshot `build/logs/m5/shots/m9b-danger-uv.png`), help in pt-BR.
+3. Idioma "Chinese (Traditional)": Configuração menus translated.
 
 ## Current milestone: M9 — public v1.0 (started 2026-11-22)
 
@@ -343,9 +346,11 @@ component with its licence, source offer); permission drafts in
 host; the bundle is several GB, built at release only; Buildroot
 `build-image.sh legal-info`); public variant built 2026-11-22: all 18
 `check-public-image.sh` checks pass (image deleted, rc1 rebuilds it).
-Next: item 8 update path (proposal: an update image on p3 installed by
-a Task Toolkit task through the trial root + `write-p2`), item 7 docs,
-item 9 battery, rc1.
+Item 8 done to T2: `muos-update` + Task Toolkit "Install Firmware
+Update" (NAME.p2.img.gz + .sha256 in `MUOS/update`; p2 only, kernel/DTB
+not updated this way); m9b installed this way on the bench. Next: item
+7 docs (install guide EN/pt-BR, changelog, known issues), item 9
+battery, rc1.
 
 Tests: T0 builds/shellcheck; T1 ELF checks; T2 trial root (sweep, NES,
 ScummVM core + standalone, the undervolt round trip on and off, CJK

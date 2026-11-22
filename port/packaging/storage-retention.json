@@ -37,6 +37,15 @@
         "dist/firmware/test128-m9a-20261122.manifest",
         "build/m3a/test128-m9a-20261122.p2.img"
       ]
+    },
+    "m9b-20261122": {
+      "reason": "M9b: Traditional Chinese overlay, CPU/GPU undervolt value rows + 16 DTBs, THIRD-PARTY.txt, firmware update task (muos-update); developer image; raw dcd4276e, p2 ce6694f8",
+      "files": [
+        "dist/firmware/test128-m9b-20261122.img.zst",
+        "dist/firmware/test128-m9b-20261122.img.zst.sha256",
+        "dist/firmware/test128-m9b-20261122.manifest",
+        "build/m3a/test128-m9b-20261122.p2.img"
+      ]
     }
   },
   "keep": {
