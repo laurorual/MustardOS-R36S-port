@@ -343,8 +343,11 @@ to dark. The rest of the night unattended.
     S91 move and migration, Flycast standalone, DC 2022 98.1 %, NDS,
     Saturn (race, menu, quit), PSP 12.5, wake: all pass. m8c retired.
     The reboot back to main after the batch (2026-11-22 01:12) left the
-    device off the network (nothing written; m8f on p2); the final p2's
-    short T2 (`build/m8g/t2-cjk.sh`) and the p2 write wait for it.
+    device off the network (Wi-Fi; the user reconnected it). The final
+    p2's short trial T2: CJK menus render (`build/m8g/t2-cjk.sh`), NES
+    59.96. `write-p2` refused by the auto-mode classifier (user leaving):
+    the trial root re-armed from it (`/media/etc/muos-root-trial`) and the
+    device powered off, so the T3 runs on m8g as a trial root.
 
 ## M7 — polish: language, performance, power (done 2026-11-20, T3 passed; m7d is recovery)
 

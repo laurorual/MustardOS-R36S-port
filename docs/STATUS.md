@@ -22,16 +22,19 @@ dropped (heat-bound, item 18 closed): image m8g; the M8g T3 below.**
 
 ## Next session — read first
 
-- Device = **m8f on p2** (written 2026-11-21; the m8g trial root ran
-  2026-11-22 00:50–01:12 and passed). p3 `MUOS/trial/rootfs.img` = the
-  first m8g p2 (`ff031e2f…`, without the CJK language files): replace it
-  with `build/m8g/rootfs.img.gz` (`4ca8c058…`), arm, reboot, short T2,
-  `write-p2`. Old p2 copy: `MUOS/trial/p2-previous.img` (m8e). 1 GiB p2
-  layout, `user_init` 0. Boot records: main = `Image-be499e33d4eb` +
-  **`panel0-84611ef0394d.dtb` (undervolt CPU −50 / GPU −25 mV)**,
-  previous = the same Image + `panel0-c97151d0ec1a.dtb` (stock). A
-  freeze that looks like instability: `muos-boot-slot` back to the stock
-  DTB. No live installs on top.
+- Device = **m8f on p2**, powered off 2026-11-22 ~01:45 **with the
+  trial root armed**: the next power-on boots the final m8g (p3
+  `MUOS/trial/rootfs.img`, `4ca8c058…`, short trial T2 passed: CJK menu
+  screenshots, NES 59.96) as a trial root; any later reboot returns to
+  m8f. The user does the M8g T3 in that boot. `write-p2` of it was
+  refused by the auto-mode classifier (unattended): do it with the user
+  present (re-arm on main, reboot, `muos-root-trial write-p2
+  /userdata/MUOS/trial/rootfs.img 4ca8c058a3a5…751`). Old p2 copy:
+  `MUOS/trial/p2-previous.img` (m8e). 1 GiB p2 layout, `user_init` 0.
+  Boot records: main = `Image-be499e33d4eb` + **`panel0-84611ef0394d.dtb`
+  (undervolt CPU −50 / GPU −25 mV)**, previous = the same Image +
+  `panel0-c97151d0ec1a.dtb` (stock). A freeze that looks like
+  instability: `muos-boot-slot` back to the stock DTB.
 - T2 left on p3: `pickles/settings/core/flycast{,2022}.ini`
   (speed_limiter=1, as the migration writes them); YabaSanshiro's per-game
   `Sonic R ... .cue.config` and `save/backup.bin` (race tests).
@@ -283,7 +286,9 @@ performance first.
 
 ## T3 queue
 
-**M8g checklist (image m8g on p2; pt-BR labels).**
+**M8g checklist (pt-BR labels).** The first power-on boots m8g as a
+trial root: do the whole list in that boot (a restart goes back to m8f;
+then just tell the agent).
 
 1. **ScummVM list** (Explorar conteúdo → SCUMMVM): one entry "The Secret
    of Monkey Island (CD DOS VGA)" (no second one); it starts (on this
@@ -328,9 +333,10 @@ an M9 opt-in).
 data), CJK languages + fonts, overclock and DSP measurements (no
 change). Trial-root T2 passed (the build before the CJK language-file
 fix); the device went off the network on the reboot after the batch
-(nothing written; the user was asked to check the screen). **Next:** the
-final p2's short trial T2 (`build/m8g/t2-cjk.sh`, checks, NES), then
-`write-p2` (pre-authorized). **M8 closes
+(Wi-Fi; the user reconnected it). The final p2's short trial T2 passed
+(`build/m8g/t2-cjk.sh`: Japanese/Korean/Chinese menus render; NES
+59.96). **Next:** `write-p2` with the user present (refused unattended),
+then the M8g T3 results. **M8 closes
 when the M8g T3 passes**; its findings are fixed inside M9.
 
 Tests: T0 builds and shellcheck; T1 ELF/ABI checks; T2 trial root
