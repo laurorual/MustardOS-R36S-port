@@ -25,13 +25,20 @@ repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 work=$repo/build/phase4 area=$repo/build/m8f/scummvm
 src=$repo/build/scummvm-src src_commit=7d2709da5136866589f7602f5f5a7b17de03420e
 dl=$repo/build/m8f/dl dest=opt/muos/share/emulator/scummvm
+patches=$repo/port/patches/scummvm
 mkdir -p "$area/logs"
 [ "$(git -C "$src" rev-parse HEAD)" = "$src_commit" ] || { echo "scummvm-src is not at $src_commit" >&2; exit 1; }
+# The port's patches (M9: virtual keyboard preview and paced keys). The
+# libretro core builds in the tree, so the tree carries them too (applied
+# once; a tree with other edits refuses).
+for f in "$patches"/*.patch; do
+    git -C "$src" apply --reverse --check "$f" 2>/dev/null || git -C "$src" apply "$f"
+done
 engines=$(grep -v '^\s*$' "$src/backends/platform/libretro/lite_engines.list" | paste -sd, -)
 run() { # NAME CODE: run CODE in the rootfs SDK container, src mounted rw at /src
     podman run --rm --network=none --read-only --cap-drop=all --security-opt=no-new-privileges \
         --userns=keep-id --tmpfs /tmp:rw,nosuid,nodev,exec -e ENGINES="$engines" \
-        -v "$work:/work:ro,z" -v "$src:/src:rw,z" -v "$dl:/dl:ro,z" -v "$area:/out:rw,z" \
+        -v "$work:/work:ro,z" -v "$src:/src:rw,z" -v "$dl:/dl:ro,z" -v "$patches:/patches:ro,z" -v "$area:/out:rw,z" \
         "$(cat "$work/rootfs-container.iid")" sh -c 'set -eu
 sdk=/work/graphics-config/output/host; sys=$sdk/aarch64-buildroot-linux-gnu/sysroot
 export PATH=$sdk/bin:$PATH CCACHE_DISABLE=1 X=aarch64-buildroot-linux-gnu-
@@ -58,6 +65,7 @@ common="--host=aarch64-buildroot-linux-gnu --prefix=$d --disable-shared --enable
 rm -rf /tmp/sv; mkdir /tmp/sv; cd /src
 git -c safe.directory=/src archive --format=tar HEAD | tar -C /tmp/sv -xf -
 cd /tmp/sv
+for f in /patches/*.patch; do patch -p1 --no-backup-if-mismatch < $f; done
 CXX=${X}g++ CXXFLAGS="$OPT" PKG_CONFIG_LIBDIR=$sys/usr/lib/pkgconfig PKG_CONFIG_SYSROOT_DIR=$sys \
 ./configure --host=aarch64-buildroot-linux-gnu --backend=sdl --enable-release --disable-debug \
     --enable-optimizations --with-sdl-prefix=$sys/usr --disable-all-engines --enable-engine=$ENGINES \

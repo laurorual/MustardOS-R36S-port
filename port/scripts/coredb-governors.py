@@ -46,8 +46,8 @@ DROP = {"Nintendo DS": {"drastic - standalone"}, "Sega Dreamcast": {"flycast"}}
 # M8f T3 5: upstream gives ScummVM's libretro and external entries the same
 # key "scummvm" (and name), and muxassign lists one row per key, so only
 # one showed. The external one gets its own key and name; the system's
-# "runtime": "external" goes, so a fresh folder gets the default core (the
-# libretro one, core-assign.txt), and an old "ext-scummvm" assignment is
+# "runtime" follows the default core (the standalone since decision 29,
+# core-assign.txt), and an old "ext-scummvm" assignment is
 # rewritten by S91 (migration m8g-scummvm-sa).
 RENAME_EXTERNAL = {"ScummVM": ("scummvm", "scummvm-sa", "ScummVM - Standalone")}
 # M8 T3 8: libretro cores upstream's coredb has no entry for
@@ -92,9 +92,6 @@ def main(table, path, core_dir=None):
             ext[new] = dict(ext.pop(old), name=name)
             changed += 1
             print(f"coredb-governors: {system}: external {old!r} -> {new!r} ({name})")
-        if node.pop("runtime", None) is not None:
-            changed += 1
-            print(f"coredb-governors: {system}: runtime preference dropped")
     for system, cores in sorted(ADD_LIBRETRO.items()):
         lr = db.get(system, {}).setdefault("libretro", {})
         for key, e in cores.items():
@@ -142,6 +139,18 @@ def main(table, path, core_dir=None):
             db[system]["default"] = key
             changed += 1
             print(f"coredb-governors: {system} default -> {key}")
+        # muOS resolves the system's default in the section "runtime" names
+        # (external) or in libretro (no runtime): keep it with the default
+        # (ScummVM: upstream's external preference with a libretro default
+        # until decision 29 made the standalone the default)
+        rt = "external" if section == "external" else None
+        if db[system].get("runtime") != rt:
+            if rt:
+                db[system]["runtime"] = rt
+            else:
+                db[system].pop("runtime")
+            changed += 1
+            print(f"coredb-governors: {system}: runtime -> {rt or 'libretro'}")
         if db[system][section][key].pop("extra", 0):
             changed += 1
             print(f"coredb-governors: {system}: {key!r} no longer extra")

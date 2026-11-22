@@ -171,6 +171,11 @@ say "loop start hotkeys=${1:-1} audio=$SDL_AUDIODRIVER"
 [ "${1:-1}" != 1 ] || { /usr/libexec/muos-hotkey >> /opt/muos/log/hotkey.log 2>&1 & hotkey=$!; }
 [ -s "$act" ] || echo launcher > "$act"
 default_governor
+# M9 (decision 28): the Undervolt row shows the booted DTB; an undervolt
+# trial boot that keeps the menu up for 20 s becomes main (a grandchild,
+# so quit's wait doesn't wait for it).
+/usr/libexec/muos-undervolt sync || say "undervolt sync failed"
+( (sleep 20; /usr/libexec/muos-undervolt promote) & )
 fast=0
 while :; do
     if [ -s "$rom" ]; then

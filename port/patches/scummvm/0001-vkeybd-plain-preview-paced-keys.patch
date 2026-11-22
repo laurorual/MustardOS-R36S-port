@@ -1,0 +1,96 @@
+diff --git a/backends/vkeybd/virtual-keyboard.cpp b/backends/vkeybd/virtual-keyboard.cpp
+index 18e44ade..4a4accff 100644
+--- a/backends/vkeybd/virtual-keyboard.cpp
++++ b/backends/vkeybd/virtual-keyboard.cpp
+@@ -49,6 +49,20 @@ VirtualKeyboard::VirtualKeyboard() :
+ 	_parser = new VirtualKeyboardParser(this);
+ 	_kbdGUI = new VirtualKeyboardGUI(this);
+ 	_submitKeys = _loaded = false;
++	_pacedSource = nullptr;
++}
++
++bool VirtualKeyboard::PacedKeySource::pollEvent(Event &ev) {
++	if (_artificialEventQueue.empty())
++		return false;
++	uint32 now = g_system->getMillis();
++	if ((int32)(now - _next) < 0)
++		return false;
++	ev = _artificialEventQueue.pop();
++	// Key down, then key up 60 ms later, the next key 60 ms after that:
++	// longer than a SCUMM game tick, so every letter is seen.
++	_next = now + 60;
++	return true;
+ }
+ 
+ VirtualKeyboard::~VirtualKeyboard() {
+@@ -261,14 +275,18 @@ void VirtualKeyboard::show() {
+ 		EventManager *eventMan = _system->getEventManager();
+ 		assert(eventMan);
+ 
+-		// push keydown & keyup events into the event manager
++		// queue keydown & keyup events, delivered one at a time
++		if (!_pacedSource) {
++			_pacedSource = new PacedKeySource();
++			eventMan->getEventDispatcher()->registerSource(_pacedSource, true);
++		}
+ 		Event evt;
+ 		while (!_keyQueue.empty()) {
+ 			evt.kbd = _keyQueue.pop();
+ 			evt.type = EVENT_KEYDOWN;
+-			eventMan->pushEvent(evt);
++			_pacedSource->addEvent(evt);
+ 			evt.type = EVENT_KEYUP;
+-			eventMan->pushEvent(evt);
++			_pacedSource->addEvent(evt);
+ 		}
+ 	} else {
+ 		_keyQueue.clear();
+@@ -335,15 +353,20 @@ void VirtualKeyboard::KeyPressQueue::insertKey(KeyState key) {
+ 
+ 	if (keyStr.empty()) keyStr += "???";
+ 
+-	_keysStr.insertChar(KEY_START_CHAR, _strPos++);
++	// A plain character shows as itself ("lauro"), named keys and
++	// modifier combinations keep their brackets ("[Ctrl+a]").
++	bool bracket = keyStr.size() > 1;
++	if (bracket)
++		_keysStr.insertChar(KEY_START_CHAR, _strPos++);
+ 	const char *k = keyStr.c_str();
+ 	while (char ch = *k++)
+ 		_keysStr.insertChar(ch, _strPos++);
+-	_keysStr.insertChar(KEY_END_CHAR, _strPos++);
++	if (bracket)
++		_keysStr.insertChar(KEY_END_CHAR, _strPos++);
+ 
+ 	VirtualKeyPress kp;
+ 	kp.key = key;
+-	kp.strLen = keyStr.size() + 2;
++	kp.strLen = keyStr.size() + (bracket ? 2 : 0);
+ 	_keys.insert(_keyPos, kp);
+ }
+ 
+diff --git a/backends/vkeybd/virtual-keyboard.h b/backends/vkeybd/virtual-keyboard.h
+index 147d5fe6..5ab391f6 100644
+--- a/backends/vkeybd/virtual-keyboard.h
++++ b/backends/vkeybd/virtual-keyboard.h
+@@ -232,6 +232,20 @@ protected:
+ 
+ 	KeyPressQueue _keyQueue;
+ 
++	/**
++	 * Delivers the submitted keys one at a time, spaced in time: engines
++	 * that keep only the last key per game tick (SCUMM: _keyPressed)
++	 * would otherwise receive just the last letter of a typed name.
++	 * Owned by the event dispatcher (registered with autoFree).
++	 */
++	class PacedKeySource : public ArtificialEventSource {
++		uint32 _next;
++	public:
++		PacedKeySource() : _next(0) {}
++		bool pollEvent(Event &ev) override;
++	};
++	PacedKeySource *_pacedSource;
++
+ 	friend class VirtualKeyboardParser;
+ 	VirtualKeyboardParser *_parser;
+ 

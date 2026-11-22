@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m8d-20261120": {
-      "reason": "M8d (m8c T3 round): NDS Fn+Start quit fix (auto state saved), stylus on the right stick, quit dimming, DC Flycast 2022 at 640x480 + framerate normal, Saturn standalone YabaSanshiro default (static Boost); developer image; raw c7520a89, p2 37d7194d",
-      "files": [
-        "dist/firmware/test128-m8d-20261120.img.zst",
-        "dist/firmware/test128-m8d-20261120.img.zst.sha256",
-        "dist/firmware/test128-m8d-20261120.manifest",
-        "build/m3a/test128-m8d-20261120.p2.img"
-      ]
-    },
     "m8e-20261121": {
       "reason": "M8e (m8d T3 round): Saturn standalone vblank page flips + menu crash fix (nanovg ABI) + SCSP realtime wait, DC Flycast speed limiter on, coredb hides missing libretro cores, NDS touch on R3, Fn+Start fade, T2 core speed meter; developer image; raw 2f0293a2, p2 e43458ce",
       "files": [
@@ -45,6 +36,15 @@
         "dist/firmware/test128-m8g-20261122.img.zst.sha256",
         "dist/firmware/test128-m8g-20261122.manifest",
         "build/m3a/test128-m8g-20261122.p2.img"
+      ]
+    },
+    "m9a-20261122": {
+      "reason": "M9a (M8g T3 round + M9 start): ScummVM vkeybd plain preview + paced keys (core + standalone), ScummVM standalone default (decision 29), coredb runtime follows the default (ScummVM, Saturn), Undervolt row in Danger Settings (patch 0012, muos-undervolt, both DTBs + dtb-variants.txt on p1), Japanese + Chinese (Simplified) menu label overlays; developer image; raw 093d64ce, p2 ed83f5f4",
+      "files": [
+        "dist/firmware/test128-m9a-20261122.img.zst",
+        "dist/firmware/test128-m9a-20261122.img.zst.sha256",
+        "dist/firmware/test128-m9a-20261122.manifest",
+        "build/m3a/test128-m9a-20261122.p2.img"
       ]
     }
   },

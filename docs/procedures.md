@@ -233,6 +233,16 @@ byte-identical.
   GPU_MV` from the main DTB (pull `/boot/<fdt>`), then a DTB-only trial
   with the main `Image`. Stability T2: PSP God of War for 5 min (GPU
   faults show as "GPU fault 0x4002" in dmesg) and the DC thermal run.
+- Undervolt opt-in (M9, decision 28): the image ships the stock and the
+  undervolted DTB (−50/−25 mV) on p1 and `dtb-variants.txt` naming them.
+  Configuration → Danger Settings → Undervolt (or `muos-undervolt`:
+  write 0/1 to `/opt/muos/config/danger/undervolt`, `muos-undervolt arm`,
+  reboot) arms the other DTB as a trial (label `undervolt-on|off`);
+  `muos-frontend` promotes it after 20 s of menu (`muos-undervolt
+  promote`) and `sync` sets the row from the booted DTB. A card from an
+  older image needs `dtb-variants.txt` on p1 (both DTBs already there).
+- ScummVM patches: `port/patches/scummvm/*.patch` (`build-scummvm.sh`
+  applies them to the standalone's archive and once to the tree).
 
 ## Risky init changes
 

@@ -1,0 +1,132 @@
+From: muOS R35S port
+Subject: [PATCH] 0012-danger-undervolt-row
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/ui/ui_muxshare.h
++++ b/frontend/module/ui/ui_muxshare.h
+@@ -244,7 +244,15 @@
+     CUSTOM(sound_volume, "soundvolume")                                                                                \
+     CUSTOM(chime, "chime")
+ 
++/* R35S port (M9, decision 28): Undervolt below Processor Maximum. The
++   upstream rows are DANGER_ELEMENTS_BASE (muxdanger's help array names
++   their lang fields; the port row's help is looked up at run time). */
+ #define DANGER_ELEMENTS                                                                                                \
++    DANGER_ELEMENTS_BASE                                                                                               \
++    DANGER(undervolt, "undervolt")                                                                                     \
++    DANGER(gpu_overclock, "gpuoverclock")
++
++#define DANGER_ELEMENTS_BASE                                                                                           \
+     DANGER(kernel_log, "kernellog")                                                                                    \
+     DANGER(vm_swap, "vmswap")                                                                                          \
+     DANGER(dirty_ratio, "dirty-ratio")                                                                                 \
+@@ -262,8 +270,7 @@
+     DANGER(card_mode, "cardmode")                                                                                      \
+     DANGER(state, "state")                                                                                             \
+     DANGER(online_cores, "onlinecores")                                                                                \
+-    DANGER(overclock, "overclock")                                                                                     \
+-    DANGER(gpu_overclock, "gpuoverclock")
++    DANGER(overclock, "overclock")
+ 
+ #define DEVICE_ELEMENTS                                                                                                \
+     DEVICE(has_bluetooth, "bluetooth")                                                                                 \
+--- a/frontend/module/muxdanger.c
++++ b/frontend/module/muxdanger.c
+@@ -12,6 +12,23 @@
+ DANGER_ELEMENTS
+ #undef DANGER
+ 
++/* R35S port (M9, decision 28): the undervolt opt-in. muos-undervolt
++   arms the chosen DTB as a one-shot trial boot (a start that freezes
++   before the menu falls back to the old one) and says whether this boot
++   can switch at all. The label and help are not in upstream's lang
++   struct (shared with muxretro): translated from the muxdanger section of
++   the language file at run time. */
++#define UNDERVOLT_TOOL "/usr/libexec/muos-undervolt"
++#define UNDERVOLT_AVAILABLE "/run/muos-undervolt.available"
++#define UNDERVOLT_ARMED "/run/muos-undervolt.armed"
++#define UNDERVOLT_LABEL "Undervolt"
++#define UNDERVOLT_HELP                                                                                                 \
++    "Runs the processor and graphics chip at slightly lower voltages, so the device stays cooler and holds its "     \
++    "speed longer in demanding games.\n\nNot every unit is stable like this. Changing it restarts the device; a "   \
++    "start that does not reach the menu falls back to the previous setting on the next start. Switch it off if "    \
++    "games freeze or show graphical errors."
++static int undervolt_reboot = 0;
++
+ #define FREQUENCY_MAX 32
+ 
+ typedef struct {
+@@ -124,8 +141,10 @@
+ static void show_help(void) {
+     const struct help_msg help_messages[] = {
+ #define DANGER(NAME, UDATA) {UDATA, lang.muxdanger.help.NAME},
+-        DANGER_ELEMENTS
++        DANGER_ELEMENTS_BASE
+ #undef DANGER
++        {"undervolt", translate_specific(UNDERVOLT_HELP)},
++        {"gpuoverclock", lang.muxdanger.help.gpu_overclock},
+     };
+ 
+     gen_help(current_item_index, help_messages, A_SIZE(help_messages), ui_group, items);
+@@ -164,6 +183,7 @@
+ 
+     lv_dropdown_set_selected(ui_dro_overclock_danger, frequency_index(&cpu_frequencies, config.danger.cpu_max));
+     lv_dropdown_set_selected(ui_dro_gpu_overclock_danger, frequency_index(&gpu_frequencies, config.danger.gpu_max));
++    lv_dropdown_set_selected(ui_dro_undervolt_danger, cfg_file_read_int(CONF_CONFIG_PATH "danger/undervolt", 0) == 1);
+ }
+ 
+ static void save_danger_options(void) {
+@@ -214,6 +234,20 @@
+     }
+     if (gpu_saved < 0) save_failed++;
+ 
++    const int undervolt = (int) lv_dropdown_get_selected(ui_dro_undervolt_danger);
++    if (undervolt != undervolt_original) {
++        is_modified++;
++        if (!write_text_to_file_atomic(CONF_CONFIG_PATH "danger/undervolt", INT, undervolt)) {
++            save_failed++;
++        } else {
++            remove(UNDERVOLT_ARMED);
++            const char *args[] = {UNDERVOLT_TOOL, "arm", NULL};
++            run_exec(args, A_SIZE(args), 0, 0, NULL, NULL);
++            undervolt_reboot = file_exist(UNDERVOLT_ARMED);
++            if (!undervolt_reboot) save_failed++;
++        }
++    }
++
+     if (is_modified > 0) {
+         if (apply_now) {
+             run_tweak_script(lang.generic.saving);
+@@ -263,6 +297,9 @@
+         -1, danger, overclock, lang.muxdanger.overclock, "overclock", cpu_frequencies.options, cpu_frequencies.count
+     );
+     INIT_OPTION_ITEM(
++        -1, danger, undervolt, translate_specific(UNDERVOLT_LABEL), "overclock", disabled_enabled, 2
++    );
++    INIT_OPTION_ITEM(
+         -1, danger, gpu_overclock, lang.muxdanger.gpuoverclock, "gpuoverclock", gpu_frequencies.options,
+         gpu_frequencies.count
+     );
+@@ -301,6 +338,7 @@
+     if (cpu_frequencies.count < 2) HIDE_OPTION_ITEM(danger, overclock);
+     if (!cpu_cores_can_change()) HIDE_OPTION_ITEM(danger, online_cores);
+     if (gpu_frequencies.count < 2) HIDE_OPTION_ITEM(danger, gpu_overclock);
++    if (!file_exist(UNDERVOLT_AVAILABLE)) HIDE_OPTION_ITEM(danger, undervolt);
+ }
+ 
+ static void handle_option_prev(void) {
+@@ -336,7 +374,12 @@
+ 
+     save_danger_options();
+ 
+-    write_text_to_file(MUOS_PDI_LOAD, "w", CHAR, "general");
++    if (undervolt_reboot) {
++        toast_message(lang.generic.rebooting, tst_wait_f);
++        load_mux("reboot");
++    } else {
++        write_text_to_file(MUOS_PDI_LOAD, "w", CHAR, "general");
++    }
+ 
+     mux_input_stop();
+ }

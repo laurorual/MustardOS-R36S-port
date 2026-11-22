@@ -5298,7 +5298,7 @@
    "path": "/opt/muos/frontend/lib/libmuxmod.so",
    "type": "file",
    "mode": "644",
-   "sha256": "ce809a8f1b423d769fadaf2b5d00e9cf373143421101ad983f5528df346c80c7",
+   "sha256": "986699e5e97e9298aac2f3e1c600791b09b12f3f8ea999456f3572bd7f0eb6ba",
    "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/lib/libmuxmod.so"
   },
   {
@@ -17292,7 +17292,7 @@
    "path": "/opt/muos/share/emulator/scummvm/scummvm",
    "type": "file",
    "mode": "755",
-   "sha256": "c4eaf0007f9c98052d311a91f099ebc1f7fa9e03fe1f5deb143f81c4166486dc",
+   "sha256": "e1e8bdcc5136db7ea24ebfef7c7f5dd2308622a75542e02ef673d4422620fba9",
    "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/scummvm"
   },
   {
@@ -17346,7 +17346,7 @@
    "path": "/opt/muos/share/core/scummvm_libretro.so",
    "type": "file",
    "mode": "755",
-   "sha256": "778a99e486ead09a9c5b612bc57135a70594afab14cf1d6ebda1546f39ab5e81",
+   "sha256": "47fd104c92adf2fc4be587bc44190323738f6e3ef6c8c4a219ad0caff92210af",
    "origin": "build/m8f/scummvm/scummvm_libretro.so"
   },
   {

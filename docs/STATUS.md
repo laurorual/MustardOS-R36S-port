@@ -11,30 +11,24 @@ milestones with their results and T3 checklists in
 
 ## Current phase
 
-**Phase 5 (own-card firmware). M1–M5 and M7 done. Current: M8 (card
-layout and the heavy systems), closing with the m8g round; next M9
-(public v1.0). 2026-11-21: m8e (recovery until 22), then the thermal
-block (undervolt CPU −50 / GPU −25 mV as this unit's main DTB), ScummVM,
-Flycast standalone: m8f, T3 2/6/7/8 ok → m8f is the recovery image.
-2026-11-22 night: the M8f T3 round (ScummVM one entry + both cores in
-the list + virtual keyboard, CJK languages), overclock measured and
-dropped (heat-bound, item 18 closed): image m8g; the M8g T3 below.**
+**Phase 5 (own-card firmware). M1–M5, M7 and M8 done (M8g T3 passed
+2026-11-22, m8g is the recovery image). Current: M9 (public v1.0),
+first round m9a (2026-11-22, user present): M8g T3 fixes (ScummVM
+keyboard), decision 29, Japanese/Chinese menu overlays, the Undervolt
+row (decision 28); the M9a T3 below.**
 
 ## Next session — read first
 
-- Device = **m8f on p2**, powered off 2026-11-22 ~01:45 **with the
-  trial root armed**: the next power-on boots the final m8g (p3
-  `MUOS/trial/rootfs.img`, `4ca8c058…`, short trial T2 passed: CJK menu
-  screenshots, NES 59.96) as a trial root; any later reboot returns to
-  m8f. The user does the M8g T3 in that boot. `write-p2` of it was
-  refused by the auto-mode classifier (unattended): do it with the user
-  present (re-arm on main, reboot, `muos-root-trial write-p2
-  /userdata/MUOS/trial/rootfs.img 4ca8c058a3a5…751`). Old p2 copy:
-  `MUOS/trial/p2-previous.img` (m8e). 1 GiB p2 layout, `user_init` 0.
-  Boot records: main = `Image-be499e33d4eb` + **`panel0-84611ef0394d.dtb`
-  (undervolt CPU −50 / GPU −25 mV)**, previous = the same Image +
-  `panel0-c97151d0ec1a.dtb` (stock). A freeze that looks like
-  instability: `muos-boot-slot` back to the stock DTB.
+- Device = **m9a on p2** (written 2026-11-22 ~13:00 with the user
+  present, after its trial-root T2 `build/m9/t2-m9a.sh` passed). Old p2
+  copy: `MUOS/trial/p2-previous.img` (the used m8g p2 `678e3766…`;
+  m8g is the recovery image). 1 GiB p2 layout, `user_init` 0. Boot
+  records: main = `Image-be499e33d4eb` + **`panel0-84611ef0394d.dtb`
+  (undervolt, label `undervolt-on`)**, previous = the same Image +
+  `panel0-c97151d0ec1a.dtb` (stock, `undervolt-off`); p1
+  `dtb-variants.txt` (by hand on this card; the image build writes it
+  since m9a). The Undervolt row switches them (or `muos-undervolt`).
+- The user does the M9a T3 (below) on p2.
 - T2 left on p3: `pickles/settings/core/flycast{,2022}.ini`
   (speed_limiter=1, as the migration writes them); YabaSanshiro's per-game
   `Sonic R ... .cue.config` and `save/backup.bin` (race tests).
@@ -63,18 +57,20 @@ dropped (heat-bound, item 18 closed): image m8g; the M8g T3 below.**
   URL) and needs ~20 Debian libraries.
 - ScummVM test game: p3 `ROMS/SCUMMVM/The Secret of Monkey Island (CD
   DOS VGA)/` + `….scummvm` (id `monkey`, also in `port/roms/ScummVM`);
-  the folder's assignment on this card is the standalone (muOS
-  auto-assigned it during the tests; a fresh card seeds the core).
+  the folder's assignment on this card is the standalone (a fresh card
+  seeds the standalone too since decision 29).
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0),
   test128 in slot 1, slot 2 empty: m8b flashed whole 2026-11-20 (1 GiB
-  p2 layout; p3 restored), m8c, m8d, m8e, then m8f (2026-11-21) written to p2. `user_init` = 0. Time zone −03.
+  p2 layout; p3 restored), m8c–m8f, then m8g (2026-11-22) written to
+  p2. `user_init` = 0. Time zone −03.
   - Boot records: main = `Image-be499e33d4eb` + `panel0-84611ef0394d.dtb`
     (M8: mmc DT aliases, dw_mmc set_ios sleeps; CPU OPPs to 1512 MHz, cap
-    1296; M8f undervolt CPU −50 / GPU −25 mV); previous = the same Image
-    + `panel0-c97151d0ec1a.dtb` (stock voltages).
+    1296; M8f undervolt CPU −50 / GPU −25 mV, switched by the Undervolt
+    row since M9); previous = the same Image + `panel0-c97151d0ec1a.dtb`
+    (stock voltages).
   - p3: ROMs, Wi-Fi profile `Home.ini`, zone link, rumble verdict
     (absent), the six seeded themes, PSX BIOS (`SCPH550x.bin`, upper case).
 - **original32 (stock dArkOSen):** the flasher station (slot 1, target
@@ -89,14 +85,14 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m8g-20261122.img.zst` (raw `81613024…`, p2 `4ca8c058…`, U-Boot `159e086c…`) | M8f T3 round: ScummVM games as NAME/NAME.scummvm (one entry), "ScummVM - Standalone" in the core list, virtual keyboard (Select) in both, CJK languages with their fonts | trial-root T2 passed (`build/m8g/t2-m8g.sh`); T3 pending (the M8g checklist) |
-| **`dist/firmware/test128-m8f-20261121.img.zst`** (raw `fe44baad…`, p2 `15b51793…`, U-Boot `159e086c…`) | **Recovery image since 2026-11-22.** M8e T3 round + thermal block: ScummVM core + standalone, Flycast v2.7 standalone, DC synchronous rendering, one DraStic (the image's p1 DTB is the stock one; the undervolt DTB is a boot record on this card only) | T3 2026-11-21: 2, 6, 7, 8 ok; 1 DC dips as before, 3 PSP as before; 4/5 ScummVM entry, keyboard, core list (fixed in m8g) |
+| `dist/firmware/test128-m9a-20261122.img.zst` (raw `093d64ce…`, p2 `ed83f5f4…`, U-Boot `159e086c…`) | M8g T3 round + M9 start: ScummVM keyboard preview + paced keys, ScummVM standalone default, Undervolt row (both DTBs on p1, stock by default), Japanese/Chinese menu overlays | trial-root T2 passed (`build/m9/t2-m9a.sh`), on p2 since 2026-11-22; T3 pending (the M9a checklist) |
+| **`dist/firmware/test128-m8g-20261122.img.zst`** (raw `81613024…`, p2 `4ca8c058…`, U-Boot `159e086c…`) | **Recovery image since 2026-11-22.** M8f T3 round: ScummVM games as NAME/NAME.scummvm (one entry), "ScummVM - Standalone" in the core list, virtual keyboard (Select) in both, CJK languages with their fonts | T3 2026-11-22: 1–5 ok; keyboard preview/in-game names and CJK text completeness fixed in m9a |
+| `dist/firmware/test128-m8f-20261121.img.zst` (raw `fe44baad…`, p2 `15b51793…`, U-Boot `159e086c…`) | Recovery 2026-11-22 (morning). M8e T3 round + thermal block: ScummVM core + standalone, Flycast v2.7 standalone, DC synchronous rendering, one DraStic | T3 2026-11-21: 2, 6, 7, 8 ok |
 | `dist/firmware/test128-m8e-20261121.img.zst` (raw `2f0293a2…`, p2 `e43458ce…`, U-Boot `159e086c…`) | Recovery 2026-11-21 → 22. m8d T3 round: DC speed limiter, Saturn vblank flips + menu crash fix + SCSP wait, core lists by installed cores, NDS touch on R3, Fn+Start fade | T3 2026-11-21: 2–9 ok; 1 DC uneven |
-| `dist/firmware/test128-m8d-20261120.img.zst` (raw `c7520a89…`, p2 `37d7194d…`, U-Boot `159e086c…`) | m8c T3 round: NDS quit fix + right-stick stylus, DC Flycast 2022 at 640x480, Saturn standalone YabaSanshiro | T3 2026-11-21: 1, 2, 3, 7 ok (rest fixed in m8e) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
-5/5 versions in `storage-retention.json` (m8c retired, m8g added
-2026-11-22). The next image retires m8d.
+5/5 versions in `storage-retention.json` (m8d retired when m8g became
+recovery, m9a added 2026-11-22). The next image retires m8e.
 
 ## What works (T3-confirmed)
 
@@ -183,7 +179,10 @@ controls and saves.
   (upstream language pack + the port's overlay). Still English, as
   upstream: task names (file names), sort tags, time zone and language
   names. Chinese (Simplified/Traditional), Japanese and Korean ship
-  since m8g with upstream's fonts (decision 17).
+  since m8g with upstream's fonts (decision 17). Upstream's Japanese and
+  Chinese texts are incomplete: since m9a the port's overlays translate
+  the menu labels (Japanese, Simplified); help texts and Traditional
+  Chinese stay as upstream (decision 31).
 - **Menu sleep, one missed press (M7 soak):** 1 of 15 Power presses
   (20 s after a resume) reached muos-hotkey but muos-suspend exited
   silently (its lock or the recent-wake guard); not reproduced in 5 more
@@ -274,77 +273,81 @@ Answered 2026-11-21 (M8f T3): 28 undervolt as an opt-in, stock voltages
 by default (agreed; the row goes in Configuração → Configurações
 perigosas, below "Máximo do processador", built in M9; this card keeps
 the undervolt DTB); 30 keep the Flycast standalone in the DC list.
+Answered 2026-11-22 (M8g T3): 29 the ScummVM standalone is the SCUMMVM
+default (done in m9a).
 Standing rule (AGENTS.md "Heavy Systems"): heavy systems = maximum
 performance first.
 
 ## Decisions for the user
 
-29. **ScummVM default** for the SCUMMVM folder: the libretro core
-    (muxretro overlay, states, volume bar) or the standalone (its own
-    menus, 60 Hz). Both are now in the core list (M8g T3 3).
-    Recommendation: the core, unless your T3 prefers the standalone.
+31. **Chinese (Traditional) menus:** upstream's are ~80 % English. The
+    agent can convert the Simplified texts (upstream's + the port's) to
+    Traditional (Taiwan phrasing) with OpenCC, but installing it (a pip
+    venv in `build/tools`, pure Python, Apache-2.0) was refused by the
+    auto-mode classifier. Recommendation: allow that one install; else
+    Traditional stays as upstream ships it.
 
 ## T3 queue
 
-**M8g checklist (pt-BR labels).** The first power-on boots m8g as a
-trial root: do the whole list in that boot (a restart goes back to m8f;
-then just tell the agent).
+**M9a checklist (pt-BR labels).** m9a is on p2 (any restart keeps it).
 
-1. **ScummVM list** (Explorar conteúdo → SCUMMVM): one entry "The Secret
-   of Monkey Island (CD DOS VGA)" (no second one); it starts (on this
-   card: the standalone, as assigned before).
-2. **ScummVM standalone, typing a save name:** in the game, Start opens
-   ScummVM's own menu → Save (its menus may be in English) → pick a slot: Select opens the virtual
-   keyboard; move the pointer (stick/d-pad) and A on the keys, then its
-   Enter/OK; save. Fn+Start quits; start again, Start → Load: your save
-   is there.
-3. **ScummVM core list + core:** X on the game → Opções do conteúdo →
-   Núcleo do conteúdo: two entries, "ScummVM" and "ScummVM -
-   Standalone"; pick "ScummVM", start: the game runs, Select opens the
-   virtual keyboard, the volume/brightness bar works, saving from item 2
-   is not shared (each keeps its own). Which do you prefer (decision 29)?
-4. **Japanese / Korean / Chinese:** Configuração → Idioma → "Japanese"
-   (the list keeps English names): the menu shows Japanese text (no
-   empty boxes); the same for "Korean" and "Chinese (Simplified)"; back to
-   "Portuguese (BR)".
-5. **Regression:** a GBA or SNES game with a save resumes; DC Power
-   Stone 2 starts as before; short Power in the menu sleeps and wakes.
+1. **Teclado no save do jogo** (Explorar conteúdo → SCUMMVM → The
+   Secret of Monkey Island): in the game open the game's own save
+   screen, Select opens the virtual keyboard, type a name: the preview
+   at the top shows the letters plainly ("lauro", not "[l] [a]…");
+   OK: the whole name appears in the game's field. Save, quit
+   (Fn+Start), start again and load it.
+2. **ScummVM padrão:** X on the game → Opções do conteúdo → Núcleo do
+   conteúdo: "ScummVM - Standalone" marked (on this card it already
+   was; a new card now seeds it too).
+3. **Undervolt** (Configuração → Configurações perigosas, below
+   "Máximo do processador"): shows "Ativado" with an icon. Set
+   "Desativado", press B: "Reiniciando", the device restarts by itself
+   and reaches the menu; after ~20 s open the row
+   again: "Desativado". Set it back to "Ativado" the same way. The help
+   (Menu/Y on the row) shows the pt-BR text.
+4. **Japonês / Chinês** (Configuração → Idioma): "Japanese", then
+   Configuração and its submenus (Geral, Avançado, Conectividade): menu
+   labels in Japanese (long help texts may stay English); the same with
+   "Chinese (Simplified)"; back to "Portuguese (BR)".
+5. **Regressão:** a GBA or SNES game resumes; short Power in the menu
+   sleeps and wakes.
 
-DC note (M8f T3 1): the short dips are heavy scenes the RK3326 can't
-hold at 60 fps; nothing measured removes them (overclock makes it worse,
-see "Heavy systems"). No DC item this round.
+## Current milestone: M9 — public v1.0 (started 2026-11-22)
 
-## Current milestone: M8 — card layout and the heavy systems (decisions 16, 17, 20)
+M8 closed 2026-11-22: the M8g T3 passed (1–5 ok, small findings below),
+m8g written to p2 with the user present and promoted to recovery (m8d
+retired). Plan in roadmap.md M9. **Items:**
 
-Started 2026-11-20; rounds m8b → m8g (per-round details and T3 results
-in milestones.md M8, items 1–46). **State of the items:** 1 clean U-Boot
-+ `root=` by device, 2 quiet boot + logo, 3 the 1 GiB p2 layout, 4 the
-slot-2 swap, 5 ScummVM (core + standalone, virtual keyboard) and the CJK
-fonts, 6 DC (Flycast 2022, v2.7 standalone), 7 PSP (PPSSPP v1.12.3), 8
-NDS (advanced DraStic), 9 Saturn (standalone YabaSanshiro), 10 wake in a
-game, 11 the sleep-exit logging: done (T3 per round). 18 overclock:
-measured and dropped (heat-bound, M8g). 12 battery % after sleeping on
-the charger: moved to M9 (the BSP gauge's charge-finish step, low
-priority). Thermal block: undervolt on this unit (decision 28 makes it
-an M9 opt-in).
+1. **M8g T3 fixes:** ScummVM virtual keyboard preview without brackets
+   per letter; the in-game save name got only the last letter (SCUMM
+   keeps one key per tick, the keyboard pushed all at once): keys now
+   delivered one at a time, 60 ms apart (patch
+   `port/patches/scummvm/0001`, core + standalone).
+2. **Decision 29:** the ScummVM standalone is the SCUMMVM default
+   (core-assign.txt, coredb runtime external; the same latent coredb
+   fix for Saturn).
+3. **CJK menus:** upstream's Japanese (~86 % English), Chinese
+   Traditional (~80 %) and Simplified (~39 %) are incomplete even in
+   the 2026-11-22 pack: a port overlay for the menu labels.
+4. **Undervolt opt-in (decision 28):** Danger Settings → "Undervolt"
+   (frontend patch 0012, `muos-undervolt`, the image ships both DTBs
+   and p1 `dtb-variants.txt`); switching arms a trial boot and
+   reboots, 20 s of menu promotes it.
+5. **Licences:** close `pending-licenses.json` as far as the answers
+   allow (Mali: no answer yet); third-party notices in the image.
+6. **GPL source bundle** (decision 4) and the public variant's T2
+   (`check-public-image.sh`, first-boot flow).
+7. **Docs:** install guide (EN + pt-BR), changelog, known issues,
+   SHA256.
+8. **Update path for v1.x** (reflash keeping p3, or an update package).
+9. **Battery % after sleeping on the charger** (moved from M8 item 12).
+10. **rc1** → T3 on a blank card with the user present → v1.0.
 
-**m8g round (2026-11-22 night):** M8f T3 fixes (ScummVM one entry,
-"ScummVM - Standalone" key, virtual keyboard, the core's extra/theme
-data), CJK languages + fonts, overclock and DSP measurements (no
-change). Trial-root T2 passed (the build before the CJK language-file
-fix); the device went off the network on the reboot after the batch
-(Wi-Fi; the user reconnected it). The final p2's short trial T2 passed
-(`build/m8g/t2-cjk.sh`: Japanese/Korean/Chinese menus render; NES
-59.96). **Next:** `write-p2` with the user present (refused unattended),
-then the M8g T3 results. **M8 closes
-when the M8g T3 passes**; its findings are fixed inside M9.
+**State:** 1–4 done to T2 (image m9a, on p2; M9a T3 pending); 5–10
+next.
 
-Tests: T0 builds and shellcheck; T1 ELF/ABI checks; T2 trial root
-(`build/m8g/t2-m8g.sh`: sweep, NES, sdcard, SFTP jail, ScummVM core +
-standalone, Flycast standalone, DC 2022, NDS, Saturn, PSP, wake) and
-`build/m8g/t2-cjk.sh` (menu screenshots in Japanese, Korean, Chinese).
-
-## Next milestone: M9 — public v1.0
-
-Plan in roadmap.md M9 (licences, the public variant, install guide,
-rc1 → T3 on a blank card with the user present).
+Tests: T0 builds/shellcheck; T1 ELF checks; T2 trial root (sweep, NES,
+ScummVM core + standalone, the undervolt round trip on and off, CJK
+screenshots); T3 the M9 checklist (keyboard names in the game, the
+Undervolt row, CJK menus, rc1 on a blank card).

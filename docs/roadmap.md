@@ -10,7 +10,7 @@ after it. Rewritten 2026-11-18. The current state is in
 
 Phases 0–4 (inventory, first native component, display/input, the menu on
 the Debian bench, the standalone firmware base) are done. Phase 5 (own
-card) has delivered M1–M7 (M7 T3 passed 2026-11-20): a flashable image that
+card) has delivered M1–M8 (M8 T3 passed 2026-11-22; M9 in progress): a flashable image that
 boots straight to the muOS menu in English or Português (BR), with
 display, controls, audio, Wi-Fi + SSH/SFTP (jailed), battery gauge,
 sleep/resume, poweroff, time zone/NTP, about 20 libretro cores plus the
@@ -119,7 +119,9 @@ image. The public variant: T2 checks, first-boot flow (Wi-Fi from the
 menu, SSH/SFTP toggles, empty p3 populated). The MustardOS team's answer on
 the name and theme assets. Install guide (English and pt-BR), changelog,
 known issues, SHA256. The update path for v1.x (reflash keeping p3, or a
-muxarchive update package). The undervolt as an opt-in (decision 28):
+muxarchive update package). Japanese and Chinese menu overlays (m9a;
+upstream's texts are incomplete). The undervolt as an opt-in (decision
+28, done to T2 in m9a):
 a row "Undervolt" in Configuração → Configurações perigosas (frontend
 patch to muxdanger, below "Máximo do processador"); switching it arms
 the other DTB as a trial boot (`muos-boot-slot install-trial`) and

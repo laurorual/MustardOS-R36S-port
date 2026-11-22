@@ -4,7 +4,59 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M8 — card layout and the heavy systems (in progress; night 1 and day 2026-11-20)
+## M9 — public v1.0 (in progress, started 2026-11-22)
+
+Logs `build/logs/m9/`. Plan in STATUS. M8 closed first: **M8g T3
+(2026-11-22):** 1, 3, 5 ok; 2 ok with two keyboard findings (the
+preview showed every letter as `[l]`; a name typed for the game's own
+save dialog arrived as its last letter only); 4 ok (fonts render, no
+empty boxes) but Japanese mostly and Chinese partly in English (upstream
+text). Decision 29: the standalone stays the ScummVM default. m8g
+written to p2 with the user present (old p2 `0b1e8978…` kept as
+`MUOS/trial/p2-previous.img`) and promoted to recovery, m8d retired.
+
+1. **ScummVM virtual keyboard — done to T2:** `port/patches/scummvm/0001`
+   (both builds; `build-scummvm.sh` applies `port/patches/scummvm/*` to
+   the standalone's archive and once to the tree for the core): a plain
+   character shows as itself, named keys keep brackets; the submitted
+   keys go through a paced event source (one event per 60 ms: key down,
+   up, next key) instead of all at once, because SCUMM keeps one key per
+   game tick (`_keyPressed`). T2: core 100 % audio, standalone starts;
+   the typing itself is T3.
+2. **Decision 29 — done to T2:** core-assign.txt `SCUMMVM|ext-scummvm-sa`;
+   `coredb-governors.py` now sets the system's `runtime` from the
+   default's section (external → `"runtime": "external"`, libretro →
+   none). Saturn had the same latent gap (external default, no runtime;
+   only the S91 seed made it work).
+3. **CJK menus — done to T2:** upstream's pack (also the 2026-11-22
+   release `cc36ab2`) leaves Japanese ~86 %, Chinese Traditional ~80 %
+   and Simplified ~39 % in English. Port overlays
+   `port/packaging/language/{Japanese,Chinese (Simplified)}.json`: the
+   1552 short labels (≤ 60 characters, one line) still in English, from
+   every visible screen (not muweb, Bluetooth, HDMI, USB link, terminal,
+   media), translated by the agent; format specifiers checked against
+   the frontend's `translation_safe` rule. Help texts stay English;
+   Traditional Chinese unchanged (an OpenCC conversion was blocked: pip
+   install denied). T2 screenshots `build/logs/m5/shots/m9-*.png`.
+4. **Undervolt opt-in (decision 28) — done to T2:** frontend patch 0012
+   adds "Undervolt" below "Processor Maximum" (label and help through
+   `translate_specific`, no lang-struct change; pt-BR, ja, zh in the
+   overlays); `muos-undervolt` (sync, arm, promote, status); the image
+   build generates the undervolted DTB (`make-dtb-uv.sh … 50 25`, the
+   same `84611ef0394d` as this unit's) and writes p1 `dtb-variants.txt`.
+   T2 on the device: off via the script (trial boot, promoted after 20 s
+   of menu), then on through the UI (Right, B: arms, reboots, promoted):
+   main = undervolt, previous = stock again. Fixed after: the booted DTB
+   is cached per boot (arm rewrites the trial record a trial boot came
+   from), the row reuses the overclock glyph.
+5. **Image m9a** (raw `093d64ce…`, p2 `ed83f5f4…`): T1 373 ELFs, 0
+   missing; trial-root T2 `build/m9/t2-m9a.sh` (logs
+   `build/logs/m9/trial-m9a/`): checks (undervolt available, coredb
+   default/runtime), sweep 44 ok, NES 59.96, sdcard, SFTP jail, ScummVM
+   core + standalone, Flycast standalone, wake (1 slow frame): all pass.
+   Written to p2 2026-11-22 with the user present (old p2 `678e3766…`).
+
+## M8 — card layout and the heavy systems (done 2026-11-22, M8g T3 passed; m8g is recovery)
 
 Logs `build/logs/m8/`. Image `test128-m8-20261120` (raw `fbd4871c…`, p2
 `0f723304…`) on p2 since 2026-11-20 ~03:05; U-Boot `159e086c…` written

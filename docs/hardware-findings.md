@@ -977,6 +977,8 @@ The open problems behind each "partial" are in STATUS.
     GPU (400–520 MHz): 95.6 % speed, 154 s below 95 % vs 97.0 % / 102 s at
     a steady 1296. The minutes that are slow at 1296 (heavy scenes) stay
     slow. The 1296 cap with the undervolt is the DC optimum on this unit.
+    Since M9 the undervolt is a menu opt-in (Danger Settings →
+    Undervolt), stock voltages by default.
   - *Overclock does not help PSP either (M8g, God of War v1.12.3 state,
     300 s from 60 °C, `build/m8g/t2-psp-oc.sh`):* cap 1296: 12.6 presented
     fps, CPU mean 1065 MHz, max 84.2 °C (it throttles at the stock cap

@@ -1,0 +1,65 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M9 (decision 28): the undervolt opt-in behind Configuration -> Danger
+# Settings -> Undervolt (frontend patch 0012). p1 dtb-variants.txt (written
+# by the image build) names the stock DTB and the undervolted one
+# (make-dtb-uv.sh: CPU -50 mV, GPU -25 mV); the choice is the DTB of the
+# main boot record, switched through a one-shot trial boot: a start that
+# freezes before the menu falls back to the old main on the next start.
+#
+#   muos-undervolt status    on | off | unavailable (the booted DTB)
+#   muos-undervolt sync      frontend start: danger/undervolt := the booted
+#                            state, /run/muos-undervolt.available if known
+#   muos-undervolt arm       arm the DTB danger/undervolt asks for as the
+#                            trial (same kernel); /run/muos-undervolt.armed
+#                            on success, the caller reboots
+#   muos-undervolt promote   on an undervolt trial boot that reached the
+#                            menu: make it main (muos-boot-slot promote)
+set -eu
+variants=/boot/dtb-variants.txt cfg=/opt/muos/config/danger/undervolt
+slot=/usr/libexec/muos-boot-slot tool=/usr/libexec/muos-bootrec
+disk=$(/usr/libexec/muos-boot-disk)
+tmp=/run/muos-undervolt; mkdir -p "$tmp"
+log() { echo "muos-undervolt: $*"; }
+variant() { sed -n "s/^$1=//p" "$variants" 2>/dev/null; }
+booted() { sed -n 's/.*muos_slot=\([a-z]*\).*/\1/p' /proc/cmdline; }
+record() { # SLOT FIELD: a field of a boot record
+    case $1 in main) s=32 ;; previous) s=33 ;; trial) s=34 ;; *) return 1 ;; esac
+    dd if="$disk" of="$tmp/rec" bs=512 skip=$s count=1 2>/dev/null
+    $tool decode "$tmp/rec" 2>/dev/null | sed -n "s/^$2=//p"
+}
+state() { # the booted slot's DTB: on, off or unavailable
+    # read once per boot: arm rewrites the trial record a trial boot came from
+    [ -s "$tmp/booted-fdt" ] || record "$(booted)" fdt > "$tmp/booted-fdt" || :
+    fdt=$(cat "$tmp/booted-fdt")
+    stock=$(variant stock) uv=$(variant undervolt)
+    if [ -z "$fdt" ] || [ -z "$stock" ] || [ -z "$uv" ]; then echo unavailable
+    elif [ "$fdt" = "$uv" ]; then echo on
+    elif [ "$fdt" = "$stock" ]; then echo off
+    else echo unavailable; fi
+}
+case ${1:-status} in
+status) state ;;
+sync)
+    s=$(state)
+    rm -f /run/muos-undervolt.armed
+    if [ "$s" = unavailable ]; then rm -f /run/muos-undervolt.available; exit 0; fi
+    mkdir -p "${cfg%/*}"
+    want=0; [ "$s" = on ] && want=1
+    [ "$(cat "$cfg" 2>/dev/null)" = "$want" ] || { echo "$want" > "$cfg"; log "danger/undervolt -> $want (booted $s)"; }
+    : > /run/muos-undervolt.available ;;
+arm)
+    rm -f /run/muos-undervolt.armed
+    [ "$(state)" != unavailable ] || { log 'no known DTB variant booted'; exit 1; }
+    case $(cat "$cfg" 2>/dev/null) in 1) dtb=$(variant undervolt) label=undervolt-on ;; *) dtb=$(variant stock) label=undervolt-off ;; esac
+    image=$(record "$(booted)" image)
+    { [ -f "/boot/$image" ] && [ -f "/boot/$dtb" ]; } || { log "missing on p1: $image or $dtb"; exit 1; }
+    $slot install-trial "/boot/$image" "/boot/$dtb" "$label"
+    : > /run/muos-undervolt.armed; log "armed $label ($image + $dtb)" ;;
+promote)
+    [ "$(booted)" = trial ] || exit 0
+    case $(record trial label) in undervolt-on|undervolt-off) ;; *) exit 0 ;; esac
+    [ "$(record trial state)" = trial-consumed ] || exit 0
+    $slot promote && log "promoted $(record main label)" ;;
+*) sed -n '10,18p' "$0"; exit 2 ;;
+esac
