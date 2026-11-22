@@ -1,0 +1,56 @@
+muOS for R36S/R35S (unofficial port): third-party components
+=============================================================
+Each component keeps its own licence. GPL/LGPL sources: the exact
+revisions below, the port's patches and build scripts are published with
+the release (source bundle on the project's GitHub page). Non-commercial
+licences (marked) forbid selling this firmware or bundling it with a
+commercial product.
+
+System
+- MustardOS frontend, GPL-3.0: https://github.com/MustardOS/frontend 5e8635b3b485eec9ad2ace141c415fd2df47d8f1
+- MustardOS internal scripts and share data, GPL-3.0: https://github.com/MustardOS/internal 550cc58f9cd3449a17f53ca55efcdc6c473b5a89
+- MustardOS language pack, GPL-3.0: https://github.com/MustardOS/language (release-main-3db301a-20261112-073445)
+- Linux kernel 4.4 (rk351 BSP), GPL-2.0: https://github.com/christianhaitian/linux d8402159c04b1044106b4f27b7ed7c22ed09228f
+- U-Boot, GPL-2.0+: built by port/scripts/build-phase4-uboot-sd.sh (source and patches in the bundle)
+- Rockchip rkbin boot payloads (DDR init, miniloader, BL31, BL32), rkbin LICENSE: https://github.com/rockchip-linux/rkbin
+- Buildroot 2025.02 root filesystem packages: licences and sources per package (Buildroot legal-info in the source bundle)
+- Mali-G31 r13p0 userspace driver, Hardkernel/Arm (redistribution terms pending; not in the public image until answered)
+- Fonts: Noto Sans SC/TC/JP/KR (SIL OFL-1.1), M+ (M+ FONT LICENSE), shipped by MustardOS
+
+Libretro cores
+- snes9x2005, Snes9x licence (non-commercial): https://github.com/libretro/snes9x2005 a79dfe9047e7fec58808aefe48ad2bf499c7af11
+- gpsp, GPL-2.0: https://github.com/libretro/gpsp 5819380c2ffb0900219d700a382ee68c464ebb99
+- picodrive, PicoDrive licence (non-commercial): https://github.com/libretro/picodrive 1890c2932234c9d30f4cd3851d02228baae8f09e
+- pcsx_rearmed, GPL-2.0: https://github.com/libretro/pcsx_rearmed 7b0e8f8fadfbce3d170d195b9d9eecaabfa08c8e
+- stella2014, GPL-2.0: https://github.com/libretro/stella2014-libretro 7d1361e407e63f29e52892655069e5fb4096e691
+- prosystem, GPL-2.0: https://github.com/libretro/prosystem-libretro 8a88014287c7a01cd568067e5a557d0a2b2a051f
+- handy, Zlib: https://github.com/libretro/libretro-handy bc55d462f0b2d6b073ea93dc552ebd73cec60fd1
+- pce_fast, GPL-2.0: https://github.com/libretro/beetle-pce-fast-libretro 2de1ce1c3f237b161c126c54ba407990bb86d1e9
+- ngp, GPL-2.0: https://github.com/libretro/beetle-ngp-libretro a50d5ac288a81f2104ddf43195a4efdd15c72227
+- wswan, GPL-2.0: https://github.com/libretro/beetle-wswan-libretro 4b01295838ea89e3f1355bbe4cb5cf98aa6108cd
+- bluemsx, GPL-2.0: https://github.com/libretro/blueMSX-libretro e3086eb5d36d77fa11704cf53dc176686e70127d
+- gearcoleco, GPL-3.0: https://github.com/drhelius/Gearcoleco 8e86678387d0818e87a5b437d74390bf2ad82596
+- gearsystem, GPL-3.0: https://github.com/drhelius/Gearsystem 4b3b1b266e536848ab23b8733f783ae17f0126a6
+- pokemini, GPL-3.0: https://github.com/libretro/PokeMini 132111b76343559860532a1ccc094f93f1ed5650
+- fbneo, FBNeo licence (non-commercial): https://github.com/libretro/FBNeo 12ec3ca2de7e5677d03b533c12cd9395a28212b0
+- mame2003_plus, MAME licence (non-commercial): https://github.com/libretro/mame2003-plus-libretro dce2e9a2ef1ccdca174b1ab870f29bd2fed1a97b
+- mupen64plus_next, GPL-2.0: https://github.com/libretro/mupen64plus-libretro-nx 15bada85906593376e8fd697f1b0b3af3a20f512
+- dosbox_pure, GPL-2.0: https://github.com/libretro/dosbox-pure e39497e7c2a32c67c26e6598dd14f6d58c384bfd
+- flycast, GPL-2.0: https://github.com/libretro/flycast 328a768ab56b84623974b935b20d5a518265ba4e
+- ppsspp, GPL-2.0+: https://github.com/hrydgard/ppsspp fa50bb1976065c4f8b1b47af227d367fe9771555
+- flycast2, GPL-2.0: https://github.com/flyinghead/flycast 5aa091fde632fb332c8d8c34e280d62dc951954c
+- ppsspp2021, GPL-2.0+: https://github.com/hrydgard/ppsspp ce0a45cf0fcdd5bebf32208b9998f68dfc1107b7
+- melonds, GPL-3.0: https://github.com/libretro/melonds 4081e8358e66f1ea11879560be6b813dfeaab75a
+- flycast2022, GPL-2.0: https://github.com/libretro/parallel-dc 4c293f306bc16a265c2d768af5d0cea138426054
+- yabasanshiro, GPL-2.0: https://github.com/libretro/yabause 09ed8e5b2e97e7a848ea2514545c34c7b809e399
+
+Standalone emulators
+- Mupen64Plus (core, ui-console, audio/input-sdl, rsp-hle, video-rice) and GLideN64, GPL-2.0: https://github.com/mupen64plus, https://github.com/gonetz/GLideN64 (revisions in build-mupen64plus-sa.sh)
+- PPSSPP standalone v1.12.3 and v1.20.4, GPL-2.0+: https://github.com/hrydgard/ppsspp
+- Flycast standalone (dArkOSen build), GPL-2.0: https://github.com/flyinghead/flycast
+- YabaSanshiro standalone (dArkOSen build), GPL-2.0: https://github.com/devmiyax/yabause
+- ScummVM v2026.4.0, GPL-3.0+: https://github.com/scummvm/scummvm 7d2709da5136866589f7602f5f5a7b17de03420e
+- DraStic r2.5.2.2 (Exophase), freeware, closed source (redistribution permission pending)
+- advanced_drastic hook (trngaje) and drastic_layout art (steward-fu, trngaje), no licence file (permission pending):
+  https://github.com/trngaje/advanced_drastic d445a56349cce68f5337d02c9fe890de9d390f3f
+  https://github.com/trngaje/drastic_layout e8dc3eb5bb51351bf3e93229e388ae9e5fea9adc

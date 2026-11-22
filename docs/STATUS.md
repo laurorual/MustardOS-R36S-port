@@ -221,7 +221,7 @@ state load) or when a core runs short of CPU (M7); 200 %
   reboot returns to main (one-shot marker).
 - **Menu:** "Direct Link" and "Proxy Settings" not exercised; static
   addresses untested; the Rumble row's "present" case unverified.
-- **Licences (M9):** Mali r13p0 (Hardkernel: no answer yet), the dirty
+- **Licences (M9):** requests drafted 2026-11-22 (`docs/license-requests.md`, sent by the user). Mali r13p0 (Hardkernel: no answer yet), the dirty
   U-Boot, Gambatte and BT firmware are private-only; FBNeo and MAME
   2003-Plus are non-commercial (pending-licenses.json).
 
@@ -330,7 +330,13 @@ retired). Plan in roadmap.md M9. **Items:**
 
 **State:** 1–4 done (m9a, T3 passed; recovery). Added: Traditional
 Chinese overlay, CPU/GPU undervolt rows (on the bench, next image).
-5–10 next.
+Item 5 started: `THIRD-PARTY.txt` in the image (`third-party.sh`, every
+pinned component with its licence); permission drafts in
+`docs/license-requests.md` (Hardkernel follow-up, DraStic, trngaje,
+steward-fu, MustardOS team; the user sends them). Next: item 6, a
+`make-source-bundle.sh` (port repo archive, core tarballs from the cache,
+kernel/U-Boot/ScummVM archives, Buildroot legal-info) run at rc1 only
+(disk), then the public variant T2, docs, update path.
 
 Tests: T0 builds/shellcheck; T1 ELF checks; T2 trial root (sweep, NES,
 ScummVM core + standalone, the undervolt round trip on and off, CJK
