@@ -525,7 +525,11 @@
     "Warnings": "警告",
     "Write Back Threshold": "書き戻しのしきい値",
     "Undervolt": "アンダーボルト",
-    "Runs the processor and graphics chip at slightly lower voltages, so the device stays cooler and holds its speed longer in demanding games.\n\nNot every unit is stable like this. Changing it restarts the device; a start that does not reach the menu falls back to the previous setting on the next start. Switch it off if games freeze or show graphical errors.": "プロセッサとグラフィックチップをわずかに低い電圧で動かし、デバイスの発熱を抑えて重いゲームでも速度を長く保ちます。\n\nすべての個体で安定するわけではありません。変更するとデバイスが再起動します。メニューまで起動できなかった場合、次回の起動では以前の設定に戻ります。ゲームがフリーズしたり画面に異常が出たりする場合はオフにしてください。"
+    "Runs the processor and graphics chip at slightly lower voltages, so the device stays cooler and holds its speed longer in demanding games.\n\nNot every unit is stable like this. Changing it restarts the device; a start that does not reach the menu falls back to the previous setting on the next start. Switch it off if games freeze or show graphical errors.": "プロセッサとグラフィックチップをわずかに低い電圧で動かし、デバイスの発熱を抑えて重いゲームでも速度を長く保ちます。\n\nすべての個体で安定するわけではありません。変更するとデバイスが再起動します。メニューまで起動できなかった場合、次回の起動では以前の設定に戻ります。ゲームがフリーズしたり画面に異常が出たりする場合はオフにしてください。",
+    "Processor Undervolt": "プロセッサのアンダーボルト",
+    "Graphics Undervolt": "グラフィックのアンダーボルト",
+    "How far below stock the processor voltage goes when Undervolt is enabled.\n\n-50 mV is the tested safe default. Larger steps run cooler but may freeze some units; a start that does not reach the menu falls back.": "アンダーボルト有効時にプロセッサ電圧を標準からどれだけ下げるか。\n\n-50 mV がテスト済みの安全な既定値です。下げるほど発熱は減りますが、個体によってはフリーズします。メニューまで起動できなかった場合は以前の設定に戻ります。",
+    "How far below stock the graphics chip voltage goes when Undervolt is enabled.\n\n-25 mV is the tested safe default. Larger steps may cause graphical errors or freezes in demanding games.": "アンダーボルト有効時にグラフィックチップの電圧を標準からどれだけ下げるか。\n\n-25 mV がテスト済みの安全な既定値です。下げすぎると重いゲームで画面の異常やフリーズが起きることがあります。"
   },
   "muxdetail": {
     "Active Traffic": "現在の通信量",

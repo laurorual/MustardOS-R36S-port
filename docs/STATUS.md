@@ -15,7 +15,10 @@ milestones with their results and T3 checklists in
 2026-11-22, m8g is the recovery image). Current: M9 (public v1.0),
 first round m9a (2026-11-22, user present): M8g T3 fixes (ScummVM
 keyboard), decision 29, Japanese/Chinese menu overlays, the Undervolt
-row (decision 28); the M9a T3 below.**
+row (decision 28); M9a T3 passed → m9a is the recovery image. Then
+(installed on the bench, not yet in an image): Traditional Chinese
+overlay (decision 31, OpenCC), the CPU/GPU undervolt rows. **Token
+budget is nearly spent until 2026-11-25: plan for minimal tokens.**
 
 ## Next session — read first
 
@@ -85,14 +88,14 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m9a-20261122.img.zst` (raw `093d64ce…`, p2 `ed83f5f4…`, U-Boot `159e086c…`) | M8g T3 round + M9 start: ScummVM keyboard preview + paced keys, ScummVM standalone default, Undervolt row (both DTBs on p1, stock by default), Japanese/Chinese menu overlays | trial-root T2 passed (`build/m9/t2-m9a.sh`), on p2 since 2026-11-22; T3 pending (the M9a checklist) |
-| **`dist/firmware/test128-m8g-20261122.img.zst`** (raw `81613024…`, p2 `4ca8c058…`, U-Boot `159e086c…`) | **Recovery image since 2026-11-22.** M8f T3 round: ScummVM games as NAME/NAME.scummvm (one entry), "ScummVM - Standalone" in the core list, virtual keyboard (Select) in both, CJK languages with their fonts | T3 2026-11-22: 1–5 ok; keyboard preview/in-game names and CJK text completeness fixed in m9a |
+| **`dist/firmware/test128-m9a-20261122.img.zst`** (raw `093d64ce…`, p2 `ed83f5f4…`, U-Boot `159e086c…`) | M8g T3 round + M9 start: ScummVM keyboard preview + paced keys, ScummVM standalone default, Undervolt row (both DTBs on p1, stock by default), Japanese/Chinese menu overlays | **Recovery image since 2026-11-22 (afternoon).** T2 `build/m9/t2-m9a.sh`, on p2; M9a T3 1–5 ok |
+| **`dist/firmware/test128-m8g-20261122.img.zst`** (raw `81613024…`, p2 `4ca8c058…`, U-Boot `159e086c…`) | Recovery 2026-11-22 (morning). M8f T3 round: ScummVM games as NAME/NAME.scummvm (one entry), "ScummVM - Standalone" in the core list, virtual keyboard (Select) in both, CJK languages with their fonts | T3 2026-11-22: 1–5 ok; keyboard preview/in-game names and CJK text completeness fixed in m9a |
 | `dist/firmware/test128-m8f-20261121.img.zst` (raw `fe44baad…`, p2 `15b51793…`, U-Boot `159e086c…`) | Recovery 2026-11-22 (morning). M8e T3 round + thermal block: ScummVM core + standalone, Flycast v2.7 standalone, DC synchronous rendering, one DraStic | T3 2026-11-21: 2, 6, 7, 8 ok |
-| `dist/firmware/test128-m8e-20261121.img.zst` (raw `2f0293a2…`, p2 `e43458ce…`, U-Boot `159e086c…`) | Recovery 2026-11-21 → 22. m8d T3 round: DC speed limiter, Saturn vblank flips + menu crash fix + SCSP wait, core lists by installed cores, NDS touch on R3, Fn+Start fade | T3 2026-11-21: 2–9 ok; 1 DC uneven |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
 5/5 versions in `storage-retention.json` (m8d retired when m8g became
-recovery, m9a added 2026-11-22). The next image retires m8e.
+recovery, m9a added and m8e retired 2026-11-22). The next image
+retires m8f.
 
 ## What works (T3-confirmed)
 
@@ -274,44 +277,25 @@ by default (agreed; the row goes in Configuração → Configurações
 perigosas, below "Máximo do processador", built in M9; this card keeps
 the undervolt DTB); 30 keep the Flycast standalone in the DC list.
 Answered 2026-11-22 (M8g T3): 29 the ScummVM standalone is the SCUMMVM
-default (done in m9a).
+default (done in m9a). Answered 2026-11-22 (M9a T3): 31 OpenCC allowed
+(venv `build/tools/opencc-venv`): Traditional Chinese overlay done. The
+user asked for manual CPU/GPU undervolt values (other R35S/R36S units):
+two rows below Undervolt, 25 mV steps, the image ships all 16 DTBs.
 Standing rule (AGENTS.md "Heavy Systems"): heavy systems = maximum
 performance first.
 
 ## Decisions for the user
 
-31. **Chinese (Traditional) menus:** upstream's are ~80 % English. The
-    agent can convert the Simplified texts (upstream's + the port's) to
-    Traditional (Taiwan phrasing) with OpenCC, but installing it (a pip
-    venv in `build/tools`, pure Python, Apache-2.0) was refused by the
-    auto-mode classifier. Recommendation: allow that one install; else
-    Traditional stays as upstream ships it.
+None open.
 
 ## T3 queue
 
-**M9a checklist (pt-BR labels).** m9a is on p2 (any restart keeps it).
-
-1. **Teclado no save do jogo** (Explorar conteúdo → SCUMMVM → The
-   Secret of Monkey Island): in the game open the game's own save
-   screen, Select opens the virtual keyboard, type a name: the preview
-   at the top shows the letters plainly ("lauro", not "[l] [a]…");
-   OK: the whole name appears in the game's field. Save, quit
-   (Fn+Start), start again and load it.
-2. **ScummVM padrão:** X on the game → Opções do conteúdo → Núcleo do
-   conteúdo: "ScummVM - Standalone" marked (on this card it already
-   was; a new card now seeds it too).
-3. **Undervolt** (Configuração → Configurações perigosas, below
-   "Máximo do processador"): shows "Ativado" with an icon. Set
-   "Desativado", press B: "Reiniciando", the device restarts by itself
-   and reaches the menu; after ~20 s open the row
-   again: "Desativado". Set it back to "Ativado" the same way. The help
-   (Menu/Y on the row) shows the pt-BR text.
-4. **Japonês / Chinês** (Configuração → Idioma): "Japanese", then
-   Configuração and its submenus (Geral, Avançado, Conectividade): menu
-   labels in Japanese (long help texts may stay English); the same with
-   "Chinese (Simplified)"; back to "Portuguese (BR)".
-5. **Regressão:** a GBA or SNES game resumes; short Power in the menu
-   sleeps and wakes.
+M9a T3 passed 2026-11-22 (1–5 ok). Next round (visual only, no voltage
+tests, the user's call): Configuração → Configurações perigosas: below
+"Undervolt" the rows "Undervolt do processador" (−25…−100 mV, default
+−50) and "Undervolt dos gráficos" (0…−75 mV, default −25) look right
+(checked by screenshot `build/logs/m5/shots/m9b-danger-uv.png`); the
+Chinese (Traditional) menus.
 
 ## Current milestone: M9 — public v1.0 (started 2026-11-22)
 
@@ -344,8 +328,9 @@ retired). Plan in roadmap.md M9. **Items:**
 9. **Battery % after sleeping on the charger** (moved from M8 item 12).
 10. **rc1** → T3 on a blank card with the user present → v1.0.
 
-**State:** 1–4 done to T2 (image m9a, on p2; M9a T3 pending); 5–10
-next.
+**State:** 1–4 done (m9a, T3 passed; recovery). Added: Traditional
+Chinese overlay, CPU/GPU undervolt rows (on the bench, next image).
+5–10 next.
 
 Tests: T0 builds/shellcheck; T1 ELF checks; T2 trial root (sweep, NES,
 ScummVM core + standalone, the undervolt round trip on and off, CJK

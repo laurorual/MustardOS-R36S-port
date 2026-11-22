@@ -55,6 +55,19 @@ written to p2 with the user present (old p2 `0b1e8978…` kept as
    default/runtime), sweep 44 ok, NES 59.96, sdcard, SFTP jail, ScummVM
    core + standalone, Flycast standalone, wake (1 slow frame): all pass.
    Written to p2 2026-11-22 with the user present (old p2 `678e3766…`).
+   **M9a T3 (2026-11-22): 1–5 ok** → m9a recovery, m8e retired.
+6. **Decision 31 — done to T2:** Traditional Chinese overlay converted
+   from the Simplified texts (upstream + port) with OpenCC `s2twp`
+   (`build/tools/opencc-venv`): 2062 strings; English left only where
+   Simplified has none.
+7. **Manual undervolt values (the user, M9a T3) — done to T2:** rows
+   "Processor Undervolt" (−25…−100 mV) and "Graphics Undervolt"
+   (0…−75 mV) below Undervolt (patch 0012, `danger/uv_cpu|uv_gpu`, mV),
+   default −50/−25; the image build writes all 16 DTBs and `uv-C-G=`
+   lines to `dtb-variants.txt` (the bench p1 got the same set); `sync`
+   reads the values back from the booted DTB. Screenshot
+   `m9b-danger-uv.png`; voltages beyond the default are untested (user's
+   choice: visual check only).
 
 ## M8 — card layout and the heavy systems (done 2026-11-22, M8g T3 passed; m8g is recovery)
 

@@ -233,8 +233,9 @@ byte-identical.
   GPU_MV` from the main DTB (pull `/boot/<fdt>`), then a DTB-only trial
   with the main `Image`. Stability T2: PSP God of War for 5 min (GPU
   faults show as "GPU fault 0x4002" in dmesg) and the DC thermal run.
-- Undervolt opt-in (M9, decision 28): the image ships the stock and the
-  undervolted DTB (−50/−25 mV) on p1 and `dtb-variants.txt` naming them.
+- Undervolt opt-in (M9, decision 28): the image ships the stock DTB and
+  16 undervolted ones (CPU 25…100 × GPU 0…75 mV, `uv-C-G=` in p1
+  `dtb-variants.txt`; values in `danger/uv_cpu`, `uv_gpu`).
   Configuration → Danger Settings → Undervolt (or `muos-undervolt`:
   write 0/1 to `/opt/muos/config/danger/undervolt`, `muos-undervolt arm`,
   reboot) arms the other DTB as a trial (label `undervolt-on|off`);

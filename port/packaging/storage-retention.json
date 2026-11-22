@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m8e-20261121": {
-      "reason": "M8e (m8d T3 round): Saturn standalone vblank page flips + menu crash fix (nanovg ABI) + SCSP realtime wait, DC Flycast speed limiter on, coredb hides missing libretro cores, NDS touch on R3, Fn+Start fade, T2 core speed meter; developer image; raw 2f0293a2, p2 e43458ce",
-      "files": [
-        "dist/firmware/test128-m8e-20261121.img.zst",
-        "dist/firmware/test128-m8e-20261121.img.zst.sha256",
-        "dist/firmware/test128-m8e-20261121.manifest",
-        "build/m3a/test128-m8e-20261121.p2.img"
-      ]
-    },
     "m8f-20261121": {
       "reason": "M8f (M8e T3 round + thermal block): ScummVM v2026.4.0 core (pthreads) + standalone, Flycast v2.7 standalone (dArkOSen), DC synchronous rendering default, NDS one DraStic, suspend stops YabaSanshiro/ScummVM/Flycast; developer image; raw fe44baad, p2 15b51793; trial-root T2 passed, p2 written 2026-11-21",
       "files": [

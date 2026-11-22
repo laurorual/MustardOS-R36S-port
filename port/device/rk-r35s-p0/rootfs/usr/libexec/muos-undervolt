@@ -3,11 +3,12 @@
 # M9 (decision 28): the undervolt opt-in behind Configuration -> Danger
 # Settings -> Undervolt (frontend patch 0012). p1 dtb-variants.txt (written
 # by the image build) names the stock DTB and the undervolted one
-# (make-dtb-uv.sh: CPU -50 mV, GPU -25 mV); the choice is the DTB of the
+# (make-dtb-uv.sh; M9b: uv-CPU-GPU, CPU 25..100 x GPU 0..75 mV in 25 mV
+# steps, danger/uv_cpu + uv_gpu, default 50/25); the choice is the DTB of the
 # main boot record, switched through a one-shot trial boot: a start that
 # freezes before the menu falls back to the old main on the next start.
 #
-#   muos-undervolt status    on | off | unavailable (the booted DTB)
+#   muos-undervolt status    on CPU_MV GPU_MV | off | unavailable
 #   muos-undervolt sync      frontend start: danger/undervolt := the booted
 #                            state, /run/muos-undervolt.available if known
 #   muos-undervolt arm       arm the DTB danger/undervolt asks for as the
@@ -16,11 +17,12 @@
 #   muos-undervolt promote   on an undervolt trial boot that reached the
 #                            menu: make it main (muos-boot-slot promote)
 set -eu
-variants=/boot/dtb-variants.txt cfg=/opt/muos/config/danger/undervolt
+variants=/boot/dtb-variants.txt cfgd=/opt/muos/config/danger
 slot=/usr/libexec/muos-boot-slot tool=/usr/libexec/muos-bootrec
 disk=$(/usr/libexec/muos-boot-disk)
 tmp=/run/muos-undervolt; mkdir -p "$tmp"
 log() { echo "muos-undervolt: $*"; }
+put() { [ "$(cat "$cfgd/$1" 2>/dev/null)" = "$2" ] || { echo "$2" > "$cfgd/$1"; log "danger/$1 -> $2"; }; }
 variant() { sed -n "s/^$1=//p" "$variants" 2>/dev/null; }
 booted() { sed -n 's/.*muos_slot=\([a-z]*\).*/\1/p' /proc/cmdline; }
 record() { # SLOT FIELD: a field of a boot record
@@ -28,15 +30,17 @@ record() { # SLOT FIELD: a field of a boot record
     dd if="$disk" of="$tmp/rec" bs=512 skip=$s count=1 2>/dev/null
     $tool decode "$tmp/rec" 2>/dev/null | sed -n "s/^$2=//p"
 }
-state() { # the booted slot's DTB: on, off or unavailable
+state() { # the booted slot's DTB: off, on CPU_MV GPU_MV, or unavailable
     # read once per boot: arm rewrites the trial record a trial boot came from
     [ -s "$tmp/booted-fdt" ] || record "$(booted)" fdt > "$tmp/booted-fdt" || :
     fdt=$(cat "$tmp/booted-fdt")
-    stock=$(variant stock) uv=$(variant undervolt)
-    if [ -z "$fdt" ] || [ -z "$stock" ] || [ -z "$uv" ]; then echo unavailable
-    elif [ "$fdt" = "$uv" ]; then echo on
-    elif [ "$fdt" = "$stock" ]; then echo off
-    else echo unavailable; fi
+    stock=$(variant stock)
+    if [ -z "$fdt" ] || [ -z "$stock" ]; then echo unavailable; return; fi
+    [ "$fdt" = "$stock" ] && { echo off; return; }
+    # uv-CPU-GPU=NAME lines (M9b: every combination); undervolt= the m9a default
+    v=$(sed -n "s/^uv-\([0-9]*\)-\([0-9]*\)=$fdt\$/\1 \2/p" "$variants" | head -n 1)
+    [ -n "$v" ] || { [ "$fdt" = "$(variant undervolt)" ] && v='50 25'; }
+    if [ -n "$v" ]; then echo "on $v"; else echo unavailable; fi
 }
 case ${1:-status} in
 status) state ;;
@@ -44,18 +48,27 @@ sync)
     s=$(state)
     rm -f /run/muos-undervolt.armed
     if [ "$s" = unavailable ]; then rm -f /run/muos-undervolt.available; exit 0; fi
-    mkdir -p "${cfg%/*}"
-    want=0; [ "$s" = on ] && want=1
-    [ "$(cat "$cfg" 2>/dev/null)" = "$want" ] || { echo "$want" > "$cfg"; log "danger/undervolt -> $want (booted $s)"; }
+    mkdir -p "$cfgd"
+    # shellcheck disable=SC2086 # three words
+    set -- $s
+    want=0; [ "$1" = on ] && want=1
+    put undervolt "$want"
+    [ "$1" = off ] || { put uv_cpu "$2"; put uv_gpu "$3"; }
     : > /run/muos-undervolt.available ;;
 arm)
     rm -f /run/muos-undervolt.armed
     [ "$(state)" != unavailable ] || { log 'no known DTB variant booted'; exit 1; }
-    case $(cat "$cfg" 2>/dev/null) in 1) dtb=$(variant undervolt) label=undervolt-on ;; *) dtb=$(variant stock) label=undervolt-off ;; esac
+    c=$(cat "$cfgd/uv_cpu" 2>/dev/null || echo 50) g=$(cat "$cfgd/uv_gpu" 2>/dev/null || echo 25)
+    case $(cat "$cfgd/undervolt" 2>/dev/null) in
+    1) dtb=$(variant "uv-$c-$g") label=undervolt-on
+       [ -n "$dtb" ] || { [ "$c-$g" = 50-25 ] && dtb=$(variant undervolt); } ;;
+    *) dtb=$(variant stock) label=undervolt-off ;;
+    esac
+    [ -n "$dtb" ] || { log "no DTB for CPU -$c GPU -$g mV"; exit 1; }
     image=$(record "$(booted)" image)
     { [ -f "/boot/$image" ] && [ -f "/boot/$dtb" ]; } || { log "missing on p1: $image or $dtb"; exit 1; }
     $slot install-trial "/boot/$image" "/boot/$dtb" "$label"
-    : > /run/muos-undervolt.armed; log "armed $label ($image + $dtb)" ;;
+    : > /run/muos-undervolt.armed; log "armed $label CPU -$c GPU -$g mV ($image + $dtb)" ;;
 promote)
     [ "$(booted)" = trial ] || exit 0
     case $(record trial label) in undervolt-on|undervolt-off) ;; *) exit 0 ;; esac

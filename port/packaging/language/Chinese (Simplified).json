@@ -143,7 +143,11 @@
     "Online Processor Cores": "在线处理器核心",
     "Processor Maximum": "处理器最大频率",
     "Undervolt": "降压",
-    "Runs the processor and graphics chip at slightly lower voltages, so the device stays cooler and holds its speed longer in demanding games.\n\nNot every unit is stable like this. Changing it restarts the device; a start that does not reach the menu falls back to the previous setting on the next start. Switch it off if games freeze or show graphical errors.": "让处理器和图形芯片以略低的电压运行，使设备温度更低，在高负载游戏中更持久地保持速度。\n\n并非每台设备都能在此设置下保持稳定。更改此项会重启设备；如果启动未能进入菜单，下次启动将恢复之前的设置。如果游戏卡死或出现画面错误，请关闭此项。"
+    "Runs the processor and graphics chip at slightly lower voltages, so the device stays cooler and holds its speed longer in demanding games.\n\nNot every unit is stable like this. Changing it restarts the device; a start that does not reach the menu falls back to the previous setting on the next start. Switch it off if games freeze or show graphical errors.": "让处理器和图形芯片以略低的电压运行，使设备温度更低，在高负载游戏中更持久地保持速度。\n\n并非每台设备都能在此设置下保持稳定。更改此项会重启设备；如果启动未能进入菜单，下次启动将恢复之前的设置。如果游戏卡死或出现画面错误，请关闭此项。",
+    "Processor Undervolt": "处理器降压",
+    "Graphics Undervolt": "图形降压",
+    "How far below stock the processor voltage goes when Undervolt is enabled.\n\n-50 mV is the tested safe default. Larger steps run cooler but may freeze some units; a start that does not reach the menu falls back.": "启用降压时，处理器电压比原厂低多少。\n\n-50 mV 是经过测试的安全默认值。降得更多温度更低，但部分设备可能卡死；未能进入菜单的启动会恢复之前的设置。",
+    "How far below stock the graphics chip voltage goes when Undervolt is enabled.\n\n-25 mV is the tested safe default. Larger steps may cause graphical errors or freezes in demanding games.": "启用降压时，图形芯片电压比原厂低多少。\n\n-25 mV 是经过测试的安全默认值。降得更多可能在高负载游戏中出现画面错误或卡死。"
   },
   "muxdetail": {
     "Battery Change While Off": "关机期间电量变化",

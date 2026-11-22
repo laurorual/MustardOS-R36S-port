@@ -137,17 +137,23 @@ mcopy -o -i "$p1" "$kimg" "::$kin"
 mcopy -o -i "$p1" "$kdtb" "::$kdn"
 mcopy -n -i "$p1" "::$kin" "$work/chk.img"; mcopy -n -i "$p1" "::$kdn" "$work/chk.dtb"
 cmp "$kimg" "$work/chk.img" && cmp "$kdtb" "$work/chk.dtb"
-# M9 (decision 28): the undervolted DTB (CPU -50 mV, GPU -25 mV, the M8
-# thermal block's choice) next to the stock one; dtb-variants.txt tells
-# muos-undervolt which is which (Danger Settings -> Undervolt, off by
-# default: the boot records keep the stock DTB).
-"$repo/port/scripts/make-dtb-uv.sh" "$kdtb" "$work/uv.dtb" 50 25 > "$work/uv.txt"
-udn=panel0-$(sha "$work/uv.dtb" | cut -c1-12).dtb
-mcopy -o -i "$p1" "$work/uv.dtb" "::$udn"
-printf 'stock=%s\nundervolt=%s\n' "$kdn" "$udn" > "$work/dtb-variants.txt"
+# M9 (decision 28): undervolted DTBs next to the stock one, every CPU
+# 25..100 x GPU 0..75 mV combination in 25 mV steps (Danger Settings ->
+# Undervolt and its two voltage rows; default -50/-25, the M8 thermal
+# block's choice); dtb-variants.txt tells muos-undervolt which is which
+# (off by default: the boot records keep the stock DTB).
+printf 'stock=%s\n' "$kdn" > "$work/dtb-variants.txt"
+for c in 25 50 75 100; do for g in 0 25 50 75; do
+    "$repo/port/scripts/make-dtb-uv.sh" "$kdtb" "$work/uv.dtb" $c $g > /dev/null
+    n=panel0-$(sha "$work/uv.dtb" | cut -c1-12).dtb
+    mcopy -o -i "$p1" "$work/uv.dtb" "::$n"
+    mcopy -n -i "$p1" "::$n" "$work/chk.uv"; cmp "$work/uv.dtb" "$work/chk.uv"
+    echo "uv-$c-$g=$n" >> "$work/dtb-variants.txt"
+    [ "$c-$g" != 50-25 ] || { udn=$n; cp "$work/uv.dtb" "$work/uv-default.dtb"; }
+done; done
+echo "undervolt=$udn" >> "$work/dtb-variants.txt"
 mcopy -o -i "$p1" "$work/dtb-variants.txt" ::dtb-variants.txt
-mcopy -n -i "$p1" "::$udn" "$work/chk.uv"; cmp "$work/uv.dtb" "$work/chk.uv"
-rm -f "$work/chk.uv" "$work/uv.txt"
+rm -f "$work/chk.uv" "$work/uv.dtb"
 # M8: the boot logo U-Boot shows (uboot-boot/boot.c), derived from the
 # rootfs splash so both stages show the same picture.
 python3 "$repo/port/scripts/make-boot-logo.py" --bmp \
@@ -222,7 +228,7 @@ p2_features=$(tr ' ' ',' <<< "$features")
 uboot_sha256=$uboot_sum
 boot_main=$kin,$kdn,$(sha "$kimg"),$(sha "$kdtb")
 boot_previous=Image,rk3326-muos-r35s-panel0.dtb,$m2_image,$m2_dtb
-boot_undervolt=$udn,$(sha "$work/uv.dtb")
+boot_undervolt=$udn,$(sha "$work/uv-default.dtb")
 $([ "$variant" = public ] && echo 'private=no  # public variant: check-public-image.sh passed' || echo 'private=yes  # contains Wi-Fi PSK, SSH host key and authorized_keys')
 EOF
 echo "OK $out raw_sha256=$raw_sum p2_sha256=$p2_sum size=$(stat -c %s "$out")"
