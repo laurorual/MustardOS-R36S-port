@@ -178,6 +178,8 @@ default_governor
 ( (sleep 20; /usr/libexec/muos-undervolt promote) & )
 # M9 item 8: an update tried as a trial root is installed after 30 s of menu
 ( (sleep 30; /usr/libexec/muos-update resume) & )
+# M9: check GitHub for a newer release once Wi-Fi is up (public images only)
+( (sleep 60; /usr/libexec/muos-update auto > /dev/null 2>&1) & )
 fast=0
 while :; do
     if [ -s "$rom" ]; then

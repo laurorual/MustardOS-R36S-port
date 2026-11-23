@@ -4,22 +4,83 @@
 # update is NAME.p2.img.gz plus NAME.p2.img.sha256 (the raw p2's sha256)
 # in /userdata/MUOS/update/. The Task Toolkit task "Install Firmware
 # Update" runs `stage`: unpack into MUOS/trial/rootfs.img, verify, arm the
-# trial root, reboot. On that boot muos-frontend runs `resume`: after 30 s
-# of menu the trial p2 is written to p2 (muos-root-trial write-p2, the old
-# p2 kept as MUOS/trial/p2-previous.img) and the device reboots into it.
-# A trial that never reaches the menu falls back to the old p2 by itself
-# (the marker is one-shot); `resume` there marks the update failed.
+# trial root, reboot. On that boot muos-frontend runs `resume`: once the
+# trial has kept the menu up for 30 s (and the menu is in front again),
+# the trial p2 is written to p2 (muos-root-trial write-p2, the old p2 kept
+# as MUOS/trial/p2-previous.img). No second reboot: the trial root already
+# runs the new firmware, the next start boots it from p2. A trial that
+# never reaches the menu falls back to the old p2 by itself (the marker is
+# one-shot); `resume` there marks the update failed.
+# M9 (T3 request): `auto` checks the GitHub releases of $repo
+# (/etc/muos-update.conf) once per boot (at most every 6 h) when Wi-Fi is
+# up, downloads a newer NAME.p2.img.gz + .sha256 (curl, CA-verified TLS)
+# and stages it: installed on the next start, as above. Off in developer
+# images (/etc/muos-developer) and when MUOS/update/disabled exists.
 # Kernel/DTB/U-Boot are not updated this way (p2 only).
-#   muos-update stage | resume | status
+#   muos-update stage | resume | status | check | fetch | auto
 set -eu
 upd=/userdata/MUOS/update trial=/userdata/MUOS/trial rt=/usr/libexec/muos-root-trial
+repo='' api=https://api.github.com
+[ ! -r /etc/muos-update.conf ] || . /etc/muos-update.conf
+api=${MUOS_UPDATE_API:-$api/repos/$repo/releases/latest}
+release=$(sed -n 's/^release=//p' /etc/muos-port-release 2>/dev/null)
 log() { echo "muos-update: $*"; echo "$(date '+%F %T') $*" >> "$upd/update.log"; }
 on_trial() { $rt status 2>/dev/null | grep -q '^trial-root yes'; }
+in_menu() { [ "$(cat /opt/muos/config/system/foreground_process 2>/dev/null)" = muxfrontend ]; }
 mkdir -p "$upd"
+# latest: print "NAME P2_URL SHA_URL" of the newest release's p2 assets.
+latest() {
+    curl -fsSL --max-time 30 -H 'Accept: application/vnd.github+json' "$api" |
+        tr ',{}' '\n\n\n' | sed -n 's/^ *"browser_download_url": *"\([^"]*\)".*/\1/p' |
+        awk '/\.p2\.img\.gz$/ { g = $0 } /\.p2\.img\.sha256$/ { s = $0 }
+            END { if (g == "" || s == "") exit 1; n = g; sub(/.*\//, "", n); sub(/\.p2\.img\.gz$/, "", n); print n, g, s }'
+}
+# check: exit 0 and print the name when a different release is published.
+check() {
+    [ -n "$repo" ] || [ -n "${MUOS_UPDATE_API:-}" ] || { echo 'no update repository configured' >&2; return 2; }
+    out=$(latest) || { echo 'no release found' >&2; return 2; }
+    # shellcheck disable=SC2086 # three words
+    set -- $out
+    [ "$1" != "$release" ] || { echo "up to date ($release)"; return 1; }
+    echo "$1 $2 $3"
+}
+fetch() {
+    out=$(check) || return $?
+    # shellcheck disable=SC2086 # three words
+    set -- $out
+    name=$1 gz=$upd/$1.p2.img.gz
+    [ ! -f "$gz" ] || [ ! -f "${gz%.gz}.sha256" ] || { echo "$name already downloaded"; return 0; }
+    free=$(df -m /userdata | awk 'NR == 2 {print $4}')
+    [ "$free" -ge 2800 ] || { log "update $name: need 2.8 GB free on the card (have ${free} MB)"; return 1; }
+    log "downloading $name"
+    curl -fsSL --max-time 30 -o "${gz%.gz}.sha256" "$3"
+    curl -fsSL --retry 2 --speed-limit 1024 --speed-time 60 -C - -o "$gz.part" "$2" ||
+        { log "download of $name interrupted (resumed next time)"; return 1; }
+    mv "$gz.part" "$gz"; log "downloaded $name"; sync
+}
 case ${1:-status} in
 status)
-    [ -f "$upd/pending" ] && echo "pending $(cat "$upd/pending")" || echo idle
+    [ -f "$upd/pending" ] && echo "pending $(cat "$upd/pending")" || echo "idle (release ${release:-unknown})"
     ls "$upd"/*.p2.img.gz 2>/dev/null || : ;;
+check) check ;;
+fetch) fetch ;;
+auto)
+    [ ! -e /etc/muos-developer ] || exit 0
+    [ ! -e "$upd/disabled" ] || exit 0
+    [ ! -f "$upd/pending" ] && ! on_trial || exit 0
+    stamp=$upd/last-check
+    [ -z "$(find "$stamp" -mmin -360 2>/dev/null)" ] || exit 0
+    # Wi-Fi up (the worker's ready marker); give up after 10 min.
+    n=0; while [ ! -e /run/muos/network/ready ]; do [ "$n" -lt 120 ] || exit 0; sleep 5; n=$((n + 1)); done
+    /usr/libexec/muos-cpu-pin 8 $$ 2>/dev/null || :
+    renice -n 19 $$ > /dev/null 2>&1 || :
+    rc=0; fetch > /dev/null || rc=$?
+    touch "$stamp"
+    [ "$rc" = 0 ] || exit 0
+    # Unpack and arm the trial root only while the menu is in front (the
+    # unpack is ~1 GiB of card writes); installed on the next start.
+    n=0; until in_menu; do [ "$n" -lt 720 ] || exit 0; sleep 5; n=$((n + 1)); done
+    "$0" stage > /dev/null && log 'update ready: installed on the next start' ;;
 stage)
     on_trial && { echo 'an update is already being tried; restart first' >&2; exit 1; }
     img=$(ls -t "$upd"/*.p2.img.gz 2>/dev/null | head -n 1)
@@ -32,20 +93,25 @@ stage)
     log "unpacking ${img##*/}"
     gzip -dc "$img" > "$trial/rootfs.img.tmp"
     got=$(sha256sum "$trial/rootfs.img.tmp" | cut -d' ' -f1)
-    [ "$got" = "$want" ] || { rm -f "$trial/rootfs.img.tmp"; log "sha256 mismatch ($got)"; echo 'the update file is damaged' >&2; exit 1; }
+    if [ "$got" != "$want" ]; then
+        rm -f "$trial/rootfs.img.tmp" "$img" "${img%.gz}.sha256"
+        log "sha256 mismatch ($got): update file removed"; echo 'the update file is damaged' >&2; exit 1
+    fi
     mv "$trial/rootfs.img.tmp" "$trial/rootfs.img"
     echo "$want ${img##*/}" > "$upd/pending"
     mount -o remount,rw / && touch /etc/muos-root-trial; sync; mount -o remount,ro / 2>/dev/null || :
     log "staged ${img##*/} ($want), trial root armed"; sync ;;
 resume)
     [ -f "$upd/pending" ] || exit 0
-    want=$(cut -d' ' -f1 "$upd/pending")
+    want=$(cut -d' ' -f1 "$upd/pending") img=$(cut -d' ' -f2 "$upd/pending")
     if ! on_trial; then
         mv "$upd/pending" "$upd/failed"; log "update $want did not reach the menu: kept the old firmware"; exit 0
     fi
+    # Write p2 from the menu only (1 GiB of card writes stutter a game).
+    until in_menu; do sleep 5; done
     log "trial boot reached the menu, writing p2"
     $rt write-p2 "$trial/rootfs.img" "$want" >> "$upd/update.log" 2>&1 || { mv "$upd/pending" "$upd/failed"; log 'write-p2 failed'; exit 1; }
-    rm -f "$upd/pending" "$trial/rootfs.img"; log "installed $want"; sync
-    reboot ;;
-*) sed -n '13p' "$0"; exit 2 ;;
+    rm -f "$upd/pending" "$trial/rootfs.img" "$upd/$img" "$upd/${img%.gz}.sha256"
+    log "installed $want (running now; booted from p2 from the next start)"; sync ;;
+*) sed -n '20p' "$0"; exit 2 ;;
 esac

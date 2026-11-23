@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). The device restarts twice; your games, saves and settings stay.
+# HELP: Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). The device restarts once; your games, saves and settings stay.
 # ICON: system
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

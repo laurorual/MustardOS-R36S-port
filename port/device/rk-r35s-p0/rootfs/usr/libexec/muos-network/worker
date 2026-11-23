@@ -459,6 +459,14 @@ up_once() {
         # held the old association: its deauth was ignored by the driver
         # and no lease ever came (M4e T3, 170 s until a replug). Associate
         # again from scratch at 20 s and 50 s without an address.
+        # M9: a radio whose scan stays empty (wpa_state SCANNING, no access
+        # point at all) is the 8821cu's stuck-scan case (M9b T3 boot: 75 s
+        # until a replug; m8b toggle: 150 s): reassociate never helps, a USB
+        # reset does. Do it at 20 s instead of after the 90 s wait.
+        if [ "$n" = 20 ] && [ "$(wstate)" = SCANNING ] &&
+            ! wcli scan_results | awk 'NR > 1 { f = 1 } END { exit !f }'; then
+            say 'radio sees no access point after 20 s (stuck scan): reset the dongle'; return 1
+        fi
         if [ "$n" = 20 ] || [ "$n" = 50 ]; then
             say "no address after $n s (wpa_state=$(wstate)): reassociate"
             wcli disconnect > /dev/null; sleep 0.5; wcli reassociate > /dev/null

@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m8f-20261121": {
-      "reason": "M8f (M8e T3 round + thermal block): ScummVM v2026.4.0 core (pthreads) + standalone, Flycast v2.7 standalone (dArkOSen), DC synchronous rendering default, NDS one DraStic, suspend stops YabaSanshiro/ScummVM/Flycast; developer image; raw fe44baad, p2 15b51793; trial-root T2 passed, p2 written 2026-11-21",
-      "files": [
-        "dist/firmware/test128-m8f-20261121.img.zst",
-        "dist/firmware/test128-m8f-20261121.img.zst.sha256",
-        "dist/firmware/test128-m8f-20261121.manifest",
-        "build/m3a/test128-m8f-20261121.p2.img"
-      ]
-    },
     "m8g-20261122": {
       "reason": "M8g (M8f T3 round): ScummVM NAME/NAME.scummvm one entry, ScummVM - Standalone coredb key, virtual keyboard (core + standalone), CJK languages + fonts; developer image; raw 81613024, p2 4ca8c058; trial-root T2 passed (the same build without the 4 CJK language files: full batch; this p2: short T2 pending)",
       "files": [
@@ -45,6 +36,15 @@
         "dist/firmware/test128-m9b-20261122.img.zst.sha256",
         "dist/firmware/test128-m9b-20261122.manifest",
         "build/m3a/test128-m9b-20261122.p2.img"
+      ]
+    },
+    "m9c-20261123": {
+      "reason": "M9b T3 round: Wi-Fi stuck-scan reset, GitHub auto-update (curl), CPU/GPU labels",
+      "files": [
+        "dist/firmware/test128-m9c-20261123.img.zst",
+        "dist/firmware/test128-m9c-20261123.img.zst.sha256",
+        "dist/firmware/test128-m9c-20261123.manifest",
+        "build/m3a/test128-m9c-20261123.p2.img"
       ]
     }
   },

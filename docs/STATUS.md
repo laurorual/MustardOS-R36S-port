@@ -22,7 +22,8 @@ budget is nearly spent until 2026-11-25: plan for minimal tokens.**
 
 ## Next session — read first
 
-- Device = **m9b on p2**, installed 2026-11-22 16:00 through the new
+- Device = **m9c on p2** (written 2026-11-23 01:25 via the trial root,
+  T2 passed; old p2 in `MUOS/trial/p2-previous.img`). Before: m9b, installed 2026-11-22 16:00 through the new
   update path (Task Toolkit task / `muos-update`: staged from
   `MUOS/update`, trial root, written after 30 s of menu; T2 passed).
   Old p2: `MUOS/trial/p2-previous.img` (m9a as used). Powered off at
@@ -87,9 +88,11 @@ the whole card, bootloader included; steps in procedures.md.
 
 | Image | Content | State |
 |---|---|---|
+| `dist/firmware/test128-m9c-20261123.img.zst` (p2 `6dab27a8…`) | m9b + M9b T3 round: Wi-Fi stuck-scan → dongle reset at 20 s, `muos-update auto` (GitHub latest release, curl added; off in developer images via `/etc/muos-developer`; `/etc/muos-port-release`), no second reboot after an update, labels "Undervolt do CPU/GPU" | On p2 2026-11-23, T2 passed; T3 pending |
 | `dist/firmware/test128-m9b-20261122.img.zst` (raw `dcd4276e…`, p2 `ce6694f8…`, U-Boot `159e086c…`) | m9a + Traditional Chinese overlay, CPU/GPU undervolt rows and 16 DTBs, THIRD-PARTY.txt, firmware update task | T1 0 missing; installed on p2 by the update task 2026-11-22; T3 pending |
 | **`dist/firmware/test128-m9a-20261122.img.zst`** (raw `093d64ce…`, p2 `ed83f5f4…`, U-Boot `159e086c…`) | M8g T3 round + M9 start: ScummVM keyboard preview + paced keys, ScummVM standalone default, Undervolt row (both DTBs on p1, stock by default), Japanese/Chinese menu overlays | **Recovery image since 2026-11-22 (afternoon).** T2 `build/m9/t2-m9a.sh`, on p2; M9a T3 1–5 ok |
 | **`dist/firmware/test128-m8g-20261122.img.zst`** (raw `81613024…`, p2 `4ca8c058…`, U-Boot `159e086c…`) | Recovery 2026-11-22 (morning). M8f T3 round: ScummVM games as NAME/NAME.scummvm (one entry), "ScummVM - Standalone" in the core list, virtual keyboard (Select) in both, CJK languages with their fonts | T3 2026-11-22: 1–5 ok; keyboard preview/in-game names and CJK text completeness fixed in m9a |
+| ~~m8f~~ retired 2026-11-23 | | |
 | `dist/firmware/test128-m8f-20261121.img.zst` (raw `fe44baad…`, p2 `15b51793…`, U-Boot `159e086c…`) | Recovery 2026-11-22 (morning). M8e T3 round + thermal block: ScummVM core + standalone, Flycast v2.7 standalone, DC synchronous rendering, one DraStic | T3 2026-11-21: 2, 6, 7, 8 ok |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2: the last image with the M2 U-Boot | **Base of every image build**; never retire while used |
 
@@ -286,25 +289,22 @@ performance first.
 
 ## Decisions for the user
 
-32. **Where the GPL source lives for v1.0:** (a) the port repository on
-    GitHub plus the full source bundle (`make-source-bundle.sh bundle`,
-    several GB, split per component) as assets of the GitHub release;
-    or (b) the port repository plus a written offer (source on request
-    for three years; the agent keeps the build caches). Recommendation:
-    (a), it is the cleanest GPL compliance and needs no promise to keep
-    the host caches.
+32 answered 2026-11-23: (a) GitHub repo + full source bundle as v1.0
+release assets. 33 (new): the GitHub owner/repo for updates is assumed
+`laurorual/muos-r35s-port` (`/etc/muos-update.conf`): confirm. Release
+assets must include NAME.p2.img.gz + NAME.p2.img.sha256 (public builds
+make them).
 
 ## T3 queue
 
-M9a T3 passed 2026-11-22 (1–5 ok). **M9b checklist** (m9b on p2):
-1. Configuração → Tarefas (Task Toolkit): the task "Install Firmware
-   Update" is listed; run it with nothing in `MUOS/update`: it ends with
-   an error message ("no NAME.p2.img.gz…"), nothing restarts.
-2. Visual only, no voltage tests (the user's call): Configuração → Configurações perigosas: below
-"Undervolt" the rows "Undervolt do processador" (−25…−100 mV, default
-−50) and "Undervolt dos gráficos" (0…−75 mV, default −25) look right
-(screenshot `build/logs/m5/shots/m9b-danger-uv.png`), help in pt-BR.
-3. Idioma "Chinese (Traditional)": Configuração menus translated.
+M9b T3 passed 2026-11-23 (1–3 ok; asked: GitHub auto-update, CPU/GPU
+labels; seen: no Wi-Fi at power-on until a replug: the log showed a
+stuck scan, 75 s SCANNING with no AP). **M9c checklist** (m9c on p2):
+1. Power on with the dongle in, several times: Wi-Fi connects without a
+   replug (worst case ~40 s: a stuck scan now resets the dongle at 20 s).
+2. Configuração → Configurações perigosas: rows read "Undervolt do CPU"
+   and "Undervolt do GPU".
+3. Auto-update can only be tried with a public release on GitHub (rc1).
 
 ## Current milestone: M9 — public v1.0 (started 2026-11-22)
 

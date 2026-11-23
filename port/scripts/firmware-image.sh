@@ -112,6 +112,17 @@ for p in "${private[@]}"; do
     b=$(debugfs -R "cat $p" "$work/p2.img" 2>/dev/null | sha256sum)
     [ "$a" = "$b" ] || { echo "identity copy differs: $p" >&2; exit 1; }
 done
+# M9: the release name (muos-update compares it with GitHub's latest) and,
+# in developer images, the marker that keeps muos-update auto off.
+echo "release=$(basename "${out%.img.zst}")" > "$work/release"
+{ printf 'cd /etc\nwrite %s muos-port-release\n' "$work/release"
+  [ "$variant" = public ] || printf 'write %s muos-developer\n' "$work/release"
+  for f in muos-port-release $([ "$variant" = public ] || echo muos-developer); do
+      printf 'sif /etc/%s mode 0100644\nsif /etc/%s uid 0\nsif /etc/%s gid 0\n' "$f" "$f" "$f"
+  done; } > "$cmds"
+debugfs -w -f "$cmds" "$work/p2.img" >/dev/null 2>&1; rm -f "$work/release"; : > "$cmds"
+[ "$(debugfs -R 'cat /etc/muos-port-release' "$work/p2.img" 2>/dev/null)" = "release=$(basename "${out%.img.zst}")" ] ||
+    { echo 'release stamp failed' >&2; exit 1; }
 e2fsck -fn "$work/p2.img" > "$work/fsck.txt" 2>&1 || { cat "$work/fsck.txt"; echo 'p2 fsck failed' >&2; exit 1; }
 features=$( (dumpe2fs -h "$work/p2.img" 2>/dev/null || :) | sed -n 's/^Filesystem features: *//p')
 for bad in 64bit metadata_csum_seed orphan_file fast_commit; do
@@ -215,6 +226,12 @@ raw_sum=$(sha256sum "$img" | cut -d' ' -f1)
 zstd -q -T0 -12 --long=27 -f "$img" -o "$out"
 [ "$(zstd -dc --long=27 "$out" | sha256sum | cut -d' ' -f1)" = "$raw_sum" ]
 sha256sum "$out" | sed "s#  .*/#  #" > "$out.sha256"
+if [ "$variant" = public ]; then
+    # M9: the update assets for the GitHub release (muos-update auto/stage)
+    n=$(basename "${out%.img.zst}")
+    gzip -9 -c "$work/p2.img" > "${out%.img.zst}.p2.img.gz"
+    echo "$p2_sum  $n.p2.img" > "${out%.img.zst}.p2.img.sha256"
+fi
 mv "$work/p2.img" "$repo/build/m3a/$(basename "${out%.img.zst}").p2.img"
 cat > "${out%.img.zst}.manifest" <<EOF
 image=$(basename "$out")
