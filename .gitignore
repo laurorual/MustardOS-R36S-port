@@ -16,3 +16,5 @@ __pycache__/
 # Local agent settings and backups.
 /.claude/
 /AGENTS.md.bak
+/AGENTS.md
+/CLAUDE.md
