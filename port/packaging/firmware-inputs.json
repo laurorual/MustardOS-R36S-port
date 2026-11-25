@@ -5411,15 +5411,15 @@
    "path": "/opt/muos/share/core/fceumm_libretro.so",
    "type": "file",
    "mode": "755",
-   "sha256": "53b233ded89c32f847d137ed990bc581b6a1e7efe20481b74bd7da73ada9adad",
-   "origin": "build/phase4/nes-core/build.uxtwbp1g/libretro-fceumm-ac0d00a7fc01166f84c7bac01d1084ebfd2b865e/fceumm_libretro.so"
+   "sha256": "7d8adf5f83854e27fe1e3d961d07ac415d7135210e37ce4cc5d4fcb32c43d70d",
+   "origin": "build/m3c/cores/out/fceumm_libretro.so"
   },
   {
    "path": "/opt/muos/share/core/gambatte_libretro.so",
    "type": "file",
-   "mode": "644",
-   "sha256": "3e0940dacb9cbcdde1b55ebc0e1d275b1dc8b034bba0e235bc56b46651200a57",
-   "origin": "build/phase4/gb-core/build.lgsx_3c2/gambatte-libretro-77f2567d718b8973d02caa2daa8dce4953faf811/gambatte_libretro.so"
+   "mode": "755",
+   "sha256": "7fe4f3a80142c375daf585e4f788074925a509fc74d9f659c6b00fdbddbf1472",
+   "origin": "build/m3c/cores/out/gambatte_libretro.so"
   },
   {
    "path": "/opt/muos/share/core/gpsp_libretro.so",

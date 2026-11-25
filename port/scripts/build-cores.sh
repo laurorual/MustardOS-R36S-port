@@ -52,6 +52,8 @@ ppsspp2021 https://github.com/hrydgard/ppsspp ce0a45cf0fcdd5bebf32208b9998f68dfc
 melonds https://github.com/libretro/melonds 4081e8358e66f1ea11879560be6b813dfeaab75a cc4b9d3290e4c829981858d1f0278d8f12d183bebf1b06825ea606ce4f02a707 melonds_libretro.so GPL-3.0
 flycast2022 https://github.com/libretro/parallel-dc 4c293f306bc16a265c2d768af5d0cea138426054 235422df11e9cf3d5d6eb45dfd69e1b21fd5665ca40777cd833b75327857869b flycast2022_libretro.so GPL-2.0
 yabasanshiro https://github.com/libretro/yabause 09ed8e5b2e97e7a848ea2514545c34c7b809e399 6b8f29e7754143971c5db22fcdaafb8ad0ce237a04bb53fd1f71a959403d6cab yabause/src/libretro/yabasanshiro_libretro.so GPL-2.0
+gambatte https://github.com/libretro/gambatte-libretro 77f2567d718b8973d02caa2daa8dce4953faf811 bf3829f52464d9c61c636b30eee7b5af7fd4e2526d584287a12cb6d191398e70 gambatte_libretro.so GPL-2.0
+fceumm https://github.com/libretro/libretro-fceumm ac0d00a7fc01166f84c7bac01d1084ebfd2b865e ffe8948ad138dc11fb523c05fe678b2e3c0b2b25bcde2f78fd82743ca433efd3 fceumm_libretro.so GPL-2.0
 EOF
 }
 # make invocation per core (inside the container, in the source dir)
@@ -91,6 +93,10 @@ make_cmd() {
         ppsspp) echo 'mkdir -p b && (cd b && $sdk/bin/cmake .. -DCMAKE_TOOLCHAIN_FILE=$sdk/share/buildroot/toolchainfile.cmake -DCMAKE_BUILD_TYPE=Release -DLIBRETRO=ON -DUSING_GLES2=ON -DUSING_EGL=OFF -DUSING_FBDEV=OFF -DVULKAN=OFF -DUSING_X11_VULKAN=OFF -DUSE_WAYLAND_WSI=OFF -DUSE_DISCORD=OFF -DUSE_MINIUPNPC=OFF -DUSE_FFMPEG=ON -DUSE_SYSTEM_FFMPEG=OFF -DARM64=ON -DUNITTEST=OFF -DHEADLESS=OFF && make -j8 ppsspp_libretro)' ;;
         melonds) echo 'make -j8 platform=odroidgoa' ;;
         yabasanshiro) echo 'make -j8 -C yabause/src/libretro platform=arm64_cortex_a53_gles3' ;;
+        # M9 (licences): the Phase 4 GB/NES builds (build-phase4-gb-core.py,
+        # build-phase4-nes-core.py) moved here, same commits and options
+        gambatte) echo 'make -j8 -f Makefile.libretro platform=unix HAVE_NETWORK=0 VIDEO_RGB565=1' ;;
+        fceumm) echo 'make -j8 -f Makefile.libretro platform=unix HAVE_HDPACK=0 HAVE_NTSC=0 WANT_32BPP=0' ;;
     esac
 }
 # T1: every undefined dynamic symbol must be defined by the target's libc,
