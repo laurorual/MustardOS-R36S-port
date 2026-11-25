@@ -121,12 +121,12 @@ in rc2); boot screen as the press kit (done in rc2).
 1. Bench device, tonight (item 6 of rc1): the charge log is running; put
    it to sleep (short Power press) on the charger overnight; in the
    morning wake it and tell me the battery %.
-2. Bench device, any reboot (Configuração → Energia… or Power long): the
+2. Bench device, any reboot (main menu → Reiniciar): the
    boot shows the MustardOS badge (yellow, not blue/cyan) with "R36S /
    R35S" and "unofficial port" below, from U-Boot until the menu.
 3. Spare card: write `dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.xz`,
-   first start: same boot screen, menu in **English**, sound at **50 %**
-   (Configuração → … or the volume bar on the first key press).
+   first start: same boot screen, menu in **English**; press Vol+ once:
+   the volume bar shows **55 %** (50 % + one 5 % step).
 
 ## Current milestone: M9 — public v1.0
 
