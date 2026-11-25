@@ -39,7 +39,7 @@ screens call.
 | Build from source | — | muxfrontend, libui, cores, kernel modules pinned as binaries | M6: release frontend + muxretro and all `build-cores.sh` cores from source; modules proven identical (`modules-check`) |
 | Languages | 35 language files | upstream language pack + pt-BR overlay, CJK with their fonts (M8) | done (M7, CJK M8) |
 | Performance/power | — | 1512 MHz opt-in, underruns measured, PipeWire self-heal; wake dip in libretro games | done (M7); wake hold in M8 |
-| Public release | — | licences, GPL bundle, public image T3, docs | M9 |
+| Public release | — | licences, GPL bundle, repository, public image T3, docs | M9 |
 | Applications | PortMaster, RetroArch, PPSSPP, ScummVM, standalone emulators | Mupen64Plus (M7); PPSSPP, DraStic, YabaSanshiro, Flycast, ScummVM core + standalone (M8) | the rest after v1.0 |
 | Bluetooth | `bt_*.sh`, bluez | none (no bluez; dongle only) | after v1.0 |
 | Web services | ttyd, Syncthing, mDNS, landing page | hidden (decision 7) | after v1.0 |
@@ -52,84 +52,52 @@ Not wanted: `system/prepare.sh` and `logo.sh` (one card, p1 boot),
 Each milestone is large (several sessions, 6–15 items) and ends with one
 consolidated T3 checklist; the next one starts while the user tests.
 
-### M5 — Daily-driver completeness (menu side)
+Done (details in [milestones.md](milestones.md) and
+[archive/milestones-m1-m7.md](archive/milestones-m1-m7.md)): M5
+daily-driver completeness (every menu screen works or is hidden), M6
+systems, cores and the build from source, M7 language, performance and
+power, M8 card layout (clean U-Boot, `root=` by slot, 1 GiB p2), the
+heavy systems (DC, PSP, NDS, Saturn), ScummVM, the CJK fonts and the boot
+logo.
 
-Every menu screen either works or is hidden. M4g follow-ups (SFTP with
-saved FileZilla sites, the SFTP login on the Web Services screen, the
-discharge report); zip + extract/backup (muxarchive, muxbackup); package
-scripts and the upstream themes (muxpicker, theme switching); profiles;
-secondary storage in slot 2 (mount, hotplug, muxstorage scripts, SFTP
-jail); hotkeys and screenshots; share data (lookup/name tables, sounds,
-Task Toolkit subset); RTC and time zone screens; an automated screen
-sweep; screens without a backend hidden.
+### M9 — Public v1.0 (licences and publication first)
 
-### M6 — Systems, cores, build from source
+From 2026-11-25 (decision 37) every session first advances licences and
+publication, then polish. Decisions 33–38 in [decisions.md](decisions.md).
 
-The systems the A35/Mali-G31 runs well, each with a fps verdict and a
-governor: Atari 2600/7800/Lynx, PC Engine/CD, Neo Geo Pocket, WonderSwan,
-MSX/ColecoVision/SG-1000, Sega CD, arcade and Neo Geo (FBNeo,
-MAME 2003-Plus), DOS (DOSBox-Pure), ScummVM, Pokémon mini, and an N64
-trial (ship only if playable). BIOS folder checks. Rebuild muxfrontend,
-libui, libmuxmod, all cores and the kernel modules from pinned source,
-so every shipped binary has its corresponding source (the GPL
-prerequisite for M9), as a release build: the pinned frontend is a
-`TEST_IMAGE=1` build (the "THIS IS A TEST IMAGE" watermark and LVGL's
-FPS/CPU monitor; the flag changes LVGL structs, so all frontend parts
-change together). Core assignments regenerated from one table.
+Licences and publication (priority):
 
-### M7 — Polish: language, performance, power
+1. [LICENSING.md](LICENSING.md) as the single source: one row per
+   distributed component (version/sha, licence, state "open",
+   "permitted", "community practice" or "removed") and the request log;
+   `pending-licenses.json` and `THIRD-PARTY.txt` agree with it. Gambatte
+   and FCEUmm built by `build-cores.sh` at pinned commits; the Bluetooth
+   firmware out of the public image; how dArkOS/ArkOS ship libmali and
+   DraStic recorded as the community-practice reference.
+2. MustardOS compliance (decision 34): the name "MustardOS for
+   R36S/R35S (unofficial port)" per muos.dev/press in the README, release
+   notes, image, boot logo and System details; the "not supported by the
+   MustardOS team, support on the port's GitHub" notice in the README,
+   the release notes and in the system itself (EN and pt-BR); credits and
+   the CC BY-NC 4.0 licence of the assets used.
+3. The GPL source bundle (`make-source-bundle.sh`) covering everything
+   the public image contains, attached to every release.
+4. The repository (decision 33): history scan for secrets, blobs, ROMs
+   and third-party binaries; README (EN with pt-BR), LICENSE, NOTICE; the
+   push blockers and the final command for the user (the agent never
+   publishes).
+5. Plan B (decision 36): `prepare-image.sh` ready and T1-tested against a
+   public image without libmali and DraStic.
+6. rc1: the complete public image (decision 35), `check-public-image.sh`,
+   T3 on a blank card with the user present → v1.0.
 
-Português (Brasil) complete (inventory of English strings with pt-BR
-selected, the port's own strings into the language files, review of the
-existing text) and all upstream language files. Wake: the ~0.7 s of slow
-frames and Wi-Fi ~9 s after wake. Audio: underrun bursts, the WirePlumber
-retry, the unexplained no-sound report. CPU 1512 MHz (the stock maximum)
-as an opt-in, off by default. Idle power and DDR devfreq. Wi-Fi
-warm-reboot H2C, dongle inserted during boot, and liveness: the 8821cu
-can sit in a firmware error loop with an address and no traffic (M5
-incident): detect it and rebind dwc2. A long soak (hours of play,
-sleep cycles, a discharge to empty) and boot time.
-
-### M8 — Card layout and the heavy systems (decisions 16, 17, 20)
-
-With the user present: a clean U-Boot build, `root=` by the slot-1
-device (decision 16), p2 grown to 1 GiB (decision 17), then the slot-2
-swap test (our image on the former original32 in slot 1, test128 in
-slot 2) to close the slot-2 problem. With the room: ScummVM and the CJK
-fonts (decision 17), and the systems the user wants in v1.0 (decision
-20, 2026-11-19), each at its best playable speed on the RK3326 (dArkOSen
-as the reference): Dreamcast (Flycast), PSP (PPSSPP), NDS (DraStic is
-closed source: check its licence for a public image, else melonDS or
-DeSmuME), then Saturn (lowest priority: YabaSanshiro or Beetle). PSP and
-NDS likely standalone (exceptions to decision 14 like N64), with the
-launcher pattern of `muos-mupen64plus`. Standalone emulators follow
-dArkOSen's choices, versions, settings and performance profiles (the
-user, 2026-11-20; dArkOS RK3326 `es_systems.cfg`: PSP standalone PPSSPP,
-NDS DraStic, Saturn standalone YabaSanshiro). Out of v1.0: Atari 5200,
-Virtual Boy, Jaguar, Jaguar CD, CD-i. From the M7 T3: a quiet boot with a boot logo
-instead of the scrolling kernel console (needed before any public
-image), and a libretro game held on wake until the bring-up settles.
-
-### M9 — Public v1.0
-
-Licences closed (`pending-licenses.json`): Mali r13p0 (Hardkernel's
-answer or a libmali with terms), the clean U-Boot (M8), Gambatte, the BT
-firmware, the M8 emulators. The GPL source bundle on GitHub and third-party notices in the
-image. The public variant: T2 checks, first-boot flow (Wi-Fi from the
-menu, SSH/SFTP toggles, empty p3 populated). The MustardOS team's answer on
-the name and theme assets. Install guide (English and pt-BR), changelog,
-known issues, SHA256. The update path for v1.x (reflash keeping p3, or a
-muxarchive update package). Japanese and Chinese menu overlays (m9a;
-upstream's texts are incomplete). The undervolt as an opt-in (decision
-28, done to T2 in m9a):
-a row "Undervolt" in Configuração → Configurações perigosas (frontend
-patch to muxdanger, below "Máximo do processador"); switching it arms
-the other DTB as a trial boot (`muos-boot-slot install-trial`) and
-reboots, and a boot that reaches the menu promotes it: a unit that
-freezes before the menu falls back to the stock DTB on the next start;
-games that fault later (Mali faults, freezes) mean switching it off in
-the same row. Stock voltages by default. rc1 → T3 on a blank card with the user present
-→ v1.0.
+Polish (after each licence block): install guide (EN and pt-BR),
+changelog, known issues, battery % after sleeping on the charger, the
+open T3 rounds, and whatever else matters most for v1.0. Done in M9 so
+far: the M8g T3 fixes, the ScummVM standalone default, CJK menu overlays,
+the undervolt opt-in with manual CPU/GPU values, THIRD-PARTY.txt, the
+update path (`muos-update`, Task Toolkit "Install Firmware Update",
+GitHub auto-update in public images).
 
 Scope of v1.0: R35S/R36S **Panel 0** only (DT model R36S-V12 2023-08-18
 Panel 0), the DTB choice documented like dArkOSen's. No claims for other
@@ -137,16 +105,17 @@ panels or clones.
 
 ## After v1.0 (tracks)
 
-- **Mainline/Panfrost:** ROCKNIX's 6.x kernel as the reference; removes
-  the Mali blob and the vendor TF-A; full re-qualification (see "Kernel
-  base").
+- **Mainline/Panfrost (only if community practice stops being
+  viable,** e.g. Arm or Hardkernel object to the bundled libmali):
+  ROCKNIX's 6.x kernel as the reference; removes the Mali blob and the
+  vendor TF-A; full re-qualification (see "Kernel base").
 - **Other panels and R36S revisions:** only with evidence and a physical
   test; DTB chosen like dArkOSen, never autodetected from the SoC name.
 - **Overclock beyond stock** (CPU above 1512 MHz, GPU above 520 MHz) as an
   explicit, labelled option.
 - **Bluetooth** through a combo dongle (bluez, `bt_*.sh`).
 - **Applications:** PortMaster, the other standalone emulators (Mupen64Plus
-  is in since M7, the N64 default; PPSSPP and the NDS one come in M8).
+  is in since M7; PPSSPP, DraStic, Flycast, YabaSanshiro and ScummVM since M8).
 - **Web services:** ttyd, Syncthing, mDNS, the landing page.
 - **Automated builds and update packages.**
 
@@ -172,8 +141,8 @@ panels or clones.
   without loader, symbol, kernel and GPU proof.
 - **Build hygiene:** builds happen only in `build/`, never in `refs/`. Use a
   rootless, pinned container.
-- **Licences:** private use only during development. Track pending items in
-  `port/packaging/pending-licenses.json` and resolve them in M8.
+- **Licences:** [LICENSING.md](LICENSING.md) is the single source (M9);
+  `port/packaging/pending-licenses.json` is its machine-readable mirror.
 
 ## Kernel base, reassessed 2026-11-12
 
@@ -187,5 +156,5 @@ panels or clones.
 problems and adds risk, and its source isn't public. Re-check when
 dArkOSen publishes the RK3326 5.10 source and DTBs; the trial kernel +
 trial root path can test it without a reflash. If the Mali licence can't
-be resolved in M8, the public release waits for the mainline/Panfrost
-track, not for 5.10.
+be resolved, v1.0 still ships it as community practice (decision 35);
+the mainline/Panfrost track replaces it only if that stops being viable.

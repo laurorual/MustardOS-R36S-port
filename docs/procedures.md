@@ -110,7 +110,7 @@ language files that a Buildroot package leaves behind go into
 Prebuilt inputs are pinned in `port/packaging/firmware-inputs.json` and
 stored in `build/m3a/inputs/<sha256>` (`build-image.sh inputs`). To
 re-derive them from a device: inventory p2 (`find` + sha256, see
-milestones.md M3a), then `firmware-inputs.py generate`; it reports every
+archive/milestones-m1-m7.md M3a), then `firmware-inputs.py generate`; it reports every
 difference against the build. A device capture
 (`device.sh capture` + `make-recovery-image.sh`) still works for
 snapshots.
@@ -405,7 +405,7 @@ diagnosis: `t2-wake-frames.sh` with `T2_WAKE_SAMPLE` / `T2_WAKE_STACKS`
 skipped, SSH still comes up.
 
 **Seed:** stock seedrng only; images ship without `seed.*`; the dropbear
-host key is the only persistent identity (M1 decision, see milestones.md).
+host key is the only persistent identity (M1 decision, see archive/milestones-m1-m7.md).
 
 ## Safety mechanisms kept
 
@@ -421,7 +421,7 @@ host key is the only persistent identity (M1 decision, see milestones.md).
 | Never `saveenv` or dArkOSen `flash_uboot.sh`; never write original32 | Protects the bootloader and the stock card. |
 | ≤ 5 firmware versions (`retention.py`) | Host disk space. |
 
-The M1 retirements are listed in milestones.md. M3a retired 410 Phase 4
+The M1 retirements are listed in archive/milestones-m1-m7.md. M3a retired 410 Phase 4
 scripts (in Git at `e7d67a2`). M3b retired `install-dtb.sh` (it overwrote
 the DTB the previous record pins); the Phase 4 U-Boot/kernel probe
 scripts remain only as the producers of the Phase 4 references.

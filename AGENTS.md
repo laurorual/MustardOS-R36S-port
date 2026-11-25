@@ -20,7 +20,12 @@ The path from the current state to a public v1.0 is the release plan in
 - `docs/procedures.md`: how-tos (flashing, building, trial root, trial
   kernel, boot sequence). Name images generically ("the recovery image in
   STATUS"), never a specific version.
-- `docs/milestones.md`: finished milestones, per-step details, T3 results.
+- `docs/decisions.md`: every answered user decision (numbered).
+- `docs/LICENSING.md`: licences of every distributed component and the
+  request log (single source; THIRD-PARTY.txt and pending-licenses.json
+  follow it).
+- `docs/milestones.md`: finished milestones from M8, per-step details,
+  T3 results (M1–M7 in `docs/archive/`).
 - `docs/hardware-findings.md`: durable hardware facts. Read the relevant
   section only when needed.
 
