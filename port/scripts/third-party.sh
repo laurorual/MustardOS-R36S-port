@@ -39,7 +39,8 @@ System
 - MustardOS frontend, GPL-3.0: https://github.com/MustardOS/frontend $(rev refs/muos/frontend)
 - MustardOS internal scripts and share data, GPL-3.0: https://github.com/MustardOS/internal $(rev refs/muos/internal)
 - MustardOS language pack, GPL-3.0: https://github.com/MustardOS/language ($(sed -n 's/^release //p' "$repo/port/packaging/muos-language.txt"))
-- MustardOS themes (MustardOS, C64, Dracula, GB Dark, Orange, mubiOS), sounds and glyphs, CC BY-NC 4.0
+- MustardOS themes (MustardOS, C64, Dracula, GB Dark, Orange, mubiOS), sounds, glyphs and the press-kit boot screen
+  (the boot logo, with the port's text added below the badge), CC BY-NC 4.0
   (https://muos.dev/press), included with the MustardOS team's permission. Credits: MustardOS theme by
   Bitter Bizarro (boot logo LMarcoMiranda, icon glyphs Line Icons 5, overlay indicators AntiKk, navigation
   sounds Aedilic Inc.); C64, Dracula and Orange by antiKk; GB Dark by inteLLiAim (original: Alukim);

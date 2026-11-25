@@ -33,7 +33,7 @@ it with a commercial product. The port itself is free and must stay so.
 | Buildroot root filesystem (57 packages: glibc, busybox, SDL2, PipeWire, wpa_supplicant, dropbear, curl, ffmpeg, …) | Buildroot 2025.02.19 | per package (`legal-info/manifest.csv` in the bundle) | open |
 | Mali-G31 userspace driver | Hardkernel `rk3326_r13p0_gbm_with_vulkan_and_cl.zip` (sha256 `ef1a18fa…`), aarch64 member `2a067ea3…`, shipped **unmodified** as `/usr/lib/libmali-bifrost-g31-rxp0-gbm.so` (+ links) | Arm proprietary; no terms in the archive | community practice |
 | Fonts: Noto Sans (SC/TC/JP/KR), M+ | from MustardOS | SIL OFL-1.1, M+ FONT LICENSE | open |
-| Boot logo | own (`make-boot-logo.py`, text only, no MustardOS logo) | MIT | open |
+| Boot logo (U-Boot and the splash until the menu) | MustardOS press-kit boot screen `images/mustardos-boot-screen-640x480.png` (sha256 `84b30eb3…`, badge as supplied) + the port's text "R36S / R35S", "unofficial port" (`make-boot-logo.py`) | CC BY-NC 4.0 (MustardOS); the text MIT | permitted (decision 34) |
 | Bluetooth firmware `rtl_bt/rtl8821c_*` | — | — | removed (decision 38) |
 
 ## Libretro cores

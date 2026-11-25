@@ -123,3 +123,13 @@ mali=/work/foundation/provider-source/lib/aarch64-linux-gnu/libmali-bifrost-g31-
 [ "$(sha256sum < "$mali" | cut -d' ' -f1)" = 2a067ea38256c3de139b2a5396d3101f7c7777b1e19d59017b2c02172500d0ea ]
 cp "$mali" "$1/usr/lib/libmali-bifrost-g31-rxp0-gbm.so"
 chmod 755 "$1/usr/lib/libmali-bifrost-g31-rxp0-gbm.so"
+# M9 rc1 T3: first-boot defaults of a fresh card (p3 seeds its config from
+# these once). Some pinned config files carried the bench's own values:
+# English (upstream), the saved volume at 50 % and startup volume
+# "previous" (settings/advanced/volume 3 = the device maximum, 100 %),
+# upstream's debug_mode 0 (2 logs every module to the card).
+c=$1/opt/muos/config
+printf 'English\n' > "$c/settings/general/language"
+printf '50\n' > "$c/settings/general/volume"
+printf '0\n' > "$c/settings/advanced/volume"
+printf '0\n' > "$c/system/debug_mode"

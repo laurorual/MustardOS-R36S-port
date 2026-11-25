@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Render the port's boot logo (M8): one picture, two encodings.
 
-    make-boot-logo.py FONT.ttf OUT_DIR [PREVIEW.png]
+    make-boot-logo.py FONT.ttf BASE.png OUT_DIR [PREVIEW.png]
     make-boot-logo.py --bmp FB.gz OUT.bmp   (stdlib only: the image build
                                              derives p1's BMP from the
                                              committed bootlogo.fb.gz)
@@ -13,9 +13,12 @@ OUT_DIR/bootlogo.bmp   640x480, 24-bit, uncompressed, bottom-up: U-Boot
 OUT_DIR/bootlogo.fb.gz 640x480 XRGB8888 little endian, gzip -9 without a
                        timestamp: muos-splash writes it to /dev/fb0 at the
                        start of muos-rc, until the frontend draws.
-Greys only, so the picture is the same whatever channel order the U-Boot
-display path uses. FONT is the muOS theme's Noto Sans (OFL). Output is
-reproducible.
+M9 (rc1 T3, decision 34): BASE is MustardOS's own boot screen from the
+press kit (https://muos.dev/press, images/mustardos-boot-screen-640x480.png,
+CC BY-NC 4.0; the badge is used as supplied); the port adds only text
+below it, in the kit's Text Grey: the device and "unofficial port" (the
+Terms of Use forbid presenting the port as official). FONT is the
+MustardOS theme's Noto Sans (OFL). Output is reproducible.
 """
 import gzip
 import io
@@ -42,25 +45,26 @@ if sys.argv[1] == '--bmp':
 
 from PIL import Image, ImageDraw, ImageFont  # noqa: E402 (only to render)
 
-font, out = sys.argv[1], Path(sys.argv[2])
-img = Image.new('RGB', (W, H), (0, 0, 0))
+import hashlib  # noqa: E402
+
+BASE_SHA256 = '84b30eb313155603ce4297d7233cb6d6439e2a8a114ac226a107458dd47d7950'
+font, base, out = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
+assert hashlib.sha256(base.read_bytes()).hexdigest() == BASE_SHA256, 'not the press-kit boot screen'
+img = Image.open(base).convert('RGB')
+assert img.size == (W, H)
 d = ImageDraw.Draw(img)
+TEXT_GREY = (0xB8, 0xB8, 0xB8)  # press kit "Text Grey"
 
 
-def text_font(size):
-    return ImageFont.truetype(font, size)
-
-
-def centred(text, f, y, grey):
+def centred(text, size, y):
+    f = ImageFont.truetype(font, size)
     w = d.textlength(text, font=f)
-    d.text(((W - w) / 2, y), text, font=f, fill=(grey, grey, grey))
+    d.text(((W - w) / 2, y), text, font=f, fill=TEXT_GREY)
 
 
-# muos.dev/press: the full name "MustardOS" where there is room (decision 34)
-centred('MustardOS', text_font(84), 158, 240)
-d.rectangle((W / 2 - 60, 282, W / 2 + 60, 284), fill=(110, 110, 110))
-centred('R36S / R35S', text_font(28), 300, 190)
-centred('unofficial port', text_font(20), 420, 110)
+# the badge occupies y 80..239; the text stays well clear of it
+centred('R36S / R35S', 28, 300)
+centred('unofficial port', 20, 420)
 
 out.mkdir(parents=True, exist_ok=True)
 # BMP: rows bottom-up, BGR, 1920 bytes per row (no padding at 640 px).
@@ -70,5 +74,5 @@ buf = io.BytesIO()
 with gzip.GzipFile(fileobj=buf, mode='wb', compresslevel=9, mtime=0) as g:
     g.write(fb)
 (out / 'bootlogo.fb.gz').write_bytes(buf.getvalue())
-if len(sys.argv) > 3:
-    img.save(sys.argv[3])
+if len(sys.argv) > 4:
+    img.save(sys.argv[4])

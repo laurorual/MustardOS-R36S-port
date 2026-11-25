@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m8g-20261122": {
-      "reason": "M8g (M8f T3 round): ScummVM NAME/NAME.scummvm one entry, ScummVM - Standalone coredb key, virtual keyboard (core + standalone), CJK languages + fonts; developer image; raw 81613024, p2 4ca8c058; trial-root T2 passed (the same build without the 4 CJK language files: full batch; this p2: short T2 pending)",
-      "files": [
-        "dist/firmware/test128-m8g-20261122.img.zst",
-        "dist/firmware/test128-m8g-20261122.img.zst.sha256",
-        "dist/firmware/test128-m8g-20261122.manifest",
-        "build/m3a/test128-m8g-20261122.p2.img"
-      ]
-    },
     "m9a-20261122": {
       "reason": "M9a (M8g T3 round + M9 start): ScummVM vkeybd plain preview + paced keys (core + standalone), ScummVM standalone default (decision 29), coredb runtime follows the default (ScummVM, Saturn), Undervolt row in Danger Settings (patch 0012, muos-undervolt, both DTBs + dtb-variants.txt on p1), Japanese + Chinese (Simplified) menu label overlays; developer image; raw 093d64ce, p2 ed83f5f4",
       "files": [
@@ -53,6 +44,23 @@
         "dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.p2.img.gz",
         "dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.p2.img.sha256",
         "build/m3a/MustardOS-R36S-port-v1.0.0-rc1.p2.img"
+      ]
+    },
+    "m9e-rc2-20261125": {
+      "reason": "M9 rc1 T3 round: developer m9e (raw 21bec4ad, p2 cb74b78c) and the public v1.0.0-rc2 from the same rootfs (raw 5554dc47, p2 cfa7df4d; 29 check-public-image checks): first boot English, volume 50 % (startup mode previous), debug_mode 0, /etc/issue, boot logo from the MustardOS press-kit boot screen",
+      "files": [
+        "dist/firmware/test128-m9e-20261125.img.zst",
+        "dist/firmware/test128-m9e-20261125.img.zst.sha256",
+        "dist/firmware/test128-m9e-20261125.manifest",
+        "build/m3a/test128-m9e-20261125.p2.img",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.zst",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.zst.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.manifest",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.xz",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.xz.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.p2.img.gz",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.p2.img.sha256",
+        "build/m3a/MustardOS-R36S-port-v1.0.0-rc2.p2.img"
       ]
     }
   },

@@ -100,9 +100,18 @@ overrides an earlier one where they conflict (noted inline).
 37. Priority from 2026-11-25: licences and publication come first in every
     session, v1.0 polish after them.
 38. Bluetooth firmware (rtl8821c) is left out of the public image.
-39. The repository was pushed by the user (2026-11-25, `a62c25b`) with
-    the history as it was (commit e-mail included); it is public. The
-    agent still never pushes or publishes releases itself.
+39. Commit e-mail: the history is rewritten to the GitHub no-reply
+    address `755915+laurorual@users.noreply.github.com` (2026-11-25,
+    fast-export/fast-import, trees unchanged; local repo config uses it);
+    the user force-pushes it.
+40. AGENTS.md and CLAUDE.md are not in the public repository (removed by
+    the user on GitHub); they stay local, ignored by Git.
+41. rc builds are published as GitHub pre-releases after their T3,
+    v1.0.0 as a normal release (auto-update reads `releases/latest`).
+42. (rc1 T3, 2026-11-25) A fresh card starts in English at 50 % volume.
+    The boot screen follows the press kit: MustardOS's own boot screen
+    (badge as supplied) with the port's "R36S / R35S" and "unofficial
+    port" text below.
 
 Standing rules (AGENTS.md): heavy systems = maximum performance first;
 recovery promotion after a clean T3 without asking.

@@ -19,6 +19,8 @@
 #                            restarts after every reboot; extra columns:
 #                            boot id, the gauge's coulomb counter (mAh),
 #                            rsoc, dsoc and FCC (dbg_level for 6 s a minute)
+#                            T2_CHARGING=1: allowed on the charger (M9:
+#                            battery % after sleeping on the charger)
 #   t2-discharge.sh log-stop    removes the init script, restores user_init
 #   t2-discharge.sh status   the last log lines
 #   t2-discharge.sh report   after the user charged and powered on: pulls
@@ -99,7 +101,8 @@ start)
     echo "started: NES test game + discharge log ($csv)"
     ;;
 log-start)
-    [ "$(r 'cat /sys/class/power_supply/battery/status')" = Discharging ] ||
+    # T2_CHARGING=1 (M9): the same log through a charge (sleep on the charger)
+    [ -n "${T2_CHARGING:-}" ] || [ "$(r 'cat /sys/class/power_supply/battery/status')" = Discharging ] ||
         fail 'battery not discharging: unplug the charger first'
     r "pgrep -f '[m]uos-discharge-log|[z]z-discharge-log' >/dev/null" && fail 'a discharge log is already running'
     # no game, no volume change: drop what an older game run left to restore
