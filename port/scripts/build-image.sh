@@ -133,7 +133,10 @@ source|build)
     ;;
 legal-info)
     ctr_opts
-    podman run --rm --network=none "${opts[@]}" "$(iid)" sh -euc "make $make_args legal-info" \
+    # The 4.4 BSP headers' COPYING predates the one linux-headers.hash pins
+    # (legal-info fails on it); the kernel tree with its COPYING is in the
+    # source bundle, so legal-info skips the headers' licence file.
+    podman run --rm --network=none "${opts[@]}" "$(iid)" sh -euc "make $make_args BR2_PACKAGE_HOST_LINUX_HEADERS_LICENSE_FILES= legal-info" \
         > "$m3a/logs/legal-info.log" 2>&1 || { tail -20 "$m3a/logs/legal-info.log"; exit 1; }
     du -sh "$m3a/output/legal-info" ;;
 status)
