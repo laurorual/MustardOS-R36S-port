@@ -17353,6 +17353,7 @@
   "/etc/udev/hwdb.d",
   "/etc/usb_modeswitch.conf",
   "/etc/wpa_supplicant.conf",
+  "/lib/firmware/rtl_bt",
   "/lib/udev/usb_modeswitch",
   "/opt/muos/share/language/Hebrew.json",
   "/opt/muos/share/language/Maltese.json",

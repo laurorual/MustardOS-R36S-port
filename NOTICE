@@ -8,8 +8,10 @@ of the MustardOS project and are used here only to say what this port is
 based on (https://muos.dev/press, https://muos.dev/docs/tou). Support:
 https://github.com/laurorual/MustardOS-R36S-port/issues
 
-The port's own code is under the MIT licence (LICENSE). Patches to
-third-party code are under that code's licence (GPL-2.0, GPL-3.0, ...).
+The port's own code is under the MIT licence (LICENSE). Patches to, and
+files derived from, third-party code (for example configuration files
+adapted from MustardOS) are under that code's licence (GPL-2.0,
+GPL-3.0, ...).
 
 The firmware image combines many third-party components, each under its
 own licence: the MustardOS frontend and scripts (GPL-3.0), MustardOS

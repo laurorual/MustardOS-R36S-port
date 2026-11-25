@@ -33,11 +33,11 @@ Full guide: [docs/install.md](docs/install.md). In short:
    Raspberry Pi Imager. This erases the card.
 3. Put the card in slot 1 and power on. The first boot grows the data
    partition to the whole card.
-4. Add games: over Wi-Fi with SFTP (Configuration → Web Services), or on
+4. Add games: over Wi-Fi with SFTP (Configuration → Connectivity → Web Services), or on
    a FAT/exFAT card in slot 2 (`ROMS/<system>`). BIOS files go to
    `MUOS/bios`. No games or BIOS files are included.
 
-Updates: Configuration → Task Toolkit → "Install Firmware Update", or
+Updates: Applications → Task Toolkit → "Install Firmware Update", or
 automatic with Wi-Fi when a new release is published here.
 
 ## What is included
@@ -105,7 +105,7 @@ grave num cartão microSD (8 GB ou mais) com balenaEtcher, Rufus ou
 Raspberry Pi Imager (o cartão é apagado), coloque no slot 1 e ligue. Os
 jogos vão por SFTP pelo Wi-Fi ou num cartão FAT/exFAT no slot 2
 (`ROMS/<sistema>`); BIOS em `MUOS/bios`. Nenhum jogo ou BIOS acompanha o
-sistema. Atualizações: Configuração → Task Toolkit → "Install Firmware
+sistema. Atualizações: Aplicativos → Task Toolkit → "Install Firmware
 Update", ou automáticas com Wi-Fi.
 
 **Licenças:** código do port em MIT; componentes de terceiros em
