@@ -13,15 +13,16 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 Phase 5 (own-card firmware). M1–M8 done. **Current: M9 — public v1.0**
 (started 2026-11-22). Since 2026-11-25 licences and publication come
 first in every session, polish after (decision 37). m9a is the recovery
-image (M9a T3 passed); m9c is on the bench's p2 (T3 pending).
+image (M9a T3 passed); m9d (= the rc1 rootfs, developer variant) is on
+the bench's p2; the public **v1.0.0-rc1** is built and awaits its T3.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), test128
   in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
   zone −03. Access, identity and card layout: procedures.md.
-- **p2 = m9c** (2026-11-23, via the trial root, T2 passed; the previous p2
-  in `MUOS/trial/p2-previous.img`).
+- **p2 = m9d** (2026-11-25 15:40, via the trial root after its T2; the
+  previous p2, m9c, in `MUOS/trial/p2-previous.img`).
 - **Boot records:** main = `Image-be499e33d4eb` + `panel0-84611ef0394d.dtb`
   (undervolt CPU −50 / GPU −25 mV, `undervolt-on`); previous = the same
   Image + stock `panel0-c97151d0ec1a.dtb`. p1 has all 16 undervolt DTBs
@@ -44,14 +45,15 @@ card, bootloader included (procedures.md).
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/test128-m9c-20261123.img.zst` (p2 `6dab27a8…`) | m9b + Wi-Fi stuck-scan reset, `muos-update auto`, undervolt labels | on p2, T2 passed, T3 pending |
-| `dist/firmware/test128-m9b-20261122.img.zst` (p2 `ce6694f8…`) | Traditional Chinese, CPU/GPU undervolt rows, THIRD-PARTY.txt, update task | superseded by m9c |
+| `dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.xz` (raw `da27f90b…`, p2 `abd16601…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public rc1**: complete image (decision 35), 24 `check-public-image.sh` checks pass | T3 pending (blank card, user present) |
+| `dist/firmware/test128-m9d-20261125.img.zst` (raw `6dad53f3…`, p2 `14859cdb…`) | the rc1 rootfs, developer variant: unmodified libmali, Gambatte/FCEUmm from source, no BT firmware, MustardOS logo, support notice | on p2 2026-11-25, T2 passed (10/10) |
+| `dist/firmware/test128-m9c-20261123.img.zst` (p2 `6dab27a8…`) | m9b + Wi-Fi stuck-scan reset, `muos-update auto`, undervolt labels | previous p2 |
 | **`dist/firmware/test128-m9a-20261122.img.zst`** (raw `093d64ce…`, U-Boot `159e086c…`) | ScummVM keyboard fixes, Undervolt row, JP/ZH overlays | **recovery since 2026-11-22** |
 | `dist/firmware/test128-m8g-20261122.img.zst` (raw `81613024…`) | previous recovery | kept |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-5/5 versions in `storage-retention.json`; the next image retires m9b
-(m8f retired 2026-11-23).
+5/5 versions in `storage-retention.json` (m9d and rc1 are one entry;
+m9b retired 2026-11-25); the next image retires m8g.
 
 ## What works (T3-confirmed)
 
@@ -70,10 +72,14 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Open problems
 
-- **Licences/publication (M9 priority):** see the plan below and
-  LICENSING.md.
+- **Licences/publication (M9 priority):** closed to T2 (LICENSING.md);
+  open: rc1 T3, the source bundle at release time, the push (decisions
+  39–41 below).
 - **Battery % short of 100 after sleeping on the charger** (2026-11-19:
-  95 % after a night; FCC learned down to 2550 mAh). M9 polish item.
+  95 % after a night; FCC learned down to 2550 mAh). The driver's finish
+  step (dsoc +1 % per ~92 s, only in MODE_FINISH) never ran: the next
+  boot read rsoc 92.9 %, OCV 4149 mV, so the charge itself stopped
+  short. Needs a logged night on the charger (T3 item 6) before a fix.
 - **Wi-Fi:** stuck scans at power-on (dongle reset at 20 s since m9c,
   T3 pending); warm-reboot H2C (1 in 7); a real zombie occurrence is
   unverified (watchdog tested with injected errors only).
@@ -86,8 +92,7 @@ power-cut recovery. Full list per milestone in milestones.md.
 - **Menu:** "Direct Link", "Proxy Settings" and static addresses
   untested; one missed Power press in a 15-cycle soak (logged since M8).
 - **Pinned, not rebuilt:** idbloader/trust (rkbin files, identical to
-  rkbin); Gambatte and FCEUmm are Phase 4 builds (M9 item 1 moves them
-  to `build-cores.sh`).
+  rkbin).
 - **Hardware:** headphone jack contact (deprioritized); slot 2 fails only
   with the spare card (closed); no controllable LEDs; DDR devfreq not
   synced to the VOP.
@@ -96,17 +101,41 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-None open after 2026-11-25 (decisions 33–38). New ones from this round
-go here.
+39. **Commit e-mail:** all commits (152 now) carry the author e-mail
+    `laurorual@hotmail.com`; a push makes it public. Recommendation:
+    rewrite it to the GitHub no-reply address before the first push (safe
+    now, nothing is published; I do it on a yes).
+40. **Agent files in the public repository:** AGENTS.md/CLAUDE.md hold the
+    workflow rules (and the Telegram section). Recommendation: keep
+    them (they document how the port is built and tested).
+41. **rc1 on GitHub:** recommendation: publish rc1 as a *pre-release*
+    after its T3 (auto-update ignores pre-releases: it reads
+    `releases/latest`), v1.0.0 as a normal release.
 
 ## T3 queue
 
-**M9c checklist** (m9c on p2; can be done any time):
-1. Power on with the Wi-Fi dongle in, 3–4 times: Wi-Fi connects without a
-   replug (worst case ~40 s).
-2. Configuração → Configurações perigosas: the rows read "Undervolt do
-   CPU" and "Undervolt do GPU".
-3. Auto-update: only with a public release on GitHub (rc1).
+**M9 rc1 checklist** (user present; a blank or spare microSD; pt-BR
+paths):
+1. PC: write `dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.xz` with
+   balenaEtcher/Rufus (or `flash-card.sh`) to the blank card; put it in
+   slot 1 (test128 out), power on. Expected: logo "MustardOS / R36S /
+   R35S / unofficial port", then the menu in English (first boot a bit
+   longer: p3 grows).
+2. Configuração → Idioma → Português (BR): menus in pt-BR.
+3. Informações → Detalhes do dispositivo → down to "Versão", Fn: the help
+   says it is an unofficial port and points to the GitHub page.
+4. Configuração → Conectividade → Rede Wi-Fi (dongle in): connect to
+   your network.
+5. Configuração → Conectividade → Serviços web → Arquivos via SFTP → on;
+   FileZilla: SFTP, the IP, port 2022, muos/muos; copy one NES and one
+   NDS ROM into `ROMS/NES` and `ROMS/NDS`; play both (NDS: DraStic with
+   the two-screen layout, Fn+Start quits).
+6. Bench device (test128 back in slot 1, m9d): before a night on the
+   charger tell me (I start `t2-discharge.sh log-start`), sleep it with
+   the charger in, next morning wake it and tell me the battery %.
+7. Same device, M9c leftovers: power on with the Wi-Fi dongle in 3 times
+   (connects without a replug, worst case ~40 s); Configuração →
+   Configurações perigosas: rows "Undervolt do CPU"/"Undervolt do GPU".
 
 ## Current milestone: M9 — public v1.0
 
@@ -115,25 +144,17 @@ M8g T3 fixes, ScummVM standalone default, CJK overlays, undervolt rows,
 THIRD-PARTY.txt, `make-source-bundle.sh` (first version), public variant
 checks (18 pass), the update path (`muos-update`, auto-update).
 
-**Round of 2026-11-25 (plan):**
-- Docs cleanup: decisions.md, STATUS ~150 lines, M1–M7 and the M8
-  experiments archived, roadmap M9 rewritten. *Done.*
-- L1 LICENSING.md (single source; absorbs license-requests.md),
-  pending-licenses.json and THIRD-PARTY.txt reconciled; Gambatte/FCEUmm
-  into `build-cores.sh`; rtl8821c BT firmware out of the public image;
-  only the 640x480 DraStic layout; community-practice reference.
-- L2 MustardOS compliance: name, notice (EN/pt-BR) in README, release
-  notes and the system; CC BY-NC credits.
-- L3 GPL bundle covering the whole public image.
-- L4 repository: history scan, README/LICENSE/NOTICE, push blockers, the
-  final command; decision 33 (`/etc/muos-update.conf`).
-- L5 Plan B `prepare-image.sh` (T1 against a public image without
-  libmali and DraStic), procedures.md.
-- L6 rc1 image + `check-public-image.sh`; T3 on a blank card with the
-  user present.
-- Polish: install guide EN/pt-BR, changelog, known issues, battery after
-  charger sleep.
+**Round of 2026-11-25 — done to T2:** docs cleanup; L1 LICENSING.md
+(Gambatte/FCEUmm in `build-cores.sh`, BT firmware out, unmodified
+libmali); L2 MustardOS name and support notice (logo, README, NOTICE,
+THIRD-PARTY, Device Details help, EN/pt-BR); L3 source bundle covers the
+public image (`make-source-bundle.sh check` passes); L4 history scan
+clean, README/LICENSE/NOTICE, updater repo; L5 Plan B `prepare-image.sh`
+(T1 on m9c and rc1); L6 rc1 built (24 checks) + m9d trial-root T2 10/10
+(sweep, NES 59.97, GB 59.98, slot 2, SFTP jail, DC 59.99 Hz, DraStic,
+N64, PSP 15.5 swaps/s), m9d written to p2. Polish: install guide EN/pt-BR,
+CHANGELOG, known issues, release notes template.
 
-Tests: T0 shellcheck/builds; T1 ELF and image checks, prepare-image
-round trip; T2 the rc1 p2 as a trial root on the bench (developer
-access stays); T3 rc1 on a blank card (user present).
+**Next:** rc1 T3 (above) → fold findings → v1.0.0: `make-source-bundle.sh
+bundle`, release assets, the push (decisions 39–41). Polish meanwhile:
+battery after charger sleep (data first), Wi-Fi power-on T3.
