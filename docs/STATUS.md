@@ -73,8 +73,8 @@ power-cut recovery. Full list per milestone in milestones.md.
 ## Open problems
 
 - **Licences/publication (M9 priority):** closed to T2 (LICENSING.md);
-  open: rc1 T3, the source bundle at release time, the push (decisions
-  39–41 below).
+  repository public since 2026-11-25 (pushed by the user); open: rc1
+  T3, the source bundle and the GitHub release (decisions 40–41).
 - **Battery % short of 100 after sleeping on the charger** (2026-11-19:
   95 % after a night; FCC learned down to 2550 mAh). The driver's finish
   step (dsoc +1 % per ~92 s, only in MODE_FINISH) never ran: the next
@@ -101,10 +101,8 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-39. **Commit e-mail:** all commits (152 now) carry the author e-mail
-    `laurorual@hotmail.com`; a push makes it public. Recommendation:
-    rewrite it to the GitHub no-reply address before the first push (safe
-    now, nothing is published; I do it on a yes).
+39. ~~Commit e-mail~~ closed: the user pushed the repository on
+    2026-11-25 (`origin/main` = `a62c25b`) with the history as it was.
 40. **Agent files in the public repository:** AGENTS.md/CLAUDE.md hold the
     workflow rules (and the Telegram section). Recommendation: keep
     them (they document how the port is built and tested).
@@ -155,6 +153,8 @@ clean, README/LICENSE/NOTICE, updater repo; L5 Plan B `prepare-image.sh`
 N64, PSP 15.5 swaps/s), m9d written to p2. Polish: install guide EN/pt-BR,
 CHANGELOG, known issues, release notes template.
 
-**Next:** rc1 T3 (above) → fold findings → v1.0.0: `make-source-bundle.sh
-bundle`, release assets, the push (decisions 39–41). Polish meanwhile:
+**Next:** rc1 T3 (above) → fold findings → the GitHub release:
+`make-source-bundle.sh bundle`, assets, notes (decisions 40–41). The
+repository is public (pushed by the user 2026-11-25, `a62c25b`); later
+commits are pushed by the user too. Polish meanwhile:
 battery after charger sleep (data first), Wi-Fi power-on T3.

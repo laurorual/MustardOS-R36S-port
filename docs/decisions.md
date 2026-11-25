@@ -100,6 +100,9 @@ overrides an earlier one where they conflict (noted inline).
 37. Priority from 2026-11-25: licences and publication come first in every
     session, v1.0 polish after them.
 38. Bluetooth firmware (rtl8821c) is left out of the public image.
+39. The repository was pushed by the user (2026-11-25, `a62c25b`) with
+    the history as it was (commit e-mail included); it is public. The
+    agent still never pushes or publishes releases itself.
 
 Standing rules (AGENTS.md): heavy systems = maximum performance first;
 recovery promotion after a clean T3 without asking.
