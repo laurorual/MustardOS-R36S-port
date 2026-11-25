@@ -47,25 +47,6 @@
    "mode": "755"
   },
   {
-   "path": "/lib/firmware/rtl_bt",
-   "type": "dir",
-   "mode": "755"
-  },
-  {
-   "path": "/lib/firmware/rtl_bt/rtl8821c_config.bin",
-   "type": "file",
-   "mode": "644",
-   "sha256": "292717b0610ce920f66b734c299d349ea59a4c4400044078d8fc65625f17e382",
-   "origin": "build/phase4/graphics-config/output/target/lib/firmware/rtl_bt/rtl8821c_config.bin"
-  },
-  {
-   "path": "/lib/firmware/rtl_bt/rtl8821c_fw.bin",
-   "type": "file",
-   "mode": "644",
-   "sha256": "dfe7ef772d078ec09490c02190a32fcd40b3eaf3b040049d8930eb80e6d5743c",
-   "origin": "build/phase4/graphics-config/output/target/lib/firmware/rtl_bt/rtl8821c_fw.bin"
-  },
-  {
    "path": "/lib/modules",
    "type": "dir",
    "mode": "755"
