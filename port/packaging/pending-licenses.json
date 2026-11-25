@@ -1,10 +1,6 @@
 {
- "policy": "private use only until explicit publication review",
- "user_decision_date": "2026-10-25",
- "final_report": "docs/licenses-to-resolve.md",
- "final_report_when": "at project completion, as requested by the user",
- "individual_support_requests": "deferred; do not send automatically",
- "private_use_authorization": "device owner authorized private development; applicable vendor terms remain unverified",
+ "policy": "docs/LICENSING.md is the single source (states: open, permitted, community practice, removed); this file mirrors its non-open rows",
+ "updated": "2026-11-25",
  "items": [
   {
    "id": "hardkernel-mali-r13p0-rk3326",
@@ -12,27 +8,27 @@
    "source": "https://dn.odroid.com/RK3326/ODROID-GO-Advance/rk3326_r13p0_gbm_with_vulkan_and_cl.zip",
    "archive_sha256": "ef1a18fabf270d0a6029917d6b0e6237d328613c2f8be4d420ea23e022288dd9",
    "binary_sha256": "2a067ea38256c3de139b2a5396d3101f7c7777b1e19d59017b2c02172500d0ea",
-   "status": "terms not supplied in archive; private candidate only",
+   "status": "community practice (decision 35, 2026-11-25): shipped unmodified in the public image; Hardkernel asked 2026-11-14 + follow-up + forum t=51472, no answer",
    "questions": [
     "Applicable EULA",
     "Redistribution on non-Hardkernel RK3326 devices",
     "Required notices",
     "SONAME/strip modifications"
    ],
-   "reference": "docs/archive/phase4/hardkernel-r13-license-request.md",
-   "request": "revised 2026-11-14 (decision 2 = a); to be sent by the user to odroid@hardkernel.com, forum.odroid.com as fallback; not sent yet",
+   "reference": "docs/LICENSING.md",
    "m4a_survey_2026_11_14": {
     "rockchip-linux/libmali": "repository gone (HTTP 404)",
     "mirror": "https://github.com/JeffyCN/mirrors/tree/libmali: only libmali-bifrost-g31-g24p0-* for aarch64 (needs a g24p0 kbase; the 4.4 BSP has r13p0)",
     "terms": "ARM END USER LICENCE AGREEMENT FOR THE MALI USERSPACE DRIVER (LES-PRE-20769): use/copy for running Applications on Mali-based products; redistribution of the whole Software (or parts with Applications) allowed if the EULA copy and notices are included and ARM trademarks aren't used for marketing",
     "rocknix": "RK3326 builds use MALI_FAMILY bifrost-g31 (libmali + out-of-tree mali-bifrost kbase on mainline) and panfrost",
     "conclusion": "no redistributable libmali found that matches the r13p0 kbase; options: Hardkernel's terms for r13p0 (request draft in docs/archive/phase4), a g24p0 kbase on 4.4 (large), or mainline + Panfrost (M5)"
-   }
+   },
+   "shipped_as": "/usr/lib/libmali-bifrost-g31-rxp0-gbm.so = binary_sha256 (unmodified since 2026-11-25; links libmali.so.1, libEGL.so, libGLESv2.so, libGLESv1_CM.so, libgbm.so, libMali.so)"
   },
   {
    "id": "boot-chain-payloads",
    "component": "Selected RK3326 DDR 333MHz v1.10, miniloader v1.12, BL31 v1.14 and BL32 v1.10",
-   "status": "all four payloads are rkbin files (M4d, 2026-11-16): DDR, miniloader and BL32 byte-identical; BL31 from rkbin efff42ab gives a byte-identical trust.img (port/scripts/rkbin-trust.sh); redistributable under rkbin's LICENSE, shipped next to the public image",
+   "status": "permitted: rkbin files under rkbin LICENSE (M4d); all four payloads are rkbin files (M4d, 2026-11-16): DDR, miniloader and BL32 byte-identical; BL31 from rkbin efff42ab gives a byte-identical trust.img (port/scripts/rkbin-trust.sh); redistributable under rkbin's LICENSE, shipped next to the public image",
    "reference": "docs/archive/phase4/phase4-uboot-sd.md",
    "source_revision": "5606e804ffe8f9e5427d55c8da04c638f01a9391",
    "payload_sha256": {
@@ -61,32 +57,53 @@
   {
    "id": "complete-firmware-distribution",
    "component": "Final firmware distribution with GPLv3 frontend and proprietary components",
-   "status": "review final included components and obligations before publication",
-   "reference": "docs/archive/phase4/roadmap.md"
+   "status": "reviewed 2026-11-25: every component has a state in docs/LICENSING.md; the source bundle covers the public image (make-source-bundle.sh check)",
+   "reference": "docs/LICENSING.md"
   },
   {
    "id": "libretro-cores-m3c",
    "component": "snes9x2005_plus, picodrive, gpsp, pcsx_rearmed libretro cores (M3c)",
    "source": "port/scripts/build-cores.sh (pinned commits; source tarballs in build/m3c/cores/cache)",
-   "status": "snes9x2005 and picodrive: non-commercial licences (no sale, no bundling in a commercial product); gpsp and pcsx_rearmed: GPL-2.0, ship or offer the pinned source with any distributed image",
-   "reference": "docs/milestones.md M3c"
+   "status": "open: snes9x2005 and picodrive: non-commercial licences (no sale, no bundling in a commercial product); gpsp and pcsx_rearmed: GPL-2.0, ship or offer the pinned source with any distributed image",
+   "reference": "docs/LICENSING.md"
   },
   {
    "id": "libretro-cores-m6",
    "component": "M6 libretro cores: stella2014, prosystem, handy, beetle pce fast/neopop/cygne, blueMSX, gearcoleco, gearsystem, pokemini, fbneo, mame2003-plus, dosbox-pure",
    "source": "port/scripts/build-cores.sh (pinned commits; source tarballs in build/m3c/cores/cache)",
-   "status": "GPL-2.0: stella2014, prosystem, beetle cores, blueMSX, dosbox-pure; GPL-3.0: gearcoleco, gearsystem, pokemini; Zlib: handy; non-commercial: FBNeo and MAME 2003-Plus (no sale, no bundling in a commercial product). Ship or offer the pinned source with any distributed image; check blueMSX's licence file before M8",
-   "reference": "docs/milestones.md M6"
+   "status": "open: GPL-2.0: stella2014, prosystem, beetle cores, blueMSX, dosbox-pure; GPL-3.0: gearcoleco, gearsystem, pokemini; Zlib: handy; non-commercial: FBNeo and MAME 2003-Plus (no sale, no bundling in a commercial product). Ship or offer the pinned source with any distributed image",
+   "reference": "docs/LICENSING.md"
   },
   {
    "id": "nds-drastic-m8",
    "component": "NDS: DraStic r2.5.2.2 aarch64 binary (closed source, Exophase), trngaje advanced_drastic hook (libadvdrastic.so, dArkOS build, no licence file) + libjson-c.so.5, steward-fu/trngaje layout art (drastic_layout, no licence file)",
    "source": "https://github.com/trngaje/advanced_drastic d445a56349cce68f5337d02c9fe890de9d390f3f; https://github.com/trngaje/drastic_layout e8dc3eb5bb51351bf3e93229e388ae9e5fea9adc",
-   "status": "decision 27 (2026-11-20): shipped in the developer and the public image; the public image is published only after explicit answers for every non-open component",
-   "questions": [
-    "Redistribution of the DraStic binary",
-    "Licence of libadvdrastic.so and the layout art"
-   ]
+   "status": "community practice (decision 35, 2026-11-25): DraStic, libadvdrastic.so and the 640x480 layout (steward-fu) shipped with credits; other drastic_layout resolutions never shipped. Exophase e-mailed, steward-fu/nds#110 open, trngaje: the layout art is not his (drastic_layout#3); advanced_drastic has no licence or source",
+   "reference": "docs/LICENSING.md"
+  },
+  {
+   "id": "mustardos-name-themes",
+   "component": "MustardOS name, port and the six bundled themes (CC BY-NC 4.0)",
+   "status": "permitted by the MustardOS team 2026-11-25 on the conditions of decision 34 (muos.dev/press, unofficial-port and support notice)",
+   "reference": "docs/LICENSING.md"
+  },
+  {
+   "id": "gambatte-fceumm",
+   "component": "Gambatte and FCEUmm libretro cores",
+   "status": "open: built by build-cores.sh at the pinned commits since 2026-11-25 (GPL-2.0)",
+   "reference": "docs/LICENSING.md"
+  },
+  {
+   "id": "uboot-159e086c",
+   "component": "U-Boot uboot.img 159e086c",
+   "status": "open: built from RG351MP-u-boot 5606e804 + the port tree by build-boot.sh uboot; \"-dirty\" = patched tree; closed",
+   "reference": "docs/LICENSING.md"
+  },
+  {
+   "id": "bt-firmware-rtl8821c",
+   "component": "rtl_bt/rtl8821c_fw.bin, rtl8821c_config.bin",
+   "status": "removed from the image (decision 38, 2026-11-25)",
+   "reference": "docs/LICENSING.md"
   }
  ]
 }

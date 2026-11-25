@@ -13,7 +13,8 @@
 #   linux, u-boot        the kernel (also its in-tree modules, rtl8821cu) and
 #                        U-Boot trees at their pinned commits (git archive)
 #   scummvm              v2026.4.0 + backends/platform/libretro/deps
-#   yabasanshiro-sa      the standalone with its submodules (eigen)
+#   yabasanshiro-sa      the standalone with its submodules (eigen) and
+#                        its ExternalProject deps (yaba-dep-*)
 #   buildroot            Buildroot 2025.02 (the build system itself)
 #   frontend-libs, muxretro-provider   the MustardOS frontend source trees
 #                        (5e8635b) the libraries, muxfrontend and muxretro
@@ -34,6 +35,9 @@ trees=("linux:$b/phase4/linux-base:d8402159c04b1044106b4f27b7ed7c22ed09228f"
        "u-boot:$b/phase4/uboot-base:5606e804ffe8f9e5427d55c8da04c638f01a9391"
        "scummvm:$b/scummvm-src:7d2709da5136866589f7602f5f5a7b17de03420e"
        "yabasanshiro-sa:$b/yabasanshiro-sa-src:c7618d2ecbf77b1e8188fa8af4fa1cfb34833a72"
+       "yaba-dep-zlib:$b/yabasanshiro-sa-deps/zlib:50893291621658f355bc5b4d450a8d06a563053d"
+       "yaba-dep-json:$b/yabasanshiro-sa-deps/json:359f98d14065bf4e53eeb274f5987fd08f16e5bf"
+       "yaba-dep-libchdr:$b/yabasanshiro-sa-deps/libchdr:074ff1614f2a685f2b5a95b0e788bff6297d5680"
        "buildroot:$b/phase4/buildroot:")
 # name:dir (plain source trees)
 plain=("frontend-libs:$b/phase4/frontend-libs/source" "muxretro-provider:$b/phase4/muxretro-provider/source"
