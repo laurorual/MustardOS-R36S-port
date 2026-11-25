@@ -13,16 +13,23 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 Phase 5 (own-card firmware). M1–M8 done. **Current: M9 — public v1.0**
 (started 2026-11-22). Since 2026-11-25 licences and publication come
 first in every session, polish after (decision 37). m9a is the recovery
-image (M9a T3 passed); m9d (= the rc1 rootfs, developer variant) is on
-the bench's p2; the public **v1.0.0-rc1** is built and awaits its T3.
+image until 2026-11-25; **m9d** (the developer twin of rc1, whose T3
+passed with two small findings) is the recovery image now. m9e (the rc2
+rootfs) is on the bench's p2; the public **v1.0.0-rc2** awaits its short
+T3.
 
 ## Device and bench
 
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), test128
   in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
   zone −03. Access, identity and card layout: procedures.md.
-- **p2 = m9d** (2026-11-25 15:40, via the trial root after its T2; the
-  previous p2, m9c, in `MUOS/trial/p2-previous.img`).
+- **p2 = m9e** (2026-11-25 ~17:00, via the trial root after its T2; the
+  previous p2, m9d, in `MUOS/trial/p2-previous.img`). p1 `bootlogo.bmp` =
+  the press-kit logo (`d6e6d189…`; the old one in
+  `MUOS/trial/bootlogo.bmp.before`).
+- **Charge log running** (`T2_CHARGING=1 t2-discharge.sh log-start`,
+  p3 `MUOS/log/discharge.csv`, user_init = 1): the overnight sleep on the
+  charger; `t2-discharge.sh report` then `log-stop` in the morning.
 - **Boot records:** main = `Image-be499e33d4eb` + `panel0-84611ef0394d.dtb`
   (undervolt CPU −50 / GPU −25 mV, `undervolt-on`); previous = the same
   Image + stock `panel0-c97151d0ec1a.dtb`. p1 has all 16 undervolt DTBs
@@ -45,15 +52,16 @@ card, bootloader included (procedures.md).
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.xz` (raw `da27f90b…`, p2 `abd16601…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public rc1**: complete image (decision 35), 24 `check-public-image.sh` checks pass | T3 pending (blank card, user present) |
-| `dist/firmware/test128-m9d-20261125.img.zst` (raw `6dad53f3…`, p2 `14859cdb…`) | the rc1 rootfs, developer variant: unmodified libmali, Gambatte/FCEUmm from source, no BT firmware, MustardOS logo, support notice | on p2 2026-11-25, T2 passed (10/10) |
-| `dist/firmware/test128-m9c-20261123.img.zst` (p2 `6dab27a8…`) | m9b + Wi-Fi stuck-scan reset, `muos-update auto`, undervolt labels | previous p2 |
-| **`dist/firmware/test128-m9a-20261122.img.zst`** (raw `093d64ce…`, U-Boot `159e086c…`) | ScummVM keyboard fixes, Undervolt row, JP/ZH overlays | **recovery since 2026-11-22** |
-| `dist/firmware/test128-m8g-20261122.img.zst` (raw `81613024…`) | previous recovery | kept |
+| `dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.xz` (raw `5554dc47…`, p2 `cfa7df4d…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public rc2**: rc1 + English/50 % first boot, press-kit boot logo, `/etc/issue`; 29 checks pass | short T3 pending |
+| `dist/firmware/test128-m9e-20261125.img.zst` (raw `21bec4ad…`, p2 `cb74b78c…`) | the rc2 rootfs, developer variant | on p2, T2 passed (sweep, NES 59.98, DC 59.08 Hz at 6 % battery) |
+| `dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.xz` (raw `da27f90b…`, p2 `abd16601…`) | public rc1 | T3 2026-11-25: 1–7 ok, findings fixed in rc2 |
+| **`dist/firmware/test128-m9d-20261125.img.zst`** (raw `6dad53f3…`, p2 `14859cdb…`, U-Boot `159e086c…`) | the rc1 rootfs, developer variant | **recovery since 2026-11-25** (rc1 T3 passed) |
+| `dist/firmware/test128-m9c-20261123.img.zst` (p2 `6dab27a8…`) | m9b + Wi-Fi stuck-scan reset, auto-update | kept |
+| `dist/firmware/test128-m9a-20261122.img.zst` (raw `093d64ce…`) | previous recovery | kept |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-5/5 versions in `storage-retention.json` (m9d and rc1 are one entry;
-m9b retired 2026-11-25); the next image retires m8g.
+5/5 versions in `storage-retention.json` (M2, m9a, m9c, m9d+rc1,
+m9e+rc2; m9b and m8g retired 2026-11-25); the next image retires m9a.
 
 ## What works (T3-confirmed)
 
@@ -101,39 +109,24 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-39. ~~Commit e-mail~~ closed: the user pushed the repository on
-    2026-11-25 (`origin/main` = `a62c25b`) with the history as it was.
-40. **Agent files in the public repository:** AGENTS.md/CLAUDE.md hold the
-    workflow rules (and the Telegram section). Recommendation: keep
-    them (they document how the port is built and tested).
-41. **rc1 on GitHub:** recommendation: publish rc1 as a *pre-release*
-    after its T3 (auto-update ignores pre-releases: it reads
-    `releases/latest`), v1.0.0 as a normal release.
+None open (39–42 answered 2026-11-25, decisions.md). The user
+force-pushes the rewritten history (no-reply e-mail).
 
 ## T3 queue
 
-**M9 rc1 checklist** (user present; a blank or spare microSD; pt-BR
-paths):
-1. PC: write `dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.xz` with
-   balenaEtcher/Rufus (or `flash-card.sh`) to the blank card; put it in
-   slot 1 (test128 out), power on. Expected: logo "MustardOS / R36S /
-   R35S / unofficial port", then the menu in English (first boot a bit
-   longer: p3 grows).
-2. Configuração → Idioma → Português (BR): menus in pt-BR.
-3. Informações → Detalhes do dispositivo → down to "Versão", Fn: the help
-   says it is an unofficial port and points to the GitHub page.
-4. Configuração → Conectividade → Rede Wi-Fi (dongle in): connect to
-   your network.
-5. Configuração → Conectividade → Serviços web → Arquivos via SFTP → on;
-   FileZilla: SFTP, the IP, port 2022, muos/muos; copy one NES and one
-   NDS ROM into `ROMS/NES` and `ROMS/NDS`; play both (NDS: DraStic with
-   the two-screen layout, Fn+Start quits).
-6. Bench device (test128 back in slot 1, m9d): before a night on the
-   charger tell me (I start `t2-discharge.sh log-start`), sleep it with
-   the charger in, next morning wake it and tell me the battery %.
-7. Same device, M9c leftovers: power on with the Wi-Fi dongle in 3 times
-   (connects without a replug, worst case ~40 s); Configuração →
-   Configurações perigosas: rows "Undervolt do CPU"/"Undervolt do GPU".
+rc1 T3 (2026-11-25): 1–5, 7 ok; findings: first boot at 100 % volume and
+in Português (both from the bench's config pinned into the image; fixed
+in rc2); boot screen as the press kit (done in rc2).
+**rc2 checklist** (short):
+1. Bench device, tonight (item 6 of rc1): the charge log is running; put
+   it to sleep (short Power press) on the charger overnight; in the
+   morning wake it and tell me the battery %.
+2. Bench device, any reboot (Configuração → Energia… or Power long): the
+   boot shows the MustardOS badge (yellow, not blue/cyan) with "R36S /
+   R35S" and "unofficial port" below, from U-Boot until the menu.
+3. Spare card: write `dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.xz`,
+   first start: same boot screen, menu in **English**, sound at **50 %**
+   (Configuração → … or the volume bar on the first key press).
 
 ## Current milestone: M9 — public v1.0
 
@@ -153,7 +146,12 @@ clean, README/LICENSE/NOTICE, updater repo; L5 Plan B `prepare-image.sh`
 N64, PSP 15.5 swaps/s), m9d written to p2. Polish: install guide EN/pt-BR,
 CHANGELOG, known issues, release notes template.
 
-**Next:** rc1 T3 (above) → fold findings → the GitHub release:
+**rc1 T3 round (2026-11-25):** fresh-card defaults (English, 50 %,
+startup volume "previous", debug_mode 0), `/etc/issue`, boot logo from
+the press-kit boot screen; check-public-image 29 checks; m9e T2, on p2;
+history rewritten to the no-reply e-mail; m9d promoted to recovery.
+
+**Next:** rc2 T3 (above) → the GitHub pre-release of rc2:
 `make-source-bundle.sh bundle`, assets, notes (decisions 40–41). The
 repository is public (pushed by the user 2026-11-25, `a62c25b`); later
 commits are pushed by the user too. Polish meanwhile:
