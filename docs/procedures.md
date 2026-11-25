@@ -100,6 +100,44 @@ incrementally; rootfs in `build/m3a/output`, boot chain in `build/m3b`):
      the user can reflash: it has no SSH until enabled in the menu.
 3. `port/scripts/retention.py add <name> "<reason>" <files>`
 
+## Release (M9)
+
+1. Licences: [LICENSING.md](LICENSING.md), `pending-licenses.json` and
+   `port/scripts/third-party.sh` (rewrites THIRD-PARTY.txt; commit it)
+   agree; `make-source-bundle.sh check` passes (`build-image.sh
+   legal-info` first if `build/m3a/output/legal-info` is gone).
+2. `build-image.sh image MustardOS-R36S-port-<version> --public`: also
+   writes `<name>.img.xz` (+ `.sha256`, what users flash) and the update
+   assets `<name>.p2.img.gz` + `<name>.p2.img.sha256`;
+   `check-public-image.sh` runs inside (identity, licence states:
+   no Bluetooth firmware, unmodified libmali, DraStic with only the
+   640x480 layout, THIRD-PARTY notice, update repository).
+3. T2 the same p2 as a trial root on the bench (developer access stays),
+   then T3 of the public card on a blank card with the user present.
+4. `make-source-bundle.sh bundle build/release/<version>` (~2 GB) and
+   attach: the `.img.xz` + `.sha256`, the p2 update assets, the bundle
+   files and `SHA256SUMS`, release notes from `docs/release-notes.md`.
+
+## Plan B: inject a component on the PC (decision 36, not used)
+
+If an author asks to remove a closed component, the release can ship
+without it and users add it before flashing, from its original source:
+
+    xz -d MustardOS-R36S-port-<version>.img.xz
+    port/scripts/prepare-image.sh check  MustardOS-R36S-port-<version>.img
+    port/scripts/prepare-image.sh inject MustardOS-R36S-port-<version>.img [mali|drastic]
+
+`inject` downloads into `~/.cache/mustardos-r36s-planb` (`PLANB_CACHE`),
+checks every file against `port/packaging/planb-components.txt` (143
+SHA256s; regenerate with `prepare-image.sh manifest`) and writes p2 with
+debugfs (rootless; Linux, or WSL on Windows). dn.odroid.com answers
+scripts with a browser check (HTTP 403): the script then asks the user to
+download the Mali archive in a browser into the cache. DraStic comes from
+trngaje/advanced_drastic and trngaje/drastic_layout at the pinned commits
+(GitHub tarballs). `prepare-image.sh strip IMAGE [COMP]` removes the
+components (tests, or to build such a release). T1 2026-11-25: m9c image,
+strip → inject → all present, e2fsck clean.
+
 Languages (M7): `fetch-upstream-share.sh fetch` also fetches the pinned
 upstream language pack (`port/packaging/muos-language.txt`); `stage`
 writes it merged with `port/packaging/language/<Language>.json` (the
