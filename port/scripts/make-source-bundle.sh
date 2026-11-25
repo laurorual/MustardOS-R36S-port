@@ -7,7 +7,7 @@
 #   make-source-bundle.sh bundle DIR   write the bundle to DIR (~2 GB:
 #                                      release time only), SHA256SUMS last
 # Contents (one .tar.zst each):
-#   muos-r35s-port-REV   this repository at HEAD: patches, build scripts,
+#   MustardOS-R36S-port-REV this repository at HEAD: patches, build scripts,
 #                        device files, notices (kernel/U-Boot configs, the
 #                        boot-record U-Boot sources, muxretro/frontend patches)
 #   linux, u-boot        the kernel (also its in-tree modules, rtl8821cu) and
@@ -67,7 +67,7 @@ bundle)
     "$0" check > /dev/null || { "$0" check; exit 1; }
     out=$(realpath -m "${2:?usage: bundle DIR}"); mkdir -p "$out/cores"
     z() { zstd -q -T0 -10 -o "$1"; }
-    git -C "$repo" archive --format=tar --prefix=muos-r35s-port/ HEAD | z "$out/muos-r35s-port-$(git -C "$repo" rev-parse --short=12 HEAD).tar.zst"
+    git -C "$repo" archive --format=tar --prefix=MustardOS-R36S-port/ HEAD | z "$out/MustardOS-R36S-port-$(git -C "$repo" rev-parse --short=12 HEAD).tar.zst"
     for t in "${trees[@]}"; do
         IFS=: read -r n d _ <<< "$t"; r=$(git -C "$d" rev-parse --short=12 HEAD)
         tmp=$(mktemp -d "$b/.bundle.XXXXXX")

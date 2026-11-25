@@ -47,7 +47,10 @@
     "How far below stock the graphics chip voltage goes when Undervolt is enabled.\n\n-25 mV is the tested safe default. Larger steps may cause graphical errors or freezes in demanding games.": "Quanto a tensão do chip gráfico fica abaixo da original quando o Undervolt está ativado.\n\n-25 mV é o padrão testado e seguro. Passos maiores podem causar erros gráficos ou travamentos em jogos pesados."
   },
   "muxdetail": {
-    "Build": "Compilação"
+    "Build": "Compilação",
+    "Everything MustardOS knows about this device, grouped into sections. Left and Right move between them.": "Tudo o que o MustardOS sabe sobre este aparelho, agrupado em seções. Esquerda e Direita alternam entre elas.\n\nEste é um port não oficial do MustardOS para o R36S/R35S. A equipe do MustardOS não dá suporte a este aparelho: peça ajuda em github.com/laurorual/MustardOS-R36S-port.",
+    "The MustardOS release this device is running. Select it to check whether any system files have been altered.": "A versão do MustardOS em que este port não oficial para o R36S/R35S se baseia. A equipe do MustardOS não dá suporte a este port: peça ajuda em github.com/laurorual/MustardOS-R36S-port, não nos canais do MustardOS. Selecione para verificar se algum arquivo do sistema foi alterado.",
+    "The build this release was made from. Useful when reporting a problem.": "A compilação deste port não oficial para o R36S/R35S. Informe-a ao relatar um problema em github.com/laurorual/MustardOS-R36S-port (não à equipe do MustardOS)."
   },
   "muxbtdev": {
     "Headset": "Fone com microfone"

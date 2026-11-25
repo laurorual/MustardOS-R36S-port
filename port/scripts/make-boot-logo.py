@@ -56,7 +56,8 @@ def centred(text, f, y, grey):
     d.text(((W - w) / 2, y), text, font=f, fill=(grey, grey, grey))
 
 
-centred('muOS', text_font(96), 150, 240)
+# muos.dev/press: the full name "MustardOS" where there is room (decision 34)
+centred('MustardOS', text_font(84), 158, 240)
 d.rectangle((W / 2 - 60, 282, W / 2 + 60, 284), fill=(110, 110, 110))
 centred('R36S / R35S', text_font(28), 300, 190)
 centred('unofficial port', text_font(20), 420, 110)

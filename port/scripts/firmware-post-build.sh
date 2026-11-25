@@ -115,3 +115,11 @@ printf '0.0 0 0.0\n0\nUTC\n' > "$1/var/lib/hwclock/adjtime"
 # script/mux/extract.sh writes update/installed/<archive>.done).
 mkdir -p "$1/opt/muos/update"
 echo "post-build: board/network, info sounds high-passed, coredb governors, level-script boost wrappers, wireplumber rules, hotkey hold, muxretro provenance, localtime link + RTC in UTC, update mount point, N64 state warm-up"
+# M9 (decision 35, LICENSING.md): the Mali userspace ships unmodified, the
+# exact Hardkernel r13p0 binary (sha256 2a067ea3...) instead of the copy the
+# rockchip-mali recipe gave a SONAME with patchelf; programs find it by the
+# libmali.so.1 link (the sysroot keeps the SONAME for linking).
+mali=/work/foundation/provider-source/lib/aarch64-linux-gnu/libmali-bifrost-g31-rxp0-gbm.so
+[ "$(sha256sum < "$mali" | cut -d' ' -f1)" = 2a067ea38256c3de139b2a5396d3101f7c7777b1e19d59017b2c02172500d0ea ]
+cp "$mali" "$1/usr/lib/libmali-bifrost-g31-rxp0-gbm.so"
+chmod 755 "$1/usr/lib/libmali-bifrost-g31-rxp0-gbm.so"
