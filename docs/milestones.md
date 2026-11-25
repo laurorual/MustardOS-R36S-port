@@ -15,6 +15,32 @@ text). Decision 29: the standalone stays the ScummVM default. m8g
 written to p2 with the user present (old p2 `0b1e8978…` kept as
 `MUOS/trial/p2-previous.img`) and promoted to recovery, m8d retired.
 
+**Licences and publication round (2026-11-25, decisions 33–38):**
+docs cleanup (decisions.md, STATUS trimmed, M1–M7 and the M8
+experiments archived, roadmap M9 rewritten). L1 `docs/LICENSING.md`
+(single source, request log, community-practice reference; absorbs
+license-requests.md); pending-licenses.json and THIRD-PARTY.txt
+reconciled; Gambatte/FCEUmm into `build-cores.sh` (T2 NES 59.98, GB
+59.99); rtl8821c BT firmware out (firmware-inputs remove list; a stale
+copy in the Buildroot target was caught by the new public check); the
+U-Boot "dirty" banner closed (patched source tree). The libmali ships
+unmodified (post-build copies the Hardkernel binary over the patchelf'd
+one; T2 DC 59.9 Hz with it bind-mounted). L2 MustardOS compliance: boot
+logo "MustardOS", THIRD-PARTY/NOTICE/README unofficial-port and support
+notice, Information → Device Details help texts (EN, pt-BR), credits + CC BY-NC.
+L3 `make-source-bundle.sh check` covers the whole public image (frontend
+and muxretro trees, submodules, YabaSanshiro deps, dArkOS patches,
+legal-info: fixed for the 4.4 headers' COPYING). L4 history scan: no
+secrets (device Wi-Fi/SSH values searched in all 2936 blobs: 0), no
+ROMs or third-party binaries; README, NOTICE, LICENSE; updates from
+laurorual/MustardOS-R36S-port. L5 `prepare-image.sh` (Plan B; T1 strip →
+inject → present on m9c and on the public rc1; dn.odroid.com blocks
+scripts: manual browser download into the cache). L6
+`MustardOS-R36S-port-v1.0.0-rc1` built (public: 24 checks pass, `.img.xz`
++ p2 update assets) with the developer twin m9d (same rootfs) for the
+trial-root T2. Polish: install guide EN/pt-BR, CHANGELOG, known issues,
+release notes template.
+
 1. **ScummVM virtual keyboard — done to T2:** `port/patches/scummvm/0001`
    (both builds; `build-scummvm.sh` applies `port/patches/scummvm/*` to
    the standalone's archive and once to the tree for the core): a plain

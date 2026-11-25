@@ -76,7 +76,7 @@ Licences and publication (priority):
    DraStic recorded as the community-practice reference.
 2. MustardOS compliance (decision 34): the name "MustardOS for
    R36S/R35S (unofficial port)" per muos.dev/press in the README, release
-   notes, image, boot logo and System details; the "not supported by the
+   notes, image, boot logo and Information → Device Details; the "not supported by the
    MustardOS team, support on the port's GitHub" notice in the README,
    the release notes and in the system itself (EN and pt-BR); credits and
    the CC BY-NC 4.0 licence of the assets used.

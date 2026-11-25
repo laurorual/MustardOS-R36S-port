@@ -98,8 +98,9 @@ outside the themes.
 - **MustardOS (decision 34, Terms of Use §3, §5):** the full name
   "MustardOS", never "Mustard OS", "MUOS" or "Muos"; the image, README and
   release notes say it is an **unofficial port, not supported by the
-  MustardOS team**, support only on the port's GitHub (also in System
-  details' help texts, EN and pt-BR); changes are identified (patches in
+  MustardOS team**, support only on the port's GitHub (also in the help
+  texts of Information → Device Details, EN and pt-BR); changes are
+  identified (patches in
   the repository); exact corresponding source in every release.
 - **GPL/LGPL:** the source bundle is attached to every release
   (`make-source-bundle.sh bundle`), and THIRD-PARTY.txt offers it.
