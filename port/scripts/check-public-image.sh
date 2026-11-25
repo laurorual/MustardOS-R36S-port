@@ -50,6 +50,25 @@ p3_clean() {
     [ "$l" = '.muos-r35s-data-v1 lost+found ' ] || { echo "     p3 root: $l" >&2; return 1; }
 }
 check "p3 holds only the data marker" p3_clean
+# M9 (LICENSING.md, decisions 33-35, 38): a complete image with the
+# licence state the release notes describe
+# shellcheck disable=SC2329
+p2_sha() { [ "$(debugfs -R "cat $1" "$work/p2.img" 2>/dev/null | sha256sum | cut -d' ' -f1)" = "$2" ]; }
+# shellcheck disable=SC2329
+p2_ls() { debugfs -R "ls -p $1" "$work/p2.img" 2>/dev/null | awk -F/ 'NF > 5 && $6 != "." && $6 != ".." { print $6 }' | sort | tr '\n' ' '; }
+# shellcheck disable=SC2329
+p2_grep() { debugfs -R "cat $1" "$work/p2.img" 2>/dev/null | grep -qF -- "$2"; }
+check "p2 has no Bluetooth firmware" absent /lib/firmware/rtl_bt
+check "libmali is the unmodified Hardkernel r13p0 binary" \
+    p2_sha /usr/lib/libmali-bifrost-g31-rxp0-gbm.so 2a067ea38256c3de139b2a5396d3101f7c7777b1e19d59017b2c02172500d0ea
+check "DraStic r2.5.2.2 is included" \
+    p2_sha /opt/muos/share/emulator/drastic/drastic dab3275ef772451b9235b78e64b2d0d041a28ac22937668231088c76b709e218
+# shellcheck disable=SC2329
+only_640() { [ "$(p2_ls /opt/muos/share/emulator/drastic/resources/bg)" = '640x480 ' ]; }
+check "DraStic layouts: only steward-fu's 640x480" only_640
+check "THIRD-PARTY.txt states the unofficial port and support" \
+    p2_grep /usr/share/muos-r35s/THIRD-PARTY.txt 'not made, approved or supported by the MustardOS team'
+check "updates come from laurorual/MustardOS-R36S-port" p2_grep /etc/muos-update.conf 'repo=laurorual/MustardOS-R36S-port'
 if [ -n "$base_p2" ]; then
     # Secrets of the developer image: values of ssid/psk lines and the key blob.
     debugfs -R 'cat /var/lib/muos-network/network.conf' "$base_p2" 2>/dev/null |

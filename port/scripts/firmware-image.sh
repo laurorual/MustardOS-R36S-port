@@ -229,6 +229,9 @@ sha256sum "$out" | sed "s#  .*/#  #" > "$out.sha256"
 if [ "$variant" = public ]; then
     # M9: the update assets for the GitHub release (muos-update auto/stage)
     n=$(basename "${out%.img.zst}")
+    # the card image for users: Etcher, Rufus and Pi Imager read .xz, not .zst
+    xz -T0 -6 -c "$img" > "${out%.zst}.xz"
+    (cd "$(dirname "$out")" && sha256sum "$n.img.xz" > "$n.img.xz.sha256")
     gzip -9 -c "$work/p2.img" > "${out%.img.zst}.p2.img.gz"
     echo "$p2_sum  $n.p2.img" > "${out%.img.zst}.p2.img.sha256"
 fi
