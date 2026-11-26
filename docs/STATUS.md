@@ -148,7 +148,7 @@ full pt-BR paths; Wi-Fi on):
 9. During a port: Suspender (short Power press), wait 10 s, wake: the
    port continues.
 After it passes: m11b becomes the recovery image and the user runs
-`build/release/publish-v1.2.0.sh` (tag 29b766d).
+`build/release/publish-v1.2.0.sh` (tag 38a7344; the image was built at 29b766d, same port/device tree).
 
 ## Next milestone: M12 — Pico-8
 
