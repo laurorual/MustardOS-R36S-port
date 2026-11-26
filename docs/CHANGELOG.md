@@ -7,8 +7,9 @@ team: https://github.com/laurorual/MustardOS-R36S-port/issues
 
 - **More R36S models (experimental):** 22 models with the 640x480 screen
   from dArkOSen's device trees (list in the README). Choose yours on a PC
-  with `select-model.bat`, `.sh` or `.command` in the card's boot
-  partition; the console restarts once to apply it. Untested by the port:
+  with `select-model.bat`, `.command` or (Linux, in a terminal)
+  `sh select-model.sh` in the card's boot partition, or a hand-written
+  `model.txt`; the console restarts once to apply it. Untested by the port:
   please report whether yours works.
 - **More Wi-Fi dongles (experimental):** every USB Wi-Fi chip the kernel
   has a driver for (Realtek RTL8188EU/FTV, RTL8192CU, RTL8723BU,

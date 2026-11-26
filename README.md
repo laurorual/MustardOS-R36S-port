@@ -36,9 +36,12 @@ test device:
   2024-12-18 2545, R36S-V22 2024-12-18 2548, R36S-V22 2024-12-18, R36S-V30
   2025-18-11 2603, R36S-Y02 2024-12-18, R36XX-V21 2024-12-18, RK3326-D3.
   Choose yours on a PC: open the card's boot partition and run
-  `select-model.bat` (Windows), `select-model.sh` (Linux) or
-  `select-model.command` (macOS), then start the console: it restarts once
-  by itself to apply it. If the screen then stays black or wrong, run the
+  `select-model.bat` (Windows), `select-model.command` (macOS) or, on
+  Linux, open a terminal there and type `sh select-model.sh` (the card's
+  FAT partition can't mark it executable, so a double-click only opens
+  it as text). Without a selector: create `model.txt` there with the id
+  of your model (the first word of its line in `models.txt`). Then start
+  the console: it restarts once by itself to apply it. If the screen then stays black or wrong, run the
   selector again and pick another model or the default (a start that
   freezes before the menu goes back to the previous model by itself: hold
   Power to turn it off, then on again). Not yet: the G80C/G80CA and other
@@ -133,8 +136,12 @@ USB com chip **Realtek RTL8821CU**; sem Bluetooth.
 outros modelos do R36S com a mesma tela 640x480 e botões, dos device
 trees do dArkOSen (lista acima, em inglês). Escolha o seu num PC: abra a
 partição de boot do cartão e rode `select-model.bat` (Windows),
-`select-model.sh` (Linux) ou `select-model.command` (macOS); depois ligue
-o console, que reinicia uma vez sozinho para aplicar. Se a tela ficar
+`select-model.command` (macOS) ou, no Linux, abra um terminal nela e
+digite `sh select-model.sh` (a partição FAT do cartão não marca o arquivo
+como executável, então um clique duplo só o abre como texto). Sem
+seletor: crie nela um `model.txt` com o id do seu modelo (a primeira
+palavra da linha dele em `models.txt`). Depois ligue o console, que
+reinicia uma vez sozinho para aplicar. Se a tela ficar
 preta ou errada, rode o seletor de novo e escolha outro modelo ou o
 padrão (um início que trava antes do menu volta sozinho ao modelo
 anterior: segure Power para desligar e ligue de novo). Ainda não: placas "clone" G80C/G80CA e

@@ -139,7 +139,8 @@ v1.0.0; full menu paths in pt-BR):
 6. Sleep (short Power press), wait 10 s, wake: Wi-Fi back within ~15 s.
 7. Card in the PC: the boot partition has `select-model.bat`,
    `select-model.sh`, `select-model.command` and `models.txt`. Run the
-   one for your PC: a list of 23 models (1 = "R36S-V12 2023-08-18
+   one for your PC (Linux: in a terminal, `sh select-model.sh`; FAT
+   gives it no exec bit, fixed in the docs 2026-11-26): a list of 23 models (1 = "R36S-V12 2023-08-18
    Panel 0 (R35S, the port default)"); choose 1: "Chosen: …", a
    `model.txt` with `default` appears. Card back in slot 1, power on: no
    extra restart, the menu as always. (Don't choose another model on
