@@ -10,7 +10,8 @@
 // only while /run/muos/perf-capture exists.
 // M8: while /run/swapstat-grab exists, the next frame (default framebuffer,
 // read before the swap) is written to /run/swapstat-grab.ppm and the
-// trigger file is removed: screenshots of GL emulators for T2.
+// trigger file is removed: screenshots of GL emulators for T2 (also at
+// eglSwapBuffers, v1.1.1).
 #define _GNU_SOURCE
 #include <dlfcn.h>
 #include <stdio.h>
@@ -103,4 +104,17 @@ void SDL_GL_SwapWindow(void *window) {
         swaps = slow = vis = 0;
         max_gap = in_swap = 0;
     }
+}
+
+// v1.1.1: the same grab for programs that swap through EGL themselves
+// (Godot frt ports; the level bar of muos-levelbar.so, preloaded before
+// this, is already drawn then).
+unsigned eglSwapBuffers(void *dpy, void *surface) {
+    static unsigned (*real)(void *, void *);
+    if (!real) real = (unsigned (*)(void *, void *)) dlsym(RTLD_NEXT, "eglSwapBuffers");
+    if (access("/run/swapstat-grab", F_OK) == 0) {
+        grab();
+        unlink("/run/swapstat-grab");
+    }
+    return real ? real(dpy, surface) : 0;
 }

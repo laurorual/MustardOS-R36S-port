@@ -22,7 +22,8 @@ for b in dc_boot.bin dc_flash.bin; do
 done
 map=/userdata/MUOS/port/gamecontrollerdb/retro.txt
 [ -s "$map" ] || map=/opt/muos/share/info/gamecontrollerdb/retro.txt
-SDL_GAMECONTROLLERCONFIG=$(grep -v '^#' "$map" | grep -m1 'muOS-Keys')
+. /usr/share/muos-r35s/sdl-env.sh
+SDL_GAMECONTROLLERCONFIG=$(sdl_map_line "$map")
 export SDL_GAMECONTROLLERCONFIG
 pre=
 # T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file

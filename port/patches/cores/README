@@ -7,3 +7,8 @@ flycast2022/ (M8, Dreamcast): from christianhaitian/rk3326_core_builds
 and flycast-patch-per_pixel.patch, unchanged: the build dArkOS ships as its
 64-bit "flycast" core (libretro/flycast, now libretro/parallel-dc, at
 4c293f3; platform "goadvance": LOW_END and LOW_RES defaults).
+
+fake08/ (v1.1.1 T3): 0001-a-is-o.patch, own: RetroPad A (the physical A,
+right) is PICO-8's O and B is X, as Picante8 and the official PICO-8 with
+the board mapping, so A confirms and B cancels in every PICO-8 core
+(upstream maps them by position, B = O).

@@ -1,0 +1,32 @@
+SDL2: no default KMSDRM arrow cursor unless SDL_KMSDRM_DEFAULT_CURSOR=1
+
+SPDX-License-Identifier: Zlib
+Local alteration (v1.1.1 T3): the R35S has no pointing device, yet SDL's
+KMSDRM backend put its default arrow on the VOP cursor plane (64x64 at
+0,0) in every SDL app that does not hide it itself (PortMaster's GUI,
+Godot frt and doukutsu-rs ports). Upstream muOS hides it with a preloaded
+SDL_ShowCursor(0) shim (libmucursor.so), which cannot reach SDL loaded
+through ctypes (PortMaster's pysdl2) and is undone by apps that show the
+cursor again. Without a default cursor SDL shows nothing until an app sets
+its own (SDL_CreateCursor / SDL_SetCursor still work).
+
+--- a/src/video/kmsdrm/SDL_kmsdrmmouse.c
++++ b/src/video/kmsdrm/SDL_kmsdrmmouse.c
+@@ -23,6 +23,7 @@
+ 
+ #ifdef SDL_VIDEO_DRIVER_KMSDRM
+ 
++#include "SDL_hints.h"
+ #include "SDL_kmsdrmvideo.h"
+ #include "SDL_kmsdrmmouse.h"
+ #include "SDL_kmsdrmdyn.h"
+@@ -412,7 +413,8 @@
+     /* Only create the default cursor for this display if we haven't done so before,
+        we don't want several cursors to be created for the same display. */
+     if (!dispdata->default_cursor_init) {
+-        SDL_SetDefaultCursor(KMSDRM_CreateDefaultCursor());
++        if (SDL_GetHintBoolean("SDL_KMSDRM_DEFAULT_CURSOR", SDL_FALSE))
++            SDL_SetDefaultCursor(KMSDRM_CreateDefaultCursor());
+         dispdata->default_cursor_init = SDL_TRUE;
+     }
+ }

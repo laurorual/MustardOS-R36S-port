@@ -17355,8 +17355,15 @@
    "path": "/opt/muos/share/core/fake08_libretro.so",
    "type": "file",
    "mode": "755",
-   "sha256": "5de5aaf32c74e0c1ea918128cb7a77ee36d536f8ca63d1d1b0fe6c3a9bed012a",
+   "sha256": "b5eb91012738f4a36d307b73fe4f2996e151e88e460f857f58102c6d3106cdd9",
    "origin": "build/m3c/cores/out/fake08_libretro.so"
+  },
+  {
+   "path": "/usr/lib/muos-levelbar.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "7eb6b2759ca17766cc20d9ffcb5d311bee112855524f87073b8e346d04932745",
+   "origin": "build/m12/levelbar/tree/usr/lib/muos-levelbar.so"
   }
  ],
  "remove": [

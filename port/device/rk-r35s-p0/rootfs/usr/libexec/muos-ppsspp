@@ -47,7 +47,8 @@ if [ "$name" = ppsspp-2021 ] && [ ! -e "$sys/.muos-buffered" ]; then
 fi
 map=/userdata/MUOS/port/gamecontrollerdb/retro.txt
 [ -s "$map" ] || map=/opt/muos/share/info/gamecontrollerdb/retro.txt
-SDL_GAMECONTROLLERCONFIG=$(grep -v '^#' "$map" | grep -m1 'muOS-Keys')
+. /usr/share/muos-r35s/sdl-env.sh
+SDL_GAMECONTROLLERCONFIG=$(sdl_map_line "$map")
 export SDL_GAMECONTROLLERCONFIG
 say "start $name rom=$rom"
 cd "$emu" || exit 1

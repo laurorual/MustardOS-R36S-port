@@ -89,9 +89,13 @@ track=/opt/muos/script/mux/track.sh
 # a background child is no group leader); /run/muos/session holds its PID
 # so Fn+Start (muos-standalone-quit) can end the whole group. The
 # frontend's own library path stays out (PortMaster loads the system SDL2).
+# v1.1.1: ports, applications and the official PICO-8 get the volume and
+# brightness bar muxretro draws in games (muos-levelbar.so, preloaded).
+levelbar=/usr/lib/muos-levelbar.so
+[ -f "$levelbar" ] || levelbar=
 run_session() { # LOG CMD...
     l=$1; shift
-    run_child env -u LD_LIBRARY_PATH HOME=/root XDG_CONFIG_HOME=/root/.config \
+    run_child env -u LD_LIBRARY_PATH HOME=/root XDG_CONFIG_HOME=/root/.config LD_PRELOAD="$levelbar" \
         /usr/libexec/muos-session "$@" >> "$l" 2>&1
     rc=$?
     # what the session left behind (a game that outlived its script, a
@@ -173,7 +177,7 @@ launch_content() {
                 >> /opt/muos/log/frontend.log 2>&1
         elif [ "$ext" = pico8 ]; then
             m=scale; case "$core" in *pixel*) m=pixel ;; esac
-            run_child /usr/libexec/muos-pico8 "$m" "$content" >> /opt/muos/log/frontend.log 2>&1
+            run_child env LD_PRELOAD="$levelbar" /usr/libexec/muos-pico8 "$m" "$content" >> /opt/muos/log/frontend.log 2>&1
         elif [ "$ext" = port ]; then
             foreground external
             run_session /opt/muos/log/port.log bash "$content"
