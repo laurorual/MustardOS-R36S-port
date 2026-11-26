@@ -29,7 +29,7 @@ The open problems behind each "partial" are in STATUS.
 | Audio | T3 partial | Speaker, headphone switching (jack contact faulty); underrun bursts | Audio |
 | Battery / charging | T3 | RK817 gauge %, kept across power-off, low-battery poweroff, charging screen | Power and battery |
 | Sleep / poweroff | T3 | mem sleep and wake (~9 s to Wi-Fi), shutdown timer, hard power-cut recovery | Power and battery |
-| Wi-Fi (RTL8821CU dongle; others experimental since M10) | T3 partial | Profiles, scan, sleep/wake, replug; warm-reboot H2C 1 in 7, dwc2 missed events (watchdog), firmware error loop with no traffic (once, M5) | Network and USB |
+| Wi-Fi (RTL8821CU dongle; RTL8822BU 2357:0115 user-tested on v1.1.0; others experimental since M10) | T3 partial | Profiles, scan, sleep/wake, replug; warm-reboot H2C 1 in 7, dwc2 missed events (watchdog), firmware error loop with no traffic (once, M5) | Network and USB |
 | SSH / SFTP | T3 partial | Developer SSH/SFTP; menu SFTP jailed on 2022 (FileZilla saved site open) | Network and USB |
 | RTC / clock | T3 | RK817 RTC in UTC, time zone, NTP | Power and battery |
 | LEDs / rumble | n/a | No controllable LED, no rumble motor on this unit | Power and battery |
@@ -563,7 +563,11 @@ The open problems behind each "partial" are in STATUS.
   88x2bu, rtl8812au, 8188eu, 8192cu, 8723bu (firmware inside; 8188fu is
   built in) and the mainline rtl8192cu, mt7601u, rt2800usb, rt73usb,
   r8712u, r8723au, rtl8187, rt2500usb (firmware from linux-firmware,
-  `wifi-firmware.txt`). No ath9k_htc. `modprobe -R <modalias>` on the
+  `wifi-firmware.txt`). No ath9k_htc. User-tested (v1.1.0, 2026-11-26):
+  a TP-Link 2357:0115 "802.11ac NIC" (RTL8822BU)
+  hot-plugged in place of the 8821cu: 88x2bu bound, wlan0 on 5 GHz
+  (5240 MHz) at 867 Mb/s, RSSI -38; 8821cu stays loaded until reboot
+  (harmless). `modprobe -R <modalias>` on the
   device resolves an interface to its modules (kmod 33), several for one
   ID (8192cu and rtl8192cu): the worker prefers the vendor driver.
 - **Wi-Fi liveness (M7):** `muos-usb-watchdog` checks every 60 s while

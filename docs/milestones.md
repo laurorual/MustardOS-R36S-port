@@ -4,6 +4,20 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M10 — experimental hardware reach (done 2026-11-26, v1.1.0 published; m10a is recovery)
+
+Plan, items and T2 results: STATUS "Previous milestone" (until M11
+replaces it; then summarized here). **T3 (v1.1.0 public on original32,
+2026-11-26):** 8/8 ok — update from v1.0.0 with progress screens, Build =
+v1.1.0, Wi-Fi at power-on, toggle, replug, wake, the selector (item 7
+first failed: `./select-model.sh` is "permission denied" on the FAT p1,
+which udisks mounts `showexec`; the docs now say `sh select-model.sh`
+and give a hand-written `model.txt` as fallback; scripts unchanged),
+Undervolt rows. Extra: the user's TP-Link 2357:0115 (RTL8822BU)
+hot-plugged in place of the 8821cu: 88x2bu, 5 GHz at 867 Mb/s, RSSI
+-38 (hardware-findings "USB Wi-Fi drivers"). m10a promoted to recovery,
+m9k + v1.0.0 local files retired.
+
 ## M9 — public v1.0 (done 2026-11-26, v1.0.0 published; m9k is recovery)
 
 **Close (2026-11-26):** v1.0.0 T3 ok (update screens, Build = v1.0.0,

@@ -10,7 +10,7 @@ after it. Rewritten 2026-11-18. The current state is in
 
 Phases 0–4 (inventory, first native component, display/input, the menu on
 the Debian bench, the standalone firmware base) are done. Phase 5 (own
-card) has delivered M1–M8 (M8 T3 passed 2026-11-22; M9 in progress): a flashable image that
+card) has delivered M1–M10 (v1.0.0 and v1.1.0 published 2026-11-26): a flashable image that
 boots straight to the muOS menu in English or Português (BR), with
 display, controls, audio, Wi-Fi + SSH/SFTP (jailed), battery gauge,
 sleep/resume, poweroff, time zone/NTP, about 20 libretro cores plus the
@@ -118,7 +118,7 @@ panels or clones.
   ROCKNIX's 6.x kernel as the reference; removes the Mali blob and the
   vendor TF-A; full re-qualification (see "Kernel base").
 - **Other R36S variants and Wi-Fi dongles (decisions 43–44): M10**
-  (STATUS). Wave 1: 22 dArkOSen models on the port's board at 640x480,
+  (done, v1.1.0). Wave 1: 22 dArkOSen models on the port's board at 640x480,
   switched by Linux (`muos-model`, a one-shot trial like the undervolt
   rows) instead of a U-Boot rule, so the update path delivers it; every
   USB Wi-Fi driver the kernel has. Later waves: the rg351v clones and R50S

@@ -20,7 +20,8 @@ test device:
 - **R35S with Panel 0** (device tree model "R36S-V12 2023-08-18 Panel 0",
   the default). R36S units with the same board and panel work the same.
 - Wi-Fi: a USB dongle with the **Realtek RTL8821CU** chip (the R36S has no
-  internal Wi-Fi). No Bluetooth.
+  internal Wi-Fi). Since v1.1 also a TP-Link dongle with the **Realtek
+  RTL8822BU** (USB ID 2357:0115, 5 GHz at 867 Mb/s). No Bluetooth.
 - Slot 1 (the card slot the system boots from). An optional second card
   in slot 2 can hold ROMs.
 
@@ -130,7 +131,9 @@ direto no menu do MustardOS.
 **Aparelhos testados:** uma tela e um adaptador Wi-Fi, os do aparelho de
 testes do port: **R35S com Panel 0** (modelo "R36S-V12 2023-08-18 Panel
 0", o padrão; R36S com a mesma placa e tela funcionam igual) e adaptador
-USB com chip **Realtek RTL8821CU**; sem Bluetooth.
+USB com chip **Realtek RTL8821CU** (desde a v1.1 também um TP-Link com
+**Realtek RTL8822BU**, USB ID 2357:0115, 5 GHz a 867 Mb/s); sem
+Bluetooth.
 
 **Experimental desde a v1.1 (não testado pelo port; retorno bem-vindo):**
 outros modelos do R36S com a mesma tela 640x480 e botões, dos device

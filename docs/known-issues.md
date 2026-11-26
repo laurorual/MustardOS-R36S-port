@@ -7,7 +7,8 @@ MustardOS team.
 ## Hardware support
 
 - Only the R35S/R36S **Panel 0** (R36S-V12 board) and the Realtek
-  **RTL8821CU** Wi-Fi adapter are tested. The other models and Wi-Fi
+  **RTL8821CU** Wi-Fi adapter are tested (since v1.1 also a TP-Link
+  RTL8822BU, 2357:0115, by the user). The other models and Wi-Fi
   chips in the README are experimental (since v1.1): untested by the
   port. On another model the undervolt rows (Danger Settings) are
   unavailable, the boot logo before the menu may look wrong, and the

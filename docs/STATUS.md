@@ -10,11 +10,10 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 
 ## Current phase
 
-Phase 5 (own-card firmware). M1–M9 done: **v1.0.0 published 2026-11-26**
-(GitHub release, latest; m9k, its developer twin, is the recovery
-image). **Current: M10 — experimental hardware reach** (started
-2026-11-26): done to T2, v1.1.0 built; the T3 queue is next, then the
-user publishes v1.1.0.
+Phase 5 (own-card firmware). M1–M10 done: **v1.1.0 published 2026-11-26**
+(GitHub release, latest; v1.0.0 before it; m10a, the v1.1.0 developer
+twin, is the recovery image). **Next: M11** (to be planned from the
+roadmap's post-v1.0 tracks; see "Next milestone").
 
 ## Device and bench
 
@@ -23,7 +22,9 @@ user publishes v1.1.0.
   undervolt DTB `panel0-84611ef0394d.dtb`, previous = the same kernel +
   the stock DTB `panel0-c97151d0ec1a.dtb` since the model T2). p1 has
   the 22 model DTBs, `models.txt` and the selectors. original32 holds
-  the public v1.0.0.
+  the public v1.1.0 (updated from v1.0.0 in the T3; `model.txt` =
+  `default`; password SSH on port 22, root/`root`, used read-only for
+  the RTL8822BU dongle info) with a TP-Link RTL8822BU dongle (2357:0115).
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), test128
   in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
   zone −03. Access, identity and card layout: procedures.md.
@@ -51,15 +52,14 @@ card, bootloader included (procedures.md).
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/MustardOS-R36S-port-v1.0.0.img.xz` (xz `a308dccd…`, raw `b762425f…`, p2 `9cf48944…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public v1.0.0** (Build = v1.0.0); 29 checks | tag pushed; release pending (token, see "Current phase"); T3 ok 2026-11-26 |
-| `dist/firmware/test128-m10a-20261126.img.zst` (raw `cc85290c…`, p2 `77ff5a87…`) + `MustardOS-R36S-port-v1.1.0.*` (public, raw `8378de0c…`, p2 `8bedd242…`) | M10: Wi-Fi dongles, model DTBs + switch | m10a on the bench (update path from m9k), T2 pass; v1.1.0 T3 pending |
-| **`dist/firmware/test128-m9k-20261126.img.zst`** (raw `3e487ae1…`, p2 `43779504…`) | v1.0.0 rootfs + kernel, developer variant | on the bench; T2: update rounds with progress screens, NES 59.96; **recovery since 2026-11-26** (v1.0.0 T3 ok) |
+| **`dist/firmware/test128-m10a-20261126.img.zst`** (raw `cc85290c…`, p2 `77ff5a87…`) + `MustardOS-R36S-port-v1.1.0.*` (public, raw `8378de0c…`, p2 `8bedd242…`, 32 checks) | M10: Wi-Fi dongles, model DTBs + switch | m10a on the bench (update path from m9k); v1.1.0 T3 ok and **published 2026-11-26**; **m10a recovery since 2026-11-26** |
+| (v1.0.0 public, m9k) | on GitHub (release); local files and m9k retired 2026-11-26 (m10a recovery) | T3 ok 2026-11-26 |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
-| (m9f) | the rc2 developer twin | retired 2026-11-26 (m9k recovery) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-3/5 versions in `storage-retention.json` (M2, m9k+v1.0.0, m10a; m9c,
-m9d+rc1, m9f, m9g, m9h, m9i retired and the p3 backup tar deleted 2026-11-26).
+2/5 versions in `storage-retention.json` (M2, m10a+v1.1.0; m9k+v1.0.0
+and earlier retired 2026-11-26). The v1.0.0 and v1.1.0 source zips in
+`build/release` (2.6 GB each, also on GitHub) are outside retention.
 
 ## What works (T3-confirmed)
 
@@ -78,7 +78,7 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Open problems
 
-- **Licences/publication:** v1.0.0 published (LICENSING.md; Hardkernel
+- **Licences/publication:** v1.0.0 and v1.1.0 published (LICENSING.md; Hardkernel
   answered without a position, decision 47; Exophase and steward-fu
   still silent).
 - **Battery % short of 100 on the charger — fixed (patch 0011, rc2 T3
@@ -115,42 +115,20 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-- **Other test hardware (M10):** do you have, or can you borrow, any
-  other USB Wi-Fi dongle (any brand; the chip doesn't matter) or another
-  R36S/clone? Without one, M10's new paths ship untested, as the README
-  says. Recommendation: none needed; a cheap RTL8188FTV/8188EU dongle
-  would make item 1 testable.
+None open. (M10's test-hardware question answered by the T3: the user
+tested a TP-Link RTL8822BU dongle, 2357:0115: it works.)
 
 ## T3 queue
 
-**v1.1.0 checklist** (public image on original32 in slot 1, as for
-v1.0.0; full menu paths in pt-BR):
-1. Update from v1.0.0: copy the release's `.p2.img.gz` + `.p2.img.sha256`
-   to original32's `MUOS/update`, Aplicativos → Ferramentas de sistema →
-   Instalar atualização do sistema: progress bar, restart, "Concluindo a
-   atualização do sistema", restart into the menu.
-2. Informações → Detalhes do dispositivo: Compilação = v1.1.0.
-3. Wi-Fi at power-on (RTL8821CU, the new detection): connects by itself
-   within ~30 s.
-4. Configuração → Conectividade → Wi-Fi: off, then on: reconnects
-   within ~20 s.
-5. With Wi-Fi connected: unplug the dongle, wait 5 s, plug it back:
-   reconnects within ~30 s.
-6. Sleep (short Power press), wait 10 s, wake: Wi-Fi back within ~15 s.
-7. Card in the PC: the boot partition has `select-model.bat`,
-   `select-model.sh`, `select-model.command` and `models.txt`. Run the
-   one for your PC (Linux: in a terminal, `sh select-model.sh`; FAT
-   gives it no exec bit, fixed in the docs 2026-11-26): a list of 23 models (1 = "R36S-V12 2023-08-18
-   Panel 0 (R35S, the port default)"); choose 1: "Chosen: …", a
-   `model.txt` with `default` appears. Card back in slot 1, power on: no
-   extra restart, the menu as always. (Don't choose another model on
-   the R35S: their battery tables would upset the gauge; T2 covered the
-   switch with a test DTB.)
-8. Configuração → Configurações perigosas → Undervolt: the rows show the
-   current state as before (not "unavailable").
-After it passes: m10a becomes the recovery image.
+Empty (v1.1.0 checklist passed 2026-11-26, results in milestones.md M10).
 
-## Current milestone: M10 — experimental hardware reach
+## Next milestone
+
+M11, to be planned at its start from the roadmap's post-v1.0 tracks;
+the recommended order: the MustardOS next release (decision 45), then
+model wave 2 (rg351v clones and R50S: a frontend input profile).
+
+## Previous milestone: M10 — experimental hardware reach (done 2026-11-26)
 
 Goal: v1.1 runs on more R36S units and with more Wi-Fi dongles, labelled
 experimental (decisions 43–44; the port can't test them: feedback via
@@ -204,7 +182,3 @@ Items:
   32 checks), source zips packed (`build/release`), notes
   `build/release/v1.1.0-notes.md`; publishing after the T3:
   `build/release/publish-v1.1.0.sh` (the user runs it).
-
-## Previous milestone: M9 — public v1.0 (done 2026-11-26)
-
-Details in milestones.md M9.
