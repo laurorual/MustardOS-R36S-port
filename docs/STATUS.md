@@ -17,23 +17,21 @@ image). **Current: M10 — experimental hardware reach** (started
 
 ## Device and bench
 
-- **Bench (2026-11-26):** test128 back in slot 1 (flashed with m9f by the
-  user, p3 restored from `build/m8/p3-backup/p3.tar`), then updated
-  through the update path to **m9k** (p2 = m9k; main = `Image-494d1c3d5ebd`
-  + the undervolt DTB `panel0-84611ef0394d.dtb`). original32 holds the
-  public pre-final v1.0.0 build (same release name as the published one:
-  auto-update sees it as current). Slot 2 with ext4 tested ok on rc2.
+- **Bench (2026-11-26):** test128 in slot 1, updated through the update
+  path m9k → **m10a** (p2 = m10a; main = `Image-494d1c3d5ebd` + the
+  undervolt DTB `panel0-84611ef0394d.dtb`, previous = the same kernel +
+  the stock DTB `panel0-c97151d0ec1a.dtb` since the model T2). p1 has
+  the 22 model DTBs, `models.txt` and the selectors. original32 holds
+  the public v1.0.0.
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), test128
   in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
   zone −03. Access, identity and card layout: procedures.md.
-- **p2 = m9k** (2026-11-26, through the update path). p1 `bootlogo.bmp`
-  = the press-kit logo (`d6e6d189…`).
+- **p2 = m10a** (2026-11-26, through the update path; the previous p2,
+  m9k, in `MUOS/trial/p2-previous.img`). p1 `bootlogo.bmp` = the
+  press-kit logo (`d6e6d189…`).
 - Charge log of 2026-11-25 stopped (`build/logs/discharge/discharge.csv`).
-- **Boot records:** main = `Image-494d1c3d5ebd` (patch 0011) +
-  `panel0-84611ef0394d.dtb` (undervolt CPU −50 / GPU −25 mV); previous =
-  `Image-be499e33d4eb` + the same DTB (promoted 2026-11-25 after the
-  trial-boot T2; `t2-boot-slot.sh` 4/4). p1 has all 16 undervolt DTBs
-  and `dtb-variants.txt`.
+- **Boot records:** see "Bench". p1 has all 16 undervolt DTBs, the 21
+  distinct model DTBs and `dtb-variants.txt` (22 `m-` keys).
 - **p3:** ROMs (also in `port/roms/`; systems listed in milestones M8),
   Wi-Fi profile `Home.ini`, the six themes, BIOS (PSX, DC, Saturn, Sega
   CD, PCE CD). T2 data in `MUOS/t2` (God of War states `state-v120` /
@@ -53,12 +51,13 @@ card, bootloader included (procedures.md).
 | Image | Content | State |
 |---|---|---|
 | `dist/firmware/MustardOS-R36S-port-v1.0.0.img.xz` (xz `a308dccd…`, raw `b762425f…`, p2 `9cf48944…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public v1.0.0** (Build = v1.0.0); 29 checks | tag pushed; release pending (token, see "Current phase"); T3 ok 2026-11-26 |
+| `dist/firmware/test128-m10a-20261126.img.zst` (raw `cc85290c…`, p2 `77ff5a87…`) | M10: Wi-Fi dongles, model DTBs + switch, developer variant | on the bench (update path from m9k); T2 below |
 | **`dist/firmware/test128-m9k-20261126.img.zst`** (raw `3e487ae1…`, p2 `43779504…`) | v1.0.0 rootfs + kernel, developer variant | on the bench; T2: update rounds with progress screens, NES 59.96; **recovery since 2026-11-26** (v1.0.0 T3 ok) |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
 | (m9f) | the rc2 developer twin | retired 2026-11-26 (m9k recovery) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-2/5 versions in `storage-retention.json` (M2, m9k+v1.0.0; m9c,
+3/5 versions in `storage-retention.json` (M2, m9k+v1.0.0, m10a; m9c,
 m9d+rc1, m9f, m9g, m9h, m9i retired and the p3 backup tar deleted 2026-11-26).
 
 ## What works (T3-confirmed)
@@ -123,8 +122,31 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## T3 queue
 
-Empty: the v1.0.0 checklist (update screens, Build = v1.0.0, Task Toolkit
-in Português, Wi-Fi at power-on) passed 2026-11-26.
+**v1.1.0 checklist** (public image on original32 in slot 1, as for
+v1.0.0; full menu paths in pt-BR):
+1. Update from v1.0.0: copy the release's `.p2.img.gz` + `.p2.img.sha256`
+   to original32's `MUOS/update`, Aplicativos → Ferramentas de sistema →
+   Instalar atualização do sistema: progress bar, restart, "Concluindo a
+   atualização do sistema", restart into the menu.
+2. Informações → Detalhes do dispositivo: Compilação = v1.1.0.
+3. Wi-Fi at power-on (RTL8821CU, the new detection): connects by itself
+   within ~30 s.
+4. Configuração → Conectividade → Wi-Fi: off, then on: reconnects
+   within ~20 s.
+5. With Wi-Fi connected: unplug the dongle, wait 5 s, plug it back:
+   reconnects within ~30 s.
+6. Sleep (short Power press), wait 10 s, wake: Wi-Fi back within ~15 s.
+7. Card in the PC: the boot partition has `select-model.bat`,
+   `select-model.sh`, `select-model.command` and `models.txt`. Run the
+   one for your PC: a list of 23 models (1 = "R36S-V12 2023-08-18
+   Panel 0 (R35S, the port default)"); choose 1: "Chosen: …", a
+   `model.txt` with `default` appears. Card back in slot 1, power on: no
+   extra restart, the menu as always. (Don't choose another model on
+   the R35S: their battery tables would upset the gauge; T2 covered the
+   switch with a test DTB.)
+8. Configuração → Configurações perigosas → Undervolt: the rows show the
+   current state as before (not "unavailable").
+After it passes: m10a becomes the recovery image.
 
 ## Current milestone: M10 — experimental hardware reach
 
