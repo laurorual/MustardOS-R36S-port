@@ -1,0 +1,47 @@
+From: muOS R35S port
+Subject: [PATCH] power: rk817_battery: fake finish compares rsoc in thousandths
+
+rsoc is remain_cap (uAh) * 100 / fcc (mAh), i.e. percent * 1000 (the
+other checks use 100 * 1000), but rk817_bat_fake_finish_mode() tested
+rsoc == 100, so it never fired. The display then reached 100 % only on
+the PMIC's own CHARGE_FINISH, which the R35S's analog 150 mA termination
+does not reach in practice: on 2026-11-25 the counter hit FCC (rsoc
+100.000 %) while dsoc stayed at 98 % for over an hour, the battery
+current tapering 240 -> 68 mA with the status still "Charging" (the
+same cause as 95 % after a night on 2026-11-19). Test rsoc >= 99 % (the
+counter wobbles around 100 % by a few thousandths) with the BSP's own
+current limit (<= 100 mA). The charger state is not required to be
+CC/CV: in that taper the R35S's CHG_STS (0xEB) read 0 (charge off) while
+the charger was online and 60 mA still flowed into the battery at a
+constant 4.16 V, so the BSP condition could not hold either. Charger
+online (ac or usb) replaces it; the finish algorithm then moves the
+display to 100 % (+1 % per ~92 s). rk817_bat_update_info() also reset
+finish_base on every update unless the PMIC said CHARGE_FINISH, so the
+finish algorithm never saw time pass in fake finish (sec_finish=0 in the
+trace): keep the base in fake finish too.
+
+SPDX-License-Identifier: GPL-2.0
+---
+--- a/drivers/power/rk817_battery.c
++++ b/drivers/power/rk817_battery.c
+@@ -1442,8 +1442,8 @@
+  */
+ static bool rk817_bat_fake_finish_mode(struct rk817_battery_device *battery)
+ {
+-	if ((battery->rsoc == 100) &&
+-	    (rk817_bat_get_charge_status(battery) == CC_OR_CV_CHRG) &&
++	if ((battery->rsoc >= 99 * 1000) &&
++	    (battery->ac_in || battery->usb_in) &&
+ 	    (abs(battery->current_avg) <= 100))
+ 		return true;
+ 	else
+@@ -2461,7 +2461,8 @@
+ 		rk817_bat_get_capacity_mah(battery);
+ 	}
+ 
+-	if (battery->chrg_status != CHARGE_FINISH)
++	if (battery->chrg_status != CHARGE_FINISH &&
++	    !rk817_bat_fake_finish_mode(battery))
+ 		battery->finish_base = get_boot_sec();
+ }
+ 

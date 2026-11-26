@@ -3,6 +3,16 @@
 MustardOS for R36S/R35S (unofficial port). Not supported by the MustardOS
 team: https://github.com/laurorual/MustardOS-R36S-port/issues
 
+## v1.0.0-rc2 (unreleased)
+
+- **Battery:** charging now ends at 100 % ("Full"); before, the gauge
+  stopped at 95–98 % (kernel: the BSP's finish check compared the charge
+  level in the wrong units and never ran).
+- **First start:** a new card starts in English at 50 % volume, with
+  debug mode off.
+- **Boot screen:** MustardOS's own boot screen from its press kit, with
+  "R36S / R35S" and "unofficial port" below it.
+
 ## v1.0.0-rc1 (unreleased)
 
 First public release candidate. Based on MustardOS 2606.0 ANDROMEDA

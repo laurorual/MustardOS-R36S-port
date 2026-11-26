@@ -30,8 +30,6 @@ MustardOS team.
 
 ## System
 
-- **Battery % after charging in sleep:** after a night asleep on the
-  charger the battery may show 95 % instead of 100 %.
 - **Sound:** rarely, sound stops in the menu until the next game starts
   (the system repairs it before each game). 200 % volume (overdrive)
   distorts, as in MustardOS.

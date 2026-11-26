@@ -638,6 +638,18 @@ The open problems behind each "partial" are in STATUS.
   poweroff line survived the log rotation over the later boots). The
   shown % errs low near empty, never high. Same BSP smoothing as problem
   (d).
+- **End of charge (M9, 2026-11-25, kernel patch 0011):** 23 → 98 % in
+  ~2 h 40 at 1.56 A → CV taper; the counter reached FCC (rsoc 100.0 %) at
+  98 % shown, then the taper ran 240 → 45 mA at a constant 4.16 V (gauge
+  reading; charger set to 4.20 V) for over an hour without a
+  CHARGE_FINISH. In the taper CHG_STS (0xEB bits 4–6) read 0 (charge
+  off) with `ac/online` 1 and current still flowing (0xEB 0x80, 0xF0
+  0x82, 0xE4 0xa2; DT `chrg_finish_cur` 52 mA, analog term → 150 mA).
+  The BSP's fake finish was dead three ways: `rsoc == 100` (rsoc is
+  % × 1000), the CC/CV state test, and `update_info` resetting
+  `finish_base` outside CHARGE_FINISH. Patched: rsoc ≥ 99 %, charger
+  online, |I| ≤ 100 mA → finish mode, +1 % per ~92 s: 98 → 100 % "Full"
+  in 2 min after boot.
 - **Missed USB disconnect (M4e T3):** a dongle unplugged while Wi-Fi ran
   produced no "USB disconnect" (dwc2, otg port 1-1, runtime PM off) until
   a port reset 15 s later; the first unplug of the same session was

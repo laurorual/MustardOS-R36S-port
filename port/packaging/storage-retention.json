@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m9a-20261122": {
-      "reason": "M9a (M8g T3 round + M9 start): ScummVM vkeybd plain preview + paced keys (core + standalone), ScummVM standalone default (decision 29), coredb runtime follows the default (ScummVM, Saturn), Undervolt row in Danger Settings (patch 0012, muos-undervolt, both DTBs + dtb-variants.txt on p1), Japanese + Chinese (Simplified) menu label overlays; developer image; raw 093d64ce, p2 ed83f5f4",
-      "files": [
-        "dist/firmware/test128-m9a-20261122.img.zst",
-        "dist/firmware/test128-m9a-20261122.img.zst.sha256",
-        "dist/firmware/test128-m9a-20261122.manifest",
-        "build/m3a/test128-m9a-20261122.p2.img"
-      ]
-    },
     "m9c-20261123": {
       "reason": "M9b T3 round: Wi-Fi stuck-scan reset, GitHub auto-update (curl), CPU/GPU labels",
       "files": [
@@ -46,13 +37,13 @@
         "build/m3a/MustardOS-R36S-port-v1.0.0-rc1.p2.img"
       ]
     },
-    "m9e-rc2-20261125": {
-      "reason": "M9 rc1 T3 round: developer m9e (raw 21bec4ad, p2 cb74b78c) and the public v1.0.0-rc2 from the same rootfs (raw 5554dc47, p2 cfa7df4d; 29 check-public-image checks): first boot English, volume 50 % (startup mode previous), debug_mode 0, /etc/issue, boot logo from the MustardOS press-kit boot screen",
+    "m9f-rc2-20261125": {
+      "reason": "M9 rc2 with kernel patch 0011 (battery fake finish, 98 -> 100 % on the charger; trial-boot T2: sweep, 3 sleep cycles, NES 59.96, DC 59.99, boot-slot 4/4): developer m9f (raw 78973074, p2 252f1cf0; same files as m9e except the release name) and the public v1.0.0-rc2 (raw 2c2e33e8, p2 2ffa8678, xz fa935564; 29 checks)",
       "files": [
-        "dist/firmware/test128-m9e-20261125.img.zst",
-        "dist/firmware/test128-m9e-20261125.img.zst.sha256",
-        "dist/firmware/test128-m9e-20261125.manifest",
-        "build/m3a/test128-m9e-20261125.p2.img",
+        "dist/firmware/test128-m9f-20261125.img.zst",
+        "dist/firmware/test128-m9f-20261125.img.zst.sha256",
+        "dist/firmware/test128-m9f-20261125.manifest",
+        "build/m3a/test128-m9f-20261125.p2.img",
         "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.zst",
         "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.zst.sha256",
         "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.manifest",
