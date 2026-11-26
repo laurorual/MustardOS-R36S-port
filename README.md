@@ -86,6 +86,16 @@ Português (Brasil) and every MustardOS language. Known issues:
 [docs/known-issues.md](docs/known-issues.md); changes:
 [docs/CHANGELOG.md](docs/CHANGELOG.md).
 
+**PortMaster (since v1.2):** Applications → PortMaster downloads and
+plays PC game ports made for Linux handhelds. Its first start installs
+PortMaster from its official release (Wi-Fi, about 25 MB; offline: copy
+`muos.portmaster.zip` from
+[PortMaster's releases](https://github.com/PortsMaster/PortMaster-GUI/releases)
+to `MUOS/update` first). Installed ports appear in the **Ports** system;
+Fn+Start quits a port. Ports for 32-bit (armhf) systems only do not run.
+PortMaster is not part of this firmware: it, its runtimes and its ports
+come from the PortMaster project and their authors.
+
 ## Licences
 
 - The port's own code: MIT ([LICENSE](LICENSE)). Its patches to GPL code
@@ -165,6 +175,16 @@ jogos vão por SFTP pelo Wi-Fi ou num cartão FAT/exFAT no slot 2
 (`ROMS/<sistema>`); BIOS em `MUOS/bios`. Nenhum jogo ou BIOS acompanha o
 sistema. Atualizações: Aplicativos → Ferramentas de sistema → "Instalar
 atualização do sistema", ou automáticas com Wi-Fi.
+
+**PortMaster (desde a v1.2):** Aplicativos → PortMaster baixa e roda
+ports de jogos de PC feitos para portáteis Linux. A primeira abertura
+instala o PortMaster a partir do release oficial (Wi-Fi, cerca de
+25 MB; sem Wi-Fi: copie antes o `muos.portmaster.zip` dos
+[releases do PortMaster](https://github.com/PortsMaster/PortMaster-GUI/releases)
+para `MUOS/update`). Os ports instalados aparecem no sistema **Ports**;
+Fn+Start fecha um port. Ports só para sistemas 32 bits (armhf) não
+rodam. O PortMaster não faz parte deste firmware: ele, as runtimes e os
+ports vêm do projeto PortMaster e dos seus autores.
 
 **Licenças:** código do port em MIT; componentes de terceiros em
 [docs/LICENSING.md](docs/LICENSING.md); nome e temas do MustardOS sob
