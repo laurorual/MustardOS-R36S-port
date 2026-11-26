@@ -11,40 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m9d-rc1-20261125": {
-      "reason": "M9 licences round: developer m9d (raw 6dad53f3, p2 14859cdb) and the public v1.0.0-rc1 from the same rootfs (raw da27f90b, p2 abd16601; 24 check-public-image checks pass; .img.xz + p2 update assets); unmodified libmali, Gambatte/FCEUmm from build-cores.sh, no BT firmware, MustardOS boot logo, support notice; trial-root T2 2026-11-25",
-      "files": [
-        "dist/firmware/test128-m9d-20261125.img.zst",
-        "dist/firmware/test128-m9d-20261125.img.zst.sha256",
-        "dist/firmware/test128-m9d-20261125.manifest",
-        "build/m3a/test128-m9d-20261125.p2.img",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.zst",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.zst.sha256",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.manifest",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.xz",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.xz.sha256",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.p2.img.gz",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.p2.img.sha256",
-        "build/m3a/MustardOS-R36S-port-v1.0.0-rc1.p2.img"
-      ]
-    },
-    "m9f-rc2-20261125": {
-      "reason": "M9 rc2 with kernel patch 0011 (battery fake finish, 98 -> 100 % on the charger; trial-boot T2: sweep, 3 sleep cycles, NES 59.96, DC 59.99, boot-slot 4/4): developer m9f (raw 78973074, p2 252f1cf0; same files as m9e except the release name) and the public v1.0.0-rc2 (raw 2c2e33e8, p2 2ffa8678, xz fa935564; 29 checks)",
-      "files": [
-        "dist/firmware/test128-m9f-20261125.img.zst",
-        "dist/firmware/test128-m9f-20261125.img.zst.sha256",
-        "dist/firmware/test128-m9f-20261125.manifest",
-        "build/m3a/test128-m9f-20261125.p2.img",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.zst",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.zst.sha256",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.manifest",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.xz",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.xz.sha256",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.p2.img.gz",
-        "dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.p2.img.sha256",
-        "build/m3a/MustardOS-R36S-port-v1.0.0-rc2.p2.img"
-      ]
-    },
     "m9k-v100-20261126": {
       "reason": "M9 v1.0.0: update progress screens (frontend patch 0013), faster p2 write, battery guard, Task Toolkit texts in 31 languages, release in Build; developer m9k (raw 3e487ae1, p2 43779504) and public v1.0.0 (raw b762425f, p2 9cf48944, xz a308dccd; 29 checks); T2: update rounds m9g->m9h->m9i->m9j->m9k (progress screens captured, pt-BR texts), NES 59.96",
       "files": [
@@ -60,6 +26,15 @@
         "dist/firmware/MustardOS-R36S-port-v1.0.0.p2.img.gz",
         "dist/firmware/MustardOS-R36S-port-v1.0.0.p2.img.sha256",
         "build/m3a/MustardOS-R36S-port-v1.0.0.p2.img"
+      ]
+    },
+    "m9f-20261125": {
+      "reason": "M9 rc2 with kernel patch 0011 (battery fake finish, 98 -> 100 % on the charger; trial-boot T2: sweep, 3 sleep cycles, NES 59.96, DC 59.99, boot-slot 4/4): developer m9f (raw 78973074, p2 252f1cf0; same files as m9e except the release name) and the public v1.0.0-rc2 (raw 2c2e33e8, p2 2ffa8678, xz fa935564; 29 checks); the public rc2 files were deleted 2026-11-26 (published on GitHub as v1.0.0-rc2)",
+      "files": [
+        "dist/firmware/test128-m9f-20261125.img.zst",
+        "dist/firmware/test128-m9f-20261125.img.zst.sha256",
+        "dist/firmware/test128-m9f-20261125.manifest",
+        "build/m3a/test128-m9f-20261125.p2.img"
       ]
     }
   },
