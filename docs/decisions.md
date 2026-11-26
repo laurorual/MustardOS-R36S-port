@@ -130,5 +130,12 @@ overrides an earlier one where they conflict (noted inline).
     card in slot 1 (no developer access while it runs). test128 returns
     to a developer image later by `flash-card.sh` + `card-p3.sh restore`.
 
+## 2026-11-26
+
+47. (2026-11-26) Hardkernel's forum answer (it gets the drivers from
+    Rockchip and can't speak to redistribution) changes nothing: the
+    publication strategy stays (Mali userspace shipped unmodified as
+    community practice, LICENSING.md).
+
 Standing rules (AGENTS.md): heavy systems = maximum performance first;
 recovery promotion after a clean T3 without asking.

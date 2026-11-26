@@ -132,7 +132,7 @@ outside the themes.
 
 | # | To | Component | Sent | Answer |
 |---|---|---|---|---|
-| 1 | Hardkernel (odroid@hardkernel.com) | Mali r13p0 userspace | e-mail 2026-11-14, follow-up after 2026-11-22; forum https://forum.odroid.com/viewtopic.php?t=51472 | none as of 2026-11-25 |
+| 1 | Hardkernel (odroid@hardkernel.com) | Mali r13p0 userspace | e-mail 2026-11-14, follow-up after 2026-11-22; forum https://forum.odroid.com/viewtopic.php?t=51472 | 2026-11-26 (forum): Hardkernel gets the drivers from the SoC vendor and can't speak to redistribution; ask Rockchip (who rarely answers individuals). No change: the driver stays shipped unmodified as community practice (decision 47) |
 | 2 | Exophase | DraStic r2.5.2.2 | e-mail (by 2026-11-25) | none as of 2026-11-25 |
 | 3 | trngaje | drastic_layout art | issue trngaje/drastic_layout#3, 2026-11-23 | 2026-11-23: "None of it is my own work"; 640x480 by steward-fu, 1024x768 resized from it, 720x720 duncanyoyo1/Vidnez/anbernic, 1280x720 crossmix, 720x480 tamarindojuice ([comment](https://github.com/trngaje/drastic_layout/issues/3#issuecomment-7116865774)) |
 | 3b | trngaje | libadvdrastic.so | — (checked the repository 2026-11-25) | no LICENSE, no source in the repository, README credits steward-fu's drastic-steward |

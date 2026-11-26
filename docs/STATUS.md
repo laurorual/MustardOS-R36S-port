@@ -13,13 +13,15 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 Phase 5 (own-card firmware). M1–M8 done. **Current: M9 — public v1.0**
 (started 2026-11-22). Since 2026-11-25 licences and publication come
 first in every session, polish after (decision 37). m9a is the recovery
-image until 2026-11-25, then m9d; **m9f** (the developer twin of
-**v1.0.0-rc2**, whose T3 passed 2026-11-25) is the recovery image now.
-rc2 is a GitHub pre-release; **v1.0.0** (developer twin m9k) is built,
-committed and tagged at `452e465` locally: the agent's `git push` was
-refused by the permission check, so the user runs
-`build/release/publish-v1.0.0.sh` (tag, push, release with notes and the
-8 assets, using `~/.config/muos-port/github-token`). Its T3 is pending.
+image until 2026-11-25, then m9d, then m9f; **m9k** (the developer twin
+of **v1.0.0**, whose T3 passed 2026-11-26) is the recovery image now.
+v1.0.0 is tagged at `452e465` and pushed (by the user, 2026-11-26); the
+GitHub release is **not created yet**: the API answered 403 "Resource
+not accessible by personal access token" (the token reads the repository
+but lacks Contents: write; `git push` works through the user's SSH key).
+After the user fixes the token, `build/release/publish-v1.0.0.sh`
+(re-runnable: reuses the tag, an existing release and uploaded assets)
+creates the release with the notes and the 8 assets and pushes main.
 
 ## Device and bench
 
@@ -32,11 +34,8 @@ refused by the permission check, so the user runs
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), test128
   in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
   zone −03. Access, identity and card layout: procedures.md.
-- **p2 = m9e** (2026-11-25 ~17:00, via the trial root after its T2; the
-  previous p2, m9d, in `MUOS/trial/p2-previous.img`); m9f's p2 has the
-  same files (only the release name differs). p1 `bootlogo.bmp` =
-  the press-kit logo (`d6e6d189…`; the old one in
-  `MUOS/trial/bootlogo.bmp.before`).
+- **p2 = m9k** (2026-11-26, through the update path). p1 `bootlogo.bmp`
+  = the press-kit logo (`d6e6d189…`).
 - Charge log of 2026-11-25 stopped (`build/logs/discharge/discharge.csv`).
 - **Boot records:** main = `Image-494d1c3d5ebd` (patch 0011) +
   `panel0-84611ef0394d.dtb` (undervolt CPU −50 / GPU −25 mV); previous =
@@ -61,14 +60,14 @@ card, bootloader included (procedures.md).
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/MustardOS-R36S-port-v1.0.0.img.xz` (xz `a308dccd…`, raw `b762425f…`, p2 `9cf48944…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public v1.0.0** (Build = v1.0.0); 29 checks | built; publish with `build/release/publish-v1.0.0.sh`; T3 pending |
-| `dist/firmware/test128-m9k-20261126.img.zst` (raw `3e487ae1…`, p2 `43779504…`) | v1.0.0 rootfs, developer variant | on the bench; T2: update rounds with progress screens, NES 59.96 |
+| `dist/firmware/MustardOS-R36S-port-v1.0.0.img.xz` (xz `a308dccd…`, raw `b762425f…`, p2 `9cf48944…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public v1.0.0** (Build = v1.0.0); 29 checks | tag pushed; release pending (token, see "Current phase"); T3 ok 2026-11-26 |
+| **`dist/firmware/test128-m9k-20261126.img.zst`** (raw `3e487ae1…`, p2 `43779504…`) | v1.0.0 rootfs + kernel, developer variant | on the bench; T2: update rounds with progress screens, NES 59.96; **recovery since 2026-11-26** (v1.0.0 T3 ok) |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
-| **`dist/firmware/test128-m9f-20261125.img.zst`** (raw `78973074…`, p2 `252f1cf0…`) | the rc2 rootfs + kernel, developer variant (m9e + patch 0011; m9e retired) | rootfs T2 as m9e (sweep, NES 59.98, DC); kernel T2 on the bench (sweep, 3 sleeps, NES 59.96, DC 59.99, boot slots); **recovery since 2026-11-25** (rc2 T3 ok) |
+| (m9f) | the rc2 developer twin | retired 2026-11-26 (m9k recovery) |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-3/5 versions in `storage-retention.json` (M2, m9f, m9k+v1.0.0; m9c,
-m9d+rc1, m9g, m9h, m9i retired and the p3 backup tar deleted 2026-11-26).
+2/5 versions in `storage-retention.json` (M2, m9k+v1.0.0; m9c,
+m9d+rc1, m9f, m9g, m9h, m9i retired and the p3 backup tar deleted 2026-11-26).
 
 ## What works (T3-confirmed)
 
@@ -104,7 +103,7 @@ power-cut recovery. Full list per milestone in milestones.md.
   taper; `update_info` also reset the finish timer). Patch 0011:
   98 → 100 % "Full" 2 min after boot (hardware-findings "End of charge").
 - **Wi-Fi:** stuck scans at power-on (dongle reset at 20 s since m9c,
-  T3 pending); warm-reboot H2C (1 in 7); a real zombie occurrence is
+  T3 ok 2026-11-26); warm-reboot H2C (1 in 7); a real zombie occurrence is
   unverified (watchdog tested with injected errors only).
 - **Heavy systems:** held by heat, not by the clock cap (hardware-findings
   "M8 thermal block"); play them on battery. Saturn too heavy for Sonic R.
@@ -129,19 +128,8 @@ MustardOS 2606.0 for v1.0, the bench change).
 
 ## T3 queue
 
-**v1.0.0 checklist** (the published release; full menu paths in pt-BR):
-1. Update screens: copy the release's `.p2.img.gz` + `.p2.img.sha256` to
-   original32's `MUOS/update` (sudo cp, as on 2026-11-26), card in slot 1,
-   Aplicativos → Ferramentas de sistema → Instalar atualização do
-   sistema: a progress bar while unpacking; after the restart a screen
-   "Concluindo a atualização do sistema" with a progress bar (~3 min on a
-   public image), then it restarts by itself into the menu.
-2. Informações → Detalhes do dispositivo: Compilação = v1.0.0.
-3. Ferramentas de sistema: task and folder names in Português; Menu on
-   "Instalar atualização do sistema": the help in Português.
-4. Wi-Fi at power-on (open since m9c): power on with the dongle in; Wi-Fi
-   connects by itself within ~30 s.
-After it passes: m9k becomes the recovery image.
+Empty: the v1.0.0 checklist (update screens, Build = v1.0.0, Task Toolkit
+in Português, Wi-Fi at power-on) passed 2026-11-26.
 
 ## Current milestone: M9 — public v1.0
 
@@ -151,5 +139,15 @@ THIRD-PARTY.txt, `make-source-bundle.sh` (first version), public variant
 checks (18 pass), the update path (`muos-update`, auto-update).
 
 History of the M9 rounds (licences, rc1, rc2, kernel updates, v1.0.0):
-milestones.md M9. **Next:** v1.0.0 T3 (T3 queue); then post-v1.0
-(roadmap: other variants, dongles, the next MustardOS release).
+milestones.md M9. v1.0.0 T3 ok 2026-11-26. **Left:** the GitHub release
+(token fix, then the publish script). README states that only Panel 0
+and the RTL8821CU are implemented and tested, other DTBs and dongles
+planned, feedback welcome.
+
+**Next: M10 — experimental hardware reach** (roadmap "After v1.0",
+decisions 43–44): other Wi-Fi dongles (USB-ID → module table, firmware
+with licences, worker for any wireless driver) first, as it needs no
+bootloader write; then the R36S variant DTBs (dArkOSen 640x480 set with
+the port's DT deltas, card-root selectors, U-Boot `variant.dtb` rule:
+bench U-Boot write with the user present). The next MustardOS release
+(decision 45) follows as M11.
