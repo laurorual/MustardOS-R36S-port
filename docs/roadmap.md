@@ -126,7 +126,9 @@ panels or clones.
   (rg351p), the 720/1024 panels (a frontend resolution port).
 - **PortMaster: M11** (STATUS; the user's priority 2026-11-26), with
   the muOS applications path it needs.
-- **MustardOS next release (decision 45): M12.** port the frontend/internal
+- **Pico-8: M12** (the user's next focus, 2026-11-26): fake-08 libretro
+  core and the user's own official Pico-8 (Splore), as muOS.
+- **MustardOS next release (decision 45): M13.** port the frontend/internal
   pin to the next official release after 2606.0 Andromeda (main on
   2026-11-25: Pickles/Wasabi content, Chutney reader, muaudio daemon,
   performance levels instead of governors, JSON theme layouts and main

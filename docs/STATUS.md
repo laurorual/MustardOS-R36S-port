@@ -13,12 +13,16 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 Phase 5 (own-card firmware). M1–M10 done: **v1.1.0 published 2026-11-26**
 (GitHub release, latest; v1.0.0 before it; m10a, the v1.1.0 developer
 twin, is the recovery image). **Current: M11 — PortMaster** (started
-2026-11-26, the user's priority; then M12, the MustardOS next release).
+2026-11-26, the user's priority): done to T2, v1.2.0 built; T3 queue
+next, then the user publishes v1.2.0. **Next: M12 — Pico-8** (the user's
+next focus), then M13, the MustardOS next release.
 
 ## Device and bench
 
-- **Bench (2026-11-26):** test128 in slot 1, updated through the update
-  path m9k → **m10a** (p2 = m10a; main = `Image-494d1c3d5ebd` + the
+- **Bench (2026-11-26):** test128 in slot 1, **p2 = m11b** (written
+  with `write-p2` after `t2-portmaster.sh` PASS; PortMaster installed on
+  p3 with the test ports sdlsopwith, turbotabletennis, 2048). Before:
+  the update path m9k → m10a (boot records: main = `Image-494d1c3d5ebd` + the
   undervolt DTB `panel0-84611ef0394d.dtb`, previous = the same kernel +
   the stock DTB `panel0-c97151d0ec1a.dtb` since the model T2). p1 has
   the 22 model DTBs, `models.txt` and the selectors. original32 holds
@@ -120,7 +124,42 @@ tested a TP-Link RTL8822BU dongle, 2357:0115: it works.)
 
 ## T3 queue
 
-Empty (v1.1.0 checklist passed 2026-11-26, results in milestones.md M10).
+**v1.2.0 checklist** (public image on original32 in slot 1, as before;
+full pt-BR paths; Wi-Fi on):
+1. Update from v1.1.0: copy `MustardOS-R36S-port-v1.2.0.p2.img.gz` +
+   `.p2.img.sha256` to `MUOS/update`, Aplicativos → Ferramentas de
+   sistema → Instalar atualização do sistema: progress, restarts, menu.
+   Informações → Detalhes do dispositivo: Compilação = v1.2.0.
+2. Aplicativos: a **PortMaster** row with its icon. Open it: the progress
+   screen "Instalando o PortMaster" (about 10–30 s), then "PortMaster
+   instalado: abra-o de novo em Aplicativos"; B back.
+3. Aplicativos → PortMaster again: PortMaster's own screen opens (music,
+   D-pad/A/B move and select).
+4. In PortMaster, install a free port marked "Ready to Run" (for example
+   SDL Sopwith or 2048), then leave PortMaster (its Exit / B): back to
+   Aplicativos.
+5. Explorar conteúdo → Ports: the installed port is listed; start it:
+   picture, sound, the buttons work.
+6. In the port: Volume +/− change the sound (no bar is expected);
+   Fn+Start: back to the menu within about 5 s.
+7. A port with a runtime (for example TurboTableTennis, Godot): the first
+   start downloads its runtime; it plays with sound; Fn+Start back.
+8. 2048 (libretro): runs with the in-game volume bar; Fn+Start back.
+9. During a port: Suspender (short Power press), wait 10 s, wake: the
+   port continues.
+After it passes: m11b becomes the recovery image and the user runs
+`build/release/publish-v1.2.0.sh` (tag 29b766d).
+
+## Next milestone: M12 — Pico-8
+
+The user's next focus (2026-11-26). To plan at its start; survey so far:
+muOS runs the official Pico-8 (commercial, the user's own Raspberry Pi
+build: `pico-8/pico8_64` + `pico8.dat` in `MUOS/bios/pico8`; upstream
+`ext-pico8.sh`, the Splore app, `-root_path`, gptokeyb) and has the
+open fake-08 libretro core as the free option. Items to plan: fake-08
+core (default, no purchase), the official binary path (launcher, Splore
+in Aplicativos, carts in ROMS/PICO-8, saves, favourites to boxart),
+controls, 640x480 scaling (pixel perfect), audio, quit chord.
 
 ## Current milestone: M11 — PortMaster (and muOS applications)
 
