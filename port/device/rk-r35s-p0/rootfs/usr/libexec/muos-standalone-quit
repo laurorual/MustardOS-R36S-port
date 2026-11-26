@@ -43,13 +43,15 @@ restore() {
 }
 trap 'restore; exit 0' INT TERM HUP
 # M11: a port or application session (muos-session): SIGTERM to its whole
-# process group (the port, gptokeyb, its runtime), SIGKILL after 3 s.
+# process group (the port, gptokeyb, its runtime), SIGKILL to what is left
+# after 3 s. The group, not its leader: the port's bash script dies at once
+# while a game can ignore SIGTERM (SDL Sopwith, M11 T2).
 s=$(cat /run/muos/session 2>/dev/null || :)
-if [ -n "$s" ] && kill -0 "$s" 2>/dev/null; then
+if [ -n "$s" ] && kill -0 -"$s" 2>/dev/null; then
     t0=$(cut -d' ' -f1 /proc/uptime)
     dim
-    kill -TERM -"$s" 2>/dev/null || kill -TERM "$s"
-    wait_gone "$s" 30 || { say "session $s still running, SIGKILL"; kill -KILL -"$s" 2>/dev/null || kill -KILL "$s"; }
+    kill -TERM -"$s" 2>/dev/null
+    wait_gone -"$s" 30 || { say "session $s still running, SIGKILL"; kill -KILL -"$s" 2>/dev/null; wait_gone -"$s" 10; }
     say "session $s quit $t0 -> $(cut -d' ' -f1 /proc/uptime)"
     restore
     exit 0

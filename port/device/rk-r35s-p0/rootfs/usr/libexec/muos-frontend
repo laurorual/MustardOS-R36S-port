@@ -94,7 +94,23 @@ run_session() { # LOG CMD...
     run_child env -u LD_LIBRARY_PATH HOME=/root XDG_CONFIG_HOME=/root/.config \
         /usr/libexec/muos-session "$@" >> "$l" 2>&1
     rc=$?
+    # what the session left behind (a game that outlived its script, a
+    # gptokeyb) would keep the display and the pad: SIGTERM, then SIGKILL
+    s=$(cat "$run/session" 2>/dev/null || :)
+    if [ -n "$s" ] && kill -0 -"$s" 2>/dev/null; then
+        say "session $s: leftovers, ending the group"
+        kill -TERM -"$s" 2>/dev/null; sleep 1
+        kill -0 -"$s" 2>/dev/null && { sleep 2; kill -KILL -"$s" 2>/dev/null; }
+    fi
     rm -f "$run/session"
+    # a port ended by Fn+Start leaves its runtime squashfs (PortMaster
+    # libs/) mounted: its script unmounts it only at its own end
+    grep '^/dev/loop[0-9]* [^ ]* squashfs ' /proc/mounts | while read -r d m _; do
+        case $(cat "/sys/block/${d#/dev/}/loop/backing_file" 2>/dev/null) in
+            /mnt/mmc/MUOS/PortMaster/libs/* | /userdata/MUOS/PortMaster/libs/*)
+                umount "$m" 2>/dev/null && say "session: runtime $m unmounted" ;;
+        esac
+    done
     return "$rc"
 }
 # M11: Applications, as upstream frontend.sh "app": muxapp writes the app

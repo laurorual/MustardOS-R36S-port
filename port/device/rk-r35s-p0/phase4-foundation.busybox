@@ -2,3 +2,9 @@ CONFIG_STAT=y
 CONFIG_FEATURE_STAT_FORMAT=y
 CONFIG_TASKSET=y
 CONFIG_NTPD=y
+# M11: PortMaster unpacks .tar.xz/.tar.gz with tar -xf (its NotoSans
+# fonts, some ports); port scripts use timeout
+CONFIG_FEATURE_SEAMLESS_XZ=y
+CONFIG_FEATURE_SEAMLESS_GZ=y
+CONFIG_FEATURE_SEAMLESS_BZ2=y
+CONFIG_TIMEOUT=y

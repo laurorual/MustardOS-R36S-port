@@ -19,7 +19,8 @@ offline=/mnt/mmc/MUOS/update/muos.portmaster.zip
 part=/mnt/mmc/MUOS/update/.portmaster.zip.part
 run=/run/muos
 log() { echo "muos-portmaster: $*" >&2; }
-installed() { [ -f "$pm/PortMaster.sh" ] && [ -f "$pm/control.txt" ] && [ -f "$pm/pylibs.zip" ]; }
+# pylibs.zip goes once harbourmaster has unpacked it
+installed() { [ -f "$pm/PortMaster.sh" ] && [ -f "$pm/control.txt" ] && [ -f "$pm/harbourmaster" ]; }
 # a PortMaster muOS zip: the launcher and control file under mnt/mmc/MUOS
 is_pm_zip() {
     l=$(unzip -l "$1" 2>/dev/null) || return 1

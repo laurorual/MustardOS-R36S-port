@@ -37,6 +37,9 @@ it with a commercial product. The port itself is free and must stay so.
 | Model DTBs (M10, experimental; 22 R36S models) | dArkOSen `28f5427` `boot/dtb` (pinned by sha256 in `port/packaging/models.txt`) + the port's deltas (mmc aliases, no GPU 600 MHz OPP; `make-dtb-model.sh`) | dArkOSen repository MIT; the device trees derive from the GPL-2.0 kernel DTS: their decompiled DTS is in the source bundle (`model-dts`) | open |
 | Wi-Fi firmware for the mainline USB drivers (mt7601u, rt2800usb, rt73usb, rtl8192cu, r8712u, r8723au; M10) | linux-firmware tag `20261019`, 11 files pinned in `port/packaging/wifi-firmware.txt`, shipped **unmodified** in `/lib/firmware` with the 3 licence files in `/usr/share/licenses/linux-firmware` | MediaTek/Ralink and Realtek redistributable binary licences (keep the notice; no reverse engineering) | permitted |
 | Bluetooth firmware `rtl_bt/rtl8821c_*` | — | — | removed (decision 38) |
+| Python 3.12 (M11, for PortMaster) and libjpeg-turbo (SDL2_image JPEG) | Buildroot 2025.02.19 packages `python3` (pyc only), `jpeg-turbo` | PSF-2.0; IJG + BSD-3-Clause + zlib | open (legal-info) |
+| PortMaster (M11) | **not distributed**: `muos-portmaster` downloads PortsMaster/PortMaster-GUI `2026.11.17-0700` `muos.portmaster.zip` (sha256 `e2d3af3a…`) to the user's card on its first start (or takes the user's own copy from `MUOS/update`); its updates, runtimes and ports come from PortMaster's servers | MIT (PortMaster); its bundled tools carry their own licences in `MUOS/PortMaster/licenses` (gptokeyb/gptokeyb2 GPL-3.0, 7zzs LGPL-2.1, …) | no distribution duty (the user's download) |
+| PortMaster launcher, installer, muOS shims (`/usr/libexec/muos-portmaster*`, `muos-session`, `/opt/muos/script/var/func.sh`, `/usr/bin/retroarch` shim, the PortMaster app folder) | this repository | MIT | open |
 
 ## Libretro cores
 

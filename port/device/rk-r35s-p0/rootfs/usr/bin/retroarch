@@ -1,0 +1,20 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M11: ports that run a libretro core with the system RetroArch, as on
+# muOS (PortMaster's 2048 and others: retroarch [--config FILE] -L CORE
+# [CONTENT]), get muxretro, the port's libretro frontend: in-game menu,
+# volume bar, saves. Other RetroArch options are ignored.
+core='' content=''
+while [ "$#" -gt 0 ]; do
+    case $1 in
+        -L | --libretro) core=${2:-}; shift 2 || shift ;;
+        --libretro=*) core=${1#*=}; shift ;;
+        -c | --config | --appendconfig | -s | --save | -S | --savestate) shift 2 || shift ;;
+        -*) shift ;;
+        *) content=$1; shift ;;
+    esac
+done
+[ -n "$core" ] && [ -f "$core" ] || { echo "retroarch (muOS R35S port): needs -L CORE [CONTENT]" >&2; exit 2; }
+export LD_LIBRARY_PATH=/opt/muos/frontend/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+muvarctl set system foreground_process muxretro > /dev/null 2>&1 || :
+exec /opt/muos/frontend/muxretro "$core" "${content:---no-content}"
