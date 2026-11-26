@@ -107,6 +107,43 @@ release notes template.
    failed). Image m9b (raw `dcd4276e…`, p2 `ce6694f8…`, T1 0 missing)
    installed on the bench this way (stage → trial → write → main m9b).
 
+### M9 rounds 2026-11-25/26 (moved from STATUS)
+
+**Round of 2026-11-25 — done to T2:** docs cleanup; L1 LICENSING.md
+(Gambatte/FCEUmm in `build-cores.sh`, BT firmware out, unmodified
+libmali); L2 MustardOS name and support notice (logo, README, NOTICE,
+THIRD-PARTY, Device Details help, EN/pt-BR); L3 source bundle covers the
+public image (`make-source-bundle.sh check` passes); L4 history scan
+clean, README/LICENSE/NOTICE, updater repo; L5 Plan B `prepare-image.sh`
+(T1 on m9c and rc1); L6 rc1 built (24 checks) + m9d trial-root T2 10/10
+(sweep, NES 59.97, GB 59.98, slot 2, SFTP jail, DC 59.99 Hz, DraStic,
+N64, PSP 15.5 swaps/s), m9d written to p2. Polish: install guide EN/pt-BR,
+CHANGELOG, known issues, release notes template.
+
+**rc1 T3 round (2026-11-25):** fresh-card defaults (English, 50 %,
+startup volume "previous", debug_mode 0), `/etc/issue`, boot logo from
+the press-kit boot screen; check-public-image 29 checks; m9e T2, on p2;
+history rewritten to the no-reply e-mail; m9d promoted to recovery.
+
+**rc2 published** as a GitHub pre-release by the user (2026-11-26).
+**Next (was):** the GitHub pre-release of rc2 (T3 ok):
+`make-source-bundle.sh bundle`, assets, notes (decisions 40–41). The
+repository is public (pushed by the user 2026-11-25, `a62c25b`); later
+commits are pushed by the user too. **Done 2026-11-26:** kernel/DTB
+updates through the update path (`muos-boot-sync`, procedures.md; m9g
+T2: two failed tries → given up, success path, the full stage → trial
+root → write-p2 → arm → trial → promote with the undervolt DTB mapped,
+boot-slot 4/4, NES 59.96); bench back on test128 (m9f, p3 restored), now
+p2 = m9g. v1.0.0 built (29 checks); source zips via `make-source-bundle.sh
+pack`. **Next:** v1.0.0 T3 (above) → the user publishes v1.0.0 as a normal
+release (bundle + pack at that commit). **Done 2026-11-26 (night,
+autonomous):** update progress screens (frontend patch 0013 + `muos-update
+finish`), faster write, battery guard, Task Toolkit texts in 31 languages
+(`task-texts.py`), Build = release; m9k + v1.0.0 built, v1.0.0 tagged,
+pushed and published with source zips. **Next:** v1.0.0 T3 (above); then
+post-v1.0 (roadmap: variants, dongles, next MustardOS release). Done 2026-11-25 evening: kernel patch 0011 (battery finish), trial
+boot T2, promoted; rc2 rebuilt with it.
+
 ## M8 — card layout and the heavy systems (done 2026-11-22, M8g T3 passed; m8g is recovery)
 
 Logs `build/logs/m8/`. Image `test128-m8-20261120` (raw `fbd4871c…`, p2

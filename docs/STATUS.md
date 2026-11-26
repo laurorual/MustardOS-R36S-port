@@ -15,17 +15,17 @@ Phase 5 (own-card firmware). M1–M8 done. **Current: M9 — public v1.0**
 first in every session, polish after (decision 37). m9a is the recovery
 image until 2026-11-25, then m9d; **m9f** (the developer twin of
 **v1.0.0-rc2**, whose T3 passed 2026-11-25) is the recovery image now.
-rc2 is ready for its GitHub pre-release (the user publishes).
+rc2 is a GitHub pre-release; **v1.0.0** (developer twin m9k) published
+2026-11-26 by the agent with the user's token; its T3 is pending.
 
 ## Device and bench
 
-- **Bench change (decision 46, by the user 2026-11-25):** test128 is
-  wiped to an ext4 slot-2 test card; the public rc2 on the old
-  original32 card in slot 1 (no SSH unless enabled in the menu; T2
-  paused). Done 2026-11-26: test128's p3 saved (`build/m8/p3-backup/p3.tar`,
-  6.2 GB, private, incl. the T2 states), test128 wiped to ext4; slot 2
-  ext4 with an NDS game ok on rc2 (user). The test128 state below is
-  from before the wipe.
+- **Bench (2026-11-26):** test128 back in slot 1 (flashed with m9f by the
+  user, p3 restored from `build/m8/p3-backup/p3.tar`), then updated
+  through the update path to **m9k** (p2 = m9k; main = `Image-494d1c3d5ebd`
+  + the undervolt DTB `panel0-84611ef0394d.dtb`). original32 holds the
+  public pre-final v1.0.0 build (same release name as the published one:
+  auto-update sees it as current). Slot 2 with ext4 tested ok on rc2.
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), test128
   in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
   zone −03. Access, identity and card layout: procedures.md.
@@ -58,15 +58,16 @@ card, bootloader included (procedures.md).
 
 | Image | Content | State |
 |---|---|---|
+| `dist/firmware/MustardOS-R36S-port-v1.0.0.img.xz` (xz `a308dccd…`, raw `b762425f…`, p2 `9cf48944…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public v1.0.0** (Build = v1.0.0); 29 checks | published 2026-11-26; T3 pending |
+| `dist/firmware/test128-m9k-20261126.img.zst` (raw `3e487ae1…`, p2 `43779504…`) | v1.0.0 rootfs, developer variant | on the bench; T2: update rounds with progress screens, NES 59.96 |
 | `dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.xz` (xz `fa935564…`, raw `2c2e33e8…`, p2 `2ffa8678…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public rc2**: rc1 + English/50 % first boot, press-kit boot logo, `/etc/issue`, kernel patch 0011; 29 checks pass | T3 ok 2026-11-25 |
 | **`dist/firmware/test128-m9f-20261125.img.zst`** (raw `78973074…`, p2 `252f1cf0…`) | the rc2 rootfs + kernel, developer variant (m9e + patch 0011; m9e retired) | rootfs T2 as m9e (sweep, NES 59.98, DC); kernel T2 on the bench (sweep, 3 sleeps, NES 59.96, DC 59.99, boot slots); **recovery since 2026-11-25** (rc2 T3 ok) |
 | `dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.xz` (raw `da27f90b…`, p2 `abd16601…`) | public rc1 | T3 2026-11-25: 1–7 ok, findings fixed in rc2 |
 | `dist/firmware/test128-m9d-20261125.img.zst` (raw `6dad53f3…`, p2 `14859cdb…`, U-Boot `159e086c…`) | the rc1 rootfs, developer variant | previous recovery |
-| `dist/firmware/test128-m9c-20261123.img.zst` (p2 `6dab27a8…`) | m9b + Wi-Fi stuck-scan reset, auto-update | kept |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-4/5 versions in `storage-retention.json` (M2, m9c, m9d+rc1, m9f+rc2;
-m9a, m9b, m9e and m8g retired 2026-11-25).
+4/5 versions in `storage-retention.json` (M2, m9d+rc1, m9f+rc2,
+m9k+v1.0.0; m9c, m9g, m9h, m9i retired 2026-11-26).
 
 ## What works (T3-confirmed)
 
@@ -122,25 +123,24 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-The user force-pushes the rewritten history (no-reply e-mail).
 None open (43–46 answered 2026-11-25: variants and dongles after v1.0,
 MustardOS 2606.0 for v1.0, the bench change).
 
 ## T3 queue
 
-**v1.0.0 checklist** (public `dist/firmware/MustardOS-R36S-port-v1.0.0.*`,
-xz `7ce6798f…`; the rc2 card = original32):
-1. original32 in the PC's reader → the agent copies
-   `MustardOS-R36S-port-v1.0.0.p2.img.gz` + `.p2.img.sha256` to its
-   `MUOS/update` (`udisksctl`, no sudo); card back in slot 1.
-2. Aplicativos → Ferramentas de sistema → Install Firmware Update: it
-   unpacks (~1 min), restarts, the menu comes up; leave it in the menu
-   2 min (p2 is written, don't power off).
-3. Informações → Detalhes do dispositivo: version v1.0.0; restart
-   (menu principal → Reiniciar): same boot screen, v1.0.0, saves/settings
-   kept, a game runs.
+**v1.0.0 checklist** (the published release; full menu paths in pt-BR):
+1. Update screens: copy the release's `.p2.img.gz` + `.p2.img.sha256` to
+   original32's `MUOS/update` (sudo cp, as on 2026-11-26), card in slot 1,
+   Aplicativos → Ferramentas de sistema → Instalar atualização do
+   sistema: a progress bar while unpacking; after the restart a screen
+   "Concluindo a atualização do sistema" with a progress bar (~3 min on a
+   public image), then it restarts by itself into the menu.
+2. Informações → Detalhes do dispositivo: Compilação = v1.0.0.
+3. Ferramentas de sistema: task and folder names in Português; Menu on
+   "Instalar atualização do sistema": the help in Português.
 4. Wi-Fi at power-on (open since m9c): power on with the dongle in; Wi-Fi
    connects by itself within ~30 s.
+After it passes: m9k becomes the recovery image.
 
 ## Current milestone: M9 — public v1.0
 
@@ -149,33 +149,6 @@ M8g T3 fixes, ScummVM standalone default, CJK overlays, undervolt rows,
 THIRD-PARTY.txt, `make-source-bundle.sh` (first version), public variant
 checks (18 pass), the update path (`muos-update`, auto-update).
 
-**Round of 2026-11-25 — done to T2:** docs cleanup; L1 LICENSING.md
-(Gambatte/FCEUmm in `build-cores.sh`, BT firmware out, unmodified
-libmali); L2 MustardOS name and support notice (logo, README, NOTICE,
-THIRD-PARTY, Device Details help, EN/pt-BR); L3 source bundle covers the
-public image (`make-source-bundle.sh check` passes); L4 history scan
-clean, README/LICENSE/NOTICE, updater repo; L5 Plan B `prepare-image.sh`
-(T1 on m9c and rc1); L6 rc1 built (24 checks) + m9d trial-root T2 10/10
-(sweep, NES 59.97, GB 59.98, slot 2, SFTP jail, DC 59.99 Hz, DraStic,
-N64, PSP 15.5 swaps/s), m9d written to p2. Polish: install guide EN/pt-BR,
-CHANGELOG, known issues, release notes template.
-
-**rc1 T3 round (2026-11-25):** fresh-card defaults (English, 50 %,
-startup volume "previous", debug_mode 0), `/etc/issue`, boot logo from
-the press-kit boot screen; check-public-image 29 checks; m9e T2, on p2;
-history rewritten to the no-reply e-mail; m9d promoted to recovery.
-
-**rc2 published** as a GitHub pre-release by the user (2026-11-26).
-**Next (was):** the GitHub pre-release of rc2 (T3 ok):
-`make-source-bundle.sh bundle`, assets, notes (decisions 40–41). The
-repository is public (pushed by the user 2026-11-25, `a62c25b`); later
-commits are pushed by the user too. **Done 2026-11-26:** kernel/DTB
-updates through the update path (`muos-boot-sync`, procedures.md; m9g
-T2: two failed tries → given up, success path, the full stage → trial
-root → write-p2 → arm → trial → promote with the undervolt DTB mapped,
-boot-slot 4/4, NES 59.96); bench back on test128 (m9f, p3 restored), now
-p2 = m9g. v1.0.0 built (29 checks); source zips via `make-source-bundle.sh
-pack`. **Next:** v1.0.0 T3 (above) → the user publishes v1.0.0 as a normal
-release (bundle + pack at that commit). Polish meanwhile: Wi-Fi power-on
-T3. Done 2026-11-25 evening: kernel patch 0011 (battery finish), trial
-boot T2, promoted; rc2 rebuilt with it.
+History of the M9 rounds (licences, rc1, rc2, kernel updates, v1.0.0):
+milestones.md M9. **Next:** v1.0.0 T3 (T3 queue); then post-v1.0
+(roadmap: other variants, dongles, the next MustardOS release).
