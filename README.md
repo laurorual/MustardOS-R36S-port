@@ -43,19 +43,19 @@ test device:
   RTL8191SU/RTL8192SU, RTL8723AU, RTL8187; MediaTek MT7601U; Ralink
   RT2870/RT3070/RT5370 and RT2571W/RT73.
 
-  Choose your DTB on a PC: open the card's boot partition and run
-  `select-model.bat` (Windows), `select-model.command` (macOS) or, on
-  Linux, open a terminal there and type `sh select-model.sh`.
-  How to change DTB manually: create `model.txt` there with the id
-  of your model (the first word of its line in `models.txt`).
+Choose your DTB on a PC: open the card's boot partition and run
+`select-model.bat` (Windows), `select-model.command` (macOS) or, on
+Linux, open a terminal there and type `sh select-model.sh`.
+How to change DTB manually: create `model.txt` there with the id
+of your model (the first word of its line in `models.txt`).
 
-  Then start the console: it restarts once by itself to apply it. If the screen then stays black or wrong, run the
-  selector again and pick another model or the default (a start that
-  freezes before the menu goes back to the previous model by itself: hold
-  Power to turn it off, then on again).
+Then start the console: it restarts once by itself to apply it. If the screen then stays black or wrong, run the
+selector again and pick another model or the default (a start that
+freezes before the menu goes back to the previous model by itself: hold
+Power to turn it off, then on again).
 
-  Not working yet: the G80C/G80CA and other "clone" boards, the Y3506 ("soysauce") boards, the R50S and the 720/1024
-  screens.
+Not working yet: the G80C/G80CA and other "clone" boards, the Y3506 ("soysauce") boards, the R50S and the 720/1024
+screens.
 
 The port can't test these on real hardware, so **any feedback is
 welcome**: open an [issue](https://github.com/laurorual/MustardOS-R36S-port/issues)
