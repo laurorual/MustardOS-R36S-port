@@ -53,6 +53,11 @@
     "Export collection list, including boxart if found, to a file called \"collection.html\" at the root of SD1": "Xuất danh sách bộ sưu tập, kèm ảnh bìa tìm thấy, ra tệp \"collection.html\" ở thư mục gốc SD1",
     "Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.": "Cài bản cập nhật đã chép vào MUOS/update trên thẻ (NAME.p2.img.gz và tệp .sha256). Hiển thị tiến trình và khởi động lại máy hai lần (khoảng 10 phút); trò chơi, bản lưu và cài đặt được giữ. Cần cắm sạc hoặc còn 30 % pin.",
     "Show the introduction on every menu again, as it appeared the first time you used the device.": "Hiển thị lại phần giới thiệu ở mỗi menu như lần đầu sử dụng.",
-    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Tạo tệp ZIP chẩn đoán trên SD1. Bản port này không được nhóm MustardOS hỗ trợ: hãy đính kèm vào một issue trên GitHub của port."
+    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Tạo tệp ZIP chẩn đoán trên SD1. Bản port này không được nhóm MustardOS hỗ trợ: hãy đính kèm vào một issue trên GitHub của port.",
+    "Installing PortMaster": "Đang cài PortMaster",
+    "Downloading PortMaster (about 25 MB)": "Đang tải PortMaster (khoảng 25 MB)",
+    "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Cần Wi-Fi, hoặc muos.portmaster.zip trong MUOS/update",
+    "PortMaster could not be installed": "Không thể cài PortMaster",
+    "PortMaster installed: open it again from Applications": "Đã cài PortMaster: hãy mở lại từ Ứng dụng"
   }
 }

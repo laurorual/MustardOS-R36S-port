@@ -42,6 +42,18 @@ restore() {
     echo "$level" > "$bl" 2>/dev/null
 }
 trap 'restore; exit 0' INT TERM HUP
+# M11: a port or application session (muos-session): SIGTERM to its whole
+# process group (the port, gptokeyb, its runtime), SIGKILL after 3 s.
+s=$(cat /run/muos/session 2>/dev/null || :)
+if [ -n "$s" ] && kill -0 "$s" 2>/dev/null; then
+    t0=$(cut -d' ' -f1 /proc/uptime)
+    dim
+    kill -TERM -"$s" 2>/dev/null || kill -TERM "$s"
+    wait_gone "$s" 30 || { say "session $s still running, SIGKILL"; kill -KILL -"$s" 2>/dev/null || kill -KILL "$s"; }
+    say "session $s quit $t0 -> $(cut -d' ' -f1 /proc/uptime)"
+    restore
+    exit 0
+fi
 for e in PPSSPPSDL drastic mupen64plus yabasanshiro scummvm flycast; do
     pid=$(pidof "$e") || continue
     t0=$(cut -d' ' -f1 /proc/uptime)

@@ -52,3 +52,8 @@ Export collection list, including boxart if found, to a file called "collection.
 Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Suiteálann sé nuashonrú a cóipeáladh go MUOS/update ar an gcárta (NAME.p2.img.gz agus a .sha256). Taispeánann sé an dul chun cinn agus atosaíonn sé an gléas faoi dhó (timpeall 10 nóiméad); fanann cluichí, sábhálacha agus socruithe. Teastaíonn an luchtaire nó 30 % ceallraí.
 Show the introduction on every menu again, as it appeared the first time you used the device.	Taispeánann sé an réamhrá ar gach roghchlár arís, mar a bhí an chéad uair.
 Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Cruthaíonn sé comhad ZIP diagnóiseach ar SD1. Ní thacaíonn foireann MustardOS leis an bport seo: ceangail é le issue ar GitHub an phoirt.
+Installing PortMaster	PortMaster á shuiteáil
+Downloading PortMaster (about 25 MB)	PortMaster á íoslódáil (thart ar 25 MB)
+Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Teastaíonn Wi-Fi, nó muos.portmaster.zip in MUOS/update
+PortMaster could not be installed	Níorbh fhéidir PortMaster a shuiteáil
+PortMaster installed: open it again from Applications	PortMaster suiteáilte: oscail arís é ó Fheidhmchláir

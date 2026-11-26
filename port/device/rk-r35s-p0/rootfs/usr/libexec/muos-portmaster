@@ -1,0 +1,75 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M11: PortMaster (PortsMaster/PortMaster-GUI, its muOS variant
+# muos.portmaster.zip, unmodified) on p3 as on muOS: the app and its
+# runtimes in MUOS/PortMaster, the ports in /mnt/mmc/ports, their launch
+# scripts in ROMS/Ports (the Ports system). Not in the image (gptokeyb is
+# GPL, 7zzs LGPL; LICENSING.md): its first start installs it on the task
+# screen (muos-portmaster-install.sh) from the pinned release (SHA256), or
+# offline from MUOS/update/muos.portmaster.zip (any release, removed after
+# the install); PortMaster updates itself afterwards.
+#   muos-portmaster run       Applications -> PortMaster (mux_launch.sh)
+#   muos-portmaster install   fetch, check, unzip; "progress N M" lines
+#   muos-portmaster status    installed VERSION | missing
+set -eu
+pm=/mnt/mmc/MUOS/PortMaster
+url=https://github.com/PortsMaster/PortMaster-GUI/releases/download/2026.11.17-0700/muos.portmaster.zip
+sha=e2d3af3a1e0b57a14e911263817715c30ea7072250bfba6021b71977d65bff53
+offline=/mnt/mmc/MUOS/update/muos.portmaster.zip
+part=/mnt/mmc/MUOS/update/.portmaster.zip.part
+run=/run/muos
+log() { echo "muos-portmaster: $*" >&2; }
+installed() { [ -f "$pm/PortMaster.sh" ] && [ -f "$pm/control.txt" ] && [ -f "$pm/pylibs.zip" ]; }
+# a PortMaster muOS zip: the launcher and control file under mnt/mmc/MUOS
+is_pm_zip() {
+    l=$(unzip -l "$1" 2>/dev/null) || return 1
+    printf '%s\n' "$l" | grep -q ' mnt/mmc/MUOS/PortMaster/PortMaster.sh$' &&
+        printf '%s\n' "$l" | grep -q ' mnt/mmc/MUOS/PortMaster/control.txt$'
+}
+case ${1:-status} in
+status)
+    if installed; then echo "installed $(head -n 1 "$pm/version" 2>/dev/null || echo unknown)"; else echo missing; fi ;;
+install)
+    echo "progress 0 4"
+    mkdir -p /mnt/mmc/MUOS/update
+    free=$(df -k /mnt/mmc | awk 'NR == 2 { print $4 }')
+    [ "${free:-0}" -ge 204800 ] || { log "less than 200 MB free on the card"; exit 3; }
+    if [ -f "$offline" ]; then
+        zip=$offline
+        is_pm_zip "$zip" || { log "MUOS/update/muos.portmaster.zip is not a PortMaster muOS zip"; exit 4; }
+        log "offline: $zip"
+        echo "progress 2 4"
+    else
+        rm -f "$part"
+        curl -fsSL --connect-timeout 15 --retry 2 -o "$part" "$url" || { rm -f "$part"; log "download failed (Wi-Fi?)"; exit 5; }
+        echo "progress 1 4"
+        [ "$(sha256sum "$part" | cut -d' ' -f1)" = "$sha" ] || { rm -f "$part"; log "download damaged (SHA256)"; exit 6; }
+        zip=$part
+        echo "progress 2 4"
+    fi
+    # Only mnt/mmc: the zip's roms/ports/PortMaster/control.txt (the path
+    # ports fall back to) is the image's /roms/ports/PortMaster link.
+    unzip -oq "$zip" 'mnt/mmc/*' -d / || { log "unzip failed"; exit 7; }
+    chmod -R 755 "$pm"
+    mkdir -p /mnt/mmc/ROMS/Ports /mnt/mmc/ports
+    echo "progress 3 4"
+    rm -f "$part" "$offline"
+    sync
+    installed || { log "incomplete after unzip"; exit 8; }
+    log "installed $(head -n 1 "$pm/version" 2>/dev/null)"
+    echo "progress 4 4" ;;
+run)
+    if ! installed; then
+        log "not installed: install task"
+        printf '%s\n%s\n' /usr/libexec/muos-portmaster-install.sh 'Installing PortMaster' > "$run/task_autorun"
+        echo task > "$run/action"
+        exit 0
+    fi
+    # the SDL controller environment comes from muos-frontend (sdl_env)
+    muvarctl set system foreground_process portmaster > /dev/null 2>&1 || :
+    export HOME=/root XDG_CONFIG_HOME=/root/.config SDL_RENDER_VSYNC=1 SDL_HINT_VIDEO_DOUBLE_BUFFER=1
+    unset LD_LIBRARY_PATH
+    cd "$pm"
+    exec bash ./PortMaster.sh ;;
+*) sed -n '11,13p' "$0"; exit 2 ;;
+esac

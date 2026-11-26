@@ -27,6 +27,12 @@ cp /port/device/rk-r35s-p0/rootfs/opt/muos/device/config/board/network "$1/opt/m
 ln -sfn /userdata/MUOS/port/profile-state "$1/opt/muos/share/profile/state"
 # and muxnews caches the community posts in /opt/muos/share/news
 ln -sfn /userdata/MUOS/port/news "$1/opt/muos/share/news"
+# M11: PortMaster on p3 (muos-portmaster): ports fall back to
+# /roms/ports/PortMaster/control.txt; the SDL controller file SDL ports
+# read is written per launch (sdl-env.sh)
+mkdir -p "$1/roms/ports"
+ln -sfn /mnt/mmc/MUOS/PortMaster "$1/roms/ports/PortMaster"
+ln -sfn /run/muos/gamecontrollerdb.txt "$1/usr/lib/gamecontrollerdb.txt"
 # M5: mount point of the slot-2 card (script/device/storage.sh; the root
 # is read-only, so it must exist in the image)
 mkdir -p "$1/mnt/sdcard"

@@ -1,0 +1,10 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M11: run a port or an application (muos-frontend run_session) as its own
+# session and process group; /run/muos/session holds its PID while it runs
+# so Fn+Start (muos-standalone-quit) can end the whole group, which the
+# port's helpers (gptokeyb, runtimes) belong to.
+#   muos-session CMD [ARGS...]
+[ "$#" -gt 0 ] || exit 2
+echo $$ > /run/muos/session
+exec setsid "$@"

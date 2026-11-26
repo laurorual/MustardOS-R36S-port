@@ -53,6 +53,11 @@
     "Export collection list, including boxart if found, to a file called \"collection.html\" at the root of SD1": "찾은 표지와 함께 컬렉션 목록을 SD1 루트의 \"collection.html\" 파일로 내보냅니다",
     "Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.": "카드의 MUOS/update에 복사한 업데이트(NAME.p2.img.gz와 .sha256)를 설치합니다. 진행 상황을 표시하고 기기를 두 번 재시작합니다(약 10분). 게임, 저장 데이터, 설정은 유지됩니다. 충전기 또는 30 % 배터리가 필요합니다.",
     "Show the introduction on every menu again, as it appeared the first time you used the device.": "처음 사용할 때처럼 모든 메뉴에서 소개를 다시 보여줍니다.",
-    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "SD1에 진단 ZIP 파일을 만듭니다. 이 포트는 MustardOS 팀이 지원하지 않습니다: 포트의 GitHub issue에 첨부하세요."
+    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "SD1에 진단 ZIP 파일을 만듭니다. 이 포트는 MustardOS 팀이 지원하지 않습니다: 포트의 GitHub issue에 첨부하세요.",
+    "Installing PortMaster": "PortMaster 설치 중",
+    "Downloading PortMaster (about 25 MB)": "PortMaster 다운로드 중 (약 25MB)",
+    "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Wi-Fi 또는 MUOS/update의 muos.portmaster.zip이 필요합니다",
+    "PortMaster could not be installed": "PortMaster를 설치할 수 없습니다",
+    "PortMaster installed: open it again from Applications": "PortMaster 설치 완료: 애플리케이션에서 다시 여세요"
   }
 }

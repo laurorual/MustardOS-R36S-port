@@ -61,6 +61,12 @@ def main(table, path, core_dir=None):
         if line.startswith("#") or not line.strip():
             continue
         f = line.rstrip("\n").split("|")
+        if f[1] == "external":
+            # M11: ports (PortMaster scripts): upstream's own "external"
+            # runtime is the default already; only the governor is set
+            if len(f) >= 5 and f[4]:
+                want[f[2]] = f[4]
+            continue
         if f[1].startswith("ext-"):
             em = os.path.join(core_dir or "", "..", "emulator")
             have = any(os.path.isdir(os.path.join(em, d)) for d in (f[1][4:], f[1][4:].split("-")[0]))

@@ -52,3 +52,8 @@ Export collection list, including boxart if found, to a file called "collection.
 Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	安裝複製到卡上 MUOS/update 的更新（NAME.p2.img.gz 及其 .sha256）。會顯示進度並重新啟動裝置兩次（約 10 分鐘）；遊戲、存檔與設定都會保留。需要連接充電器或電量不低於 30 %。
 Show the introduction on every menu again, as it appeared the first time you used the device.	像第一次使用裝置時一樣，在每個選單中再次顯示介紹。
 Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	在 SD1 上產生診斷 ZIP 檔案。此移植版不受 MustardOS 團隊支援：請將其附加到移植版 GitHub 的 issue 中。
+Installing PortMaster	正在安裝 PortMaster
+Downloading PortMaster (about 25 MB)	正在下載 PortMaster（約 25 MB）
+Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	需要 Wi-Fi，或 MUOS/update 中的 muos.portmaster.zip
+PortMaster could not be installed	無法安裝 PortMaster
+PortMaster installed: open it again from Applications	PortMaster 已安裝：請從應用程式中重新開啟

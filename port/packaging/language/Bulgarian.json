@@ -53,6 +53,11 @@
     "Export collection list, including boxart if found, to a file called \"collection.html\" at the root of SD1": "Експортира списъка на колекцията с намерените обложки във файла \"collection.html\" в корена на SD1",
     "Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.": "Инсталира актуализация, копирана в MUOS/update на картата (NAME.p2.img.gz и нейния .sha256). Показва напредъка и рестартира устройството два пъти (около 10 минути); игрите, записите и настройките остават. Нужно е зарядно или 30 % батерия.",
     "Show the introduction on every menu again, as it appeared the first time you used the device.": "Показва отново въведението във всяко меню, както при първото използване.",
-    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Създава ZIP файл с диагностика на SD1. Този порт не се поддържа от екипа на MustardOS: прикачете го към issue в GitHub на порта."
+    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Създава ZIP файл с диагностика на SD1. Този порт не се поддържа от екипа на MustardOS: прикачете го към issue в GitHub на порта.",
+    "Installing PortMaster": "Инсталиране на PortMaster",
+    "Downloading PortMaster (about 25 MB)": "Изтегляне на PortMaster (около 25 MB)",
+    "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Нужен е Wi-Fi или muos.portmaster.zip в MUOS/update",
+    "PortMaster could not be installed": "PortMaster не можа да бъде инсталиран",
+    "PortMaster installed: open it again from Applications": "PortMaster е инсталиран: отворете го отново от Приложения"
   }
 }

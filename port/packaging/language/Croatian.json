@@ -53,6 +53,11 @@
     "Export collection list, including boxart if found, to a file called \"collection.html\" at the root of SD1": "Izvozi popis zbirke, s pronađenim omotima, u datoteku \"collection.html\" u korijenu SD1",
     "Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.": "Instalira ažuriranje kopirano u MUOS/update na kartici (NAME.p2.img.gz i njegov .sha256). Prikazuje napredak i dvaput ponovno pokreće uređaj (oko 10 minuta); igre, spremljene pozicije i postavke ostaju. Potreban je punjač ili 30 % baterije.",
     "Show the introduction on every menu again, as it appeared the first time you used the device.": "Ponovno prikazuje uvod u svakom izborniku, kao pri prvoj upotrebi uređaja.",
-    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Stvara dijagnostički ZIP na SD1. Ovaj port ne podržava tim MustardOS-a: priložite ga uz issue na GitHubu porta."
+    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Stvara dijagnostički ZIP na SD1. Ovaj port ne podržava tim MustardOS-a: priložite ga uz issue na GitHubu porta.",
+    "Installing PortMaster": "Instalacija PortMastera",
+    "Downloading PortMaster (about 25 MB)": "Preuzimanje PortMastera (oko 25 MB)",
+    "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Potreban je Wi-Fi ili muos.portmaster.zip u MUOS/update",
+    "PortMaster could not be installed": "PortMaster nije moguće instalirati",
+    "PortMaster installed: open it again from Applications": "PortMaster instaliran: ponovno ga otvorite iz Aplikacija"
   }
 }

@@ -53,6 +53,11 @@
     "Export collection list, including boxart if found, to a file called \"collection.html\" at the root of SD1": "Koleksiyon listesini, bulunan kapaklarla, SD1 kökündeki \"collection.html\" dosyasına aktarır",
     "Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.": "Karttaki MUOS/update klasörüne kopyalanan bir güncellemeyi (NAME.p2.img.gz ve .sha256 dosyası) yükler. İlerlemeyi gösterir ve cihazı iki kez yeniden başlatır (yaklaşık 10 dakika); oyunlar, kayıtlar ve ayarlar korunur. Şarj cihazı veya %30 pil gerekir.",
     "Show the introduction on every menu again, as it appeared the first time you used the device.": "Tanıtımı, cihazı ilk kullandığınızdaki gibi her menüde yeniden gösterir.",
-    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "SD1'de bir tanılama ZIP dosyası oluşturur. Bu port MustardOS ekibi tarafından desteklenmez: portun GitHub'ındaki bir issue'ya ekleyin."
+    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "SD1'de bir tanılama ZIP dosyası oluşturur. Bu port MustardOS ekibi tarafından desteklenmez: portun GitHub'ındaki bir issue'ya ekleyin.",
+    "Installing PortMaster": "PortMaster yükleniyor",
+    "Downloading PortMaster (about 25 MB)": "PortMaster indiriliyor (yaklaşık 25 MB)",
+    "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Wi-Fi veya MUOS/update içinde muos.portmaster.zip gerekir",
+    "PortMaster could not be installed": "PortMaster yüklenemedi",
+    "PortMaster installed: open it again from Applications": "PortMaster yüklendi: Uygulamalar'dan yeniden açın"
   }
 }

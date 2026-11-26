@@ -53,6 +53,11 @@
     "Export collection list, including boxart if found, to a file called \"collection.html\" at the root of SD1": "Eksporterer samlingslisten med funnede omslag til filen \"collection.html\" i roten av SD1",
     "Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.": "Installerer en oppdatering kopiert til MUOS/update på kortet (NAME.p2.img.gz og dens .sha256). Den viser fremdriften og starter enheten på nytt to ganger (omtrent 10 minutter); spill, lagringer og innstillinger beholdes. Krever laderen eller 30 % batteri.",
     "Show the introduction on every menu again, as it appeared the first time you used the device.": "Viser introduksjonen i hver meny igjen, som første gang du brukte enheten.",
-    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Lager en diagnose-ZIP på SD1. Denne porten støttes ikke av MustardOS-teamet: legg den ved en issue på portens GitHub."
+    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Lager en diagnose-ZIP på SD1. Denne porten støttes ikke av MustardOS-teamet: legg den ved en issue på portens GitHub.",
+    "Installing PortMaster": "Installerer PortMaster",
+    "Downloading PortMaster (about 25 MB)": "Laster ned PortMaster (ca. 25 MB)",
+    "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Krever Wi-Fi, eller muos.portmaster.zip i MUOS/update",
+    "PortMaster could not be installed": "PortMaster kunne ikke installeres",
+    "PortMaster installed: open it again from Applications": "PortMaster installert: åpne det igjen fra Programmer"
   }
 }

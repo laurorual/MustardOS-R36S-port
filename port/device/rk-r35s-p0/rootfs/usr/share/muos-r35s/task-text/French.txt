@@ -52,3 +52,8 @@ Export collection list, including boxart if found, to a file called "collection.
 Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Installe une mise à jour copiée dans MUOS/update sur la carte (NAME.p2.img.gz et son .sha256). Elle affiche sa progression et redémarre l'appareil deux fois (environ 10 minutes) ; jeux, sauvegardes et réglages sont conservés. Nécessite le chargeur ou 30 % de batterie.
 Show the introduction on every menu again, as it appeared the first time you used the device.	Affiche à nouveau l'introduction sur chaque menu, comme lors de la première utilisation.
 Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Crée un fichier ZIP de diagnostic sur SD1. Ce port n'est pas pris en charge par l'équipe MustardOS : joignez-le à une issue sur le GitHub du port.
+Installing PortMaster	Installation de PortMaster
+Downloading PortMaster (about 25 MB)	Téléchargement de PortMaster (environ 25 Mo)
+Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Nécessite le Wi-Fi, ou muos.portmaster.zip dans MUOS/update
+PortMaster could not be installed	PortMaster n'a pas pu être installé
+PortMaster installed: open it again from Applications	PortMaster installé : rouvrez-le depuis Applications

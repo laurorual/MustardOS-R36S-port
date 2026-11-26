@@ -5,6 +5,8 @@
 #   content (/run/muos/content, 9-line ROM_GO record), reboot or shutdown.
 #   Content runs in muxretro (libretro cores in /opt/muos/share/core), or
 #   (M7) N64's ext-mupen64plus-* assignments in muos-mupen64plus.
+#   M11: ports (core "external", ROMS/Ports scripts from PortMaster) and
+#   applications (action "app", mux_launch.sh) run as their own session.
 # muxfrontend SIGTERMs itself when its parent is PID 1, hence this owner.
 # Usage (from S99muos-ui): muos-frontend HOTKEYS(0|1) AUDIO(pipewire|dummy)
 export HOME=/root XDG_RUNTIME_DIR=/run PIPEWIRE_RUNTIME_DIR=/run LC_ALL=C.UTF-8
@@ -81,6 +83,43 @@ audio_check() {
 }
 
 track=/opt/muos/script/mux/track.sh
+# shellcheck source=/dev/null
+. /usr/share/muos-r35s/sdl-env.sh
+# M11: a port or application runs as its own session (setsid keeps the PID:
+# a background child is no group leader); /run/muos/session holds its PID
+# so Fn+Start (muos-standalone-quit) can end the whole group. The
+# frontend's own library path stays out (PortMaster loads the system SDL2).
+run_session() { # LOG CMD...
+    l=$1; shift
+    run_child env -u LD_LIBRARY_PATH HOME=/root XDG_CONFIG_HOME=/root/.config \
+        /usr/libexec/muos-session "$@" >> "$l" 2>&1
+    rc=$?
+    rm -f "$run/session"
+    return "$rc"
+}
+# M11: Applications, as upstream frontend.sh "app": muxapp writes the app
+# folder to /run/muos/application (plus governor/controller requests) and
+# exits with action app; the folder's mux_launch.sh runs with the folder as
+# $1, then the app menu returns.
+launch_app() {
+    a=$(head -n 1 "$run/application" 2>/dev/null || :)
+    rm -f "$run/application"
+    echo appmenu > "$act"
+    case $a in /*) ;; *) say "app: no folder ($a)"; clear_requests; return 0 ;; esac
+    [ -x "$a/mux_launch.sh" ] || { say "app: no launcher in $a"; clear_requests; return 0; }
+    if [ -s "$run/governor" ]; then set_governor "$(head -n1 "$run/governor")"; else default_governor; fi
+    sdl_env
+    clear_requests
+    audio_check
+    foreground "${a##*/}"
+    say "app ${a##*/}"
+    run_session /opt/muos/log/app.log "$a/mux_launch.sh" "$a"
+    say "app ${a##*/} exit rc=$?"
+    # an app may queue a task screen (PortMaster's first start installs it)
+    [ "$(head -n 1 "$act" 2>/dev/null)" = task ] || echo appmenu > "$act"
+    default_governor
+    sync
+}
 launch_content() {
     {
         read -r name; read -r core; read -r assign; read -r _; read -r _
@@ -91,7 +130,9 @@ launch_content() {
     say "content name=$name core=$core assign=$assign launch=$launch file=$content"
     [ -f "$content" ] || { say "missing content $content"; return 1; }
     ext=
-    case "$core $launch" in
+    [ "$core" != external ] || ext=port
+    case "$ext $core $launch" in
+        port\ *) ;;
         *ext-mupen64plus*) ext=mupen64plus ;;
         *ext-ppsspp*) ext=ppsspp ;; # M8
         *ext-drastic*) ext=drastic ;; # M8, decision 23
@@ -103,6 +144,7 @@ launch_content() {
     [ -n "$ext" ] || [ -f "/opt/muos/share/core/$core" ] || { say "missing core $core"; return 1; }
     fresh=; [ ! -e /tmp/ra_no_load ] || fresh=--fresh
     if [ -s "$run/governor" ]; then set_governor "$(head -n1 "$run/governor")"; else default_governor; fi
+    [ "$ext" != port ] || sdl_env
     clear_requests
     audio_check
     if [ -n "$ext" ]; then
@@ -112,6 +154,9 @@ launch_content() {
             variant=$core; case "$variant" in ext-*) ;; *) variant=$launch ;; esac
             run_child /usr/libexec/muos-mupen64plus "$variant" "$content" "${file%.*}" \
                 >> /opt/muos/log/frontend.log 2>&1
+        elif [ "$ext" = port ]; then
+            foreground external
+            run_session /opt/muos/log/port.log bash "$content"
         elif [ "$ext" = ppsspp ] && case "$core $launch" in *ext-ppsspp-2021*) true ;; *) false ;; esac; then
             run_child /usr/libexec/muos-ppsspp --2021 "$content" >> /opt/muos/log/frontend.log 2>&1
         else
@@ -204,6 +249,7 @@ while :; do
     fi
     action=$(head -n1 "$act" 2>/dev/null); [ -n "$action" ] || action=launcher
     case "$action" in
+        app) launch_app; continue ;;
         reboot|shutdown|poweroff)
             say "$action requested"
             [ -z "$hotkey" ] || kill -TERM "$hotkey" 2>/dev/null

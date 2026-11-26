@@ -134,6 +134,11 @@
     "Installing the update: do not power off": "Instalando a atualização: não desligue",
     "About 5 minutes, then it restarts": "Cerca de 5 minutos; depois reinicia",
     "The update could not be installed": "Não foi possível instalar a atualização",
-    "Update installed: restarting": "Atualização instalada: reiniciando"
+    "Update installed: restarting": "Atualização instalada: reiniciando",
+    "Installing PortMaster": "Instalando o PortMaster",
+    "Downloading PortMaster (about 25 MB)": "Baixando o PortMaster (cerca de 25 MB)",
+    "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Precisa de Wi-Fi, ou de muos.portmaster.zip em MUOS/update",
+    "PortMaster could not be installed": "Não foi possível instalar o PortMaster",
+    "PortMaster installed: open it again from Applications": "PortMaster instalado: abra-o de novo em Aplicativos"
   }
 }

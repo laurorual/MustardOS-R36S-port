@@ -210,6 +210,7 @@ case "${1:-}" in
         [ -n "$dir" ] || continue
         case $core in
             ext-*) e=${core#ext-}; [ -d "/opt/muos/share/emulator/${e%%-*}" ] || continue ;;
+            external) ;; # M11: ports (PortMaster)
             *) [ -f "/opt/muos/share/core/$core" ] || continue ;;
         esac
         mkdir -p "/userdata/ROMS/$dir"

@@ -53,6 +53,11 @@
     "Export collection list, including boxart if found, to a file called \"collection.html\" at the root of SD1": "Exporta la llista de la col·lecció, amb les caràtules trobades, al fitxer \"collection.html\" a l'arrel de SD1",
     "Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.": "Instal·la una actualització copiada a MUOS/update de la targeta (NAME.p2.img.gz i el seu .sha256). Mostra el progrés i reinicia el dispositiu dues vegades (uns 10 minuts); els jocs, les partides i la configuració es conserven. Cal el carregador o un 30 % de bateria.",
     "Show the introduction on every menu again, as it appeared the first time you used the device.": "Torna a mostrar la introducció en cada menú, com la primera vegada que vas usar el dispositiu.",
-    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Genera un fitxer ZIP de diagnòstic en SD1. Este port no té suport de l'equip de MustardOS: adjunta'l a una issue en el GitHub del port."
+    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Genera un fitxer ZIP de diagnòstic en SD1. Este port no té suport de l'equip de MustardOS: adjunta'l a una issue en el GitHub del port.",
+    "Installing PortMaster": "S'està instal·lant PortMaster",
+    "Downloading PortMaster (about 25 MB)": "S'està baixant PortMaster (uns 25 MB)",
+    "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Cal Wi-Fi, o muos.portmaster.zip a MUOS/update",
+    "PortMaster could not be installed": "No s'ha pogut instal·lar PortMaster",
+    "PortMaster installed: open it again from Applications": "PortMaster instal·lat: torna a obrir-lo des d'Aplicacions"
   }
 }

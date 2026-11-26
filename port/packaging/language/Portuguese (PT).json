@@ -53,6 +53,11 @@
     "Export collection list, including boxart if found, to a file called \"collection.html\" at the root of SD1": "Exporta a lista da coleção, com as capas encontradas, para o ficheiro \"collection.html\" na raiz do SD1",
     "Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.": "Instala uma atualização copiada para MUOS/update no cartão (NAME.p2.img.gz e o seu .sha256). Mostra o progresso e reinicia o aparelho duas vezes (cerca de 10 minutos); jogos, gravações e definições mantêm-se. Precisa do carregador ou de 30 % de bateria.",
     "Show the introduction on every menu again, as it appeared the first time you used the device.": "Mostra novamente a introdução em cada menu, como da primeira vez que usou o aparelho.",
-    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Gera um ficheiro ZIP de diagnóstico no SD1. Este port não é suportado pela equipa do MustardOS: anexe-o a uma issue no GitHub do port."
+    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Gera um ficheiro ZIP de diagnóstico no SD1. Este port não é suportado pela equipa do MustardOS: anexe-o a uma issue no GitHub do port.",
+    "Installing PortMaster": "A instalar o PortMaster",
+    "Downloading PortMaster (about 25 MB)": "A transferir o PortMaster (cerca de 25 MB)",
+    "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Precisa de Wi-Fi, ou de muos.portmaster.zip em MUOS/update",
+    "PortMaster could not be installed": "Não foi possível instalar o PortMaster",
+    "PortMaster installed: open it again from Applications": "PortMaster instalado: abra-o novamente em Aplicações"
   }
 }
