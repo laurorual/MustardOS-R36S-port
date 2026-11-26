@@ -124,7 +124,9 @@ panels or clones.
   USB Wi-Fi driver the kernel has. Later waves: the rg351v clones and R50S
   (other input device names: a frontend input profile), the Y3506 boards
   (rg351p), the 720/1024 panels (a frontend resolution port).
-- **MustardOS next release (decision 45):** port the frontend/internal
+- **PortMaster: M11** (STATUS; the user's priority 2026-11-26), with
+  the muOS applications path it needs.
+- **MustardOS next release (decision 45): M12.** port the frontend/internal
   pin to the next official release after 2606.0 Andromeda (main on
   2026-11-25: Pickles/Wasabi content, Chutney reader, muaudio daemon,
   performance levels instead of governors, JSON theme layouts and main
@@ -133,7 +135,7 @@ panels or clones.
 - **Overclock beyond stock** (CPU above 1512 MHz, GPU above 520 MHz) as an
   explicit, labelled option.
 - **Bluetooth** through a combo dongle (bluez, `bt_*.sh`).
-- **Applications:** PortMaster, the other standalone emulators (Mupen64Plus
+- **Applications:** PortMaster (M11), the other standalone emulators (Mupen64Plus
   is in since M7; PPSSPP, DraStic, Flycast, YabaSanshiro and ScummVM since M8).
 - **Web services:** ttyd, Syncthing, mDNS, the landing page.
 - **Automated builds and update packages.**

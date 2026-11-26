@@ -12,8 +12,8 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 
 Phase 5 (own-card firmware). M1–M10 done: **v1.1.0 published 2026-11-26**
 (GitHub release, latest; v1.0.0 before it; m10a, the v1.1.0 developer
-twin, is the recovery image). **Next: M11** (to be planned from the
-roadmap's post-v1.0 tracks; see "Next milestone").
+twin, is the recovery image). **Current: M11 — PortMaster** (started
+2026-11-26, the user's priority; then M12, the MustardOS next release).
 
 ## Device and bench
 
@@ -122,11 +122,53 @@ tested a TP-Link RTL8822BU dongle, 2357:0115: it works.)
 
 Empty (v1.1.0 checklist passed 2026-11-26, results in milestones.md M10).
 
-## Next milestone
+## Current milestone: M11 — PortMaster (and muOS applications)
 
-M11, to be planned at its start from the roadmap's post-v1.0 tracks;
-the recommended order: the MustardOS next release (decision 45), then
-model wave 2 (rg351v clones and R50S: a frontend input profile).
+Goal: Aplicativos → PortMaster installs and runs ports as on muOS
+(PortMaster's own muOS variant, `muos.portmaster.zip`, unmodified), and
+ports start from the Ports system with saves, the volume bar and a quit
+chord. Survey (2026-11-26): PortMaster 2026.11.17-0700; 1518 ports, 933
+aarch64-only, 204 armhf-only (no 32-bit userland: unsupported); all
+runtimes checked (mono, weston_pkg, frt, gmtoolkit, dotnet, godot, zulu,
+renpy, pyxel) are zlib squashfs, which the kernel mounts (loop + squashfs
+zlib built in): no kernel change.
+
+Items:
+1. Python 3 in the rootfs (Buildroot: ctypes/libffi, ssl, zlib, json,
+   sqlite as harbourmaster needs; pyc only) for harbourmaster/pugwash
+   with pySDL2 on the system SDL2.
+2. Applications in the frontend loop: action `app` (muxapp writes
+   `/run/muos/application`) runs `mux_launch.sh` as upstream frontend.sh
+   (governor, foreground, requests cleared, back to the app menu); app
+   folders from `/opt/muos/share/application` and `MUOS/application`;
+   `/run/muos/storage/application` for PortMaster's app ports.
+3. muOS shims PortMaster and its ports use (port-own, MIT):
+   `/opt/muos/script/var/func.sh` (GET_VAR/SET_VAR/LOG_*),
+   `/usr/lib/gamecontrollerdb.txt` (muOS-Keys under PortMaster's
+   "Deeplay-keys" name, as upstream gamecontrollerdb.sh),
+   `/roms/ports/PortMaster` → `MUOS/PortMaster`.
+4. Install on first launch: the PortMaster app downloads the pinned
+   release zip (sha256-checked) or takes `MUOS/update/muos.portmaster.zip`
+   offline, unzips it to p3 (`MUOS/PortMaster`, `ROMS/Ports`), then
+   PortMaster updates itself. Not in the image: gptokeyb is GPL and 7zzs
+   LGPL (no source duty for the port; LICENSING records it).
+5. Ports launch: core `external` content (`ROMS/Ports/*.sh`) runs under
+   bash with the SDL/audio environment, governor, Activity tracking;
+   Fn+Start quits (muhotkey, as the standalones); the Ports system
+   assignment and catalogue (`External - Ports`).
+6. Graphics for ports: SDL2 KMSDRM on libmali, PortMaster's gl4es
+   (`libgl_muOS.txt`), weston_pkg; T2 with free ready-to-run ports (one
+   SDL2, one GL/gl4es, one runtime squashfs such as frt or love).
+7. Native touches (as for the heavy systems): volume/brightness bar in
+   ports, sleep/resume while a port runs, the low-battery guard.
+8. Docs and licences (README, known issues: armhf ports unsupported;
+   LICENSING; procedures), image v1.2.0 at the end.
+
+T2 tests: Python T1 (qemu imports of harbourmaster deps), app launch
+loop, PortMaster install from the zip and from the network, port
+launch/quit/return × 3, sleep in a port. Expected T3: PortMaster UI
+navigation and a port download; a played port with sound; quit chord;
+volume bar; one GL port.
 
 ## Previous milestone: M10 — experimental hardware reach (done 2026-11-26)
 
