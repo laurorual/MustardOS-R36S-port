@@ -22,8 +22,10 @@ rc2 is ready for its GitHub pre-release (the user publishes).
 - **Bench change (decision 46, by the user 2026-11-25):** test128 is
   wiped to an ext4 slot-2 test card; the public rc2 on the old
   original32 card in slot 1 (no SSH unless enabled in the menu; T2
-  paused). The test128 state below is from before the wipe; p3 is saved
-  only if the user ran `card-p3.sh backup` first.
+  paused). Done 2026-11-26: test128's p3 saved (`build/m8/p3-backup/p3.tar`,
+  6.2 GB, private, incl. the T2 states), test128 wiped to ext4; slot 2
+  ext4 with an NDS game ok on rc2 (user). The test128 state below is
+  from before the wipe.
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), test128
   in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
   zone −03. Access, identity and card layout: procedures.md.
@@ -153,7 +155,8 @@ startup volume "previous", debug_mode 0), `/etc/issue`, boot logo from
 the press-kit boot screen; check-public-image 29 checks; m9e T2, on p2;
 history rewritten to the no-reply e-mail; m9d promoted to recovery.
 
-**Next:** the GitHub pre-release of rc2 (T3 ok):
+**rc2 published** as a GitHub pre-release by the user (2026-11-26).
+**Next (was):** the GitHub pre-release of rc2 (T3 ok):
 `make-source-bundle.sh bundle`, assets, notes (decisions 40–41). The
 repository is public (pushed by the user 2026-11-25, `a62c25b`); later
 commits are pushed by the user too. **Then (before v1.0.0):** kernel
