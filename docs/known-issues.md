@@ -6,11 +6,15 @@ MustardOS team.
 
 ## Hardware support
 
-- Only the R35S/R36S **Panel 0** (R36S-V12 board) is tested. Other
-  panels, board revisions and clones are not supported.
-- Wi-Fi only with a USB adapter with the Realtek RTL8821CU chip. No
-  Bluetooth. After a warm reboot the adapter occasionally fails to start
-  (about 1 in 7): unplug and plug it again.
+- Only the R35S/R36S **Panel 0** (R36S-V12 board) and the Realtek
+  **RTL8821CU** Wi-Fi adapter are tested. The other models and Wi-Fi
+  chips in the README are experimental (since v1.1): untested by the
+  port. On another model the undervolt rows (Danger Settings) are
+  unavailable, the boot logo before the menu may look wrong, and the
+  battery figures come from dArkOSen's device tree for that model. No
+  Bluetooth.
+- After a warm reboot the RTL8821CU occasionally fails to start (about 1
+  in 7): unplug and plug it again.
 - At power-on the first Wi-Fi scan sometimes hangs; the system resets the
   adapter after 20 s, so Wi-Fi can take up to ~40 s to connect.
 - No HDMI output, no rumble (the R35S has no motor), no controllable LEDs.

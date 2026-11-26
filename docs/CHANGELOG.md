@@ -3,7 +3,19 @@
 MustardOS for R36S/R35S (unofficial port). Not supported by the MustardOS
 team: https://github.com/laurorual/MustardOS-R36S-port/issues
 
-## v1.0.0 (unreleased)
+## v1.1.0 (unreleased)
+
+- **More R36S models (experimental):** 22 models with the 640x480 screen
+  from dArkOSen's device trees (list in the README). Choose yours on a PC
+  with `select-model.bat`, `.sh` or `.command` in the card's boot
+  partition; the console restarts once to apply it. Untested by the port:
+  please report whether yours works.
+- **More Wi-Fi dongles (experimental):** every USB Wi-Fi chip the kernel
+  has a driver for (Realtek RTL8188EU/FTV, RTL8192CU, RTL8723BU,
+  RTL8812AU, RTL8822BU and others, MediaTek MT7601U, Ralink RT5370 and
+  others), with their firmware. The RTL8821CU stays the tested one.
+
+## v1.0.0 (2026-11-26)
 
 - **Updates:** an update over Wi-Fi or from the Task Toolkit now also
   brings the new kernel and boot screen: tried once at the next start and

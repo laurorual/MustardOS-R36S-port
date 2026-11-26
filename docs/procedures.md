@@ -300,6 +300,23 @@ By hand (development):
   `muos-frontend` promotes it after 20 s of menu (`muos-undervolt
   promote`) and `sync` sets the row from the booted DTB. A card from an
   older image needs `dtb-variants.txt` on p1 (both DTBs already there).
+- Models (M10, decision 43): `models.txt` pins dArkOSen DTBs;
+  `make-dtb-model.sh OUT` adds the port's deltas (mmc aliases, no GPU
+  600 MHz OPP; `dts-delta.py` proves nothing else changed); the image
+  ships them as `m-<id>=panel0-<sha12>.dtb` in `dtb-variants.txt`, with
+  p1 `models.txt` and the PC selectors (`select-model.bat/.sh/.command`,
+  source `port/device/rk-r35s-p0/p1/`; boot-sync copies them after an
+  update). A selector writes p1 `model.txt` (id or `default`);
+  `muos-model check` at frontend start arms it as a `model` trial and
+  reboots, `promote` after 20 s of menu; a stale `MUOS/update/model-armed`
+  → `model.txt.failed`. `t2-model.sh TEST.DTB` (a model DTB with the
+  port battery node: never boot a model's battery table on the bench)
+  runs it both ways and restores the undervolt. `dtb-survey.sh` classifies
+  dArkOSen's models (input names, key codes, board type).
+- Wi-Fi dongles (M10): `t2-wifi-detect.sh` (the worker's detection
+  against fake USB IDs; read-only); firmware from
+  `fetch-wifi-firmware.sh` (pinned linux-firmware, staged by
+  `build-image.sh`).
 - ScummVM patches: `port/patches/scummvm/*.patch` (`build-scummvm.sh`
   applies them to the standalone's archive and once to the tree).
 

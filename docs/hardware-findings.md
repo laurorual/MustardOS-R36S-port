@@ -29,14 +29,14 @@ The open problems behind each "partial" are in STATUS.
 | Audio | T3 partial | Speaker, headphone switching (jack contact faulty); underrun bursts | Audio |
 | Battery / charging | T3 | RK817 gauge %, kept across power-off, low-battery poweroff, charging screen | Power and battery |
 | Sleep / poweroff | T3 | mem sleep and wake (~9 s to Wi-Fi), shutdown timer, hard power-cut recovery | Power and battery |
-| Wi-Fi (RTL8821CU dongle) | T3 partial | Profiles, scan, sleep/wake, replug; warm-reboot H2C 1 in 7, dwc2 missed events (watchdog), firmware error loop with no traffic (once, M5) | Network and USB |
+| Wi-Fi (RTL8821CU dongle; others experimental since M10) | T3 partial | Profiles, scan, sleep/wake, replug; warm-reboot H2C 1 in 7, dwc2 missed events (watchdog), firmware error loop with no traffic (once, M5) | Network and USB |
 | SSH / SFTP | T3 partial | Developer SSH/SFTP; menu SFTP jailed on 2022 (FileZilla saved site open) | Network and USB |
 | RTC / clock | T3 | RK817 RTC in UTC, time zone, NTP | Power and battery |
 | LEDs / rumble | n/a | No controllable LED, no rumble motor on this unit | Power and battery |
 | Bluetooth | — | Not supported (no bluez) | Network and USB |
 | Slot 2 (`ff380000.dwmmc`) | T2 | exFAT/FAT32/ext4 at /mnt/sdcard, hotplug (loop-device T2); the user's spare card never initialises (M5 T3, open) | Storage |
 | Emulation | T3 | NES, GB/GBC, GBA, SNES, MD family, PSX at 59.9 fps with saves/states; M6 cores T2 (synthetic 60 fps) | Emulation stack facts |
-| Other panels / clones | — | Out of scope without evidence and a physical test | Device identity |
+| Other panels / clones | experimental (M10) | 22 dArkOSen models on the port board at 640x480 (model switch); a model DTB boots the bench; others not yet | Device identity |
 
 ## Device identity
 
@@ -55,6 +55,21 @@ The open problems behind each "partial" are in STATUS.
     916904 kB on the monitor.
   - RAM banks are 0x00200000–0x08400000 and 0x0a200000–0x40000000.
   - (phase4-linux-diagnostic.md, phase4-memory-monitor.md)
+
+- **Other R36S models (M10, dArkOSen `boot/dtb` at 28f5427,
+  `dtb-survey.sh`):** 53 model folders (`boot.ini` names the DTB; 2602
+  names one the folder lacks). 640x480: 23 on the port's board type
+  (`rg351mp-uboot.dtb`) with the port's input names ("GO-Super Gamepad",
+  "odroidgo3-keys") and key codes; 13 clones on the rg351v board without
+  a gpio-keys node; R50S with `rg351-keys`; 7 Y3506 "soysauce" on the
+  rg351p board. 6 at 1024x768, 2 at 720x720/720x1280. Against the port
+  DTB, dArkOSen's Panel 0 differs only in the mmc aliases, the panel
+  timing (29 MHz rk351, the glitching one), battery (3140 vs 2500 mAh),
+  CPU max-volt and a GPU 600 MHz OPP; Panel 4 and the V21/V22 models add
+  their panel init sequence, backlight PWM period, battery table and
+  slot-2 UHS modes. A model DTB boots the bench (Panel 4 test DTB with the
+  port battery node, 2026-11-26): same input names, root mmcblk0p2,
+  Wi-Fi; the screen is not checked (another panel's init sequence).
 
 ## Display
 
@@ -543,6 +558,14 @@ The open problems behind each "partial" are in STATUS.
 
 - **Controller:** the only USB controller is DWC2 at `ff300000.usb`.
   (phase4-network-warm.md)
+- **USB Wi-Fi drivers (M10):** the kernel builds 52 modules under
+  `drivers/net/wireless`; the USB ones are the vendor Realtek 8821cu,
+  88x2bu, rtl8812au, 8188eu, 8192cu, 8723bu (firmware inside; 8188fu is
+  built in) and the mainline rtl8192cu, mt7601u, rt2800usb, rt73usb,
+  r8712u, r8723au, rtl8187, rt2500usb (firmware from linux-firmware,
+  `wifi-firmware.txt`). No ath9k_htc. `modprobe -R <modalias>` on the
+  device resolves an interface to its modules (kmod 33), several for one
+  ID (8192cu and rtl8192cu): the worker prefers the vendor driver.
 - **Wi-Fi liveness (M7):** `muos-usb-watchdog` checks every 60 s while
   the network is ready: C2H errors since the radio came up, or two checks
   without a received packet and without an ARP answer from the gateway →

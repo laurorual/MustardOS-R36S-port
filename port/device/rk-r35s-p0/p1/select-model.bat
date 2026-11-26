@@ -50,7 +50,8 @@ if exist model.txt.unknown del model.txt.unknown
 echo.
 echo Chosen: %name%
 echo Eject the card, put it in slot 1 and power on. The console restarts
-echo once by itself to apply it. If the screen stays black or wrong for
-echo more than a minute, hold Power to turn it off and on again: it goes
-echo back to the previous model by itself.
+echo once by itself to apply it. If the screen then stays black or wrong,
+echo run this again and pick another model or the default. A start that
+echo freezes before the menu goes back to the previous model by itself:
+echo hold Power to turn it off, then on again.
 pause

@@ -14,24 +14,45 @@ straight to the MustardOS menu.
 
 ## Supported hardware
 
-**Currently only one screen and one Wi-Fi dongle are implemented and
-tested:** the ones on the port's own test device.
+**Tested:** one screen and one Wi-Fi dongle, the ones on the port's own
+test device:
 
-- Screen: **R35S with Panel 0** (device tree model
-  "R36S-V12 2023-08-18 Panel 0"). R36S units with the same board and
-  panel should work. Other panels, board revisions and clones are not
-  supported yet: the screen may stay black or show garbage.
-- Wi-Fi: a USB dongle with the Realtek RTL8821CU chip (the R36S has no
-  internal Wi-Fi). Other dongles are not supported yet. No Bluetooth.
+- **R35S with Panel 0** (device tree model "R36S-V12 2023-08-18 Panel 0",
+  the default). R36S units with the same board and panel work the same.
+- Wi-Fi: a USB dongle with the **Realtek RTL8821CU** chip (the R36S has no
+  internal Wi-Fi). No Bluetooth.
 - Slot 1 (the card slot the system boots from). An optional second card
   in slot 2 can hold ROMs.
 
-**Planned for future versions:** device trees for other R36S panels and
-variants with the same 640x480 screen (a model selector based on
-dArkOSen's device trees) and drivers for other Wi-Fi dongles. The port
-can't test them on real hardware, so **any feedback is welcome**: open
-an [issue](https://github.com/laurorual/MustardOS-R36S-port/issues)
-with your model, panel or dongle and whether it worked.
+**Experimental since v1.1 (untested by the port; feedback welcome):**
+
+- **Other R36S models** with the same 640x480 screen and buttons, from
+  dArkOSen's device trees: HL-R36H-V20 2024-05-18, HL-R36H-V21 2024-11-18,
+  HL-R46H-V22 2026-03-12, R36S-V12 2023-08-18 Panel 4, R36S-V21 2024-12-18
+  2503, R36S-V21 2024-12-18 2529, R36S-V21 2024-12-18 2537, R36S-V21
+  2024-12-18 2544, R36S-V21 2024-12-18 2547, R36S-V21 2024-12-18 2550,
+  R36S-V21 2024-12-18 2551, R36S-V21 2024-12-18 2552, R36S-V21 2024-12-18
+  2604, R36S-V22 2024-12-18 2534, R36S-V22 2024-12-18 2535, R36S-V22
+  2024-12-18 2545, R36S-V22 2024-12-18 2548, R36S-V22 2024-12-18, R36S-V30
+  2025-18-11 2603, R36S-Y02 2024-12-18, R36XX-V21 2024-12-18, RK3326-D3.
+  Choose yours on a PC: open the card's boot partition and run
+  `select-model.bat` (Windows), `select-model.sh` (Linux) or
+  `select-model.command` (macOS), then start the console: it restarts once
+  by itself to apply it. If the screen then stays black or wrong, run the
+  selector again and pick another model or the default (a start that
+  freezes before the menu goes back to the previous model by itself: hold
+  Power to turn it off, then on again). Not yet: the G80C/G80CA and other
+  "clone" boards, the Y3506 ("soysauce") boards, the R50S and the 720/1024
+  screens.
+- **Other USB Wi-Fi dongles** with these chips (the drivers come with the
+  system): Realtek RTL8188EU/ETV, RTL8188FTV, RTL8188CUS/RTL8192CU,
+  RTL8723BU, RTL8811AU/RTL8812AU/RTL8821AU, RTL8812BU/RTL8822BU, RTL8188SU/
+  RTL8191SU/RTL8192SU, RTL8723AU, RTL8187; MediaTek MT7601U; Ralink
+  RT2870/RT3070/RT5370 and RT2571W/RT73.
+
+The port can't test these on real hardware, so **any feedback is
+welcome**: open an [issue](https://github.com/laurorual/MustardOS-R36S-port/issues)
+with your model or dongle (its chip or USB ID) and whether it worked.
 
 ## Install
 
@@ -103,18 +124,27 @@ direto no menu do MustardOS.
 > [issues](https://github.com/laurorual/MustardOS-R36S-port/issues) deste
 > repositório, nunca no Discord, fórum ou GitHub do MustardOS.
 
-**Aparelhos:** por enquanto, só uma tela e um adaptador Wi-Fi estão
-implementados e testados: os do aparelho de testes do port. Tela:
-**R35S com Panel 0** (modelo "R36S-V12 2023-08-18 Panel 0"); R36S com a
-mesma placa e tela devem funcionar, outras telas, revisões e clones
-ainda não são suportados. Wi-Fi: adaptador USB com chip Realtek
-RTL8821CU; outros adaptadores ainda não; sem Bluetooth. **Planejado para
-versões futuras:** device trees para outras telas e variantes do R36S
-com tela 640x480 (seletor de modelo com os device trees do dArkOSen) e
-drivers para outros adaptadores Wi-Fi. O port não tem como testá-los em
-hardware real, então **qualquer retorno é bem-vindo**: abra uma
+**Aparelhos testados:** uma tela e um adaptador Wi-Fi, os do aparelho de
+testes do port: **R35S com Panel 0** (modelo "R36S-V12 2023-08-18 Panel
+0", o padrão; R36S com a mesma placa e tela funcionam igual) e adaptador
+USB com chip **Realtek RTL8821CU**; sem Bluetooth.
+
+**Experimental desde a v1.1 (não testado pelo port; retorno bem-vindo):**
+outros modelos do R36S com a mesma tela 640x480 e botões, dos device
+trees do dArkOSen (lista acima, em inglês). Escolha o seu num PC: abra a
+partição de boot do cartão e rode `select-model.bat` (Windows),
+`select-model.sh` (Linux) ou `select-model.command` (macOS); depois ligue
+o console, que reinicia uma vez sozinho para aplicar. Se a tela ficar
+preta ou errada, rode o seletor de novo e escolha outro modelo ou o
+padrão (um início que trava antes do menu volta sozinho ao modelo
+anterior: segure Power para desligar e ligue de novo). Ainda não: placas "clone" G80C/G80CA e
+outras, placas Y3506 ("soysauce"), R50S e telas 720/1024. Também outros
+adaptadores Wi-Fi USB com os chips da lista acima (Realtek RTL8188EU/FTV,
+RTL8192CU, RTL8723BU, RTL8812AU, RTL8822BU e outros; MediaTek MT7601U;
+Ralink RT5370 e outros). O port não tem como testá-los em hardware real,
+então **qualquer retorno é bem-vindo**: abra uma
 [issue](https://github.com/laurorual/MustardOS-R36S-port/issues) com o
-seu modelo, tela ou adaptador e se funcionou.
+seu modelo ou adaptador (o chip ou o ID USB) e se funcionou.
 
 **Instalação** (guia completo: [docs/install.pt-BR.md](docs/install.pt-BR.md)):
 baixe `MustardOS-R36S-port-<versão>.img.xz` e o `.sha256` em

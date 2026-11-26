@@ -15,6 +15,7 @@
 set -euo pipefail
 export LC_ALL=C
 [ $# -ge 1 ] || { sed -n '5p' "$0"; exit 2; }
+repo=$(cd "$(dirname "$0")/../.." && pwd)
 img=$1 base_p2=${2:-}
 work=$(mktemp -d "${TMPDIR:-/tmp}/check-public.XXXXXX")
 trap 'rm -rf "$work"' EXIT
@@ -77,6 +78,20 @@ check "first boot volume 50 %" p2_is /opt/muos/config/settings/general/volume 50
 check "startup volume mode: previous (not the maximum)" p2_is /opt/muos/config/settings/advanced/volume 0
 check "debug_mode 0" p2_is /opt/muos/config/system/debug_mode 0
 check "/etc/issue names the unofficial port" p2_grep /etc/issue 'MustardOS for R36S/R35S (unofficial port)'
+# M10: the Wi-Fi firmware with its licences, the models and their selectors
+check "Wi-Fi firmware: mt7601u with its MediaTek licence" p2_grep \
+    /usr/share/licenses/linux-firmware/LICENCE.ralink_a_mediatek_company_firmware 'MediaTek'
+check "Wi-Fi firmware: the rtlwifi licence" p2_grep /usr/share/licenses/linux-firmware/LICENCE.rtlwifi_firmware.txt 'Realtek'
+# shellcheck disable=SC2329
+models_ok() {
+    local n
+    n=$(debugfs -R 'cat /usr/share/muos-r35s/boot/dtb-variants.txt' "$work/p2.img" 2>/dev/null | grep -c '^m-')
+    [ "$n" = "$(grep -vc '^#' "$repo/port/packaging/models.txt")" ] || { echo "     $n model keys" >&2; return 1; }
+    for f in models.txt select-model.bat select-model.sh select-model.command; do
+        debugfs -R "stat /usr/share/muos-r35s/boot/$f" "$work/p2.img" 2>/dev/null | grep -q '^Inode:' || { echo "     no $f" >&2; return 1; }
+    done
+}
+check "every model DTB, models.txt and the selectors ship" models_ok
 if [ -n "$base_p2" ]; then
     # Secrets of the developer image: values of ssid/psk lines and the key blob.
     debugfs -R 'cat /var/lib/muos-network/network.conf' "$base_p2" 2>/dev/null |

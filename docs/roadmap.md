@@ -117,26 +117,13 @@ panels or clones.
   viable,** e.g. Arm or Hardkernel object to the bundled libmali):
   ROCKNIX's 6.x kernel as the reference; removes the Mali blob and the
   vendor TF-A; full re-qualification (see "Kernel base").
-- **Other R36S variants, experimental (decision 43):** dArkOSen's
-  640x480 DTBs (MIT, same 4.4.189 kernel; ~44 of its 53) in a p1 folder,
-  with the port's DT deltas (mmc aliases) applied by `fdtput` at build
-  time, and our own selectors in the card root (`.bat` + `.ps1`, Linux
-  `.sh`, macOS `.command`) that copy the chosen DTB to p1 `variant.dtb`
-  (or delete it for the default), as dArkOSen's `SELECT MODEL` copies
-  the model folder over the root `.dtb` files. Our U-Boot boots only
-  SHA-checked records, so it learns one rule: a valid `variant.dtb`
-  replaces the record's DTB (kernel still checked; no undervolt rows,
-  no U-Boot splash on it). Bench U-Boot write needs the user present.
-  Open: dArkOSen's per-model `alsa_path` (speaker only vs speaker +
-  jack) and `gamma` from `r36_devices.ini`; 720/1024/1280 panels need a
-  frontend resolution port (later). README: untested, feedback wanted.
-- **Other Wi-Fi dongles, experimental (decision 44):** the modules are
-  in (stock config), but `muos-network/worker` drives only the 8821cu
-  and `/lib/firmware` is empty. Follow dArkOSen (udev autoload, the
-  linux-firmware files its image carries for these drivers): a USB-ID →
-  module table, no `usb_modeswitch` for the others, interface by any
-  wireless driver; redistributable firmware with licences. README:
-  untested, feedback wanted.
+- **Other R36S variants and Wi-Fi dongles (decisions 43–44): M10**
+  (STATUS). Wave 1: 22 dArkOSen models on the port's board at 640x480,
+  switched by Linux (`muos-model`, a one-shot trial like the undervolt
+  rows) instead of a U-Boot rule, so the update path delivers it; every
+  USB Wi-Fi driver the kernel has. Later waves: the rg351v clones and R50S
+  (other input device names: a frontend input profile), the Y3506 boards
+  (rg351p), the 720/1024 panels (a frontend resolution port).
 - **MustardOS next release (decision 45):** port the frontend/internal
   pin to the next official release after 2606.0 Andromeda (main on
   2026-11-25: Pickles/Wasabi content, Chutney reader, muaudio daemon,
