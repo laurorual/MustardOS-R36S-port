@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
-# M9: kernel, DTB and boot-logo updates through the p2 update path. The
+# M9: kernel, DTB and boot-logo updates through the p2 update path (M10:
+# also the model DTBs, models.txt and the model selectors). The
 # image build puts the boot files it wrote to p1 (Image-<sha12>, the stock
 # and undervolt panel0-<sha12>.dtb, dtb-variants.txt, bootlogo.bmp) also in
 # p2 under $src, with boot-files.sha256. When the running p2 ships a kernel
@@ -82,6 +83,12 @@ arm)
     if ! cmp -s "$src/bootlogo.bmp" "$boot/bootlogo.bmp"; then
         p1_rw; put "$src/bootlogo.bmp" bootlogo.bmp; p1_ro; log 'boot logo updated'
     fi
+    # M10: the model list and the PC model selectors in the card root (no
+    # trial: muos-model arms a chosen model itself)
+    for f in models.txt select-model.bat select-model.sh select-model.command; do
+        { [ -f "$src/$f" ] && ! cmp -s "$src/$f" "$boot/$f"; } || continue
+        p1_rw; put "$src/$f" "$f"; p1_ro; log "$f updated"
+    done
     # shellcheck disable=SC2046 # two words
     set -- $(target)
     want="$1 $2"

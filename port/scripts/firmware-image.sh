@@ -156,6 +156,24 @@ for c in 25 50 75 100; do for g in 0 25 50 75; do
     [ "$c-$g" != 50-25 ] || udn=$n
 done; done
 echo "undervolt=$udn" >> "$bf/dtb-variants.txt"
+# M10 (decision 43, experimental): the model DTBs (make-dtb-model.sh, the
+# pinned dArkOSen DTBs + the port's DT deltas) as m-<id> keys, named like
+# every p1 DTB; models.txt (id, name) and the PC selectors go to the card
+# root. muos-model switches main to the chosen one.
+"$repo/port/scripts/make-dtb-model.sh" "$work/models" > "$work/models.list"
+[ "$(wc -l < "$work/models.list")" = "$(grep -vc '^#' "$repo/port/packaging/models.txt")" ] ||
+    { echo 'model DTBs missing' >&2; exit 1; }
+printf 'default\tR36S-V12 2023-08-18 Panel 0 (R35S, the port default)\n' > "$bf/models.txt"
+while read -r id msha name; do
+    n=panel0-$(printf '%s' "$msha" | cut -c1-12).dtb
+    [ -f "$bf/$n" ] || cp "$work/models/$id.dtb" "$bf/$n"
+    echo "m-$id=$n" >> "$bf/dtb-variants.txt"
+    printf '%s\t%s\n' "$id" "$name" >> "$bf/models.txt"
+done < "$work/models.list"
+rm -rf "$work/models" "$work/models.list"
+cp "$repo/port/device/rk-r35s-p0/p1/select-model.sh" "$bf/select-model.sh"
+cp "$repo/port/device/rk-r35s-p0/p1/select-model.command" "$bf/select-model.command"
+sed 's/$/\r/' "$repo/port/device/rk-r35s-p0/p1/select-model.bat" > "$bf/select-model.bat" # cmd.exe: CRLF
 # M8: the boot logo U-Boot shows (uboot-boot/boot.c), derived from the
 # rootfs splash so both stages show the same picture.
 python3 "$repo/port/scripts/make-boot-logo.py" --bmp \

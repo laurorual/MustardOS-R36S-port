@@ -30,6 +30,7 @@
 #                        Boost and xiph tarballs from the pinned build caches
 #   buildroot-legal-info licence texts and sources of every root-filesystem
 #                        package (build-image.sh legal-info)
+#   model-dts            the source (DTS) of every model DTB (M10)
 # Not included (no source exists): Mali r13p0 userspace, DraStic,
 # libadvdrastic.so; see docs/LICENSING.md.
 set -euo pipefail
@@ -95,6 +96,13 @@ bundle)
     { core_tarballs; for c in "${caches[@]:1}"; do find "$c" -maxdepth 1 -name '*.tar*' ! -name '*.json'; done; } |
         sort -u | while read -r f; do z "$out/cores/${f##*/}.zst" < "$f"; done
     tar -C "$(dirname "$legal")" -cf - legal-info | z "$out/buildroot-legal-info.tar.zst"
+    # M10: the model DTBs' source: each decompiled DTS (dArkOSen's DTB + the
+    # port's deltas, make-dtb-model.sh) with dArkOSen's licence
+    tmp=$(mktemp -d "$b/.bundle.XXXXXX"); mkdir "$tmp/model-dts"
+    "$repo/port/scripts/make-dtb-model.sh" "$tmp/model-dts" > "$tmp/model-dts/models.list"
+    rm -f "$tmp/model-dts"/*.dtb; cp "$repo/refs/darkosen/LICENSE" "$tmp/model-dts/LICENSE.dArkOSen"
+    cp "$repo/port/packaging/models.txt" "$tmp/model-dts/"
+    tar -C "$tmp" --sort=name --owner=0 --group=0 --numeric-owner -cf - model-dts | z "$out/model-dts.tar.zst"; rm -rf "$tmp"
     cp "$repo/port/device/rk-r35s-p0/rootfs/usr/share/muos-r35s/THIRD-PARTY.txt" "$repo/docs/LICENSING.md" "$out/"
     # shellcheck disable=SC2094 # SHA256SUMS is excluded from the list
     (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)

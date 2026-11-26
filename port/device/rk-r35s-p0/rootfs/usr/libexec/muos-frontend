@@ -180,6 +180,11 @@ default_governor
 # M9 (decision 28): the Undervolt row shows the booted DTB; an undervolt
 # trial boot that keeps the menu up for 20 s becomes main (a grandchild,
 # so quit's wait doesn't wait for it).
+# M10 (decision 43): a model chosen on a PC (p1 model.txt) is armed as a
+# one-shot trial and the device restarts; that trial becomes main after 20 s
+# of menu.
+/usr/libexec/muos-model check || say "model check failed"
+( (sleep 20; /usr/libexec/muos-model promote) & )
 /usr/libexec/muos-undervolt sync || say "undervolt sync failed"
 ( (sleep 20; /usr/libexec/muos-undervolt promote) & )
 # M9 item 8: an update tried as a trial root is installed after 30 s of menu

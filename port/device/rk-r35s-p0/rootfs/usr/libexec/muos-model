@@ -1,0 +1,90 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M10 (decision 43, experimental): the R36S model DTB. The card-root
+# selectors (SELECT MODEL.bat / .sh / .command, run on a PC) write p1
+# model.txt: a model id from p1 models.txt, or "default" (the port's own
+# Panel 0 DTB). dtb-variants.txt names each model's DTB as m-<id>=FILE
+# (panel0-<sha12>.dtb, as muos-boot-slot names every DTB on p1). At
+# frontend start, a model.txt that the main boot record doesn't boot arms
+# a one-shot trial (same kernel, that DTB, label "model") and reboots; the
+# trial that keeps the menu up for 20 s becomes main (promote). A trial
+# that never gets there falls back to the old main by itself; the next
+# start renames model.txt to model.txt.failed (no retry loop). Without
+# model.txt nothing changes. On a model DTB the undervolt rows say
+# unavailable (muos-undervolt), and muos-boot-sync keeps the model across
+# kernel updates (its m-<id> key).
+#
+#   muos-model status    the model main boots (default, an id, or unknown)
+#   muos-model check     frontend start: act on p1 model.txt (may reboot)
+#   muos-model promote   on a "model" trial boot in the menu
+set -eu
+boot=/boot variants=/boot/dtb-variants.txt src=/usr/share/muos-r35s/boot
+slot=/usr/libexec/muos-boot-slot tool=/usr/libexec/muos-bootrec
+st=/userdata/MUOS/update armed=/userdata/MUOS/update/model-armed label=model
+tmp=/run/muos-model; mkdir -p "$tmp"
+log() { echo "muos-model: $*"; mkdir -p "$st"; echo "$(date '+%F %T') model: $*" >> "$st/update.log"; }
+booted() { sed -n 's/.*muos_slot=\([a-z]*\).*/\1/p' /proc/cmdline; }
+record() { # SLOT FIELD
+    case $1 in main) s=32 ;; previous) s=33 ;; trial) s=34 ;; *) return 1 ;; esac
+    dd if="$(/usr/libexec/muos-boot-disk)" of="$tmp/rec" bs=512 skip=$s count=1 2>/dev/null
+    $tool decode "$tmp/rec" 2>/dev/null | sed -n "s/^$2=//p"
+}
+variant() { sed -n "s/^$1=//p" "$variants" 2>/dev/null | head -n 1; }
+key_of() { # FDT: m-<id>, stock, uv (any undervolt DTB) or unknown
+    k=$(sed -n "s/^\([a-z0-9-]*\)=$1\$/\1/p" "$variants" 2>/dev/null | head -n 1)
+    case $k in m-*|stock) echo "$k" ;; uv-*|undervolt) echo uv ;; *) echo unknown ;; esac
+}
+current() { # the model main boots
+    k=$(key_of "$(record main fdt)")
+    case $k in m-*) echo "${k#m-}" ;; stock|uv) echo default ;; *) echo unknown ;; esac
+}
+p1_rw() { mount -o remount,rw $boot; }
+p1_ro() { sync; mount -o remount,ro $boot; }
+retire() { # SUFFIX: p1 model.txt -> model.txt.SUFFIX
+    p1_rw; mv -f "$boot/model.txt" "$boot/model.txt.$1"; p1_ro
+}
+wanted() { # the choice in p1 model.txt (Windows editors: CR, BOM, spaces)
+    bom=$(printf '\357\273\277')
+    head -n 1 "$boot/model.txt" | tr -d '\r\t ' | sed "s/^$bom//" | tr '[:upper:]' '[:lower:]'
+}
+case ${1:-status} in
+status) current ;;
+check)
+    [ -f "$boot/model.txt" ] || { rm -f "$armed"; exit 0; }
+    [ -f "$variants" ] || exit 0
+    [ "$(booted)" != trial ] || exit 0
+    want=$(wanted); cur=$(current)
+    case $want in
+        ''|*[!a-z0-9-]*) log "model.txt: '$want' is not a model id"; retire unknown; exit 0 ;;
+    esac
+    if [ "$want" = default ]; then
+        # default = the port DTB, stock or undervolted: keep either
+        [ "$cur" != default ] || { rm -f "$armed"; exit 0; }
+        dtb=$(variant stock)
+    else
+        dtb=$(variant "m-$want")
+        [ -n "$dtb" ] || { log "model $want: not in this firmware (model.txt.unknown)"; retire unknown; exit 0; }
+        # by file: two models may share one DTB
+        [ "$dtb" != "$(record main fdt)" ] || { rm -f "$armed"; exit 0; }
+    fi
+    # an armed switch that came back here: its trial did not reach the menu
+    if [ -f "$armed" ] && [ "$(cat "$armed")" = "$want" ]; then
+        log "model $want: the trial start did not reach the menu: back to $cur (model.txt.failed)"
+        rm -f "$armed"; retire failed; exit 0
+    fi
+    image=$(record main image)
+    f=$boot/$dtb; [ -f "$f" ] || f=$src/$dtb
+    { [ -f "$boot/$image" ] && [ -f "$f" ]; } || { log "missing: $image or $dtb"; exit 1; }
+    $slot install-trial "$boot/$image" "$f" "$label" > /dev/null
+    echo "$want" > "$armed"; sync
+    log "model $want armed ($image + $dtb): restart"
+    reboot ;;
+promote)
+    [ "$(booted)" = trial ] || exit 0
+    [ "$(record trial label)" = $label ] || exit 0
+    [ "$(record trial state)" = trial-consumed ] || exit 0
+    $slot promote > /dev/null
+    rm -f "$armed"
+    log "promoted: main = $(record main image) $(record main fdt) (model $(current))" ;;
+*) sed -n '17,19p' "$0"; exit 2 ;;
+esac
