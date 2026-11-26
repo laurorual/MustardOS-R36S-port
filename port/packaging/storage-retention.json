@@ -54,13 +54,21 @@
         "build/m3a/MustardOS-R36S-port-v1.0.0-rc2.p2.img"
       ]
     },
-    "m9g-20261126": {
-      "reason": "M9 kernel/DTB updates through the p2 update path: p2 carries the boot files (/usr/share/muos-r35s/boot), muos-boot-sync arms them as a trial after write-p2 or at frontend start, promotes after 20 s of menu, gives up after two failed tries, p1 gc; T2: failure path x2, success path, full stage->trial root->write-p2->arm->trial->promote from m9f with undervolt kept (uv-50-25 mapped), boot-slot 4/4, NES 59.96 (raw 5c5c6579, p2 d290e11c)",
+    "m9g-v100-20261126": {
+      "reason": "M9 kernel/DTB updates through the p2 update path: p2 carries the boot files (/usr/share/muos-r35s/boot), muos-boot-sync arms them as a trial after write-p2 or at frontend start, promotes after 20 s of menu, gives up after two failed tries, p1 gc; T2: failure path x2, success path, full stage->trial root->write-p2->arm->trial->promote from m9f with undervolt kept (uv-50-25 mapped), boot-slot 4/4, NES 59.96 (raw 5c5c6579, p2 d290e11c); public v1.0.0 from the same rootfs (raw cc0f8591, p2 f0cc4d09, xz 7ce6798f; 29 checks), T3 = the rc2 card updating to it",
       "files": [
         "dist/firmware/test128-m9g-20261126.img.zst",
         "dist/firmware/test128-m9g-20261126.img.zst.sha256",
         "dist/firmware/test128-m9g-20261126.manifest",
-        "build/m3a/test128-m9g-20261126.p2.img"
+        "build/m3a/test128-m9g-20261126.p2.img",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0.img.xz",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0.img.xz.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0.img.zst",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0.img.zst.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0.manifest",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0.p2.img.gz",
+        "dist/firmware/MustardOS-R36S-port-v1.0.0.p2.img.sha256",
+        "build/m3a/MustardOS-R36S-port-v1.0.0.p2.img"
       ]
     }
   },
