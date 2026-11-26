@@ -254,6 +254,22 @@ byte-identical.
 
 ## Update the kernel or DTB via a trial kernel
 
+**Releases (M9, `muos-boot-sync`):** every image also carries its p1 boot
+files in p2 (`/usr/share/muos-r35s/boot`: `Image-<sha12>`, the stock and
+undervolt DTBs, `dtb-variants.txt`, `bootlogo.bmp`, `boot-files.sha256`).
+After a p2 update (`muos-update resume`, right after write-p2) or at a
+frontend start (45 s), `muos-boot-sync arm` installs a changed boot logo
+directly and arms a changed kernel/DTB as a `kernel-update` trial (the
+user's DTB key, stock or `uv-C-G`, is kept); the next start tries it, the
+frontend promotes it after 20 s of menu and removes p1 kernels/DTBs that
+no record or `dtb-variants.txt` names. Two tries that don't reach the menu
+→ `MUOS/update/boot-failed`, the old `dtb-variants.txt` restored. Nothing
+reboots on its own. `muos-boot-sync status` shows the state; log lines
+`boot-sync:` in `MUOS/update/update.log`. `MUOS_BOOT_SRC=DIR` points it at
+a test payload (T2).
+
+By hand (development):
+
 (no bootloader write):
 1. `device.sh push` the `Image` and DTB to `/run` (tmpfs: gone after a
    reboot), then `/usr/libexec/muos-boot-slot install-trial /run/Image

@@ -178,6 +178,10 @@ default_governor
 ( (sleep 20; /usr/libexec/muos-undervolt promote) & )
 # M9 item 8: an update tried as a trial root is installed after 30 s of menu
 ( (sleep 30; /usr/libexec/muos-update resume) & )
+# M9: a kernel/DTB shipped by a newer p2 is armed as a trial for the next
+# start; a kernel-update trial boot that keeps the menu up becomes main.
+( (sleep 20; /usr/libexec/muos-boot-sync promote > /dev/null 2>&1) & )
+( (sleep 45; /usr/libexec/muos-boot-sync arm > /dev/null 2>&1) & )
 # M9: check GitHub for a newer release once Wi-Fi is up (public images only)
 ( (sleep 60; /usr/libexec/muos-update auto > /dev/null 2>&1) & )
 fast=0

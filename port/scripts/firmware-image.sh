@@ -123,6 +123,44 @@ echo "release=$(basename "${out%.img.zst}")" > "$work/release"
 debugfs -w -f "$cmds" "$work/p2.img" >/dev/null 2>&1; rm -f "$work/release"; : > "$cmds"
 [ "$(debugfs -R 'cat /etc/muos-port-release' "$work/p2.img" 2>/dev/null)" = "release=$(basename "${out%.img.zst}")" ] ||
     { echo 'release stamp failed' >&2; exit 1; }
+# M9: the boot files p1 gets (kernel, stock + undervolt DTBs, dtb-variants.txt,
+# boot logo), made once here and also put in p2 under /usr/share/muos-r35s/boot
+# with boot-files.sha256: after a p2 update, muos-boot-sync installs a changed
+# kernel/DTB through a trial boot. Undervolted DTBs: every CPU 25..100 x GPU
+# 0..75 mV combination in 25 mV steps (decision 28, Danger Settings ->
+# Undervolt and its two voltage rows; default -50/-25, the M8 thermal block's
+# choice); dtb-variants.txt tells muos-undervolt which is which (off by
+# default: the boot records keep the stock DTB).
+sha() { sha256sum "$1" | cut -d' ' -f1; }
+kimg=$bootd/Image kdtb=$bootd/rk3326-muos-r35s-panel0.dtb
+(cd "$bootd" && sha256sum -c --quiet SHA256SUMS)
+kin=Image-$(sha "$kimg" | cut -c1-12) kdn=panel0-$(sha "$kdtb" | cut -c1-12).dtb
+bf=$work/bootfiles; mkdir -p "$bf"
+cp "$kimg" "$bf/$kin"; cp "$kdtb" "$bf/$kdn"
+printf 'stock=%s\n' "$kdn" > "$bf/dtb-variants.txt"
+for c in 25 50 75 100; do for g in 0 25 50 75; do
+    "$repo/port/scripts/make-dtb-uv.sh" "$kdtb" "$work/uv.dtb" $c $g > /dev/null
+    n=panel0-$(sha "$work/uv.dtb" | cut -c1-12).dtb
+    mv "$work/uv.dtb" "$bf/$n"
+    echo "uv-$c-$g=$n" >> "$bf/dtb-variants.txt"
+    [ "$c-$g" != 50-25 ] || udn=$n
+done; done
+echo "undervolt=$udn" >> "$bf/dtb-variants.txt"
+# M8: the boot logo U-Boot shows (uboot-boot/boot.c), derived from the
+# rootfs splash so both stages show the same picture.
+python3 "$repo/port/scripts/make-boot-logo.py" --bmp \
+    "$repo/port/device/rk-r35s-p0/rootfs/usr/share/muos-r35s/bootlogo.fb.gz" "$bf/bootlogo.bmp"
+(cd "$bf" && sha256sum -- * > "$work/boot-files.sha256") && mv "$work/boot-files.sha256" "$bf/"
+d=/usr/share/muos-r35s/boot
+{ printf 'mkdir %s\nsif %s mode 040755\nsif %s uid 0\nsif %s gid 0\ncd %s\n' "$d" "$d" "$d" "$d" "$d"
+  for f in "$bf"/*; do printf 'write %s %s\n' "$f" "${f##*/}"; done
+  for f in "$bf"/*; do printf 'sif %s/%s mode 0100644\nsif %s/%s uid 0\nsif %s/%s gid 0\n' "$d" "${f##*/}" "$d" "${f##*/}" "$d" "${f##*/}"; done
+} > "$cmds"
+debugfs -w -f "$cmds" "$work/p2.img" >/dev/null 2>&1; : > "$cmds"
+for f in "$bf"/*; do
+    [ "$(debugfs -R "cat $d/${f##*/}" "$work/p2.img" 2>/dev/null | sha256sum | cut -d' ' -f1)" = "$(sha "$f")" ] ||
+        { echo "p2 boot file differs: ${f##*/}" >&2; exit 1; }
+done
 e2fsck -fn "$work/p2.img" > "$work/fsck.txt" 2>&1 || { cat "$work/fsck.txt"; echo 'p2 fsck failed' >&2; exit 1; }
 features=$( (dumpe2fs -h "$work/p2.img" 2>/dev/null || :) | sed -n 's/^Filesystem features: *//p')
 for bad in 64bit metadata_csum_seed orphan_file fast_commit; do
@@ -136,42 +174,18 @@ cmp -s "$work/p2.img" <(dd if="$img" bs=512 skip=$p2_start count=$p2_sectors sta
 p2_sum=$(sha256sum "$work/p2.img" | cut -d' ' -f1)
 
 echo "== boot chain: U-Boot, p1 kernel, boot records"
-sha() { sha256sum "$1" | cut -d' ' -f1; }
-(cd "$bootd" && sha256sum -c --quiet SHA256SUMS)
 p1="$img@@$((p1_start * 512))" kimg=$bootd/Image kdtb=$bootd/rk3326-muos-r35s-panel0.dtb
 mcopy -n -i "$p1" ::Image "$work/m2.Image"
 mcopy -n -i "$p1" ::rk3326-muos-r35s-panel0.dtb "$work/m2.dtb"
 [ "$(sha "$work/m2.Image")" = "$m2_image" ] && [ "$(sha "$work/m2.dtb")" = "$m2_dtb" ] ||
     { echo 'base p1 does not hold the M2 kernel' >&2; exit 1; }
-kin=Image-$(sha "$kimg" | cut -c1-12) kdn=panel0-$(sha "$kdtb" | cut -c1-12).dtb
-mcopy -o -i "$p1" "$kimg" "::$kin"
-mcopy -o -i "$p1" "$kdtb" "::$kdn"
-mcopy -n -i "$p1" "::$kin" "$work/chk.img"; mcopy -n -i "$p1" "::$kdn" "$work/chk.dtb"
-cmp "$kimg" "$work/chk.img" && cmp "$kdtb" "$work/chk.dtb"
-# M9 (decision 28): undervolted DTBs next to the stock one, every CPU
-# 25..100 x GPU 0..75 mV combination in 25 mV steps (Danger Settings ->
-# Undervolt and its two voltage rows; default -50/-25, the M8 thermal
-# block's choice); dtb-variants.txt tells muos-undervolt which is which
-# (off by default: the boot records keep the stock DTB).
-printf 'stock=%s\n' "$kdn" > "$work/dtb-variants.txt"
-for c in 25 50 75 100; do for g in 0 25 50 75; do
-    "$repo/port/scripts/make-dtb-uv.sh" "$kdtb" "$work/uv.dtb" $c $g > /dev/null
-    n=panel0-$(sha "$work/uv.dtb" | cut -c1-12).dtb
-    mcopy -o -i "$p1" "$work/uv.dtb" "::$n"
-    mcopy -n -i "$p1" "::$n" "$work/chk.uv"; cmp "$work/uv.dtb" "$work/chk.uv"
-    echo "uv-$c-$g=$n" >> "$work/dtb-variants.txt"
-    [ "$c-$g" != 50-25 ] || { udn=$n; cp "$work/uv.dtb" "$work/uv-default.dtb"; }
-done; done
-echo "undervolt=$udn" >> "$work/dtb-variants.txt"
-mcopy -o -i "$p1" "$work/dtb-variants.txt" ::dtb-variants.txt
-rm -f "$work/chk.uv" "$work/uv.dtb"
-# M8: the boot logo U-Boot shows (uboot-boot/boot.c), derived from the
-# rootfs splash so both stages show the same picture.
-python3 "$repo/port/scripts/make-boot-logo.py" --bmp \
-    "$repo/port/device/rk-r35s-p0/rootfs/usr/share/muos-r35s/bootlogo.fb.gz" "$work/bootlogo.bmp"
-mcopy -o -i "$p1" "$work/bootlogo.bmp" ::bootlogo.bmp
-mcopy -n -i "$p1" ::bootlogo.bmp "$work/chk.bmp"; cmp "$work/bootlogo.bmp" "$work/chk.bmp"
-rm -f "$work/bootlogo.bmp" "$work/chk.bmp"
+# the boot files made for p2 above (same bytes on both partitions)
+for f in "$bf"/*; do
+    [ "${f##*/}" != boot-files.sha256 ] || continue
+    mcopy -o -i "$p1" "$f" "::${f##*/}"
+    mcopy -n -i "$p1" "::${f##*/}" "$work/chk.bf"; cmp "$f" "$work/chk.bf"
+done
+rm -f "$work/chk.bf"
 # Phase 4 leftovers on the M2 base's p1 (M3e): the DIAGnn log folders,
 # PROBE.TXT and the empty tools folder. Nothing in the boot chain reads
 # them (U-Boot loads only the files the boot records name). DIAG.ID stays
@@ -181,7 +195,7 @@ for f in $(mdir -b -i "$p1" :: | sed -n 's|^::/\([^/]*\)/\{0,1\}$|\1|p' | grep -
 done
 dd if="$img" of="$work/p1.img" bs=512 skip=$p1_start count=$p1_sectors status=none
 fsck.fat -n "$work/p1.img" > "$work/fsck-p1.txt" 2>&1 || { cat "$work/fsck-p1.txt"; echo 'p1 fsck failed' >&2; exit 1; }
-rm -f "$work/p1.img" "$work/chk.img" "$work/chk.dtb"
+rm -f "$work/p1.img"
 br=$repo/port/scripts/bootrec.py klabel="m3b $(sha "$kimg" | cut -c1-8)"
 python3 "$br" encode valid "$kimg" "$kdtb" "$klabel" "$work/main.rec" --image-name "$kin" --fdt-name "$kdn"
 python3 "$br" encode valid "$work/m2.Image" "$work/m2.dtb" 'm2 4.4.189' "$work/prev.rec" \
@@ -248,7 +262,7 @@ p2_features=$(tr ' ' ',' <<< "$features")
 uboot_sha256=$uboot_sum
 boot_main=$kin,$kdn,$(sha "$kimg"),$(sha "$kdtb")
 boot_previous=Image,rk3326-muos-r35s-panel0.dtb,$m2_image,$m2_dtb
-boot_undervolt=$udn,$(sha "$work/uv-default.dtb")
+boot_undervolt=$udn,$(sha "$bf/$udn")
 $([ "$variant" = public ] && echo 'private=no  # public variant: check-public-image.sh passed' || echo 'private=yes  # contains Wi-Fi PSK, SSH host key and authorized_keys')
 EOF
 echo "OK $out raw_sha256=$raw_sum p2_sha256=$p2_sum size=$(stat -c %s "$out")"

@@ -99,7 +99,7 @@ the undervolt opt-in with manual CPU/GPU values, THIRD-PARTY.txt, the
 update path (`muos-update`, Task Toolkit "Install Firmware Update",
 GitHub auto-update in public images).
 
-Before v1.0.0 (found 2026-11-25): the update path carries only p2, so
+Before v1.0.0 (found 2026-11-25, done 2026-11-26 with `muos-boot-sync`): the update path carried only p2, so
 a kernel/DTB fix (like patch 0011) never reaches an updated card. Plan:
 the p2 image carries the boot files (`Image`, DTBs, `dtb-variants.txt`)
 and, after the update's first good boot, installs changed ones with the

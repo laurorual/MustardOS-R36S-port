@@ -16,7 +16,9 @@
 # up, downloads a newer NAME.p2.img.gz + .sha256 (curl, CA-verified TLS)
 # and stages it: installed on the next start, as above. Off in developer
 # images (/etc/muos-developer) and when MUOS/update/disabled exists.
-# Kernel/DTB/U-Boot are not updated this way (p2 only).
+# The kernel and DTBs ride in the new p2 (/usr/share/muos-r35s/boot):
+# after write-p2, muos-boot-sync arms them as a trial for the next start
+# (promoted once it reaches the menu). U-Boot is not updated this way.
 #   muos-update stage | resume | status | check | fetch | auto
 set -eu
 upd=/userdata/MUOS/update trial=/userdata/MUOS/trial rt=/usr/libexec/muos-root-trial
@@ -112,6 +114,7 @@ resume)
     log "trial boot reached the menu, writing p2"
     $rt write-p2 "$trial/rootfs.img" "$want" >> "$upd/update.log" 2>&1 || { mv "$upd/pending" "$upd/failed"; log 'write-p2 failed'; exit 1; }
     rm -f "$upd/pending" "$trial/rootfs.img" "$upd/$img" "$upd/${img%.gz}.sha256"
-    log "installed $want (running now; booted from p2 from the next start)"; sync ;;
-*) sed -n '20p' "$0"; exit 2 ;;
+    log "installed $want (running now; booted from p2 from the next start)"; sync
+    /usr/libexec/muos-boot-sync arm --after-update > /dev/null 2>&1 || log 'kernel update not armed (see boot-sync lines)' ;;
+*) sed -n '22p' "$0"; exit 2 ;;
 esac

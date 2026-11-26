@@ -1,0 +1,133 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M9: kernel, DTB and boot-logo updates through the p2 update path. The
+# image build puts the boot files it wrote to p1 (Image-<sha12>, the stock
+# and undervolt panel0-<sha12>.dtb, dtb-variants.txt, bootlogo.bmp) also in
+# p2 under $src, with boot-files.sha256. When the running p2 ships a kernel
+# or DTB that the main boot record doesn't boot, `arm` copies what p1 lacks
+# and arms them as a one-shot trial (muos-boot-slot install-trial, label
+# kernel-update), keeping the user's DTB choice (stock or an undervolt
+# variant, by its dtb-variants.txt key); the next start tries it, and
+# `promote` makes it main once that trial has kept the menu up for 20 s. A
+# trial that never reaches the menu falls back to the old main by itself;
+# after two such tries the target is given up (MUOS/update/boot-failed) and
+# the old dtb-variants.txt restored. Nothing reboots on its own.
+#
+#   muos-boot-sync status     what the shipped files and the records say
+#   muos-boot-sync arm        frontend start / after an update's write-p2
+#   muos-boot-sync promote    on a kernel-update trial boot in the menu
+#   muos-boot-sync gc         remove p1 kernels/DTBs nothing names
+# MUOS_BOOT_SRC overrides $src (T2 only).
+set -eu
+src=${MUOS_BOOT_SRC:-/usr/share/muos-r35s/boot} boot=/boot
+slot=/usr/libexec/muos-boot-slot tool=/usr/libexec/muos-bootrec
+st=/userdata/MUOS/update label=kernel-update
+tmp=/run/muos-boot-sync; mkdir -p "$tmp" "$st"
+log() { echo "muos-boot-sync: $*"; echo "$(date '+%F %T') boot-sync: $*" >> "$st/update.log"; }
+booted() { sed -n 's/.*muos_slot=\([a-z]*\).*/\1/p' /proc/cmdline; }
+record() { # SLOT FIELD
+    case $1 in main) sec=32 ;; previous) sec=33 ;; trial) sec=34 ;; *) return 1 ;; esac
+    dd if="$(/usr/libexec/muos-boot-disk)" of="$tmp/rec" bs=512 skip=$sec count=1 2>/dev/null
+    $tool decode "$tmp/rec" 2>/dev/null | sed -n "s/^$2=//p"
+}
+key_of() { # FDT VARIANTS: stock, uv-C-G (undervolt= is the m9a alias of uv-50-25)
+    k=$(sed -n "s/^\([a-z0-9-]*\)=$1\$/\1/p" "$2" 2>/dev/null | grep -vx undervolt | head -n 1)
+    [ -n "$k" ] || { grep -qx "undervolt=$1" "$2" 2>/dev/null && k=uv-50-25; }
+    echo "${k:-stock}"
+}
+file_of() { sed -n "s/^$1=//p" "$2" | head -n 1; }
+p1_rw() { mount -o remount,rw $boot; }
+p1_ro() { sync; mount -o remount,ro $boot; }
+put() { # SRC_FILE NAME: copy to p1 unless identical (p1 must be rw)
+    [ -f "$boot/$2" ] && cmp -s "$1" "$boot/$2" && return 0
+    cp "$1" "$boot/$2.tmp" && mv -f "$boot/$2.tmp" "$boot/$2"
+}
+gc() { # p1 Image-*/panel0-*.dtb that no record and no dtb-variants.txt names
+    keep=" $(for r in main previous trial; do record $r image; record $r fdt; done | tr '\n' ' ') "
+    # never delete what a record names (each record must name both files)
+    case $keep in *" Image"*" panel0-"*|*" panel0-"*" Image"*) ;; *) log 'gc: records unreadable, nothing removed'; return 0 ;; esac
+    [ "$(echo "$keep" | wc -w)" -ge 4 ] || { log 'gc: records unreadable, nothing removed'; return 0; }
+    keep="$keep $(sed -n 's/^[a-z0-9-]*=//p' "$boot/dtb-variants.txt" 2>/dev/null | tr '\n' ' ') "
+    for f in "$boot"/Image-* "$boot"/panel0-*.dtb; do
+        [ -f "$f" ] || continue
+        case $keep in *" ${f##*/} "*) ;; *) rm -f "$f" && log "removed unused ${f##*/}" ;; esac
+    done
+}
+target() { # "IMAGE FDT" the shipped files that main should boot
+    v=$src/dtb-variants.txt
+    # main's DTB is named in the variants it was armed from: .previous
+    # while an armed update has already replaced dtb-variants.txt
+    cur=$boot/dtb-variants.txt; [ ! -f "$cur.previous" ] || cur=$cur.previous
+    img=$(cd "$src" && ls Image-* 2>/dev/null | head -n 1)
+    fdt=$(file_of "$(key_of "$(record main fdt)" "$cur")" "$v")
+    [ -n "$fdt" ] || fdt=$(file_of stock "$v")
+    echo "$img $fdt"
+}
+case ${1:-status} in
+status)
+    [ -f "$src/dtb-variants.txt" ] || { echo 'no boot files in this firmware'; exit 0; }
+    echo "booted=$(booted) main=$(record main image) $(record main fdt)"
+    echo "shipped=$(target)"
+    for f in boot-armed boot-failed; do [ ! -f "$st/$f" ] || echo "$f: $(cat "$st/$f")"; done ;;
+arm)
+    [ -f "$src/dtb-variants.txt" ] || exit 0
+    [ "$(booted)" != trial ] || exit 0
+    if [ "${2:-}" != --after-update ]; then
+        # a p2 update in progress installs these itself after write-p2
+        ! /usr/libexec/muos-root-trial status 2>/dev/null | grep -q '^trial-root yes' || exit 0
+        [ ! -f "$st/pending" ] || exit 0
+    fi
+    (cd "$src" && sha256sum -c -s boot-files.sha256) || { log 'shipped boot files damaged: nothing armed'; exit 1; }
+    # the boot logo needs no trial (U-Boot checks it, then boots anyway)
+    if ! cmp -s "$src/bootlogo.bmp" "$boot/bootlogo.bmp"; then
+        p1_rw; put "$src/bootlogo.bmp" bootlogo.bmp; p1_ro; log 'boot logo updated'
+    fi
+    # shellcheck disable=SC2046 # two words
+    set -- $(target)
+    want="$1 $2"
+    if [ "$(record main image) $(record main fdt)" = "$want" ]; then
+        if ! cmp -s "$src/dtb-variants.txt" "$boot/dtb-variants.txt"; then
+            p1_rw; for f in "$src"/panel0-*.dtb; do put "$f" "${f##*/}"; done
+            put "$src/dtb-variants.txt" dtb-variants.txt; p1_ro; log 'dtb-variants.txt updated'
+        fi
+        rm -f "$st/boot-armed"; exit 0
+    fi
+    ! grep -qxF "$want" "$st/boot-failed" 2>/dev/null || exit 0
+    n=0
+    if [ -f "$st/boot-armed" ] && [ "$(head -n 1 "$st/boot-armed")" = "$want" ]; then
+        n=$(sed -n 2p "$st/boot-armed")
+        if [ "$(record trial state)" = trial-armed ] && [ "$(record trial image) $(record trial fdt)" = "$want" ]; then
+            exit 0 # armed, not tried yet
+        fi
+        if [ "${n:-0}" -ge 2 ]; then
+            echo "$want" >> "$st/boot-failed"; rm -f "$st/boot-armed"
+            if [ -f "$boot/dtb-variants.txt.previous" ]; then
+                p1_rw; mv -f "$boot/dtb-variants.txt.previous" "$boot/dtb-variants.txt"; p1_ro
+            fi
+            log "kernel update $want did not reach the menu twice: kept the old kernel"; exit 0
+        fi
+    fi
+    need=0; for f in "$src"/Image-* "$src"/panel0-*.dtb; do
+        [ -f "$boot/${f##*/}" ] || need=$((need + $(wc -c < "$f")))
+    done
+    p1_rw
+    free=$(df -k $boot | awk 'NR == 2 {print $4 * 1024}')
+    [ "$free" -gt $((need + 1048576)) ] || gc
+    for f in "$src"/panel0-*.dtb; do put "$f" "${f##*/}"; done
+    [ -f "$boot/dtb-variants.txt.previous" ] || cp "$boot/dtb-variants.txt" "$boot/dtb-variants.txt.previous" 2>/dev/null || :
+    put "$src/dtb-variants.txt" dtb-variants.txt
+    p1_ro
+    $slot install-trial "$src/$1" "$src/$2" $label > /dev/null || { log "arming $want failed"; exit 1; }
+    printf '%s\n%s\n' "$want" $((n + 1)) > "$st/boot-armed"; sync
+    log "kernel update armed (try $((n + 1))): $want, tried on the next start" ;;
+promote)
+    [ "$(booted)" = trial ] || exit 0
+    [ "$(record trial label)" = $label ] || exit 0
+    [ "$(record trial state)" = trial-consumed ] || exit 0
+    $slot promote > /dev/null
+    rm -f "$st/boot-armed"
+    p1_rw; rm -f "$boot/dtb-variants.txt.previous"; gc; p1_ro
+    log "kernel update promoted: main = $(record main image) $(record main fdt)" ;;
+gc) p1_rw; gc; p1_ro ;;
+*) sed -n '15,19p' "$0"; exit 2 ;;
+esac

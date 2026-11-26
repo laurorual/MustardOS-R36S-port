@@ -3,7 +3,13 @@
 MustardOS for R36S/R35S (unofficial port). Not supported by the MustardOS
 team: https://github.com/laurorual/MustardOS-R36S-port/issues
 
-## v1.0.0-rc2 (unreleased)
+## v1.0.0 (unreleased)
+
+- **Updates:** an update over Wi-Fi or from the Task Toolkit now also
+  brings the new kernel and boot screen: tried once at the next start and
+  kept only if the menu comes up (otherwise the old kernel stays).
+
+## v1.0.0-rc2 (2026-11-26, pre-release)
 
 - **Battery:** charging now ends at 100 % ("Full"); before, the gauge
   stopped at 95–98 % (kernel: the BSP's finish check compared the charge
