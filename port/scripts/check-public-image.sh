@@ -92,6 +92,12 @@ models_ok() {
     done
 }
 check "every model DTB, models.txt and the selectors ship" models_ok
+# M11: PortMaster is downloaded on the device, never shipped (gptokeyb GPL,
+# 7zzs LGPL); its launcher, Python and the THIRD-PARTY note are there
+check "PortMaster not in the image (p2 has no PortMaster tree or zip)" absent /usr/share/muos-r35s/portmaster
+check "PortMaster launcher, app folder and Python 3 ship" p2_grep /opt/muos/share/application/PortMaster/mux_launch.sh 'muos-portmaster run'
+check "Python 3 runtime ships" p2_grep /usr/lib/python3.12/os.pyc 'posix'
+check "THIRD-PARTY says PortMaster is not included" p2_grep /usr/share/muos-r35s/THIRD-PARTY.txt 'PortMaster is NOT included'
 if [ -n "$base_p2" ]; then
     # Secrets of the developer image: values of ssid/psk lines and the key blob.
     debugfs -R 'cat /var/lib/muos-network/network.conf' "$base_p2" 2>/dev/null |
