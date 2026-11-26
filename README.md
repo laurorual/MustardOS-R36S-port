@@ -96,6 +96,14 @@ Fn+Start quits a port. Ports for 32-bit (armhf) systems only do not run.
 PortMaster is not part of this firmware: it, its runtimes and its ports
 come from the PortMaster project and their authors.
 
+**PICO-8 (since v1.1.1):** carts (`.p8`, `.p8.png`) in `ROMS/PICO-8`
+play with the free Picante8 core (FAKE-08 is the other choice, in the
+content options). If you own the official PICO-8, copy its Raspberry Pi
+download (`pico-8_*_raspi.zip`, or `pico8_64` + `pico8.dat` from it) to
+`MUOS/bios/pico8` and restart: choose the core "PICO-8 - Standalone" or
+"PICO-8 - Pixel-Perfect - Standalone" for the folder or a cart, and
+Applications gets **Splore** (the Lexaloffle BBS, Wi-Fi). The official PICO-8 is not included.
+
 ## Licences
 
 - The port's own code: MIT ([LICENSE](LICENSE)). Its patches to GPL code
@@ -185,6 +193,16 @@ para `MUOS/update`). Os ports instalados aparecem no sistema **Ports**;
 Fn+Start fecha um port. Ports só para sistemas 32 bits (armhf) não
 rodam. O PortMaster não faz parte deste firmware: ele, as runtimes e os
 ports vêm do projeto PortMaster e dos seus autores.
+
+**PICO-8 (desde a v1.1.1):** cartuchos (`.p8`, `.p8.png`) em
+`ROMS/PICO-8` rodam com o core livre Picante8 (o FAKE-08 é a outra
+opção, nas opções de conteúdo). Se você tem o PICO-8 oficial, copie o
+download para Raspberry Pi (`pico-8_*_raspi.zip`, ou o `pico8_64` +
+`pico8.dat` dele) para `MUOS/bios/pico8` e reinicie: escolha o core
+"PICO-8 - Standalone" ou "PICO-8 - Pixel-Perfect - Standalone" para a
+pasta ou um cartucho, e Aplicativos ganha o **Splore** (o BBS da
+Lexaloffle, Wi-Fi). O PICO-8 oficial não acompanha
+o sistema.
 
 **Licenças:** código do port em MIT; componentes de terceiros em
 [docs/LICENSING.md](docs/LICENSING.md); nome e temas do MustardOS sob

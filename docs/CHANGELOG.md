@@ -13,6 +13,11 @@ team: https://github.com/laurorual/MustardOS-R36S-port/issues
 - Applications from `MUOS/application` (and PortMaster's app ports) start
   from the Applications menu.
 - Python 3 in the system (for PortMaster).
+- **PICO-8:** carts in `ROMS/PICO-8` play with the Picante8 core (FAKE-08
+  as the other choice). The official PICO-8 (your own Raspberry Pi
+  download in `MUOS/bios/pico8`) adds the standalone and pixel-perfect
+  choices and the Splore app.
+- GNU wget with HTTPS (Splore downloads, port scripts).
 
 ## v1.1.0 (2026-11-26)
 
