@@ -21,13 +21,21 @@
         "dist/firmware/MustardOS-R36S-port-v1.1.0.manifest"
       ]
     },
-    "m11b-20261126": {
-      "reason": "M11: PortMaster (installed on first start, not shipped), applications in the frontend loop, ports as sessions, retroarch shim, Python 3, JPEG in SDL2_image; developer m11b (raw f6acea14, p2 bd535fda, written to the bench p2 after t2-portmaster PASS); the public build is v1.1.1, made with M12 (decision 48)",
+    "m12b-v111-20261126": {
+      "reason": "M11+M12 (decision 48): PortMaster (installed on first start), PICO-8 (Picante8 default, FAKE-08, the user's official PICO-8 + Splore), GNU wget, Python 3; developer m12b (raw d41cacdb, p2 32b0ec6a, written to the bench p2 after t2-pico8 + t2-portmaster PASS); public v1.1.1 (raw d0a56dcc, p2 92542837; 38 checks)",
       "files": [
-        "build/m3a/test128-m11b.p2.img",
-        "dist/firmware/test128-m11b.img.zst",
-        "dist/firmware/test128-m11b.img.zst.sha256",
-        "dist/firmware/test128-m11b.manifest"
+        "build/m3a/MustardOS-R36S-port-v1.1.1.p2.img",
+        "build/m3a/test128-m12b.p2.img",
+        "dist/firmware/MustardOS-R36S-port-v1.1.1.img.xz",
+        "dist/firmware/MustardOS-R36S-port-v1.1.1.img.xz.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.1.1.img.zst",
+        "dist/firmware/MustardOS-R36S-port-v1.1.1.img.zst.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.1.1.manifest",
+        "dist/firmware/MustardOS-R36S-port-v1.1.1.p2.img.gz",
+        "dist/firmware/MustardOS-R36S-port-v1.1.1.p2.img.sha256",
+        "dist/firmware/test128-m12b.img.zst",
+        "dist/firmware/test128-m12b.img.zst.sha256",
+        "dist/firmware/test128-m12b.manifest"
       ]
     }
   },
