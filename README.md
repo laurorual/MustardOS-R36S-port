@@ -22,6 +22,10 @@ straight to the MustardOS menu.
   in slot 2 can hold ROMs.
 - Wi-Fi needs a USB dongle with the Realtek RTL8821CU chip (the R36S has
   no internal Wi-Fi). Bluetooth is not supported.
+- Planned after v1.0, as **experimental** options: other R36S variants
+  with the same 640x480 screen (a model selector with dArkOSen's device
+  trees) and other Wi-Fi dongles. The port can't test them: please
+  report in the issues whether they work.
 
 ## Install
 
@@ -96,7 +100,11 @@ direto no menu do MustardOS.
 **Aparelhos:** testado em um **R35S com Panel 0** (modelo "R36S-V12
 2023-08-18 Panel 0"); R36S com a mesma placa e tela devem funcionar.
 Outras telas, revisões e clones não são suportados. Wi-Fi requer um
-adaptador USB com chip Realtek RTL8821CU; sem Bluetooth.
+adaptador USB com chip Realtek RTL8821CU; sem Bluetooth. Planejado após
+a v1.0, como opção **experimental**: outras variantes do R36S com tela
+640x480 (seletor de modelo com os device trees do dArkOSen) e outros
+adaptadores Wi-Fi. O port não tem como testá-los: conte nas issues se
+funcionam.
 
 **Instalação** (guia completo: [docs/install.pt-BR.md](docs/install.pt-BR.md)):
 baixe `MustardOS-R36S-port-<versão>.img.xz` e o `.sha256` em

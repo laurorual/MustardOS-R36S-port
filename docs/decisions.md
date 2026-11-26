@@ -113,5 +113,22 @@ overrides an earlier one where they conflict (noted inline).
     (badge as supplied) with the port's "R36S / R35S" and "unofficial
     port" text below.
 
+43. (2026-11-25) Other R36S variants after v1.0: the dArkOSen DTBs of
+    the same resolution (640x480) in a folder of the image, and a basic
+    selector in the card's root (Windows, Linux, macOS) that puts the
+    chosen DTB in place of the system's, like dArkOSen. README: untested
+    by the port, feedback wanted.
+44. (2026-11-25) Other Wi-Fi dongles after v1.0, with dArkOSen as the
+    reference (no guessing: the port can't test them). README: untested,
+    feedback wanted.
+45. (2026-11-25) MustardOS updates: v1.0 stays on 2606.0 Andromeda, the
+    latest official release (parity); the next official release is
+    ported after v1.0 (upstream main is unreleased work, 81 frontend + 90
+    internal commits on 2026-11-25).
+46. (2026-11-25, rc2 T3 ok) test128 is wiped by the user and becomes an
+    ext4 slot-2 test card; the public rc2 goes on the old original32
+    card in slot 1 (no developer access while it runs). test128 returns
+    to a developer image later by `flash-card.sh` + `card-p3.sh restore`.
+
 Standing rules (AGENTS.md): heavy systems = maximum performance first;
 recovery promotion after a clean T3 without asking.
