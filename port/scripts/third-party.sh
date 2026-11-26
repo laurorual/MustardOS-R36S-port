@@ -58,6 +58,9 @@ System
   linux-firmware $(awk '$1 == "tag" {print $2}' "$repo/port/packaging/wifi-firmware.txt"), unmodified, (c) MediaTek/Ralink and Realtek, redistributable
   (LICENCE.ralink-firmware.txt, LICENCE.ralink_a_mediatek_company_firmware, LICENCE.rtlwifi_firmware.txt
   in /usr/share/licenses/linux-firmware): https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+- PortMaster is NOT included: Applications -> PortMaster downloads it on its first start from
+  https://github.com/PortsMaster/PortMaster-GUI (MIT; its tools carry their own licences in
+  MUOS/PortMaster/licenses); its runtimes and ports come from the PortMaster project and their authors
 
 Libretro cores
 EOF

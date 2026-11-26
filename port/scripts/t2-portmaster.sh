@@ -19,7 +19,7 @@ dev=port/scripts/device.sh
 log=build/logs/m11/t2-portmaster.log; mkdir -p "${log%/*}"; : > "$log"
 say() { echo "$*" | tee -a "$log"; }
 fail() { say "FAIL $*"; exit 1; }
-r() { "$dev" run "$@" 2>> "$log"; }
+r() { "$dev" run "$@" 2>> "$log" < /dev/null; } # device.sh passes stdin on
 pm=/mnt/mmc/MUOS/PortMaster
 [ "${1:-}" != --reinstall ] || r "rm -rf $pm"
 if [ "$(r '/usr/libexec/muos-portmaster status')" = missing ]; then
@@ -35,7 +35,7 @@ say "ok   2: ports installed: $(r 'ls /mnt/mmc/ROMS/Ports | tr "\n" "|"')"
 # NAME SCRIPT PROCESS
 while read -r n s p; do
     s=${s//_/ }
-    port/scripts/t2-standalone.sh "port-$n" external Ports "$s" "$p" 30 >> "$log" 2>&1 || fail "3: $n (t2-standalone)"
+    port/scripts/t2-standalone.sh "port-$n" external Ports "$s" "$p" 30 >> "$log" 2>&1 < /dev/null || fail "3: $n (t2-standalone)"
     sleep 4
     left=$(r 'pidof '"$p"' gptokeyb gptokeyb2 || :')
     [ -z "$left" ] || fail "3: $n left processes: $left"
