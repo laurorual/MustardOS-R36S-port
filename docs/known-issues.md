@@ -33,6 +33,17 @@ MustardOS team.
 - Many new systems were checked only with test content; please report
   games that misbehave.
 
+## PortMaster (since v1.2)
+
+- Ports that exist only for 32-bit (armhf) systems do not run: the
+  firmware is 64-bit only. PortMaster lists them; about 200 of 1500.
+- No on-screen volume/brightness bar in ports (the keys still work), except
+  ports that run a libretro core, which get the in-game bar and menu.
+- A port that hangs on its own exit is closed with Fn+Start (its
+  process group is ended after 3 s); unsaved progress is lost then.
+- Ports are not tested one by one: please report the ones that misbehave
+  (name, what happens, and `MUOS/log/system/port.log` from the card).
+
 ## System
 
 - **Sound:** rarely, sound stops in the menu until the next game starts

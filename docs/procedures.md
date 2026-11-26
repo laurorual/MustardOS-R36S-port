@@ -238,6 +238,17 @@ snapshots.
 - Wi-Fi after the fact: p3 `MUOS/log/network-last.log` (worker with
   uptime stamps, hotplug, dongle kernel lines; written at each clean stop).
 
+- PortMaster (M11): `muos-portmaster status|install|run`; the install
+  task screen is `muos-portmaster-install.sh` (task autorun). Ports from
+  the CLI: `cd /mnt/mmc/MUOS/PortMaster && HOME=/root
+  PYSDL2_DLL_PATH=/usr/lib python3 ./harbourmaster --quiet install
+  NAME.zip`. A port through the menu's content handoff:
+  `t2-standalone.sh port-NAME external Ports "SCRIPT.sh" PROCESS`; the
+  whole set: `port/scripts/t2-portmaster.sh [--reinstall]`. Never put a
+  port's binary name in the same SSH command as the Fn+Start press
+  (gptokeyb kills matching command lines). Logs: `MUOS/log/system/port.log`,
+  `app.log`, `MUOS/PortMaster/log.txt`.
+
 ## Update U-Boot in place (M8)
 
 No fallback: a U-Boot that does not boot costs a host-reader rewrite of

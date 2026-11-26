@@ -1149,3 +1149,37 @@ The open problems behind each "partial" are in STATUS.
   set_ios clock updates sleep (kworker ~0.4 s); muos-suspend resumes the
   game on CPU1-3 while Wi-Fi is deferred (all four after 5 s): 2–4 frames
   of 21–27 ms per wake, no hold (the 3 s hold of m8b is gone, default 0).
+
+## PortMaster and ports (M11)
+
+- **Package:** PortMaster's own muOS variant (`muos.portmaster.zip`,
+  PortMaster-GUI 2026.11.17-0700, internal version 2026.06.23-0015)
+  runs unmodified: it detects muOS by `/opt/muos/config/system/version`
+  and the board by `/opt/muos/device/config/board/name` (`rk-r35s-p0`),
+  640x480, 2 sticks, aarch64 only. Tools in `/mnt/mmc/MUOS`, ports in
+  `/mnt/mmc/ports`, scripts in `/mnt/mmc/ROMS/Ports` (or the slot-2 card
+  when mounted at `/mnt/sdcard`, unless `config/muos_mmc_master_race.txt`).
+  harbourmaster deletes `pylibs.zip` after unpacking it.
+- **Needs from the OS:** Python 3 with ctypes/ssl/zlib/bz2/lzma/expat;
+  pySDL2 on `/usr/lib` SDL2 (`PYSDL2_DLL_PATH`), SDL2_image with JPEG
+  (the GUI's `no-image.jpg`), SDL2_mixer OGG (stb), `tar` that unpacks
+  `.tar.xz` (busybox SEAMLESS_XZ), `/opt/muos/script/var/func.sh`
+  (GET_VAR), `/usr/lib/gamecontrollerdb.txt` with the pad under the name
+  "Deeplay-keys", `/roms/ports/PortMaster/control.txt` (the ports'
+  fallback path), `/dev/uinput` (gptokeyb).
+- **Runtimes:** every aarch64 runtime checked (mono, dotnet, zulu JDK/JRE,
+  weston_pkg, frt/godot, gmtoolkit, renpy, pyxel) is a **zlib** squashfs;
+  the kernel has loop + squashfs (zlib only) built in. Ports mount them
+  on `/root/<name>` and unmount at their own end.
+- **Ports index (2026-11-26):** 1518 ports; 933 aarch64-only, 204
+  armhf-only (no 32-bit userland: unsupported), 663 ready to run.
+- **Quit:** PortMaster's gptokeyb quits on hotkey (guide = Fn) + Start
+  itself by killing processes whose command line matches the port's
+  binary (a test SSH command line containing that name dies with it).
+  Some games ignore SIGTERM (SDL Sopwith): the session's whole process
+  group must be ended (muos-standalone-quit, then SIGKILL).
+- **libretro ports** (2048 and others) call `/usr/bin/retroarch -L CORE`:
+  the port's shim runs muxretro (`--no-content` when no file is given).
+- **T2 (2026-11-26, m11a/m11b):** install from the network in 6 s
+  (39.8 MB); SDL Sopwith and TurboTableTennis (Godot 3.5.2 frt, GLES 3.0 on
+  Mali-G31, runtime squashfs) ran and quit back to the menu in 1–4 s.

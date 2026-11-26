@@ -164,6 +164,21 @@ Items:
 8. Docs and licences (README, known issues: armhf ports unsupported;
    LICENSING; procedures), image v1.2.0 at the end.
 
+**Progress (2026-11-26):** items 1–5 and 8 implemented; item 6 by T2
+with real ports; item 7: the volume/brightness keys work in ports, no
+on-screen bar (as the standalones; known issue), libretro ports get
+muxretro's bar through the `/usr/bin/retroarch` shim. T1: Python 3.12.15
+imports harbourmaster and its deps under qemu. T2 on m11a (trial root):
+network install 6 s; harbourmaster CLI installed sdlsopwith,
+turbotabletennis (+ frt_3.5.2 runtime), 2048; Sopwith and the Godot port
+ran and quit in 1–4 s; the install task ran on the progress screen.
+Fixed on the way: the quit chord waits for the whole process group
+(Sopwith ignores SIGTERM), leftover groups and runtime mounts are cleaned
+after a session, the installed check (harbourmaster deletes
+pylibs.zip), SDL2_image JPEG (the GUI crashed on `no-image.jpg`), busybox
+tar `.tar.xz` (Noto fonts) and `timeout`. m11b (p2 `bd535fda…`) carries
+the fixes; `t2-portmaster.sh` is the repeatable T2.
+
 T2 tests: Python T1 (qemu imports of harbourmaster deps), app launch
 loop, PortMaster install from the zip and from the network, port
 launch/quit/return × 3, sleep in a port. Expected T3: PortMaster UI

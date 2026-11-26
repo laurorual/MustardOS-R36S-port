@@ -3,6 +3,17 @@
 MustardOS for R36S/R35S (unofficial port). Not supported by the MustardOS
 team: https://github.com/laurorual/MustardOS-R36S-port/issues
 
+## v1.2.0 (unreleased)
+
+- **PortMaster:** Applications → PortMaster installs PortMaster on its
+  first start (Wi-Fi, or `muos.portmaster.zip` in `MUOS/update`) and
+  runs it as on muOS; ports appear in the Ports system and quit with
+  Fn+Start. Godot, Mono, Java and other runtimes work; libretro ports run
+  in the system's libretro frontend. 32-bit-only ports are not supported.
+- Applications from `MUOS/application` (and PortMaster's app ports) start
+  from the Applications menu.
+- Python 3 in the system (for PortMaster).
+
 ## v1.1.0 (2026-11-26)
 
 - **More R36S models (experimental):** 22 models with the 640x480 screen
