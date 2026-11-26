@@ -28,13 +28,21 @@
         "build/m3a/MustardOS-R36S-port-v1.0.0.p2.img"
       ]
     },
-    "m10a-20261126": {
-      "reason": "M10: any USB Wi-Fi dongle (detection by modalias, linux-firmware 20261019), 22 R36S model DTBs + muos-model switch + PC selectors; developer m10a (raw cc85290c, p2 77ff5a87); installed on the bench through the update path from m9k",
+    "m10a-v110-20261126": {
+      "reason": "M10: any USB Wi-Fi dongle (detection by modalias, linux-firmware 20261019), 22 R36S model DTBs + muos-model switch + PC selectors; developer m10a (raw cc85290c, p2 77ff5a87); installed on the bench through the update path from m9k; public v1.1.0 (raw 8378de0c, p2 8bedd242; 32 checks)",
       "files": [
         "dist/firmware/test128-m10a-20261126.img.zst",
         "dist/firmware/test128-m10a-20261126.img.zst.sha256",
         "dist/firmware/test128-m10a-20261126.manifest",
-        "build/m3a/test128-m10a-20261126.p2.img"
+        "build/m3a/test128-m10a-20261126.p2.img",
+        "dist/firmware/MustardOS-R36S-port-v1.1.0.img.xz",
+        "dist/firmware/MustardOS-R36S-port-v1.1.0.img.xz.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.1.0.img.zst",
+        "dist/firmware/MustardOS-R36S-port-v1.1.0.img.zst.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.1.0.manifest",
+        "dist/firmware/MustardOS-R36S-port-v1.1.0.p2.img.gz",
+        "dist/firmware/MustardOS-R36S-port-v1.1.0.p2.img.sha256",
+        "build/m3a/MustardOS-R36S-port-v1.1.0.p2.img"
       ]
     }
   },

@@ -13,7 +13,8 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 Phase 5 (own-card firmware). M1–M9 done: **v1.0.0 published 2026-11-26**
 (GitHub release, latest; m9k, its developer twin, is the recovery
 image). **Current: M10 — experimental hardware reach** (started
-2026-11-26; plan below).
+2026-11-26): done to T2, v1.1.0 built; the T3 queue is next, then the
+user publishes v1.1.0.
 
 ## Device and bench
 
@@ -51,7 +52,7 @@ card, bootloader included (procedures.md).
 | Image | Content | State |
 |---|---|---|
 | `dist/firmware/MustardOS-R36S-port-v1.0.0.img.xz` (xz `a308dccd…`, raw `b762425f…`, p2 `9cf48944…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public v1.0.0** (Build = v1.0.0); 29 checks | tag pushed; release pending (token, see "Current phase"); T3 ok 2026-11-26 |
-| `dist/firmware/test128-m10a-20261126.img.zst` (raw `cc85290c…`, p2 `77ff5a87…`) | M10: Wi-Fi dongles, model DTBs + switch, developer variant | on the bench (update path from m9k); T2 below |
+| `dist/firmware/test128-m10a-20261126.img.zst` (raw `cc85290c…`, p2 `77ff5a87…`) + `MustardOS-R36S-port-v1.1.0.*` (public, raw `8378de0c…`, p2 `8bedd242…`) | M10: Wi-Fi dongles, model DTBs + switch | m10a on the bench (update path from m9k), T2 pass; v1.1.0 T3 pending |
 | **`dist/firmware/test128-m9k-20261126.img.zst`** (raw `3e487ae1…`, p2 `43779504…`) | v1.0.0 rootfs + kernel, developer variant | on the bench; T2: update rounds with progress screens, NES 59.96; **recovery since 2026-11-26** (v1.0.0 T3 ok) |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
 | (m9f) | the rc2 developer twin | retired 2026-11-26 (m9k recovery) |
@@ -188,13 +189,20 @@ Items:
 9. Docs (README driver and model lists, hardware-findings,
    known-issues), v1.1.0 image at the end.
 
-**Done:** items 1–4 (T2 2026-11-26: detection 15/15 fake IDs + the
-real 8821cu, `t2-wifi-detect.sh`; boot ready 17.6 s; radio, 6-cycle
-toggle, C2H watchdog with the new hotplug path, 2 wakes 9.3/8.9 s: all
-pass).
-
-Expected T3: the 8821cu regression (Wi-Fi on, toggle, sleep), the
-selector on a PC, boot with the default and with a chosen Panel 0 DTB.
+**Done to T2 (2026-11-26):** all 9 items.
+- Wi-Fi (1–4): detection 15/15 fake IDs + the real 8821cu
+  (`t2-wifi-detect.sh`); radio, toggle loop, C2H watchdog with the new
+  hotplug path, wakes 9.3/8.9 s.
+- Models (5–8): 22 model DTBs (exact deltas); `muos-model` both ways +
+  give-up path on the bench with a Panel 4 test DTB (input names, root,
+  Wi-Fi under it; `t2-model.sh`); selector T1.
+- m10a through the update path from m9k: p2 written, boot-sync put the
+  model files and selectors on p1, undervolt kept; detection, radio,
+  4-cycle toggle, NES 59.97, wake 9.0 s: all pass.
+- **v1.1.0** public built at `ce15e0f` (raw `8378de0c…`, p2 `8bedd242…`,
+  32 checks), source zips packed (`build/release`), notes
+  `build/release/v1.1.0-notes.md`; publishing after the T3:
+  `build/release/publish-v1.1.0.sh` (the user runs it).
 
 ## Previous milestone: M9 — public v1.0 (done 2026-11-26)
 
