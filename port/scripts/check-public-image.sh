@@ -98,6 +98,9 @@ check "PortMaster not in the image (p2 has no PortMaster tree or zip)" absent /u
 check "PortMaster launcher, app folder and Python 3 ship" p2_grep /opt/muos/share/application/PortMaster/mux_launch.sh 'muos-portmaster run'
 check "Python 3 runtime ships" p2_grep /usr/lib/python3.12/os.pyc 'posix'
 check "THIRD-PARTY says PortMaster is not included" p2_grep /usr/share/muos-r35s/THIRD-PARTY.txt 'PortMaster is NOT included'
+# M12: the free PICO-8 cores ship; the official PICO-8 (the user's) never
+check "PICO-8 cores Picante8 and FAKE-08 ship" eval '! absent /opt/muos/share/core/picante8_libretro.so && ! absent /opt/muos/share/core/fake08_libretro.so'
+check "no official PICO-8 binary in the image" eval 'absent /opt/muos/share/emulator/pico8/pico8_64 && absent /usr/share/muos-r35s/pico8/pico8_64'
 if [ -n "$base_p2" ]; then
     # Secrets of the developer image: values of ssid/psk lines and the key blob.
     debugfs -R 'cat /var/lib/muos-network/network.conf' "$base_p2" 2>/dev/null |

@@ -44,6 +44,14 @@ MustardOS team.
 - Ports are not tested one by one: please report the ones that misbehave
   (name, what happens, and `MUOS/log/system/port.log` from the card).
 
+## PICO-8 (since v1.1.1)
+
+- The official PICO-8 is not included: bring your own Raspberry Pi
+  download. Splore (BBS) needs it; with the free cores, play carts you
+  copied to `ROMS/PICO-8`.
+- Without the official PICO-8, choosing the "PICO-8 - Standalone" cores
+  only returns to the menu.
+
 ## System
 
 - **Sound:** rarely, sound stops in the menu until the next game starts

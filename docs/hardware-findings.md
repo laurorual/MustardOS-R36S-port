@@ -1183,3 +1183,19 @@ The open problems behind each "partial" are in STATUS.
 - **T2 (2026-11-26, m11a/m11b):** install from the network in 6 s
   (39.8 MB); SDL Sopwith and TurboTableTennis (Godot 3.5.2 frt, GLES 3.0 on
   Mali-G31, runtime squashfs) ran and quit back to the menu in 1–4 s.
+
+## PICO-8 (M12)
+
+- **Cores:** Picante8 (MustardOS, muOS's default) and FAKE-08 run carts
+  (`.p8`, `.p8.png`) at 60.0 fps on schedutil (1296 MHz), core 3.3–3.9 ms
+  a frame (T2 2026-11-26, FAKE-08's `ld45.p8` and its `cartparsetest.p8.png`).
+- **Official PICO-8 0.2.7 (Raspberry Pi build, the user's):** `pico8_64`
+  needs only `libSDL2-2.0.so.0`, libm, libc (libcurl built in, `use_wget 0`
+  by default). On the bench: fullscreen 640x480, GLES2 renderer, PipeWire
+  audio, `Controller 0: muOS-Keys`; ~33 % CPU in `ld45.p8`; SIGTERM quits
+  it in ~1 s. Options as dArkOSen's pico8.sh: `-home` (MUOS/save/pico8,
+  where muOS keeps favourites/bbs), `-root_path`, `-joystick 0`,
+  `-windowed 0`, `-pixel_perfect 1`; `sdl_controllers.txt` in the home.
+  Splore opens (splore_init); BBS downloads unverified at T2.
+- **BusyBox wget has no HTTPS:** GNU wget (Buildroot, OpenSSL) replaces it
+  (M12), for PICO-8's `use_wget 1` and port scripts.
