@@ -1,10 +1,14 @@
 {
- "muxwebserv": {
-  "Root-backed file transfer for your storage, the boot partition and MustardOS itself. Enabling it grants read and write access to those locations. Connect on port 2022 with the username muos and password muos.\n\nSelect this to open its settings.": "File transfer for your storage folders (SD1 and, when inserted, SD2). Enabling it grants read and write access to those folders; the system stays out of reach. Connect on port 2022 with the username muos and password muos.\n\nSelect this to open its settings."
- },
- "muxdetail": {
-  "Everything MustardOS knows about this device, grouped into sections. Left and Right move between them.": "Everything MustardOS knows about this device, grouped into sections. Left and Right move between them.\n\nThis is an unofficial port of MustardOS for the R36S/R35S. The MustardOS team does not support this device: ask for help at github.com/laurorual/MustardOS-R36S-port.",
-  "The MustardOS release this device is running. Select it to check whether any system files have been altered.": "The MustardOS release this unofficial R36S/R35S port is based on. The MustardOS team does not support this port: ask for help at github.com/laurorual/MustardOS-R36S-port, not on MustardOS channels. Select it to check whether any system files have been altered.",
-  "The build this release was made from. Useful when reporting a problem.": "The build of this unofficial R36S/R35S port. Include it when you report a problem at github.com/laurorual/MustardOS-R36S-port (not to the MustardOS team)."
- }
+  "muxwebserv": {
+    "Root-backed file transfer for your storage, the boot partition and MustardOS itself. Enabling it grants read and write access to those locations. Connect on port 2022 with the username muos and password muos.\n\nSelect this to open its settings.": "File transfer for your storage folders (SD1 and, when inserted, SD2). Enabling it grants read and write access to those folders; the system stays out of reach. Connect on port 2022 with the username muos and password muos.\n\nSelect this to open its settings."
+  },
+  "muxdetail": {
+    "Everything MustardOS knows about this device, grouped into sections. Left and Right move between them.": "Everything MustardOS knows about this device, grouped into sections. Left and Right move between them.\n\nThis is an unofficial port of MustardOS for the R36S/R35S. The MustardOS team does not support this device: ask for help at github.com/laurorual/MustardOS-R36S-port.",
+    "The MustardOS release this device is running. Select it to check whether any system files have been altered.": "The MustardOS release this unofficial R36S/R35S port is based on. The MustardOS team does not support this port: ask for help at github.com/laurorual/MustardOS-R36S-port, not on MustardOS channels. Select it to check whether any system files have been altered.",
+    "The build this release was made from. Useful when reporting a problem.": "The build of this unofficial R36S/R35S port. Include it when you report a problem at github.com/laurorual/MustardOS-R36S-port (not to the MustardOS team)."
+  },
+  "muxtask": {
+    "Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!": "Run Diagnostics - A ZIP file is generated on SD1. This port is not supported by the MustardOS team: attach it to an issue on the port's GitHub.",
+    "Battery Report - Checks the battery, charger and fuel gauge, then saves a report to SD1 for the MustardOS crew": "Battery Report - Checks the battery, charger and fuel gauge, then saves a report to SD1 (for the port's GitHub issues, not the MustardOS team)"
+  }
 }

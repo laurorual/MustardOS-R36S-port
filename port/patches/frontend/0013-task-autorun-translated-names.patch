@@ -1,11 +1,30 @@
 From: muOS R35S port
-Subject: [PATCH] 0013-task-autorun
+Subject: [PATCH] 0013-task-autorun-translated-names
 
 SPDX-License-Identifier: GPL-3.0
 ---
 --- a/frontend/module/muxtask.c
 +++ b/frontend/module/muxtask.c
-@@ -309,6 +309,32 @@
+@@ -56,7 +56,8 @@
+ 
+             if (!task_dir_has_content(sub_dir, 0)) continue;
+ 
+-            add_item(&items, &item_count, tf->d_name, tf->d_name, "", content_type_folder);
++            /* R35S port: folder and task names through the language file */
++            add_item(&items, &item_count, tf->d_name, TRS(tf->d_name), "", content_type_folder);
+         } else if (tf->d_type == DT_REG) {
+             char filename[FILENAME_MAX];
+             snprintf(filename, sizeof(filename), "%s/%s", sys_dir, tf->d_name);
+@@ -64,7 +65,7 @@
+             char *last_dot = strrchr(tf->d_name, '.');
+             if (last_dot && strcasecmp(last_dot, ".sh") == 0) {
+                 *last_dot = '\0';
+-                add_item(&items, &item_count, tf->d_name, tf->d_name, filename, content_type_item);
++                add_item(&items, &item_count, tf->d_name, TRS(tf->d_name), filename, content_type_item);
+             }
+         }
+     }
+@@ -309,6 +310,32 @@
      }
      init_timer(ui_refresh_task, NULL);
  
@@ -25,7 +44,7 @@ SPDX-License-Identifier: GPL-3.0
 +                .mode = task_mode_progress,
 +                .can_cancel = 0,
 +                .turbo = 1,
-+                .title = a_title && a_title[0] ? a_title : a_script,
++                .title = a_title && a_title[0] ? TRS(a_title) : a_script,
 +            };
 +
 +            if (task_exec_start(&spec) == 0) task_progress_show();

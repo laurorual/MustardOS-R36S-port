@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). The device restarts once; your games, saves and settings stay.
+# HELP: Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.
 # ICON: system
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0
@@ -9,10 +9,12 @@
 
 . /opt/muos/script/var/base.sh
 . /opt/muos/script/var/ui.sh
+# the task texts in Português (Brasil) when the menu is in it, else English
+T() { if [ "$(cat /opt/muos/config/settings/general/language 2>/dev/null)" = "Portuguese (BR)" ]; then printf '%s' "$2"; else printf '%s' "$1"; fi; }
 
-TASK_BEGIN "install_firmware_update" "Install Firmware Update"
-TASK_STATUS "Checking and unpacking the update"
-TASK_DETAIL "Keep the device on until the menu returns"
+TASK_BEGIN "install_firmware_update" "$(T 'Install Firmware Update' 'Instalar atualização do sistema')"
+TASK_STATUS "$(T 'Checking and unpacking the update' 'Verificando e descompactando a atualização')"
+TASK_DETAIL "$(T 'Keep the device on until the menu returns' 'Deixe ligado até o menu voltar')"
 size=$(blockdev --getsize64 "$(/usr/libexec/muos-boot-disk)p2" 2>/dev/null || echo 1073741824)
 /usr/libexec/muos-update stage > /run/muos/update-stage.out 2>&1 &
 pid=$!
@@ -22,11 +24,11 @@ while kill -0 "$pid" 2>/dev/null; do
 	sleep 2
 done
 if ! wait "$pid"; then
-	TASK_ERROR "stage_failed" "$(tail -n 1 /run/muos/update-stage.out)"
+	TASK_ERROR "stage_failed" "$(T 'Not installed' 'Não instalada'): $(tail -n 1 /run/muos/update-stage.out)"
 	exit 1
 fi
 TASK_PROGRESS 1 1
-TASK_COMPLETE "Update ready: restarting"
+TASK_COMPLETE "$(T 'Update ready: restarting' 'Atualização pronta: reiniciando')"
 sleep 2
 reboot
 exit 0
