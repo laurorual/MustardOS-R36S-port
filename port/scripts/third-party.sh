@@ -52,6 +52,10 @@ System
 - Mali-G31 r13p0 userspace driver (c) Arm Limited, as published by Hardkernel for the ODROID-GO Advance
   (rk3326_r13p0_gbm_with_vulkan_and_cl.zip), unmodified; proprietary, no terms were supplied with it
 - Fonts: Noto Sans SC/TC/JP/KR (SIL OFL-1.1), M+ (M+ FONT LICENSE), shipped by MustardOS
+- Wi-Fi firmware for the mainline USB drivers (mt7601u, rt2800usb, rt73usb, rtl8192cu, r8712u, r8723au):
+  linux-firmware $(awk '$1 == "tag" {print $2}' "$repo/port/packaging/wifi-firmware.txt"), unmodified, (c) MediaTek/Ralink and Realtek, redistributable
+  (LICENCE.ralink-firmware.txt, LICENCE.ralink_a_mediatek_company_firmware, LICENCE.rtlwifi_firmware.txt
+  in /usr/share/licenses/linux-firmware): https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
 
 Libretro cores
 EOF

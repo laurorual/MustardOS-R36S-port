@@ -10,18 +10,10 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 
 ## Current phase
 
-Phase 5 (own-card firmware). M1–M8 done. **Current: M9 — public v1.0**
-(started 2026-11-22). Since 2026-11-25 licences and publication come
-first in every session, polish after (decision 37). m9a is the recovery
-image until 2026-11-25, then m9d, then m9f; **m9k** (the developer twin
-of **v1.0.0**, whose T3 passed 2026-11-26) is the recovery image now.
-v1.0.0 is tagged at `452e465` and pushed (by the user, 2026-11-26); the
-GitHub release is **not created yet**: the API answered 403 "Resource
-not accessible by personal access token" (the token reads the repository
-but lacks Contents: write; `git push` works through the user's SSH key).
-After the user fixes the token, `build/release/publish-v1.0.0.sh`
-(re-runnable: reuses the tag, an existing release and uploaded assets)
-creates the release with the notes and the 8 assets and pushes main.
+Phase 5 (own-card firmware). M1–M9 done: **v1.0.0 published 2026-11-26**
+(GitHub release, latest; m9k, its developer twin, is the recovery
+image). **Current: M10 — experimental hardware reach** (started
+2026-11-26; plan below).
 
 ## Device and bench
 
@@ -86,9 +78,9 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Open problems
 
-- **Licences/publication (M9 priority):** closed to T2 (LICENSING.md);
-  repository public since 2026-11-25 (pushed by the user); open: rc1
-  T3, the source bundle and the GitHub release (decisions 40–41).
+- **Licences/publication:** v1.0.0 published (LICENSING.md; Hardkernel
+  answered without a position, decision 47; Exophase and steward-fu
+  still silent).
 - **Battery % short of 100 on the charger — fixed (patch 0011, rc2 T3
   ok)** (2026-11-19:
   95 % after a night; FCC learned down to 2550 mAh). The driver's finish
@@ -123,31 +115,65 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-None open (43–46 answered 2026-11-25: variants and dongles after v1.0,
-MustardOS 2606.0 for v1.0, the bench change).
+- **Other test hardware (M10):** do you have, or can you borrow, any
+  other USB Wi-Fi dongle (any brand; the chip doesn't matter) or another
+  R36S/clone? Without one, M10's new paths ship untested, as the README
+  says. Recommendation: none needed; a cheap RTL8188FTV/8188EU dongle
+  would make item 1 testable.
 
 ## T3 queue
 
 Empty: the v1.0.0 checklist (update screens, Build = v1.0.0, Task Toolkit
 in Português, Wi-Fi at power-on) passed 2026-11-26.
 
-## Current milestone: M9 — public v1.0
+## Current milestone: M10 — experimental hardware reach
 
-Plan in roadmap.md M9 (rewritten 2026-11-25). Done before 2026-11-25:
-M8g T3 fixes, ScummVM standalone default, CJK overlays, undervolt rows,
-THIRD-PARTY.txt, `make-source-bundle.sh` (first version), public variant
-checks (18 pass), the update path (`muos-update`, auto-update).
+Goal: v1.1 runs on more R36S units and with more Wi-Fi dongles, labelled
+experimental (decisions 43–44; the port can't test them: feedback via
+issues). Wi-Fi first (no bootloader write), then the variants.
 
-History of the M9 rounds (licences, rc1, rc2, kernel updates, v1.0.0):
-milestones.md M9. v1.0.0 T3 ok 2026-11-26. **Left:** the GitHub release
-(token fix, then the publish script). README states that only Panel 0
-and the RTL8821CU are implemented and tested, other DTBs and dongles
-planned, feedback welcome.
+Items:
+1. Worker: any USB Wi-Fi dongle the kernel drives (modalias → wireless
+   module, vendor Realtek drivers first; 8188fu is built in), interface
+   by phy80211, radio off unloads it; the 8821cu-only paths (CD-ROM
+   switch, warm-reboot reset, C2H watchdog, stuck-scan reset) stay
+   gated on the 8821cu.
+2. Hotplug rule + adapter row for any such dongle; autoload blacklist
+   for the USB Wi-Fi modules (the worker loads them).
+3. Firmware for the mainline drivers (mt7601u, rt2800usb, rt73usb,
+   rtl8192cu, r8712u, r8723au) from linux-firmware, pinned, licences in
+   LICENSING/THIRD-PARTY.
+4. T1: detection against a fake sysfs; T2: the 8821cu regression set
+   (radio, toggle loop, wake, hotplug, liveness).
+5. Model DTBs (`dtb-survey.sh`, log `build/logs/m10/dtb-survey.tsv`):
+   wave 1 = the 22 dArkOSen models on the port's board type (rg351mp
+   U-Boot DTB) at 640x480 with the port's input names and key codes
+   (Panel 0 keeps the port DTB: dArkOSen's Panel 0 has the glitching
+   29 MHz timing). Build: dArkOSen DTB + the mmc aliases (`fdtput`),
+   as `model-<sha12>.dtb` keys in dtb-variants.txt, in p1 and in p2's
+   boot files. Not yet: 13 rg351v clones and R50S (other input names),
+   7 soysauce (rg351p board), 1024/720 panels (frontend resolution).
+6. Card-root selectors (`.bat`, `.sh`, `.command`) writing p1
+   `model.txt` (a model id or `default`) from p1 `models.txt`.
+7. `muos-model` (Linux, as `muos-undervolt`): early in the boot, a
+   `model.txt` that main doesn't boot arms a one-shot trial with that
+   DTB (same kernel) and reboots; the menu up 20 s promotes it; a
+   failed trial renames `model.txt` to `.failed`. No U-Boot change, so
+   v1.0 users get it through the update; boot-sync keeps the model
+   across kernel updates; the undervolt rows say unavailable on a model.
+8. Audio and battery come with each DTB (all wave-1 models: speaker +
+   jack detection, dArkOSen `alsa_path` SPK_HP; no gamma key there).
+9. Docs (README driver and model lists, hardware-findings,
+   known-issues), v1.1.0 image at the end.
 
-**Next: M10 — experimental hardware reach** (roadmap "After v1.0",
-decisions 43–44): other Wi-Fi dongles (USB-ID → module table, firmware
-with licences, worker for any wireless driver) first, as it needs no
-bootloader write; then the R36S variant DTBs (dArkOSen 640x480 set with
-the port's DT deltas, card-root selectors, U-Boot `variant.dtb` rule:
-bench U-Boot write with the user present). The next MustardOS release
-(decision 45) follows as M11.
+**Done:** items 1–4 (T2 2026-11-26: detection 15/15 fake IDs + the
+real 8821cu, `t2-wifi-detect.sh`; boot ready 17.6 s; radio, 6-cycle
+toggle, C2H watchdog with the new hotplug path, 2 wakes 9.3/8.9 s: all
+pass).
+
+Expected T3: the 8821cu regression (Wi-Fi on, toggle, sleep), the
+selector on a PC, boot with the default and with a chosen Panel 0 DTB.
+
+## Previous milestone: M9 — public v1.0 (done 2026-11-26)
+
+Details in milestones.md M9.

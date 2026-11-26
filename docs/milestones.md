@@ -4,7 +4,15 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
-## M9 — public v1.0 (in progress, started 2026-11-22)
+## M9 — public v1.0 (done 2026-11-26, v1.0.0 published; m9k is recovery)
+
+**Close (2026-11-26):** v1.0.0 T3 ok (update screens, Build = v1.0.0,
+Task Toolkit in Português, Wi-Fi at power-on); m9k recovery, m9f retired.
+The user's first publish run pushed main + tag but the release API gave
+403 (token read-only on Contents); after the token fix the re-runnable
+script created the release (latest) with the 8 assets. README: only
+Panel 0 and RTL8821CU tested, others planned, feedback welcome.
+Hardkernel's forum answer: ask Rockchip; strategy unchanged (decision 47).
 
 Logs `build/logs/m9/`. Plan in STATUS. M8 closed first: **M8g T3
 (2026-11-22):** 1, 3, 5 ok; 2 ok with two keyboard findings (the

@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
-# muos-network worker: the port's Wi-Fi + SSH backend (Realtek 8821cu dongle).
+# muos-network worker: the port's Wi-Fi + SSH backend (a USB Wi-Fi dongle;
+# the Realtek RTL8821CU is the tested one, M10: any the kernel drives).
 #
 #   worker up            boot (S41, background): wait for p3, then bring the
 #                        radio up if any network is configured, start the
@@ -76,16 +77,71 @@ stop_pid() {
 alive() { [ -s "$state/$1.pid" ] && kill -0 "$(cat "$state/$1.pid")" 2>/dev/null; }
 
 radio_on() { [ "$(get settings/network/radio)" != 0 ]; }
+# M10 (experimental, decision 44): any USB Wi-Fi dongle the kernel drives.
+# A USB interface is Wi-Fi when a driver already holds it with a wireless
+# interface (8188fu is built in), or when its modalias resolves to a module
+# under drivers/net/wireless. Several modules may claim one ID: the vendor
+# Realtek drivers (firmware inside) go first, then the mainline ones
+# (firmware in /lib/firmware). The CD-ROM switch, the warm-reboot reset and
+# the driver-probe kick below stay specific to the RTL8821CU (0bda:1a2b,
+# 0bda:c820). Udev doesn't autoload these modules (modprobe.d
+# usb-wifi-no-autoload.conf): this worker loads the one it picked.
+wifi_pref='8821cu 88x2bu rtl8812au 8188eu 8192cu 8723bu rtl8192cu mt7601u rt2800usb rt73usb r8712u r8723au rtl8187 rt2500usb'
+wifi_mods() { # module names (with underscores) under drivers/net/wireless, cached
+    [ -s "$state/wifi-mods" ] ||
+        sed -n 's|^[^:]*/drivers/net/wireless/[^:]*/\([^/:]*\)\.ko[^:]*:.*|\1|p' "/lib/modules/$(uname -r)/modules.dep" |
+        tr - _ > "$state/wifi-mods"
+    cat "$state/wifi-mods"
+}
+# wifi_module DEV: the driver module for USB device DEV's Wi-Fi interface;
+# fails if DEV is no Wi-Fi dongle. 2>/dev/null: the dongle may re-enumerate
+# under us (CD-ROM switch).
+wifi_module() {
+    for _wi in "$1/${1##*/}":*; do
+        [ -r "$_wi/modalias" ] || continue
+        for _wn in "$_wi"/net/*; do
+            [ -e "$_wn/phy80211" ] || continue
+            _wm=$(readlink -f "$_wi/driver/module" 2>/dev/null) || _wm=
+            [ -n "$_wm" ] || _wm=$(readlink -f "$_wi/driver" 2>/dev/null)
+            echo "${_wm##*/}"; return 0
+        done
+        _wms=$(modprobe -R "$(cat "$_wi/modalias" 2>/dev/null)" 2>/dev/null | tr - _)
+        [ -n "$_wms" ] || continue
+        for _wm in $wifi_pref; do
+            printf '%s\n' "$_wms" | grep -qx "$_wm" && { echo "$_wm"; return 0; }
+        done
+        for _wm in $_wms; do
+            wifi_mods | grep -qx "$_wm" && { echo "$_wm"; return 0; }
+        done
+    done
+    return 1
+}
 # Path of the plugged-in dongle (CD-ROM or Wi-Fi mode), if any.
 dongle() {
     for path in /sys/bus/usb/devices/*; do
         [ -r "$path/idVendor" ] && [ -r "$path/idProduct" ] || continue
-        # 2>/dev/null: the dongle may re-enumerate under us (CD-ROM switch).
         case "$(cat "$path/idVendor" 2>/dev/null):$(cat "$path/idProduct" 2>/dev/null)" in
-            0bda:1a2b|0bda:c820) echo "$path"; return 0 ;;
+            1d6b:*) continue ;; # root hub
+            0bda:1a2b) echo "$path"; return 0 ;; # RTL8821CU in CD-ROM mode
         esac
+        wifi_module "$path" > /dev/null || continue
+        echo "$path"; return 0
     done
     return 1
+}
+# The wireless network interface (the board has no internal Wi-Fi).
+wifi_iface() {
+    for _wn in /sys/class/net/*; do
+        [ -e "$_wn/phy80211" ] || continue
+        echo "${_wn##*/}"; return 0
+    done
+    return 1
+}
+# Unload the dongle's driver (radio off, retry); a built-in one stays.
+unload() {
+    _wm=$(cat "$state/module" 2>/dev/null) || _wm=8821cu
+    [ -e "/sys/module/$_wm/initstate" ] || return 0
+    rmmod "$_wm" 2>/dev/null || :
 }
 adapter() {
     if dongle > /dev/null; then : > "$state/adapter"; else rm -f "$state/adapter"; return 1; fi
@@ -172,12 +228,12 @@ usb_mode_once() {
     [ -n "$candidate" ] || { say 'USB dongle absent'; return 1; }
     bus=$(cat "$candidate/busnum"); device=$(cat "$candidate/devnum")
     reset_done=0
-    if [ "$(cat "$candidate/idProduct")" = c820 ] && [ ! -e "$state/usb-done" ]; then
+    if [ "$(cat "$candidate/idVendor"):$(cat "$candidate/idProduct")" = 0bda:c820 ] && [ ! -e "$state/usb-done" ]; then
         usb_modeswitch -R -v 0bda -p c820 -b "$bus" -g "$device" > "$state/private/usb-reset.log" 2>&1 || :
         grep -q 'Device was reset' "$state/private/usb-reset.log" && reset_done=1
         sleep 1
     fi
-    if [ "$(cat "$candidate/idProduct" 2>/dev/null)" = 1a2b ]; then
+    if [ "$(cat "$candidate/idVendor" 2>/dev/null):$(cat "$candidate/idProduct" 2>/dev/null)" = 0bda:1a2b ]; then
         bus=$(cat "$candidate/busnum"); device=$(cat "$candidate/devnum")
         on=$(cat "$candidate/power/connected_duration" 2>/dev/null || echo 0)
         case "$on" in ''|*[!0-9]*) on=0 ;; esac
@@ -187,18 +243,24 @@ usb_mode_once() {
         fi
         usb_modeswitch -K -v 0bda -p 1a2b -b "$bus" -g "$device" > "$state/private/usb-switch.log" 2>&1 || :
     fi
-    n=0
+    n=0; module=
     while [ "$n" -lt 300 ]; do
         id=$(cat "$candidate/idVendor" 2>/dev/null):$(cat "$candidate/idProduct" 2>/dev/null)
-        [ "$id" = 0bda:c820 ] && break
-        if [ "$id" = 0bda:1a2b ] && [ "$(cat "$candidate/devnum" 2>/dev/null)" != "$device" ]; then
-            say "dongle back in CD-ROM mode after $((n / 10)) s: switch again"; return 2
+        if [ "$id" = 0bda:1a2b ]; then
+            if [ "$(cat "$candidate/devnum" 2>/dev/null)" != "$device" ]; then
+                say "dongle back in CD-ROM mode after $((n / 10)) s: switch again"; return 2
+            fi
+        elif module=$(wifi_module "$candidate"); then
+            break
         fi
         sleep 0.1; n=$((n+1))
     done
-    [ "$n" -lt 300 ] || { say 'dongle did not return as 0bda:c820'; return 1; }
+    [ -n "$module" ] || { say "dongle not in Wi-Fi mode after 30 s ($id)"; return 1; }
     udevadm settle --timeout=10 || :
-    modprobe 8821cu || return 1
+    [ "$module" = "$(cat "$state/module" 2>/dev/null)" ] || say "dongle $id: driver $module"
+    printf '%s\n' "$module" > "$state/module"
+    # A built-in driver or one already bound needs no modprobe.
+    modprobe "$module" 2>/dev/null || wifi_iface > /dev/null || { say "modprobe $module failed"; return 1; }
     if [ "$reset_done" = 1 ]; then
         for interface in "$candidate":*; do
             [ -r "$interface/bInterfaceClass" ] || continue
@@ -223,13 +285,14 @@ radio() {
         usb_mode || return 1
         found=; n=0
         while [ "$n" -lt 100 ]; do
-            for path in /sys/class/net/*; do
-                [ "$(basename "$(readlink -f "$path/device/driver/module")")" = 8821cu ] && found=${path##*/}
-            done
-            [ -z "$found" ] || break
+            found=$(wifi_iface) && break
             sleep 0.1; n=$((n+1))
         done
-        [ -n "$found" ] || { say 'no 8821cu interface'; return 1; }
+        [ -n "$found" ] || { say "no Wi-Fi interface ($(cat "$state/module" 2>/dev/null))"; return 1; }
+        # muOS's scripts read device/config/network/iface (wlan0).
+        if [ "$found" != wlan0 ] && [ ! -e /sys/class/net/wlan0 ] && ip link set "$found" name wlan0 2>/dev/null; then
+            say "interface $found renamed to wlan0"; found=wlan0
+        fi
         printf '%s\n' "$found" > "$state/interface"
         for rf in /sys/class/rfkill/rfkill*; do
             [ -r "$rf/type" ] && [ "$(cat "$rf/type")" = wlan ] && printf '0\n' > "$rf/soft"
@@ -495,7 +558,7 @@ case "${1:-}" in
         say "attempt $attempt"
         up_once && exit 0
         # Retry from the USB side: reset the dongle, probe the driver again.
-        down; rm -f "$state/usb-done"; rmmod 8821cu 2>/dev/null
+        down; rm -f "$state/usb-done"; unload
         hint=0
         attempt=$((attempt+1))
         sleep 5
@@ -510,7 +573,7 @@ case "${1:-}" in
             put settings/network/radio 0
             start-stop-daemon -K -q -p "$state/worker.pid" 2>/dev/null || :
             lock 30 || :
-            down; rmmod 8821cu 2>/dev/null; rm -f "$state/usb-done" "$state/freq"
+            down; unload; rm -f "$state/usb-done" "$state/freq"
             touch "$state/idle"; say 'radio off (menu)' ;;
         on)
             put settings/network/radio 1

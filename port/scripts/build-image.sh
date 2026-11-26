@@ -64,6 +64,8 @@ stage_overlay() { # the port rootfs with its init-script symlinks resolved
     # media, tasks, languages), tree-id checked; the pinned inputs that
     # firmware-post-build installs afterwards win where paths coincide.
     "$repo/port/scripts/fetch-upstream-share.sh" stage "$m3a/overlay.tmp"
+    # M10: firmware for the mainline USB Wi-Fi drivers (pinned linux-firmware).
+    "$repo/port/scripts/fetch-wifi-firmware.sh" stage "$m3a/overlay.tmp"
     # M7: System details -> Build (config system/build, at most 15 chars):
     # the port commit the overlay was staged from, "+" if the tree is dirty.
     local rev

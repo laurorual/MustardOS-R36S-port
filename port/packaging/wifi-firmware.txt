@@ -1,0 +1,24 @@
+# M10: Wi-Fi firmware for the mainline USB drivers (mt7601u, rt2800usb,
+# rt73usb, rtl8192cu, r8712u, r8723au) from linux-firmware, installed by
+# port/scripts/fetch-wifi-firmware.sh into /lib/firmware. The vendor
+# Realtek drivers (8821cu, 88x2bu, rtl8812au, 8188eu, 8188fu, 8192cu,
+# 8723bu) carry their firmware inside. Redistributable binaries, unmodified,
+# with their licence files (LICENSES/, shipped in
+# /usr/share/licenses/linux-firmware).
+#   tag TAG
+#   SHA256 PATH [LINK]   LINK: a name the driver requests, pointing to PATH
+tag 20261019
+4511b1d840e22aea2bf5fdca419c91c0d94cbfb291b9ac4f8be6d9100d1a7046 mediatek/mt7601u.bin mt7601u.bin
+251b8918391eac6415d60dca239e415aad0177e885376f2a17782e64fcbbe317 rt2870.bin
+a57745fa55b7700ff410bc69f3630c889e46d771ac17f6c48bda1c02908116bc rt73.bin
+6327de71c544c27fe909d509a3d5605d46b94c102a3c27700f812b95cbe74254 rtlwifi/rtl8192cufw.bin
+32846065b017c8b1d2d448e8c0ea2f5e741424809be49f2c6a6261339cd0b0cf rtlwifi/rtl8192cufw_A.bin
+479e5e6732b0e07cfcab4cc190b8c30465c0b7f8c0ed22d742bedd4412cbcf2a rtlwifi/rtl8192cufw_B.bin
+c083f2db36ef33d0ffffc979aba1d40f55fa9dc38dce50f26e0108a21c080286 rtlwifi/rtl8192cufw_TMSC.bin
+6e84ec69c300b0182c9bc8fa41e88281eeb04013c4a34c341748052c3c6a9d3d rtlwifi/rtl8712u.bin
+d63e39f41dd726b3a833e64fea44696c7b74ad595d31dcaae509b17d247f125c rtlwifi/rtl8723aufw_A.bin
+850374b96076ab4b854ee9dc42ef57f9bd6b24493b74ba6b609c690d17f1c552 rtlwifi/rtl8723aufw_B.bin
+a24af5491dbfa3937633049fc66576ed478dec60e7676263f00a2ce9dd22c25b rtlwifi/rtl8723aufw_B_NoBT.bin
+d7bec70668ddd4aae8fb4aa32870e54b49fcdb0b9b007aa9f54b53a1ac7461bd LICENSES/LICENCE.ralink-firmware.txt
+8568352b57f3574f9d5b2753cdb7c6e5eb2b79e82fbb9c9ba6566947467ef508 LICENSES/LICENCE.ralink_a_mediatek_company_firmware
+a61351665b4f264f6c631364f85b907d8f8f41f8b369533ef4021765f9f3b62e LICENSES/LICENCE.rtlwifi_firmware.txt

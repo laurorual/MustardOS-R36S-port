@@ -1,5 +1,7 @@
-# M4b: the Realtek Wi-Fi dongle (0bda:1a2b CD-ROM mode, 0bda:c820 Wi-Fi) was
-# plugged in or removed: /usr/libexec/muos-network/hotplug decides (it
-# ignores what the worker, sleep/resume and boot do themselves).
-ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0bda", ATTR{idProduct}=="1a2b|c820", RUN+="/usr/libexec/muos-network/hotplug add"
-ACTION=="remove", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ENV{PRODUCT}=="bda/1a2b/*|bda/c820/*", RUN+="/usr/libexec/muos-network/hotplug remove"
+# M4b: a USB Wi-Fi dongle was plugged in or removed:
+# /usr/libexec/muos-network/hotplug decides (it ignores what the worker,
+# sleep/resume and boot do themselves). M10: every USB device but hubs (any
+# dongle the kernel drives; the hotplug script asks the worker whether it
+# is one), no longer only the Realtek 0bda:1a2b/0bda:c820.
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{bDeviceClass}!="09", RUN+="/usr/libexec/muos-network/hotplug add"
+ACTION=="remove", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ENV{TYPE}!="9/*", RUN+="/usr/libexec/muos-network/hotplug remove"

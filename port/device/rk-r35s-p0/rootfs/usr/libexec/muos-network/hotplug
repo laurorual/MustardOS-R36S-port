@@ -14,6 +14,8 @@
 # own CD-ROM switch and USB reset re-enumerate the dongle).
 # M4c: both keep /run/muos/network/adapter (the menu's Wi-Fi row) current,
 # and add does nothing while the menu's Wi-Fi toggle is off.
+# M10: udev calls this for every USB device but hubs; the worker's dongle
+# detection (any USB Wi-Fi dongle the kernel drives) decides.
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 state=/run/muos/network
 s41=/etc/init.d/S41muos-network
@@ -32,20 +34,15 @@ busy() {
     [ ! -e "$state/lock" ] || flock -n "$state/lock" true || { echo 'menu command'; return 0; }
     return 1
 }
-dongle() {
-    for d in /sys/bus/usb/devices/*; do
-        [ -r "$d/idVendor" ] || continue
-        case "$(cat "$d/idVendor"):$(cat "$d/idProduct" 2>/dev/null)" in 0bda:1a2b|0bda:c820) return 0 ;; esac
-    done
-    return 1
-}
+# A Wi-Fi dongle is plugged in (also refreshes $state/adapter).
+dongle() { /usr/libexec/muos-network/worker adapter; }
 # One handler at a time; an add right after a remove waits for it.
 exec 9> /run/muos-hotplug.lock; flock -w 30 9 || exit 0
 mkdir -p "$state"
 case "$1" in
  run-add)
-    : > "$state/adapter"
     sleep 1
+    dongle || exit 0 # not a Wi-Fi dongle
     [ "$(head -n1 /opt/muos/config/settings/network/radio 2>/dev/null)" != 0 ] || { say "$1" 'ignored (Wi-Fi off in the menu)'; exit 0; }
     if why=$(busy); then say "$1" "ignored ($why)"; exit 0; fi
     # Our own switch or USB reset: the radio is already being brought up.
@@ -56,11 +53,10 @@ case "$1" in
  run-remove)
     sleep 2
     dongle && { say "$1" 'ignored (dongle back: re-enumeration)'; exit 0; }
-    rm -f "$state/adapter"
     # A worker that is still bringing the radio up fails on its own and
     # clears its state (down after each attempt).
     if why=$(busy); then say "$1" "ignored ($why)"; exit 0; fi
     say "$1" 'dongle gone: network service stopped'
     "$s41" stop > /dev/null 2>&1
-    rm -f "$state/usb-done" "$state/interface" ;;
+    rm -f "$state/usb-done" "$state/interface" "$state/module" ;;
 esac
