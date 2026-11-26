@@ -140,7 +140,7 @@ release (bundle + pack at that commit). **Done 2026-11-26 (night,
 autonomous):** update progress screens (frontend patch 0013 + `muos-update
 finish`), faster write, battery guard, Task Toolkit texts in 31 languages
 (`task-texts.py`), Build = release; m9k + v1.0.0 built, v1.0.0 tagged,
-pushed and published with source zips. **Next:** v1.0.0 T3 (above); then
+source zips packed; publishing left to the user (the push was refused to the agent). **Next:** v1.0.0 T3 (above); then
 post-v1.0 (roadmap: variants, dongles, next MustardOS release). Done 2026-11-25 evening: kernel patch 0011 (battery finish), trial
 boot T2, promoted; rc2 rebuilt with it.
 

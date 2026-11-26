@@ -15,8 +15,11 @@ Phase 5 (own-card firmware). M1–M8 done. **Current: M9 — public v1.0**
 first in every session, polish after (decision 37). m9a is the recovery
 image until 2026-11-25, then m9d; **m9f** (the developer twin of
 **v1.0.0-rc2**, whose T3 passed 2026-11-25) is the recovery image now.
-rc2 is a GitHub pre-release; **v1.0.0** (developer twin m9k) published
-2026-11-26 by the agent with the user's token; its T3 is pending.
+rc2 is a GitHub pre-release; **v1.0.0** (developer twin m9k) is built,
+committed and tagged at `452e465` locally: the agent's `git push` was
+refused by the permission check, so the user runs
+`build/release/publish-v1.0.0.sh` (tag, push, release with notes and the
+8 assets, using `~/.config/muos-port/github-token`). Its T3 is pending.
 
 ## Device and bench
 
@@ -58,16 +61,14 @@ card, bootloader included (procedures.md).
 
 | Image | Content | State |
 |---|---|---|
-| `dist/firmware/MustardOS-R36S-port-v1.0.0.img.xz` (xz `a308dccd…`, raw `b762425f…`, p2 `9cf48944…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public v1.0.0** (Build = v1.0.0); 29 checks | published 2026-11-26; T3 pending |
+| `dist/firmware/MustardOS-R36S-port-v1.0.0.img.xz` (xz `a308dccd…`, raw `b762425f…`, p2 `9cf48944…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public v1.0.0** (Build = v1.0.0); 29 checks | built; publish with `build/release/publish-v1.0.0.sh`; T3 pending |
 | `dist/firmware/test128-m9k-20261126.img.zst` (raw `3e487ae1…`, p2 `43779504…`) | v1.0.0 rootfs, developer variant | on the bench; T2: update rounds with progress screens, NES 59.96 |
-| `dist/firmware/MustardOS-R36S-port-v1.0.0-rc2.img.xz` (xz `fa935564…`, raw `2c2e33e8…`, p2 `2ffa8678…`) + `.img.zst`, `.p2.img.gz`/`.sha256` | **public rc2**: rc1 + English/50 % first boot, press-kit boot logo, `/etc/issue`, kernel patch 0011; 29 checks pass | T3 ok 2026-11-25 |
+| (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
 | **`dist/firmware/test128-m9f-20261125.img.zst`** (raw `78973074…`, p2 `252f1cf0…`) | the rc2 rootfs + kernel, developer variant (m9e + patch 0011; m9e retired) | rootfs T2 as m9e (sweep, NES 59.98, DC); kernel T2 on the bench (sweep, 3 sleeps, NES 59.96, DC 59.99, boot slots); **recovery since 2026-11-25** (rc2 T3 ok) |
-| `dist/firmware/MustardOS-R36S-port-v1.0.0-rc1.img.xz` (raw `da27f90b…`, p2 `abd16601…`) | public rc1 | T3 2026-11-25: 1–7 ok, findings fixed in rc2 |
-| `dist/firmware/test128-m9d-20261125.img.zst` (raw `6dad53f3…`, p2 `14859cdb…`, U-Boot `159e086c…`) | the rc1 rootfs, developer variant | previous recovery |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-4/5 versions in `storage-retention.json` (M2, m9d+rc1, m9f+rc2,
-m9k+v1.0.0; m9c, m9g, m9h, m9i retired 2026-11-26).
+3/5 versions in `storage-retention.json` (M2, m9f, m9k+v1.0.0; m9c,
+m9d+rc1, m9g, m9h, m9i retired and the p3 backup tar deleted 2026-11-26).
 
 ## What works (T3-confirmed)
 
