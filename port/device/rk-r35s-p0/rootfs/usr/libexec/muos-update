@@ -120,8 +120,12 @@ finish) # the progress-screen task: write p2 now, progress lines on stdout
     : > /run/muos/update-finishing
     want=$(cut -d' ' -f1 "$upd/pending") img=$(cut -d' ' -f2 "$upd/pending")
     log "trial boot opened the frontend, writing p2"
-    out=/run/muos/write-p2.out
-    $rt write-p2 "$trial/rootfs.img" "$want" 2>&1 | tee "$out" | tee -a "$upd/update.log" | grep '^progress ' || :
+    out=/run/muos/write-p2.out; : > "$out"
+    # a shell loop, not grep: a pipe would hold the progress lines back
+    $rt write-p2 "$trial/rootfs.img" "$want" 2>&1 | while IFS= read -r l; do
+        echo "$l" >> "$out"; echo "$l" >> "$upd/update.log"
+        case $l in progress\ *) echo "$l" ;; esac
+    done
     if ! grep -q "^verified p2 sha256=$want" "$out"; then mv "$upd/pending" "$upd/failed"; log 'write-p2 failed'; exit 1; fi
     rm -f "$upd/pending" "$trial/rootfs.img" "$upd/$img" "$upd/${img%.gz}.sha256"
     log "installed $want"; sync

@@ -11,7 +11,7 @@
 
 TASK_BEGIN "finish_firmware_update" "Finishing Firmware Update"
 TASK_STATUS "Installing the update: do not power off"
-TASK_DETAIL "About 5 minutes. The device restarts by itself when it is done."
+TASK_DETAIL "About 5 minutes, then it restarts"
 TASK_PROGRESS 0 18
 rm -f /run/muos/update-finished
 /usr/libexec/muos-update finish 2> /run/muos/update-finish.err | while read -r _ n m; do

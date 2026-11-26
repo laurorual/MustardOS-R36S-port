@@ -12,7 +12,7 @@
 
 TASK_BEGIN "install_firmware_update" "Install Firmware Update"
 TASK_STATUS "Checking and unpacking the update"
-TASK_DETAIL "A few minutes. Then the device restarts and installs it (about 5 minutes more): keep it on."
+TASK_DETAIL "Keep the device on until the menu returns"
 size=$(blockdev --getsize64 "$(/usr/libexec/muos-boot-disk)p2" 2>/dev/null || echo 1073741824)
 /usr/libexec/muos-update stage > /run/muos/update-stage.out 2>&1 &
 pid=$!

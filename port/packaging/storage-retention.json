@@ -11,15 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m9c-20261123": {
-      "reason": "M9b T3 round: Wi-Fi stuck-scan reset, GitHub auto-update (curl), CPU/GPU labels",
-      "files": [
-        "dist/firmware/test128-m9c-20261123.img.zst",
-        "dist/firmware/test128-m9c-20261123.img.zst.sha256",
-        "dist/firmware/test128-m9c-20261123.manifest",
-        "build/m3a/test128-m9c-20261123.p2.img"
-      ]
-    },
     "m9d-rc1-20261125": {
       "reason": "M9 licences round: developer m9d (raw 6dad53f3, p2 14859cdb) and the public v1.0.0-rc1 from the same rootfs (raw da27f90b, p2 abd16601; 24 check-public-image checks pass; .img.xz + p2 update assets); unmodified libmali, Gambatte/FCEUmm from build-cores.sh, no BT firmware, MustardOS boot logo, support notice; trial-root T2 2026-11-25",
       "files": [
