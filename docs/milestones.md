@@ -6,8 +6,61 @@ Results and checklists of finished Phase 5 milestones, moved out of
 
 ## M10 — experimental hardware reach (done 2026-11-26, v1.1.0 published; m10a is recovery)
 
-Plan, items and T2 results: STATUS "Previous milestone" (until M11
-replaces it; then summarized here). **T3 (v1.1.0 public on original32,
+Plan, items and T2 results (moved from STATUS):
+
+Goal: v1.1 runs on more R36S units and with more Wi-Fi dongles, labelled
+experimental (decisions 43–44; the port can't test them: feedback via
+issues). Wi-Fi first (no bootloader write), then the variants.
+
+Items:
+1. Worker: any USB Wi-Fi dongle the kernel drives (modalias → wireless
+   module, vendor Realtek drivers first; 8188fu is built in), interface
+   by phy80211, radio off unloads it; the 8821cu-only paths (CD-ROM
+   switch, warm-reboot reset, C2H watchdog, stuck-scan reset) stay
+   gated on the 8821cu.
+2. Hotplug rule + adapter row for any such dongle; autoload blacklist
+   for the USB Wi-Fi modules (the worker loads them).
+3. Firmware for the mainline drivers (mt7601u, rt2800usb, rt73usb,
+   rtl8192cu, r8712u, r8723au) from linux-firmware, pinned, licences in
+   LICENSING/THIRD-PARTY.
+4. T1: detection against a fake sysfs; T2: the 8821cu regression set
+   (radio, toggle loop, wake, hotplug, liveness).
+5. Model DTBs (`dtb-survey.sh`, log `build/logs/m10/dtb-survey.tsv`):
+   wave 1 = the 22 dArkOSen models on the port's board type (rg351mp
+   U-Boot DTB) at 640x480 with the port's input names and key codes
+   (Panel 0 keeps the port DTB: dArkOSen's Panel 0 has the glitching
+   29 MHz timing). Build: dArkOSen DTB + the mmc aliases (`fdtput`),
+   as `model-<sha12>.dtb` keys in dtb-variants.txt, in p1 and in p2's
+   boot files. Not yet: 13 rg351v clones and R50S (other input names),
+   7 soysauce (rg351p board), 1024/720 panels (frontend resolution).
+6. Card-root selectors (`.bat`, `.sh`, `.command`) writing p1
+   `model.txt` (a model id or `default`) from p1 `models.txt`.
+7. `muos-model` (Linux, as `muos-undervolt`): early in the boot, a
+   `model.txt` that main doesn't boot arms a one-shot trial with that
+   DTB (same kernel) and reboots; the menu up 20 s promotes it; a
+   failed trial renames `model.txt` to `.failed`. No U-Boot change, so
+   v1.0 users get it through the update; boot-sync keeps the model
+   across kernel updates; the undervolt rows say unavailable on a model.
+8. Audio and battery come with each DTB (all wave-1 models: speaker +
+   jack detection, dArkOSen `alsa_path` SPK_HP; no gamma key there).
+9. Docs (README driver and model lists, hardware-findings,
+   known-issues), v1.1.0 image at the end.
+
+**Done to T2 (2026-11-26):** all 9 items.
+- Wi-Fi (1–4): detection 15/15 fake IDs + the real 8821cu
+  (`t2-wifi-detect.sh`); radio, toggle loop, C2H watchdog with the new
+  hotplug path, wakes 9.3/8.9 s.
+- Models (5–8): 22 model DTBs (exact deltas); `muos-model` both ways +
+  give-up path on the bench with a Panel 4 test DTB (input names, root,
+  Wi-Fi under it; `t2-model.sh`); selector T1.
+- m10a through the update path from m9k: p2 written, boot-sync put the
+  model files and selectors on p1, undervolt kept; detection, radio,
+  4-cycle toggle, NES 59.97, wake 9.0 s: all pass.
+- **v1.1.0** public built at `ce15e0f` (raw `8378de0c…`, p2 `8bedd242…`,
+  32 checks), source zips packed (`build/release`), notes
+  `build/release/v1.1.0-notes.md`; publishing after the T3:
+  `build/release/publish-v1.1.0.sh` (the user runs it).
+ **T3 (v1.1.0 public on original32,
 2026-11-26):** 8/8 ok — update from v1.0.0 with progress screens, Build =
 v1.1.0, Wi-Fi at power-on, toggle, replug, wake, the selector (item 7
 first failed: `./select-model.sh` is "permission denied" on the FAT p1,

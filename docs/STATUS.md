@@ -12,16 +12,18 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 
 Phase 5 (own-card firmware). M1–M10 done: **v1.1.0 published 2026-11-26**
 (GitHub release, latest; v1.0.0 before it; m10a, the v1.1.0 developer
-twin, is the recovery image). **Current: M11 — PortMaster** (started
-2026-11-26, the user's priority): done to T2, v1.1.1 built; T3 queue
-next, then the user publishes v1.1.1. **Next: M12 — Pico-8** (the user's
-next focus), then M13, the MustardOS next release.
+twin, is the recovery image). **Current: M11 — PortMaster + M12 — PICO-8**
+(2026-11-26, one release, decision 48): both done to T2, **v1.1.1**
+built; the user runs one T3 for both, then publishes v1.1.1. Next: M13,
+the MustardOS next release.
 
 ## Device and bench
 
-- **Bench (2026-11-26):** test128 in slot 1, **p2 = m11b** (written
-  with `write-p2` after `t2-portmaster.sh` PASS; PortMaster installed on
-  p3 with the test ports sdlsopwith, turbotabletennis, 2048). Before:
+- **Bench (2026-11-26):** test128 in slot 1, **p2 = m12b** (written
+  with `write-p2` after `t2-pico8.sh` + `t2-portmaster.sh` PASS). p3 test
+  content: PortMaster with sdlsopwith, turbotabletennis, 2048; ROMS/PICO-8
+  `ld45.p8`, `cartparsetest.p8.png`; the user's official PICO-8 0.2.7 in
+  `MUOS/bios/pico8` (private: never in an image) and the Splore app. Before:
   the update path m9k → m10a (boot records: main = `Image-494d1c3d5ebd` + the
   undervolt DTB `panel0-84611ef0394d.dtb`, previous = the same kernel +
   the stock DTB `panel0-c97151d0ec1a.dtb` since the model T2). p1 has
@@ -124,44 +126,56 @@ tested a TP-Link RTL8822BU dongle, 2357:0115: it works.)
 
 ## T3 queue
 
-**v1.1.1 checklist** (public image on original32 in slot 1, as before;
-full pt-BR paths; Wi-Fi on):
+**v1.1.1 checklist (M11 + M12)** (public image on original32 in slot 1,
+as before; full pt-BR paths; Wi-Fi on):
 1. Update from v1.1.0: copy `MustardOS-R36S-port-v1.1.1.p2.img.gz` +
    `.p2.img.sha256` to `MUOS/update`, Aplicativos → Ferramentas de
    sistema → Instalar atualização do sistema: progress, restarts, menu.
    Informações → Detalhes do dispositivo: Compilação = v1.1.1.
-2. Aplicativos: a **PortMaster** row with its icon. Open it: the progress
-   screen "Instalando o PortMaster" (about 10–30 s), then "PortMaster
-   instalado: abra-o de novo em Aplicativos"; B back.
-3. Aplicativos → PortMaster again: PortMaster's own screen opens (music,
-   D-pad/A/B move and select).
-4. In PortMaster, install a free port marked "Ready to Run" (for example
-   SDL Sopwith or 2048), then leave PortMaster (its Exit / B): back to
-   Aplicativos.
-5. Explorar conteúdo → Ports: the installed port is listed; start it:
-   picture, sound, the buttons work.
-6. In the port: Volume +/− change the sound (no bar is expected);
-   Fn+Start: back to the menu within about 5 s.
-7. A port with a runtime (for example TurboTableTennis, Godot): the first
-   start downloads its runtime; it plays with sound; Fn+Start back.
-8. 2048 (libretro): runs with the in-game volume bar; Fn+Start back.
-9. During a port: Suspender (short Power press), wait 10 s, wake: the
-   port continues.
-After it passes: m11b becomes the recovery image and the user runs
-`build/release/publish-v1.1.1.sh` (tag 38a7344; the image was built at 29b766d, same port/device tree).
+2. Aplicativos → PortMaster: "Instalando o PortMaster", then "PortMaster
+   instalado: abra-o de novo em Aplicativos"; B back. Open it again:
+   PortMaster's screen with music; D-pad/A/B work.
+3. In PortMaster install a free "Ready to Run" port (SDL Sopwith or
+   2048) and a Godot one (TurboTableTennis); leave PortMaster.
+4. Explorar conteúdo → Ports: start each: picture, sound, buttons;
+   TurboTableTennis downloads its runtime on its first start; 2048 shows
+   the volume bar; Volume +/− work in all; Fn+Start back to the menu
+   within ~5 s.
+5. During a port: Suspender (short Power), wait 10 s, wake: it continues.
+6. PICO-8 with the free core: copy a cart (`.p8` or `.p8.png`) to
+   `ROMS/PICO-8`; Explorar conteúdo → PICO-8 → the cart: plays with sound
+   (Picante8); Menu+… as other libretro games; Fn+Start or the in-game
+   menu back.
+7. Official PICO-8: copy `pico-8_0.2.7_raspi.zip` to `MUOS/bios/pico8`,
+   restart: Aplicativos shows **Splore**. In Explorar conteúdo → PICO-8,
+   Y (opções do conteúdo) → Núcleo → "PICO-8 - Standalone" and play a
+   cart: fills the screen height; "PICO-8 - Pixel-Perfect - Standalone":
+   sharp, smaller square; buttons and sound; Fn+Start back.
+8. Aplicativos → Splore: the Lexaloffle BBS lists carts (Wi-Fi); download
+   and play one; Fn+Start back to Aplicativos.
+After it passes: m12b becomes the recovery image and the user runs
+`build/release/publish-v1.1.1.sh` (tag 0c89e88, the build commit).
 
-## Next milestone: M12 — Pico-8
+## Current milestone: M12 — PICO-8 (done to T2 2026-11-26)
 
-The user's next focus (2026-11-26). To plan at its start; survey so far:
-muOS runs the official Pico-8 (commercial, the user's own Raspberry Pi
-build: `pico-8/pico8_64` + `pico8.dat` in `MUOS/bios/pico8`; upstream
-`ext-pico8.sh`, the Splore app, `-root_path`, gptokeyb) and has the
-open fake-08 libretro core as the free option. Items to plan: fake-08
-core (default, no purchase), the official binary path (launcher, Splore
-in Aplicativos, carts in ROMS/PICO-8, saves, favourites to boxart),
-controls, 640x480 scaling (pixel perfect), audio, quit chord.
+The user's focus after PortMaster, released with it as v1.1.1
+(decision 48). Done:
+1. Cores: Picante8 (MustardOS, GPL-3.0, muOS's default) and FAKE-08
+   (MIT) built by `build-cores.sh`, pinned; `ROMS/PICO-8` assigned to
+   Picante8 (schedutil). T2: both 60.0 fps on `ld45.p8` and a `.p8.png`.
+2. Official PICO-8 (the user's own Raspberry Pi build, as dArkOSen and
+   muOS): `muos-pico8` for muOS's ext-pico8-scale / -pixel cores
+   (`-home MUOS/save/pico8`, `-root_path`, `-joystick 0`,
+   `sdl_controllers.txt`); S91 unpacks `pico-8_*_raspi.zip` in
+   `MUOS/bios/pico8` and shows the Splore app while PICO-8 is there; Fn+Start
+   quits it. T2 with the user's 0.2.7: both modes and Splore run (640x480
+   GLES2, PipeWire, muOS-Keys) and quit in ~1 s.
+3. GNU wget with OpenSSL (BusyBox wget has no HTTPS).
+4. Docs (README, CHANGELOG, known issues, findings, LICENSING: the
+   official PICO-8 is never distributed); `t2-pico8.sh`; public checks.
+Unverified: Splore's BBS downloads (T3 8).
 
-## Current milestone: M11 — PortMaster (and muOS applications)
+## Milestone M11 — PortMaster (and muOS applications) (done to T2 2026-11-26)
 
 Goal: Aplicativos → PortMaster installs and runs ports as on muOS
 (PortMaster's own muOS variant, `muos.portmaster.zip`, unmodified), and
@@ -223,58 +237,3 @@ loop, PortMaster install from the zip and from the network, port
 launch/quit/return × 3, sleep in a port. Expected T3: PortMaster UI
 navigation and a port download; a played port with sound; quit chord;
 volume bar; one GL port.
-
-## Previous milestone: M10 — experimental hardware reach (done 2026-11-26)
-
-Goal: v1.1 runs on more R36S units and with more Wi-Fi dongles, labelled
-experimental (decisions 43–44; the port can't test them: feedback via
-issues). Wi-Fi first (no bootloader write), then the variants.
-
-Items:
-1. Worker: any USB Wi-Fi dongle the kernel drives (modalias → wireless
-   module, vendor Realtek drivers first; 8188fu is built in), interface
-   by phy80211, radio off unloads it; the 8821cu-only paths (CD-ROM
-   switch, warm-reboot reset, C2H watchdog, stuck-scan reset) stay
-   gated on the 8821cu.
-2. Hotplug rule + adapter row for any such dongle; autoload blacklist
-   for the USB Wi-Fi modules (the worker loads them).
-3. Firmware for the mainline drivers (mt7601u, rt2800usb, rt73usb,
-   rtl8192cu, r8712u, r8723au) from linux-firmware, pinned, licences in
-   LICENSING/THIRD-PARTY.
-4. T1: detection against a fake sysfs; T2: the 8821cu regression set
-   (radio, toggle loop, wake, hotplug, liveness).
-5. Model DTBs (`dtb-survey.sh`, log `build/logs/m10/dtb-survey.tsv`):
-   wave 1 = the 22 dArkOSen models on the port's board type (rg351mp
-   U-Boot DTB) at 640x480 with the port's input names and key codes
-   (Panel 0 keeps the port DTB: dArkOSen's Panel 0 has the glitching
-   29 MHz timing). Build: dArkOSen DTB + the mmc aliases (`fdtput`),
-   as `model-<sha12>.dtb` keys in dtb-variants.txt, in p1 and in p2's
-   boot files. Not yet: 13 rg351v clones and R50S (other input names),
-   7 soysauce (rg351p board), 1024/720 panels (frontend resolution).
-6. Card-root selectors (`.bat`, `.sh`, `.command`) writing p1
-   `model.txt` (a model id or `default`) from p1 `models.txt`.
-7. `muos-model` (Linux, as `muos-undervolt`): early in the boot, a
-   `model.txt` that main doesn't boot arms a one-shot trial with that
-   DTB (same kernel) and reboots; the menu up 20 s promotes it; a
-   failed trial renames `model.txt` to `.failed`. No U-Boot change, so
-   v1.0 users get it through the update; boot-sync keeps the model
-   across kernel updates; the undervolt rows say unavailable on a model.
-8. Audio and battery come with each DTB (all wave-1 models: speaker +
-   jack detection, dArkOSen `alsa_path` SPK_HP; no gamma key there).
-9. Docs (README driver and model lists, hardware-findings,
-   known-issues), v1.1.0 image at the end.
-
-**Done to T2 (2026-11-26):** all 9 items.
-- Wi-Fi (1–4): detection 15/15 fake IDs + the real 8821cu
-  (`t2-wifi-detect.sh`); radio, toggle loop, C2H watchdog with the new
-  hotplug path, wakes 9.3/8.9 s.
-- Models (5–8): 22 model DTBs (exact deltas); `muos-model` both ways +
-  give-up path on the bench with a Panel 4 test DTB (input names, root,
-  Wi-Fi under it; `t2-model.sh`); selector T1.
-- m10a through the update path from m9k: p2 written, boot-sync put the
-  model files and selectors on p1, undervolt kept; detection, radio,
-  4-cycle toggle, NES 59.97, wake 9.0 s: all pass.
-- **v1.1.0** public built at `ce15e0f` (raw `8378de0c…`, p2 `8bedd242…`,
-  32 checks), source zips packed (`build/release`), notes
-  `build/release/v1.1.0-notes.md`; publishing after the T3:
-  `build/release/publish-v1.1.0.sh` (the user runs it).
