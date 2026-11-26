@@ -3,7 +3,7 @@
 MustardOS for R36S/R35S (unofficial port). Not supported by the MustardOS
 team: https://github.com/laurorual/MustardOS-R36S-port/issues
 
-## v1.1.0 (unreleased)
+## v1.1.0 (2026-11-26)
 
 - **More R36S models (experimental):** 22 models with the 640x480 screen
   from dArkOSen's device trees (list in the README). Choose yours on a PC
