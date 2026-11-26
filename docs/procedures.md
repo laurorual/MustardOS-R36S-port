@@ -114,9 +114,13 @@ incrementally; rootfs in `build/m3a/output`, boot chain in `build/m3b`):
    640x480 layout, THIRD-PARTY notice, update repository).
 3. T2 the same p2 as a trial root on the bench (developer access stays),
    then T3 of the public card on a blank card with the user present.
-4. `make-source-bundle.sh bundle build/release/<version>` (~2 GB) and
-   attach: the `.img.xz` + `.sha256`, the p2 update assets, the bundle
-   files and `SHA256SUMS`, release notes from `docs/release-notes.md`.
+4. `make-source-bundle.sh bundle build/release/<version>` (~2.5 GB),
+   then `make-source-bundle.sh pack build/release/<version>
+   MustardOS-R36S-port-<version>` (two stored zips under GitHub's 2 GiB
+   asset limit, each with `SHA256SUMS`; delete the folder after). Attach:
+   the `.img.xz` + `.sha256`, the p2 update assets, the source zips +
+   `.sha256`; notes from `docs/release-notes.md` (direct download link
+   to the `.img.xz` first).
 
 ## Plan B: inject a component on the PC (decision 36, not used)
 

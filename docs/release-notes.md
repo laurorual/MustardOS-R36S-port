@@ -36,7 +36,7 @@ Applications → Task Toolkit → Install Firmware Update.
 |---|---|
 | `MustardOS-R36S-port-<version>.img.xz` (+ `.sha256`) | the card image to flash |
 | `MustardOS-R36S-port-<version>.p2.img.gz` + `.p2.img.sha256` | the update package (system partition) |
-| `MustardOS-R36S-port-*.tar.zst`, `linux-*`, `u-boot-*`, `cores/*`, `buildroot-legal-info.tar.zst`, … + `SHA256SUMS` | the complete corresponding source (GPL) |
+| `MustardOS-R36S-port-<version>-source-1.zip`, `-source-2.zip` (+ `.sha256`) | the complete corresponding source (GPL): unzip both into one folder, `SHA256SUMS` inside |
 
 **Licences:** the port's code is MIT; every component's licence is in
 [docs/LICENSING.md](https://github.com/laurorual/MustardOS-R36S-port/blob/<version>/docs/LICENSING.md) and `THIRD-PARTY.txt` in the image.

@@ -6,6 +6,11 @@
 #                                      is still on the host
 #   make-source-bundle.sh bundle DIR   write the bundle to DIR (~2 GB:
 #                                      release time only), SHA256SUMS last
+#   make-source-bundle.sh pack DIR NAME  DIR's files in NAME-source-N.zip
+#                                      next to DIR (stored, not recompressed:
+#                                      the parts are .tar.zst already), each
+#                                      under GitHub's 2 GiB asset limit,
+#                                      every part with SHA256SUMS, + .sha256
 # Contents (one .tar.zst each):
 #   MustardOS-R36S-port-REV this repository at HEAD: patches, build scripts,
 #                        device files, notices (kernel/U-Boot configs, the
@@ -94,5 +99,22 @@ bundle)
     # shellcheck disable=SC2094 # SHA256SUMS is excluded from the list
     (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
     du -sh "$out" ;;
-*) sed -n '3,27p' "$0"; exit 2 ;;
+pack)
+    [ $# -eq 3 ] && [ -f "$2/SHA256SUMS" ] || { echo 'usage: pack DIR NAME (DIR from bundle)' >&2; exit 2; }
+    dir=$(realpath "$2") name=$3 limit=$((1900 * 1024 * 1024))
+    rm -f "${dir%/*}/$name"-source-*.zip*
+    # first-fit decreasing into parts under the limit
+    declare -a size=() list=()
+    while read -r b f; do
+        for ((i = 0; ; i++)); do
+            if [ $(( ${size[i]:-0} + b )) -le $limit ]; then size[i]=$(( ${size[i]:-0} + b )); list[i]+="$f"$'\n'; break; fi
+        done
+    done < <(cd "$dir" && find . -type f ! -name SHA256SUMS -printf '%s %P\n' | sort -rn)
+    for i in "${!list[@]}"; do
+        z=${dir%/*}/$name-source-$((i + 1)).zip
+        (cd "$dir" && printf '%s' "${list[i]}" | sed '/^$/d' | { cat; echo SHA256SUMS; } | zip -q -0 -@ "$z")
+        (cd "${z%/*}" && sha256sum "${z##*/}" > "${z##*/}.sha256")
+        echo "$(du -h "$z" | cut -f1) ${z##*/} ($(printf '%s' "${list[i]}" | grep -c .) files)"
+    done ;;
+*) sed -n '3,34p' "$0"; exit 2 ;;
 esac
