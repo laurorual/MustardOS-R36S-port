@@ -86,7 +86,7 @@ Português (Brasil) and every MustardOS language. Known issues:
 [docs/known-issues.md](docs/known-issues.md); changes:
 [docs/CHANGELOG.md](docs/CHANGELOG.md).
 
-**PortMaster (since v1.2):** Applications → PortMaster downloads and
+**PortMaster (since v1.1.1):** Applications → PortMaster downloads and
 plays PC game ports made for Linux handhelds. Its first start installs
 PortMaster from its official release (Wi-Fi, about 25 MB; offline: copy
 `muos.portmaster.zip` from
@@ -176,7 +176,7 @@ jogos vão por SFTP pelo Wi-Fi ou num cartão FAT/exFAT no slot 2
 sistema. Atualizações: Aplicativos → Ferramentas de sistema → "Instalar
 atualização do sistema", ou automáticas com Wi-Fi.
 
-**PortMaster (desde a v1.2):** Aplicativos → PortMaster baixa e roda
+**PortMaster (desde a v1.1.1):** Aplicativos → PortMaster baixa e roda
 ports de jogos de PC feitos para portáteis Linux. A primeira abertura
 instala o PortMaster a partir do release oficial (Wi-Fi, cerca de
 25 MB; sem Wi-Fi: copie antes o `muos.portmaster.zip` dos

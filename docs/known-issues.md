@@ -33,7 +33,7 @@ MustardOS team.
 - Many new systems were checked only with test content; please report
   games that misbehave.
 
-## PortMaster (since v1.2)
+## PortMaster (since v1.1.1)
 
 - Ports that exist only for 32-bit (armhf) systems do not run: the
   firmware is 64-bit only. PortMaster lists them; about 200 of 1500.

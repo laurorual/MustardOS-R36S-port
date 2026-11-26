@@ -136,6 +136,10 @@ overrides an earlier one where they conflict (noted inline).
     Rockchip and can't speak to redistribution) changes nothing: the
     publication strategy stays (Mali userspace shipped unmodified as
     community practice, LICENSING.md).
+48. (2026-11-26) Versions: the next release is v1.1.1 (PortMaster from
+    M11 and Pico-8 from M12, one build, one T3); the minor number goes
+    up (v1.2.0) only for a big change. The user tests M11 and M12
+    together.
 
 Standing rules (AGENTS.md): heavy systems = maximum performance first;
 recovery promotion after a clean T3 without asking.

@@ -13,8 +13,8 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 Phase 5 (own-card firmware). M1–M10 done: **v1.1.0 published 2026-11-26**
 (GitHub release, latest; v1.0.0 before it; m10a, the v1.1.0 developer
 twin, is the recovery image). **Current: M11 — PortMaster** (started
-2026-11-26, the user's priority): done to T2, v1.2.0 built; T3 queue
-next, then the user publishes v1.2.0. **Next: M12 — Pico-8** (the user's
+2026-11-26, the user's priority): done to T2, v1.1.1 built; T3 queue
+next, then the user publishes v1.1.1. **Next: M12 — Pico-8** (the user's
 next focus), then M13, the MustardOS next release.
 
 ## Device and bench
@@ -124,12 +124,12 @@ tested a TP-Link RTL8822BU dongle, 2357:0115: it works.)
 
 ## T3 queue
 
-**v1.2.0 checklist** (public image on original32 in slot 1, as before;
+**v1.1.1 checklist** (public image on original32 in slot 1, as before;
 full pt-BR paths; Wi-Fi on):
-1. Update from v1.1.0: copy `MustardOS-R36S-port-v1.2.0.p2.img.gz` +
+1. Update from v1.1.0: copy `MustardOS-R36S-port-v1.1.1.p2.img.gz` +
    `.p2.img.sha256` to `MUOS/update`, Aplicativos → Ferramentas de
    sistema → Instalar atualização do sistema: progress, restarts, menu.
-   Informações → Detalhes do dispositivo: Compilação = v1.2.0.
+   Informações → Detalhes do dispositivo: Compilação = v1.1.1.
 2. Aplicativos: a **PortMaster** row with its icon. Open it: the progress
    screen "Instalando o PortMaster" (about 10–30 s), then "PortMaster
    instalado: abra-o de novo em Aplicativos"; B back.
@@ -148,7 +148,7 @@ full pt-BR paths; Wi-Fi on):
 9. During a port: Suspender (short Power press), wait 10 s, wake: the
    port continues.
 After it passes: m11b becomes the recovery image and the user runs
-`build/release/publish-v1.2.0.sh` (tag 38a7344; the image was built at 29b766d, same port/device tree).
+`build/release/publish-v1.1.1.sh` (tag 38a7344; the image was built at 29b766d, same port/device tree).
 
 ## Next milestone: M12 — Pico-8
 
@@ -201,7 +201,7 @@ Items:
 7. Native touches (as for the heavy systems): volume/brightness bar in
    ports, sleep/resume while a port runs, the low-battery guard.
 8. Docs and licences (README, known issues: armhf ports unsupported;
-   LICENSING; procedures), image v1.2.0 at the end.
+   LICENSING; procedures), image v1.1.1 at the end.
 
 **Progress (2026-11-26):** items 1–5 and 8 implemented; item 6 by T2
 with real ports; item 7: the volume/brightness keys work in ports, no

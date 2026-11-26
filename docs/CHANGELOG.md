@@ -3,7 +3,7 @@
 MustardOS for R36S/R35S (unofficial port). Not supported by the MustardOS
 team: https://github.com/laurorual/MustardOS-R36S-port/issues
 
-## v1.2.0 (unreleased)
+## v1.1.1 (unreleased)
 
 - **PortMaster:** Applications → PortMaster installs PortMaster on its
   first start (Wi-Fi, or `muos.portmaster.zip` in `MUOS/update`) and
