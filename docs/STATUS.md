@@ -154,7 +154,8 @@ as before; full pt-BR paths; Wi-Fi on):
 8. Aplicativos → Splore: the Lexaloffle BBS lists carts (Wi-Fi); download
    and play one; Fn+Start back to Aplicativos.
 After it passes: m12b becomes the recovery image and the user runs
-`build/release/publish-v1.1.1.sh` (tag 0c89e88, the build commit).
+`build/release/publish-v1.1.1.sh` (tags the final commit: the image was
+built at 0c89e88, same `port/device` tree; the merged README is the user's).
 
 ## Current milestone: M12 — PICO-8 (done to T2 2026-11-26)
 
