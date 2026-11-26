@@ -33,6 +33,11 @@ else
     n=${cart##*/}
     case $n in [Ss]plore* | -[Ss]plore-*) set -- "$@" -splore ;; *) set -- "$@" -run "$cart" ;; esac
 fi
+# as dArkOSen's pico8.sh: the pad in PICO-8's own sdl_controllers.txt
+# (the muOS-Keys line of the content's control scheme, from sdl_env) and
+# -joystick 0
+[ -z "${SDL_GAMECONTROLLERCONFIG:-}" ] || printf '%s\n' "$SDL_GAMECONTROLLERCONFIG" > "$home/sdl_controllers.txt"
+set -- "$@" -joystick 0
 muvarctl set system foreground_process pico8_64 > /dev/null 2>&1 || :
 say "start $mode ${cart:-splore}"
 cd "$bios" || exit 1
