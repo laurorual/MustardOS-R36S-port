@@ -128,9 +128,19 @@ MustardOS 2606.0 for v1.0, the bench change).
 
 ## T3 queue
 
-rc1 T3 and rc2 T3 (2026-11-25) done: rc2 ok (battery found and fixed by
-patch 0011, boot screen, English/50 % first boot). Empty until the next
-image.
+**v1.0.0 checklist** (public `dist/firmware/MustardOS-R36S-port-v1.0.0.*`,
+xz `7ce6798f…`; the rc2 card = original32):
+1. original32 in the PC's reader → the agent copies
+   `MustardOS-R36S-port-v1.0.0.p2.img.gz` + `.p2.img.sha256` to its
+   `MUOS/update` (`udisksctl`, no sudo); card back in slot 1.
+2. Aplicativos → Ferramentas de sistema → Install Firmware Update: it
+   unpacks (~1 min), restarts, the menu comes up; leave it in the menu
+   2 min (p2 is written, don't power off).
+3. Informações → Detalhes do dispositivo: version v1.0.0; restart
+   (menu principal → Reiniciar): same boot screen, v1.0.0, saves/settings
+   kept, a game runs.
+4. Wi-Fi at power-on (open since m9c): power on with the dongle in; Wi-Fi
+   connects by itself within ~30 s.
 
 ## Current milestone: M9 — public v1.0
 
@@ -164,7 +174,8 @@ updates through the update path (`muos-boot-sync`, procedures.md; m9g
 T2: two failed tries → given up, success path, the full stage → trial
 root → write-p2 → arm → trial → promote with the undervolt DTB mapped,
 boot-slot 4/4, NES 59.96); bench back on test128 (m9f, p3 restored), now
-p2 = m9g. **Next:** v1.0.0 (public build, T3 = the rc2 card updating to
-it from the menu). Polish meanwhile: Wi-Fi power-on
+p2 = m9g. v1.0.0 built (29 checks); source zips via `make-source-bundle.sh
+pack`. **Next:** v1.0.0 T3 (above) → the user publishes v1.0.0 as a normal
+release (bundle + pack at that commit). Polish meanwhile: Wi-Fi power-on
 T3. Done 2026-11-25 evening: kernel patch 0011 (battery finish), trial
 boot T2, promoted; rc2 rebuilt with it.
