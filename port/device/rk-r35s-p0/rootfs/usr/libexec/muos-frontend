@@ -170,6 +170,12 @@ say "loop start hotkeys=${1:-1} audio=$SDL_AUDIODRIVER"
 # muos-hotkey owns muhotkey and handles the power/idle hotkeys (sleep).
 [ "${1:-1}" != 1 ] || { /usr/libexec/muos-hotkey >> /opt/muos/log/hotkey.log 2>&1 & hotkey=$!; }
 [ -s "$act" ] || echo launcher > "$act"
+# M9 (v1.0.0): an update's trial boot opens the progress screen at once
+# (frontend patch 0013) to write p2 there (muos-update finish).
+if [ -f /userdata/MUOS/update/pending ] && /usr/libexec/muos-root-trial status 2>/dev/null | grep -q '^trial-root yes'; then
+    printf '%s\n%s\n' /usr/libexec/muos-update-finish.sh 'Finishing Firmware Update' > "$run/task_autorun"
+    echo task > "$act"; say "update pending on the trial root: progress screen"
+fi
 default_governor
 # M9 (decision 28): the Undervolt row shows the booted DTB; an undervolt
 # trial boot that keeps the menu up for 20 s becomes main (a grandchild,

@@ -1,0 +1,40 @@
+From: muOS R35S port
+Subject: [PATCH] 0013-task-autorun
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/module/muxtask.c
++++ b/frontend/module/muxtask.c
+@@ -309,6 +309,32 @@
+     }
+     init_timer(ui_refresh_task, NULL);
+ 
++    /* R35S port: a task the system starts by itself (the last step of a
++     * firmware update), on the progress screen at once. The request is
++     * line 1 = script, line 2 = title; read once and removed. */
++    if (file_exist("/run/muos/task_autorun")) {
++        char *a_script = read_line_char_from("/run/muos/task_autorun", 1);
++        char *a_title = read_line_char_from("/run/muos/task_autorun", 2);
++        remove("/run/muos/task_autorun");
++
++        if (a_script && a_script[0] && file_exist(a_script)) {
++            const char *argv[] = {a_script, NULL};
++            const task_exec_spec spec = {
++                .argv = argv,
++                .argc = 1,
++                .mode = task_mode_progress,
++                .can_cancel = 0,
++                .turbo = 1,
++                .title = a_title && a_title[0] ? a_title : a_script,
++            };
++
++            if (task_exec_start(&spec) == 0) task_progress_show();
++        }
++
++        free(a_script);
++        free(a_title);
++    }
++
+     mux_input_options input_opts = {
+         .swap_axis = theme.misc.navigation_type == 1,
+         .press_handler =

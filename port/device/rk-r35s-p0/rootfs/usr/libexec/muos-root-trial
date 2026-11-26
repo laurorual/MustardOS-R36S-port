@@ -3,8 +3,12 @@
 # M3a trial root helper (see /sbin/muos-ext4-diag).
 #   muos-root-trial status            are we on the trial root? where is p2?
 #   muos-root-trial write-p2 IMG SHA  from the trial root only: save the old
-#                                     p2 to p3 MUOS/trial/p2-previous.img,
-#                                     unmount p2 (/media), write IMG, read back
+#                                     p2 to p3 MUOS/trial/p2-previous.img
+#                                     (developer images only: M9, public
+#                                     images skip it), unmount p2 (/media),
+#                                     write IMG in 64 MiB steps, read back.
+#                                     Prints "progress N 18" lines (1 check,
+#                                     16 write steps, 1 read-back).
 # IMG must be exactly the p2 size and match SHA before anything is written.
 # p2 stays unmounted afterwards; the next reboot boots the new p2.
 set -eu
@@ -23,15 +27,19 @@ write-p2)
     on_trial || { echo 'refusing: not on the trial root' >&2; exit 1; }
     size=$(blockdev --getsize64 "$p2")
     [ "$(wc -c < "$img")" = "$size" ] || { echo "refusing: $img is not $size bytes" >&2; exit 1; }
+    echo 'progress 0 18'
     got=$(sha256sum "$img" | cut -d' ' -f1)
     [ "$got" = "$want" ] || { echo "refusing: $img sha256 $got != $want" >&2; exit 1; }
-    keep=/userdata/MUOS/trial/p2-previous.img
-    dd if="$p2" of="$keep.tmp" bs=1M conv=fsync 2>/dev/null
-    old=$(sha256sum "$keep.tmp" | cut -d' ' -f1)
-    [ "$(dd if="$p2" bs=1M 2>/dev/null | sha256sum | cut -d' ' -f1)" = "$old" ] ||
-        { echo 'refusing: old p2 changed while saving it' >&2; exit 1; }
-    mv -f "$keep.tmp" "$keep"; echo "$old  p2-previous.img" > "$keep.sha256"; sync
-    echo "saved old p2 sha256=$old"
+    echo 'progress 1 18'
+    if [ -e /etc/muos-developer ]; then
+        keep=/userdata/MUOS/trial/p2-previous.img
+        dd if="$p2" of="$keep.tmp" bs=1M conv=fsync 2>/dev/null
+        old=$(sha256sum "$keep.tmp" | cut -d' ' -f1)
+        [ "$(dd if="$p2" bs=1M 2>/dev/null | sha256sum | cut -d' ' -f1)" = "$old" ] ||
+            { echo 'refusing: old p2 changed while saving it' >&2; exit 1; }
+        mv -f "$keep.tmp" "$keep"; echo "$old  p2-previous.img" > "$keep.sha256"; sync
+        echo "saved old p2 sha256=$old"
+    fi
     # Old p2 at /media plus anything still mounted below it, deepest first.
     # shellcheck disable=SC2013 # mount points without spaces
     for m in $(awk '$2 == "/media" || $2 ~ "^/media/" {print $2}' /proc/mounts | sort -r); do
@@ -39,11 +47,20 @@ write-p2)
     done
     [ -z "$(p2_mounts)" ] || { echo "refusing: p2 still mounted at $(p2_mounts)" >&2; exit 1; }
     echo "writing $p2 ($size bytes)"
-    dd if="$img" of="$p2" bs=1M conv=fsync 2>/dev/null
+    step=$(( size / 16 / 1048576 )) i=0 # MiB per step (p2 is a whole number of MiB x 16)
+    [ $(( step * 16 * 1048576 )) = "$size" ] || step=0
+    if [ "$step" -gt 0 ]; then
+        while [ $i -lt 16 ]; do
+            dd if="$img" of="$p2" bs=1M count=$step skip=$((i * step)) seek=$((i * step)) conv=notrunc,fsync 2>/dev/null
+            i=$((i + 1)); echo "progress $((i + 1)) 18"
+        done
+    else
+        dd if="$img" of="$p2" bs=1M conv=fsync 2>/dev/null; echo 'progress 17 18'
+    fi
     sync; echo 3 > /proc/sys/vm/drop_caches
     back=$(dd if="$p2" bs=1M 2>/dev/null | sha256sum | cut -d' ' -f1)
     [ "$back" = "$want" ] || { echo "VERIFY FAILED: p2 reads $back" >&2; exit 1; }
-    echo "verified p2 sha256=$back"
+    echo "verified p2 sha256=$back"; echo 'progress 18 18'
     ;;
-*) sed -n '3,7p' "$0"; exit 2 ;;
+*) sed -n '3,11p' "$0"; exit 2 ;;
 esac

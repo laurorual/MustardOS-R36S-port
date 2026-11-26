@@ -121,6 +121,16 @@ echo "release=$(basename "${out%.img.zst}")" > "$work/release"
       printf 'sif /etc/%s mode 0100644\nsif /etc/%s uid 0\nsif /etc/%s gid 0\n' "$f" "$f" "$f"
   done; } > "$cmds"
 debugfs -w -f "$cmds" "$work/p2.img" >/dev/null 2>&1; rm -f "$work/release"; : > "$cmds"
+# M9: Information -> Device Details -> Build shows the release in public
+# images (v1.0.0; at most 15 characters), the port commit in developer ones.
+rel=$(basename "${out%.img.zst}"); rel=${rel#MustardOS-R36S-port-}
+if [ "$variant" = public ] && [ ${#rel} -le 15 ]; then
+    printf '%s\n' "$rel" > "$work/build"
+    printf 'cd /opt/muos/config/system\nrm build\nwrite %s build\nsif build mode 0100644\nsif build uid 0\nsif build gid 0\n' "$work/build" > "$cmds"
+    debugfs -w -f "$cmds" "$work/p2.img" >/dev/null 2>&1; : > "$cmds"; rm -f "$work/build"
+    [ "$(debugfs -R 'cat /opt/muos/config/system/build' "$work/p2.img" 2>/dev/null)" = "$rel" ] ||
+        { echo 'build stamp failed' >&2; exit 1; }
+fi
 [ "$(debugfs -R 'cat /etc/muos-port-release' "$work/p2.img" 2>/dev/null)" = "release=$(basename "${out%.img.zst}")" ] ||
     { echo 'release stamp failed' >&2; exit 1; }
 # M9: the boot files p1 gets (kernel, stock + undervolt DTBs, dtb-variants.txt,

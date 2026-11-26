@@ -5272,14 +5272,14 @@
    "path": "/opt/muos/frontend/lib/libmuxcom.so",
    "type": "file",
    "mode": "644",
-   "sha256": "994c23385275fab0540ef47f2c5d4562f270901d4e096784f7d2ea24c3f3e173",
+   "sha256": "7bac67fd1316350788f116d42abed0dbf2e826dfad0d32d17fb93115a6e524d0",
    "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/lib/libmuxcom.so"
   },
   {
    "path": "/opt/muos/frontend/lib/libmuxmod.so",
    "type": "file",
    "mode": "644",
-   "sha256": "633d4d9d42eaa625ff884ccd277569aba9f20e3320ba96da6a9418b02408b058",
+   "sha256": "952674c73d1ab6b2b4823fadbd7a837cd9f128677ec9a1d3fb27778910708a04",
    "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/lib/libmuxmod.so"
   },
   {
