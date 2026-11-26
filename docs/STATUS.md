@@ -156,6 +156,9 @@ history rewritten to the no-reply e-mail; m9d promoted to recovery.
 **Next:** the GitHub pre-release of rc2 (T3 ok):
 `make-source-bundle.sh bundle`, assets, notes (decisions 40–41). The
 repository is public (pushed by the user 2026-11-25, `a62c25b`); later
-commits are pushed by the user too. Polish meanwhile: Wi-Fi power-on
+commits are pushed by the user too. **Then (before v1.0.0):** kernel
+and DTB updates through the update path (roadmap M9: p2 carries the boot
+files, installed by the trial path after the first good boot); bench
+back on a developer card for its T2. Polish meanwhile: Wi-Fi power-on
 T3. Done 2026-11-25 evening: kernel patch 0011 (battery finish), trial
 boot T2, promoted; rc2 rebuilt with it.

@@ -99,6 +99,14 @@ the undervolt opt-in with manual CPU/GPU values, THIRD-PARTY.txt, the
 update path (`muos-update`, Task Toolkit "Install Firmware Update",
 GitHub auto-update in public images).
 
+Before v1.0.0 (found 2026-11-25): the update path carries only p2, so
+a kernel/DTB fix (like patch 0011) never reaches an updated card. Plan:
+the p2 image carries the boot files (`Image`, DTBs, `dtb-variants.txt`)
+and, after the update's first good boot, installs changed ones with the
+existing trial path (`muos-boot-slot install-trial`, reboot, promote
+after the menu is up; a bad kernel falls back to main). T2 on the bench
+with an update from rc2 to the next build.
+
 Scope of v1.0: R35S/R36S **Panel 0** only (DT model R36S-V12 2023-08-18
 Panel 0), the DTB choice documented like dArkOSen's. No claims for other
 panels or clones.
