@@ -36,23 +36,26 @@ test device:
   2604, R36S-V22 2024-12-18 2534, R36S-V22 2024-12-18 2535, R36S-V22
   2024-12-18 2545, R36S-V22 2024-12-18 2548, R36S-V22 2024-12-18, R36S-V30
   2025-18-11 2603, R36S-Y02 2024-12-18, R36XX-V21 2024-12-18, RK3326-D3.
-  Choose yours on a PC: open the card's boot partition and run
-  `select-model.bat` (Windows), `select-model.command` (macOS) or, on
-  Linux, open a terminal there and type `sh select-model.sh` (the card's
-  FAT partition can't mark it executable, so a double-click only opens
-  it as text). Without a selector: create `model.txt` there with the id
-  of your model (the first word of its line in `models.txt`). Then start
-  the console: it restarts once by itself to apply it. If the screen then stays black or wrong, run the
-  selector again and pick another model or the default (a start that
-  freezes before the menu goes back to the previous model by itself: hold
-  Power to turn it off, then on again). Not yet: the G80C/G80CA and other
-  "clone" boards, the Y3506 ("soysauce") boards, the R50S and the 720/1024
-  screens.
+
 - **Other USB Wi-Fi dongles** with these chips (the drivers come with the
   system): Realtek RTL8188EU/ETV, RTL8188FTV, RTL8188CUS/RTL8192CU,
   RTL8723BU, RTL8811AU/RTL8812AU/RTL8821AU, RTL8812BU/RTL8822BU, RTL8188SU/
   RTL8191SU/RTL8192SU, RTL8723AU, RTL8187; MediaTek MT7601U; Ralink
   RT2870/RT3070/RT5370 and RT2571W/RT73.
+
+Choose your DTB on a PC: open the card's boot partition and run
+`select-model.bat` (Windows), `select-model.command` (macOS) or, on
+Linux, open a terminal there and type `sh select-model.sh`.
+How to change DTB manually: create `model.txt` there with the id
+of your model (the first word of its line in `models.txt`).
+
+Then start the console: it restarts once by itself to apply it. If the screen then stays black or wrong, run the
+selector again and pick another model or the default (a start that
+freezes before the menu goes back to the previous model by itself: hold
+Power to turn it off, then on again).
+
+Not working yet: the G80C/G80CA and other "clone" boards, the Y3506 ("soysauce") boards, the R50S and the 720/1024
+screens.
 
 The port can't test these on real hardware, so **any feedback is
 welcome**: open an [issue](https://github.com/laurorual/MustardOS-R36S-port/issues)
@@ -155,17 +158,20 @@ Bluetooth.
 
 **Experimental desde a v1.1 (não testado pelo port; retorno bem-vindo):**
 outros modelos do R36S com a mesma tela 640x480 e botões, dos device
-trees do dArkOSen (lista acima, em inglês). Escolha o seu num PC: abra a
-partição de boot do cartão e rode `select-model.bat` (Windows),
+trees do dArkOSen (lista acima, em inglês).
+
+Escolha o seu DTB num PC: abra a partição de boot do cartão e rode `select-model.bat` (Windows),
 `select-model.command` (macOS) ou, no Linux, abra um terminal nela e
-digite `sh select-model.sh` (a partição FAT do cartão não marca o arquivo
-como executável, então um clique duplo só o abre como texto). Sem
-seletor: crie nela um `model.txt` com o id do seu modelo (a primeira
-palavra da linha dele em `models.txt`). Depois ligue o console, que
-reinicia uma vez sozinho para aplicar. Se a tela ficar
+digite `sh select-model.sh`.
+Como mudar o DTB manualmente: crie nela um `model.txt` com o id do seu modelo (a primeira
+palavra da linha dele em `models.txt`).
+
+Depois ligue o console, que reinicia uma vez sozinho para aplicar. Se a tela ficar
 preta ou errada, rode o seletor de novo e escolha outro modelo ou o
 padrão (um início que trava antes do menu volta sozinho ao modelo
-anterior: segure Power para desligar e ligue de novo). Ainda não: placas "clone" G80C/G80CA e
+anterior: segure Power para desligar e ligue de novo).
+
+Ainda não funciona: placas "clone" G80C/G80CA e
 outras, placas Y3506 ("soysauce"), R50S e telas 720/1024. Também outros
 adaptadores Wi-Fi USB com os chips da lista acima (Realtek RTL8188EU/FTV,
 RTL8192CU, RTL8723BU, RTL8812AU, RTL8822BU e outros; MediaTek MT7601U;
