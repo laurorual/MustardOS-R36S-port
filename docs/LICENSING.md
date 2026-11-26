@@ -39,6 +39,8 @@ it with a commercial product. The port itself is free and must stay so.
 | Bluetooth firmware `rtl_bt/rtl8821c_*` | — | — | removed (decision 38) |
 | Python 3.12 (M11, for PortMaster) and libjpeg-turbo (SDL2_image JPEG) | Buildroot 2025.02.19 packages `python3` (pyc only), `jpeg-turbo` | Python-2.0 (PSF); IJG + BSD-3-Clause + zlib | open (legal-info) |
 | PortMaster (M11) | **not distributed**: `muos-portmaster` downloads PortsMaster/PortMaster-GUI `2026.11.17-0700` `muos.portmaster.zip` (sha256 `e2d3af3a…`) to the user's card on its first start (or takes the user's own copy from `MUOS/update`); its updates, runtimes and ports come from PortMaster's servers | MIT (PortMaster); its bundled tools carry their own licences in `MUOS/PortMaster/licenses` (gptokeyb/gptokeyb2 GPL-3.0, 7zzs LGPL-2.1, …) | no distribution duty (the user's download) |
+| Official PICO-8 (M12) | **not distributed** (Lexaloffle, commercial): the user copies their own Raspberry Pi build to `MUOS/bios/pico8`; `muos-pico8` and the Splore app (MIT) only launch it | Lexaloffle's licence (the user's) | no distribution |
+| GNU wget (M12, HTTPS for Splore and ports) | Buildroot `wget` with OpenSSL | GPL-3.0+ | open (legal-info) |
 | PortMaster launcher, installer, muOS shims (`/usr/libexec/muos-portmaster*`, `muos-session`, `/opt/muos/script/var/func.sh`, `/usr/bin/retroarch` shim, the PortMaster app folder) | this repository | MIT | open |
 
 ## Libretro cores
@@ -70,6 +72,8 @@ the bundle), patches in `port/patches/cores`.
 | yabasanshiro | libretro/yabause `09ed8e5b` | GPL-2.0 | open |
 | gambatte | libretro/gambatte-libretro `77f2567d` | GPL-2.0 | open (moved to `build-cores.sh` 2026-11-25) |
 | fceumm | libretro/libretro-fceumm `ac0d00a7` | GPL-2.0 | open (moved to `build-cores.sh` 2026-11-25) |
+| picante8 (PICO-8, M12; the default) | MustardOS/picante8 `86236842` | GPL-3.0 | open |
+| fake08 (PICO-8, M12) | jtothebell/fake-08 `814991a2` | MIT (with z8lua, MIT) | open |
 | scummvm (core) | scummvm/scummvm `7d2709da` (v2026.4.0) + libretro deps | GPL-3.0+ | open |
 
 ## Standalone emulators

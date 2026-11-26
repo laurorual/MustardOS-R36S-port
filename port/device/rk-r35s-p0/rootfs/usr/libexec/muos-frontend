@@ -155,12 +155,13 @@ launch_content() {
         *ext-yabasanshiro*) ext=yabasanshiro ;; # M8 item 17
         *ext-scummvm*) ext=scummvm ;; # M8 item 5
         *ext-flycast*) ext=flycast ;; # M8 thermal block T9
+        *ext-pico8*) ext=pico8 ;; # M12: the user's own official PICO-8
         *ext-*) say "external launcher $launch not supported yet"; return 1 ;;
     esac
     [ -n "$ext" ] || [ -f "/opt/muos/share/core/$core" ] || { say "missing core $core"; return 1; }
     fresh=; [ ! -e /tmp/ra_no_load ] || fresh=--fresh
     if [ -s "$run/governor" ]; then set_governor "$(head -n1 "$run/governor")"; else default_governor; fi
-    [ "$ext" != port ] || sdl_env
+    case $ext in port | pico8) sdl_env ;; esac
     clear_requests
     audio_check
     if [ -n "$ext" ]; then
@@ -170,6 +171,9 @@ launch_content() {
             variant=$core; case "$variant" in ext-*) ;; *) variant=$launch ;; esac
             run_child /usr/libexec/muos-mupen64plus "$variant" "$content" "${file%.*}" \
                 >> /opt/muos/log/frontend.log 2>&1
+        elif [ "$ext" = pico8 ]; then
+            m=scale; case "$core" in *pixel*) m=pixel ;; esac
+            run_child /usr/libexec/muos-pico8 "$m" "$content" >> /opt/muos/log/frontend.log 2>&1
         elif [ "$ext" = port ]; then
             foreground external
             run_session /opt/muos/log/port.log bash "$content"

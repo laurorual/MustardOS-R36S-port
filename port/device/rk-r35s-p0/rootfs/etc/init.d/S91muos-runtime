@@ -221,6 +221,24 @@ case "${1:-}" in
         echo system > "$c/core.con"; echo "${gov:-performance}" > "$c/core.gov"; echo false > "$c/core.rac"
         echo "runtime: assigned $dir -> $core ($gov)"
     done
+    # M12: the user's own official PICO-8 (muos-pico8): its Raspberry Pi
+    # zip (pico-8_*_raspi.zip) in MUOS/bios/pico8 gives pico8_64 +
+    # pico8.dat; the Splore app is in Applications while they are there.
+    p8=/userdata/MUOS/bios/pico8
+    mkdir -p "$p8"
+    for z in "$p8"/*.zip; do
+        [ -f "$z" ] || continue
+        { [ -f "$p8/pico8_64" ] && [ -f "$p8/pico8.dat" ]; } && break
+        unzip -ojq "$z" pico-8/pico8_64 pico-8/pico8.dat -d "$p8" && echo "runtime: PICO-8 unpacked from ${z##*/}"
+    done
+    app=/userdata/MUOS/application/Splore src=/usr/share/muos-r35s/pico8/Splore
+    if [ -f "$p8/pico8_64" ] && [ -f "$p8/pico8.dat" ]; then
+        if ! cmp -s "$src/mux_launch.sh" "$app/mux_launch.sh" 2>/dev/null; then
+            mkdir -p "$app" && cp -a "$src/." "$app/" && echo "runtime: Splore app"
+        fi
+    elif [ -f "$app/.muos-r35s-port" ]; then
+        rm -rf "$app"; echo "runtime: Splore app removed (no PICO-8)"
+    fi
     # M8 item 5 / M8f T3 4: a ScummVM game is its folder NAME with
     # NAME/NAME.scummvm inside (muOS upstream's self-contained layout: the
     # explorer then lists the folder as one game entry). The M8f layout

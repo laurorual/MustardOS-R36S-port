@@ -74,3 +74,6 @@ N64|ext-mupen64plus-rice|Nintendo N64|ext-mupen64plus - standalone - rice|perfor
 # M11: PortMaster's launch scripts (muos-portmaster; core "external" runs
 # them in muos-frontend); performance as for the heavy systems.
 Ports|external|External - Ports|external|performance
+# M12: PICO-8 carts (.p8, .p8.png) with muOS's default core Picante8
+# (FAKE-08 and the user's own official PICO-8 as the other choices)
+PICO-8|picante8_libretro.so|PICO-8|mu-picante8|schedutil

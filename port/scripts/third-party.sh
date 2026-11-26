@@ -6,7 +6,7 @@
 set -euo pipefail
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 out=$repo/port/device/rk-r35s-p0/rootfs/usr/share/muos-r35s/THIRD-PARTY.txt
-declare -A lic=([snes9x2005]="Snes9x licence (non-commercial)" [gpsp]=GPL-2.0 [picodrive]="PicoDrive licence (non-commercial)"
+declare -A lic=([picante8]=GPL-3.0 [fake08]="MIT (z8lua MIT)" [snes9x2005]="Snes9x licence (non-commercial)" [gpsp]=GPL-2.0 [picodrive]="PicoDrive licence (non-commercial)"
   [pcsx_rearmed]=GPL-2.0 [stella2014]=GPL-2.0 [prosystem]=GPL-2.0 [handy]=Zlib [pce_fast]=GPL-2.0 [ngp]=GPL-2.0
   [wswan]=GPL-2.0 [bluemsx]=GPL-2.0 [gearcoleco]=GPL-3.0 [gearsystem]=GPL-3.0 [pokemini]=GPL-3.0
   [fbneo]="FBNeo licence (non-commercial)" [mame2003_plus]="MAME licence (non-commercial)" [mupen64plus_next]=GPL-2.0

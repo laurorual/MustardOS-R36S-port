@@ -17343,6 +17343,20 @@
    "mode": "644",
    "sha256": "39460807f2fa5a39949c6db37af4eb7cbf069c59f2f1d5e9bb9693e516b0d5e8",
    "origin": "build/m8f/scummvm/tree/opt/muos/share/emulator/scummvm/vkeybd_small.zip"
+  },
+  {
+   "path": "/opt/muos/share/core/picante8_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "c0002069d87dd0b32c4081315d32bf134dc1dbd7e610269b5fa6f79e0214aaae",
+   "origin": "build/m3c/cores/out/picante8_libretro.so"
+  },
+  {
+   "path": "/opt/muos/share/core/fake08_libretro.so",
+   "type": "file",
+   "mode": "755",
+   "sha256": "5de5aaf32c74e0c1ea918128cb7a77ee36d536f8ca63d1d1b0fe6c3a9bed012a",
+   "origin": "build/m3c/cores/out/fake08_libretro.so"
   }
  ],
  "remove": [

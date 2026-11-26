@@ -1,0 +1,39 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M12: the official PICO-8 (Lexaloffle, commercial; not in the image): the
+# user's own Raspberry Pi build, pico8_64 + pico8.dat in MUOS/bios/pico8
+# (or its pico-8_*_raspi.zip there: S91 unpacks those two files), as
+# upstream ext-pico8.sh: "PICO-8 - Standalone" (-windowed 0, fills the
+# height) and "Pixel-Perfect" (whole multiples, 384x384), -root_path the
+# carts' folder, Splore for a cart named Splore* and for the Splore app.
+# Its config, BBS carts and favourites stay in MUOS/save/pico8 (-home; the
+# folder muOS uses). The SDL pad mapping comes from muos-frontend
+# (sdl_env); splore downloads with wget (GNU wget, HTTPS).
+#   muos-pico8 scale|pixel CART   a cart from ROMS/PICO-8
+#   muos-pico8 splore             Applications -> Splore
+set -u
+say() { echo "muos-pico8: $*"; }
+bios=/mnt/mmc/MUOS/bios/pico8
+[ -f "$bios/pico8_64" ] || bios=/mnt/mmc/MUOS/bios/pico-8
+bin=$bios/pico8_64
+{ [ -f "$bin" ] && [ -f "$bios/pico8.dat" ]; } || { say "no pico8_64 + pico8.dat in MUOS/bios/pico8"; exit 1; }
+chmod +x "$bin" 2> /dev/null
+home=/mnt/mmc/MUOS/save/pico8 carts=/mnt/mmc/ROMS/PICO-8
+mkdir -p "$home" "$carts"
+mode=${1:-scale} cart=${2:-}
+case $mode in
+    pixel) set -- -windowed 0 -pixel_perfect 1 ;;
+    *) set -- -windowed 0 ;;
+esac
+if [ "$mode" = splore ]; then
+    set -- "$@" -root_path "$carts" -splore
+else
+    [ -n "$cart" ] || { say "no cart"; exit 2; }
+    set -- "$@" -root_path "${cart%/*}"
+    n=${cart##*/}
+    case $n in [Ss]plore* | -[Ss]plore-*) set -- "$@" -splore ;; *) set -- "$@" -run "$cart" ;; esac
+fi
+muvarctl set system foreground_process pico8_64 > /dev/null 2>&1 || :
+say "start $mode ${cart:-splore}"
+cd "$bios" || exit 1
+HOME=$home exec "$bin" -home "$home" "$@"

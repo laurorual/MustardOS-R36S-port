@@ -54,6 +54,8 @@ flycast2022 https://github.com/libretro/parallel-dc 4c293f306bc16a265c2d768af5d0
 yabasanshiro https://github.com/libretro/yabause 09ed8e5b2e97e7a848ea2514545c34c7b809e399 6b8f29e7754143971c5db22fcdaafb8ad0ce237a04bb53fd1f71a959403d6cab yabause/src/libretro/yabasanshiro_libretro.so GPL-2.0
 gambatte https://github.com/libretro/gambatte-libretro 77f2567d718b8973d02caa2daa8dce4953faf811 bf3829f52464d9c61c636b30eee7b5af7fd4e2526d584287a12cb6d191398e70 gambatte_libretro.so GPL-2.0
 fceumm https://github.com/libretro/libretro-fceumm ac0d00a7fc01166f84c7bac01d1084ebfd2b865e ffe8948ad138dc11fb523c05fe678b2e3c0b2b25bcde2f78fd82743ca433efd3 fceumm_libretro.so GPL-2.0
+picante8 https://github.com/MustardOS/picante8 86236842fd65500544fba0cf705ca35a379604d3 abf47ac1f82c1802f305ed540b871a063bb148ecf05892cbdd24596d8dadd054 picante8_libretro.so GPL-3.0
+fake08 https://github.com/jtothebell/fake-08 814991a2571ad3970e386cef48f3b148aa1c27b9 120cd07b26c8e7264bac4973360314cde2672e6b862b4d4a0050eceb452a024c platform/libretro/fake08_libretro.so MIT
 EOF
 }
 # make invocation per core (inside the container, in the source dir)
@@ -97,6 +99,10 @@ make_cmd() {
         # build-phase4-nes-core.py) moved here, same commits and options
         gambatte) echo 'make -j8 -f Makefile.libretro platform=unix HAVE_NETWORK=0 VIDEO_RGB565=1' ;;
         fceumm) echo 'make -j8 -f Makefile.libretro platform=unix HAVE_HDPACK=0 HAVE_NTSC=0 WANT_32BPP=0' ;;
+        # M12: PICO-8 (muOS's default Picante8, MustardOS; FAKE-08 as the
+        # second libretro core)
+        picante8) echo 'make -j8 platform=unix' ;;
+        fake08) echo 'make -j8 -C platform/libretro platform=unix' ;;
     esac
 }
 # T1: every undefined dynamic symbol must be defined by the target's libc,

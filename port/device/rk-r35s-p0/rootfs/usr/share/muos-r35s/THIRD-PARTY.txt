@@ -73,6 +73,8 @@ Libretro cores
 - yabasanshiro, GPL-2.0: https://github.com/libretro/yabause 09ed8e5b2e97e7a848ea2514545c34c7b809e399
 - gambatte, GPL-2.0: https://github.com/libretro/gambatte-libretro 77f2567d718b8973d02caa2daa8dce4953faf811
 - fceumm, GPL-2.0: https://github.com/libretro/libretro-fceumm ac0d00a7fc01166f84c7bac01d1084ebfd2b865e
+- picante8, GPL-3.0: https://github.com/MustardOS/picante8 86236842fd65500544fba0cf705ca35a379604d3
+- fake08, MIT (z8lua MIT): https://github.com/jtothebell/fake-08 814991a2571ad3970e386cef48f3b148aa1c27b9
 
 Standalone emulators
 - Mupen64Plus (core, ui-console, audio/input-sdl, rsp-hle, video-rice) and GLideN64, GPL-2.0: https://github.com/mupen64plus, https://github.com/gonetz/GLideN64 (revisions in build-mupen64plus-sa.sh)

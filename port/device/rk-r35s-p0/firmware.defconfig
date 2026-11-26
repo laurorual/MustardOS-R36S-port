@@ -66,6 +66,7 @@ BR2_PACKAGE_HARFBUZZ=y
 BR2_PACKAGE_LIBPNG=y
 BR2_PACKAGE_LIBCURL=y
 BR2_PACKAGE_LIBCURL_CURL=y
+BR2_PACKAGE_WGET=y
 # M5: CA bundle for libcurl (/etc/ssl/certs/ca-certificates.crt): the
 # frontend's HTTPS fetches (theme download, news) failed without it
 BR2_PACKAGE_CA_CERTIFICATES=y
