@@ -1,0 +1,54 @@
+Clear Tasks	清理任務
+Diagnostics	診斷
+Grid Mode Toggles	網格模式切換
+Restore Tasks	還原任務
+Storage Tasks	儲存任務
+Dot and Junk File Cleanup	清理隱藏檔案與垃圾檔案
+Export Collection to HTML	將收藏匯出為 HTML
+Install Firmware Update	安裝系統更新
+Finishing Firmware Update	正在完成系統更新
+Refresh Automatic Core Assign	重新整理自動核心指派
+Replay Tour Introduction	重新播放入門介紹
+System Diagnostics	系統診斷
+Clear Activity Data	清除活動資料
+Clear Catalogue - Everything	清除目錄 - 全部
+Clear Catalogue - Folder Only	清除目錄 - 僅資料夾
+Clear Collections	清除收藏
+Clear Content Assignments	清除內容指派
+Clear History	清除歷史記錄
+Clear Network Profiles	清除網路設定檔
+Audio Report	音訊報告
+Battery Report	電池報告
+BIOS Report	BIOS 報告
+Boot and Services Report	開機與服務報告
+Display Report	顯示報告
+Input Event Test	按鍵測試
+Input Report	輸入報告
+Network Report	網路報告
+Storage Report	儲存報告
+Thermal and CPU Report	溫度與 CPU 報告
+Toggle Grid Mode Applications	網格模式：應用程式
+Toggle Grid Mode Collections	網格模式：收藏
+Toggle Grid Mode Content Explorer	網格模式：內容瀏覽器
+Toggle Grid Mode History	網格模式：歷史記錄
+Toggle Grid Mode Main Menu	網格模式：主選單
+Restore Background Music	還原背景音樂
+Restore Friendly Name Files	還原友善名稱檔案
+Restore Hotkeys	還原快捷鍵
+Restore Network Configuration	還原網路設定
+Restore Themes	還原主題
+Eject Secondary Storage	退出第二儲存空間
+Mount Secondary Storage	掛載第二儲存空間
+Checking and unpacking the update	正在檢查並解壓縮更新
+Keep the device on until the menu returns	請保持開機，直到選單返回
+Not installed	未安裝
+Update ready: restarting	更新已就緒：正在重新啟動
+Installing the update: do not power off	正在安裝更新：請勿關機
+About 5 minutes, then it restarts	約 5 分鐘後重新啟動
+The update could not be installed	無法安裝更新
+Update installed: restarting	更新已安裝：正在重新啟動
+Run Dot and Junk File Cleanup	刪除其他系統留下的隱藏檔案與垃圾檔案
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	將收藏清單（含找到的封面）匯出到 SD1 根目錄的 "collection.html" 檔案
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	安裝複製到卡上 MUOS/update 的更新（NAME.p2.img.gz 及其 .sha256）。會顯示進度並重新啟動裝置兩次（約 10 分鐘）；遊戲、存檔與設定都會保留。需要連接充電器或電量不低於 30 %。
+Show the introduction on every menu again, as it appeared the first time you used the device.	像第一次使用裝置時一樣，在每個選單中再次顯示介紹。
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	在 SD1 上產生診斷 ZIP 檔案。此移植版不受 MustardOS 團隊支援：請將其附加到移植版 GitHub 的 issue 中。

@@ -1,0 +1,54 @@
+Clear Tasks	Tác vụ dọn dẹp
+Diagnostics	Chẩn đoán
+Grid Mode Toggles	Bật/tắt chế độ lưới
+Restore Tasks	Tác vụ khôi phục
+Storage Tasks	Tác vụ lưu trữ
+Dot and Junk File Cleanup	Dọn tệp ẩn và tệp rác
+Export Collection to HTML	Xuất bộ sưu tập ra HTML
+Install Firmware Update	Cài đặt bản cập nhật hệ thống
+Finishing Firmware Update	Đang hoàn tất cập nhật hệ thống
+Refresh Automatic Core Assign	Làm mới gán core tự động
+Replay Tour Introduction	Xem lại phần giới thiệu
+System Diagnostics	Chẩn đoán hệ thống
+Clear Activity Data	Xóa dữ liệu hoạt động
+Clear Catalogue - Everything	Xóa danh mục - tất cả
+Clear Catalogue - Folder Only	Xóa danh mục - chỉ thư mục
+Clear Collections	Xóa bộ sưu tập
+Clear Content Assignments	Xóa gán nội dung
+Clear History	Xóa lịch sử
+Clear Network Profiles	Xóa hồ sơ mạng
+Audio Report	Báo cáo âm thanh
+Battery Report	Báo cáo pin
+BIOS Report	Báo cáo BIOS
+Boot and Services Report	Báo cáo khởi động và dịch vụ
+Display Report	Báo cáo màn hình
+Input Event Test	Kiểm tra nút
+Input Report	Báo cáo điều khiển
+Network Report	Báo cáo mạng
+Storage Report	Báo cáo lưu trữ
+Thermal and CPU Report	Báo cáo nhiệt độ và CPU
+Toggle Grid Mode Applications	Chế độ lưới: Ứng dụng
+Toggle Grid Mode Collections	Chế độ lưới: Bộ sưu tập
+Toggle Grid Mode Content Explorer	Chế độ lưới: Trình duyệt nội dung
+Toggle Grid Mode History	Chế độ lưới: Lịch sử
+Toggle Grid Mode Main Menu	Chế độ lưới: Menu chính
+Restore Background Music	Khôi phục nhạc nền
+Restore Friendly Name Files	Khôi phục tệp tên hiển thị
+Restore Hotkeys	Khôi phục phím tắt
+Restore Network Configuration	Khôi phục cấu hình mạng
+Restore Themes	Khôi phục giao diện
+Eject Secondary Storage	Đẩy bộ nhớ phụ ra
+Mount Secondary Storage	Gắn bộ nhớ phụ
+Checking and unpacking the update	Đang kiểm tra và giải nén bản cập nhật
+Keep the device on until the menu returns	Giữ máy bật cho đến khi menu trở lại
+Not installed	Chưa cài đặt
+Update ready: restarting	Bản cập nhật sẵn sàng: đang khởi động lại
+Installing the update: do not power off	Đang cài bản cập nhật: đừng tắt máy
+About 5 minutes, then it restarts	Khoảng 5 phút, sau đó khởi động lại
+The update could not be installed	Không thể cài đặt bản cập nhật
+Update installed: restarting	Đã cài bản cập nhật: đang khởi động lại
+Run Dot and Junk File Cleanup	Xóa tệp ẩn và tệp rác do hệ thống khác để lại
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	Xuất danh sách bộ sưu tập, kèm ảnh bìa tìm thấy, ra tệp "collection.html" ở thư mục gốc SD1
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Cài bản cập nhật đã chép vào MUOS/update trên thẻ (NAME.p2.img.gz và tệp .sha256). Hiển thị tiến trình và khởi động lại máy hai lần (khoảng 10 phút); trò chơi, bản lưu và cài đặt được giữ. Cần cắm sạc hoặc còn 30 % pin.
+Show the introduction on every menu again, as it appeared the first time you used the device.	Hiển thị lại phần giới thiệu ở mỗi menu như lần đầu sử dụng.
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Tạo tệp ZIP chẩn đoán trên SD1. Bản port này không được nhóm MustardOS hỗ trợ: hãy đính kèm vào một issue trên GitHub của port.

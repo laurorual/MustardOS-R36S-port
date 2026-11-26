@@ -1,0 +1,54 @@
+Clear Tasks	クリアタスク
+Diagnostics	診断
+Grid Mode Toggles	グリッドモード切替
+Restore Tasks	復元タスク
+Storage Tasks	ストレージタスク
+Dot and Junk File Cleanup	隠しファイルと不要ファイルの整理
+Export Collection to HTML	コレクションをHTMLに書き出す
+Install Firmware Update	システムアップデートをインストール
+Finishing Firmware Update	システムアップデートを完了中
+Refresh Automatic Core Assign	自動コア割り当てを更新
+Replay Tour Introduction	イントロをもう一度表示
+System Diagnostics	システム診断
+Clear Activity Data	アクティビティデータを消去
+Clear Catalogue - Everything	カタログを消去 - すべて
+Clear Catalogue - Folder Only	カタログを消去 - フォルダのみ
+Clear Collections	コレクションを消去
+Clear Content Assignments	コンテンツ割り当てを消去
+Clear History	履歴を消去
+Clear Network Profiles	ネットワークプロファイルを消去
+Audio Report	オーディオレポート
+Battery Report	バッテリーレポート
+BIOS Report	BIOSレポート
+Boot and Services Report	起動とサービスのレポート
+Display Report	ディスプレイレポート
+Input Event Test	ボタンテスト
+Input Report	入力レポート
+Network Report	ネットワークレポート
+Storage Report	ストレージレポート
+Thermal and CPU Report	温度とCPUのレポート
+Toggle Grid Mode Applications	グリッドモード: アプリケーション
+Toggle Grid Mode Collections	グリッドモード: コレクション
+Toggle Grid Mode Content Explorer	グリッドモード: コンテンツエクスプローラー
+Toggle Grid Mode History	グリッドモード: 履歴
+Toggle Grid Mode Main Menu	グリッドモード: メインメニュー
+Restore Background Music	BGMを復元
+Restore Friendly Name Files	表示名ファイルを復元
+Restore Hotkeys	ホットキーを復元
+Restore Network Configuration	ネットワーク設定を復元
+Restore Themes	テーマを復元
+Eject Secondary Storage	セカンダリストレージを取り出す
+Mount Secondary Storage	セカンダリストレージをマウント
+Checking and unpacking the update	アップデートを確認・展開中
+Keep the device on until the menu returns	メニューに戻るまで電源を切らないでください
+Not installed	インストールされていません
+Update ready: restarting	アップデート準備完了: 再起動中
+Installing the update: do not power off	アップデートをインストール中: 電源を切らないでください
+About 5 minutes, then it restarts	約5分後に再起動します
+The update could not be installed	アップデートをインストールできませんでした
+Update installed: restarting	アップデートをインストールしました: 再起動中
+Run Dot and Junk File Cleanup	他のシステムが残した隠しファイルや不要ファイルを削除します
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	見つかったボックスアートを含むコレクション一覧を、SD1のルートの "collection.html" に書き出します
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	カードの MUOS/update にコピーしたアップデート(NAME.p2.img.gz と .sha256)をインストールします。進行状況を表示し、本体を2回再起動します(約10分)。ゲーム、セーブ、設定はそのまま残ります。充電器か30 %以上のバッテリーが必要です。
+Show the introduction on every menu again, as it appeared the first time you used the device.	初めて使ったときのように、各メニューでイントロをもう一度表示します。
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	SD1に診断用ZIPファイルを作成します。このポートはMustardOSチームのサポート対象外です: ポートのGitHubのissueに添付してください。

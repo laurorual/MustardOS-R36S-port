@@ -1,0 +1,54 @@
+Clear Tasks	Bereinigungsaufgaben
+Diagnostics	Diagnose
+Grid Mode Toggles	Rasteransicht umschalten
+Restore Tasks	Wiederherstellungsaufgaben
+Storage Tasks	Speicheraufgaben
+Dot and Junk File Cleanup	Versteckte und unnötige Dateien bereinigen
+Export Collection to HTML	Sammlung als HTML exportieren
+Install Firmware Update	Systemupdate installieren
+Finishing Firmware Update	Systemupdate wird abgeschlossen
+Refresh Automatic Core Assign	Automatische Core-Zuweisung aktualisieren
+Replay Tour Introduction	Einführung erneut zeigen
+System Diagnostics	Systemdiagnose
+Clear Activity Data	Aktivitätsdaten löschen
+Clear Catalogue - Everything	Katalog löschen - alles
+Clear Catalogue - Folder Only	Katalog löschen - nur Ordner
+Clear Collections	Sammlungen löschen
+Clear Content Assignments	Inhaltszuweisungen löschen
+Clear History	Verlauf löschen
+Clear Network Profiles	Netzwerkprofile löschen
+Audio Report	Audiobericht
+Battery Report	Akkubericht
+BIOS Report	BIOS-Bericht
+Boot and Services Report	Start- und Dienstbericht
+Display Report	Bildschirmbericht
+Input Event Test	Tastentest
+Input Report	Eingabebericht
+Network Report	Netzwerkbericht
+Storage Report	Speicherbericht
+Thermal and CPU Report	Temperatur- und CPU-Bericht
+Toggle Grid Mode Applications	Rasteransicht: Anwendungen
+Toggle Grid Mode Collections	Rasteransicht: Sammlungen
+Toggle Grid Mode Content Explorer	Rasteransicht: Inhalts-Explorer
+Toggle Grid Mode History	Rasteransicht: Verlauf
+Toggle Grid Mode Main Menu	Rasteransicht: Hauptmenü
+Restore Background Music	Hintergrundmusik wiederherstellen
+Restore Friendly Name Files	Anzeigenamen-Dateien wiederherstellen
+Restore Hotkeys	Tastenkürzel wiederherstellen
+Restore Network Configuration	Netzwerkkonfiguration wiederherstellen
+Restore Themes	Themes wiederherstellen
+Eject Secondary Storage	Zweitspeicher auswerfen
+Mount Secondary Storage	Zweitspeicher einbinden
+Checking and unpacking the update	Update wird geprüft und entpackt
+Keep the device on until the menu returns	Gerät eingeschaltet lassen, bis das Menü zurückkehrt
+Not installed	Nicht installiert
+Update ready: restarting	Update bereit: Neustart
+Installing the update: do not power off	Update wird installiert: nicht ausschalten
+About 5 minutes, then it restarts	Etwa 5 Minuten, dann Neustart
+The update could not be installed	Das Update konnte nicht installiert werden
+Update installed: restarting	Update installiert: Neustart
+Run Dot and Junk File Cleanup	Entfernt versteckte und unnötige Dateien anderer Systeme
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	Exportiert die Sammlungsliste mit gefundenen Covern in die Datei "collection.html" im Stammverzeichnis von SD1
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Installiert ein nach MUOS/update auf der Karte kopiertes Update (NAME.p2.img.gz und seine .sha256). Es zeigt den Fortschritt und startet das Gerät zweimal neu (etwa 10 Minuten); Spiele, Spielstände und Einstellungen bleiben erhalten. Benötigt das Ladegerät oder 30 % Akku.
+Show the introduction on every menu again, as it appeared the first time you used the device.	Zeigt die Einführung in jedem Menü erneut, wie bei der ersten Nutzung des Geräts.
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Erstellt eine Diagnose-ZIP-Datei auf SD1. Dieser Port wird vom MustardOS-Team nicht unterstützt: Hänge sie an ein Issue im GitHub des Ports an.

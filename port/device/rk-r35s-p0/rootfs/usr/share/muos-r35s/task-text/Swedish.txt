@@ -1,0 +1,54 @@
+Clear Tasks	Rensningsuppgifter
+Diagnostics	Diagnostik
+Grid Mode Toggles	Växla rutnätsläge
+Restore Tasks	Återställningsuppgifter
+Storage Tasks	Lagringsuppgifter
+Dot and Junk File Cleanup	Rensa dolda och onödiga filer
+Export Collection to HTML	Exportera samling till HTML
+Install Firmware Update	Installera systemuppdatering
+Finishing Firmware Update	Slutför systemuppdatering
+Refresh Automatic Core Assign	Uppdatera automatisk core-tilldelning
+Replay Tour Introduction	Visa introduktionen igen
+System Diagnostics	Systemdiagnostik
+Clear Activity Data	Rensa aktivitetsdata
+Clear Catalogue - Everything	Rensa katalog - allt
+Clear Catalogue - Folder Only	Rensa katalog - endast mappar
+Clear Collections	Rensa samlingar
+Clear Content Assignments	Rensa innehållstilldelningar
+Clear History	Rensa historik
+Clear Network Profiles	Rensa nätverksprofiler
+Audio Report	Ljudrapport
+Battery Report	Batterirapport
+BIOS Report	BIOS-rapport
+Boot and Services Report	Start- och tjänsterapport
+Display Report	Skärmrapport
+Input Event Test	Knapptest
+Input Report	Inmatningsrapport
+Network Report	Nätverksrapport
+Storage Report	Lagringsrapport
+Thermal and CPU Report	Temperatur- och CPU-rapport
+Toggle Grid Mode Applications	Rutnätsläge: Program
+Toggle Grid Mode Collections	Rutnätsläge: Samlingar
+Toggle Grid Mode Content Explorer	Rutnätsläge: Innehållsutforskare
+Toggle Grid Mode History	Rutnätsläge: Historik
+Toggle Grid Mode Main Menu	Rutnätsläge: Huvudmeny
+Restore Background Music	Återställ bakgrundsmusik
+Restore Friendly Name Files	Återställ filer med visningsnamn
+Restore Hotkeys	Återställ kortkommandon
+Restore Network Configuration	Återställ nätverkskonfiguration
+Restore Themes	Återställ teman
+Eject Secondary Storage	Mata ut sekundär lagring
+Mount Secondary Storage	Montera sekundär lagring
+Checking and unpacking the update	Kontrollerar och packar upp uppdateringen
+Keep the device on until the menu returns	Låt enheten vara på tills menyn kommer tillbaka
+Not installed	Inte installerad
+Update ready: restarting	Uppdatering klar: startar om
+Installing the update: do not power off	Installerar uppdateringen: stäng inte av
+About 5 minutes, then it restarts	Cirka 5 minuter, sedan omstart
+The update could not be installed	Uppdateringen kunde inte installeras
+Update installed: restarting	Uppdatering installerad: startar om
+Run Dot and Junk File Cleanup	Tar bort dolda och onödiga filer från andra system
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	Exporterar samlingslistan med hittade omslag till filen "collection.html" i roten av SD1
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Installerar en uppdatering kopierad till MUOS/update på kortet (NAME.p2.img.gz och dess .sha256). Den visar förloppet och startar om enheten två gånger (cirka 10 minuter); spel, sparfiler och inställningar finns kvar. Kräver laddaren eller 30 % batteri.
+Show the introduction on every menu again, as it appeared the first time you used the device.	Visar introduktionen i varje meny igen, som första gången du använde enheten.
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Skapar en diagnos-ZIP på SD1. Denna port stöds inte av MustardOS-teamet: bifoga den till en issue på portens GitHub.

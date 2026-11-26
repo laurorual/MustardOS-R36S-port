@@ -1,0 +1,54 @@
+Clear Tasks	Attività di pulizia
+Diagnostics	Diagnostica
+Grid Mode Toggles	Attiva/disattiva modalità griglia
+Restore Tasks	Attività di ripristino
+Storage Tasks	Attività di archiviazione
+Dot and Junk File Cleanup	Pulizia file nascosti e inutili
+Export Collection to HTML	Esporta collezione in HTML
+Install Firmware Update	Installa aggiornamento di sistema
+Finishing Firmware Update	Completamento aggiornamento di sistema
+Refresh Automatic Core Assign	Aggiorna assegnazione automatica dei core
+Replay Tour Introduction	Rivedi l'introduzione
+System Diagnostics	Diagnostica di sistema
+Clear Activity Data	Cancella dati attività
+Clear Catalogue - Everything	Cancella catalogo - tutto
+Clear Catalogue - Folder Only	Cancella catalogo - solo cartelle
+Clear Collections	Cancella collezioni
+Clear Content Assignments	Cancella assegnazioni dei contenuti
+Clear History	Cancella cronologia
+Clear Network Profiles	Cancella profili di rete
+Audio Report	Rapporto audio
+Battery Report	Rapporto batteria
+BIOS Report	Rapporto BIOS
+Boot and Services Report	Rapporto avvio e servizi
+Display Report	Rapporto schermo
+Input Event Test	Test dei tasti
+Input Report	Rapporto controlli
+Network Report	Rapporto rete
+Storage Report	Rapporto archiviazione
+Thermal and CPU Report	Rapporto temperatura e CPU
+Toggle Grid Mode Applications	Modalità griglia: Applicazioni
+Toggle Grid Mode Collections	Modalità griglia: Collezioni
+Toggle Grid Mode Content Explorer	Modalità griglia: Esplora contenuti
+Toggle Grid Mode History	Modalità griglia: Cronologia
+Toggle Grid Mode Main Menu	Modalità griglia: Menu principale
+Restore Background Music	Ripristina musica di sottofondo
+Restore Friendly Name Files	Ripristina file dei nomi descrittivi
+Restore Hotkeys	Ripristina scorciatoie
+Restore Network Configuration	Ripristina configurazione di rete
+Restore Themes	Ripristina temi
+Eject Secondary Storage	Espelli archiviazione secondaria
+Mount Secondary Storage	Monta archiviazione secondaria
+Checking and unpacking the update	Verifica ed estrazione dell'aggiornamento
+Keep the device on until the menu returns	Tieni acceso il dispositivo finché torna il menu
+Not installed	Non installato
+Update ready: restarting	Aggiornamento pronto: riavvio
+Installing the update: do not power off	Installazione dell'aggiornamento: non spegnere
+About 5 minutes, then it restarts	Circa 5 minuti, poi si riavvia
+The update could not be installed	Impossibile installare l'aggiornamento
+Update installed: restarting	Aggiornamento installato: riavvio
+Run Dot and Junk File Cleanup	Rimuove file nascosti e inutili lasciati da altri sistemi
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	Esporta l'elenco della collezione, con le copertine trovate, nel file "collection.html" nella radice di SD1
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Installa un aggiornamento copiato in MUOS/update sulla scheda (NAME.p2.img.gz e il suo .sha256). Mostra l'avanzamento e riavvia il dispositivo due volte (circa 10 minuti); giochi, salvataggi e impostazioni restano. Serve il caricatore o il 30 % di batteria.
+Show the introduction on every menu again, as it appeared the first time you used the device.	Mostra di nuovo l'introduzione in ogni menu, come la prima volta che hai usato il dispositivo.
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Genera un file ZIP di diagnostica su SD1. Questo port non è supportato dal team MustardOS: allegalo a una issue sul GitHub del port.

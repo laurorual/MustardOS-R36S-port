@@ -8,6 +8,15 @@ team: https://github.com/laurorual/MustardOS-R36S-port/issues
 - **Updates:** an update over Wi-Fi or from the Task Toolkit now also
   brings the new kernel and boot screen: tried once at the next start and
   kept only if the menu comes up (otherwise the old kernel stays).
+- **Update screens:** unpacking and installing show a progress bar; the
+  install runs on its own screen right after the restart ("do not power
+  off") instead of hidden behind the menu, and restarts by itself. About
+  twice as fast (no extra copy of the old system, one pass to unpack).
+  Needs the charger or at least 30 % battery.
+- **Task Toolkit:** task and folder names, the update texts and help
+  texts in every MustardOS language; diagnostics help points to the
+  port's GitHub, not the MustardOS team.
+- **Device Details:** Build shows the release (v1.0.0).
 
 ## v1.0.0-rc2 (2026-11-26, pre-release)
 

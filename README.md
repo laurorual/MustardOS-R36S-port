@@ -113,8 +113,8 @@ grave num cartão microSD (8 GB ou mais) com balenaEtcher, Rufus ou
 Raspberry Pi Imager (o cartão é apagado), coloque no slot 1 e ligue. Os
 jogos vão por SFTP pelo Wi-Fi ou num cartão FAT/exFAT no slot 2
 (`ROMS/<sistema>`); BIOS em `MUOS/bios`. Nenhum jogo ou BIOS acompanha o
-sistema. Atualizações: Aplicativos → Task Toolkit → "Install Firmware
-Update", ou automáticas com Wi-Fi.
+sistema. Atualizações: Aplicativos → Ferramentas de sistema → "Instalar
+atualização do sistema", ou automáticas com Wi-Fi.
 
 **Licenças:** código do port em MIT; componentes de terceiros em
 [docs/LICENSING.md](docs/LICENSING.md); nome e temas do MustardOS sob

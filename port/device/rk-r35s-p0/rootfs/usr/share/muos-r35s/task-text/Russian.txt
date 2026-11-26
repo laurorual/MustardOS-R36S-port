@@ -1,0 +1,54 @@
+Clear Tasks	Задачи очистки
+Diagnostics	Диагностика
+Grid Mode Toggles	Переключение режима сетки
+Restore Tasks	Задачи восстановления
+Storage Tasks	Задачи хранилища
+Dot and Junk File Cleanup	Очистка скрытых и мусорных файлов
+Export Collection to HTML	Экспорт коллекции в HTML
+Install Firmware Update	Установить обновление системы
+Finishing Firmware Update	Завершение обновления системы
+Refresh Automatic Core Assign	Обновить автоназначение ядер
+Replay Tour Introduction	Показать вступление снова
+System Diagnostics	Диагностика системы
+Clear Activity Data	Очистить данные активности
+Clear Catalogue - Everything	Очистить каталог - всё
+Clear Catalogue - Folder Only	Очистить каталог - только папки
+Clear Collections	Очистить коллекции
+Clear Content Assignments	Очистить назначения контента
+Clear History	Очистить историю
+Clear Network Profiles	Очистить сетевые профили
+Audio Report	Отчёт о звуке
+Battery Report	Отчёт о батарее
+BIOS Report	Отчёт о BIOS
+Boot and Services Report	Отчёт о загрузке и службах
+Display Report	Отчёт об экране
+Input Event Test	Проверка кнопок
+Input Report	Отчёт об управлении
+Network Report	Отчёт о сети
+Storage Report	Отчёт о хранилище
+Thermal and CPU Report	Отчёт о температуре и ЦП
+Toggle Grid Mode Applications	Режим сетки: Приложения
+Toggle Grid Mode Collections	Режим сетки: Коллекции
+Toggle Grid Mode Content Explorer	Режим сетки: Обзор контента
+Toggle Grid Mode History	Режим сетки: История
+Toggle Grid Mode Main Menu	Режим сетки: Главное меню
+Restore Background Music	Восстановить фоновую музыку
+Restore Friendly Name Files	Восстановить файлы понятных имён
+Restore Hotkeys	Восстановить горячие клавиши
+Restore Network Configuration	Восстановить настройки сети
+Restore Themes	Восстановить темы
+Eject Secondary Storage	Извлечь дополнительное хранилище
+Mount Secondary Storage	Подключить дополнительное хранилище
+Checking and unpacking the update	Проверка и распаковка обновления
+Keep the device on until the menu returns	Не выключайте устройство, пока не вернётся меню
+Not installed	Не установлено
+Update ready: restarting	Обновление готово: перезагрузка
+Installing the update: do not power off	Установка обновления: не выключайте
+About 5 minutes, then it restarts	Около 5 минут, затем перезагрузка
+The update could not be installed	Не удалось установить обновление
+Update installed: restarting	Обновление установлено: перезагрузка
+Run Dot and Junk File Cleanup	Удаляет скрытые и мусорные файлы других систем
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	Экспортирует список коллекции с найденными обложками в файл "collection.html" в корне SD1
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Устанавливает обновление, скопированное в MUOS/update на карте (NAME.p2.img.gz и его .sha256). Показывает ход установки и дважды перезагружает устройство (около 10 минут); игры, сохранения и настройки остаются. Нужно зарядное устройство или 30 % заряда.
+Show the introduction on every menu again, as it appeared the first time you used the device.	Снова показывает вступление в каждом меню, как при первом использовании устройства.
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Создаёт ZIP-файл диагностики на SD1. Этот порт не поддерживается командой MustardOS: приложите его к issue на GitHub порта.

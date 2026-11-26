@@ -1,0 +1,54 @@
+Clear Tasks	清理任务
+Diagnostics	诊断
+Grid Mode Toggles	网格模式切换
+Restore Tasks	恢复任务
+Storage Tasks	存储任务
+Dot and Junk File Cleanup	清理隐藏文件和垃圾文件
+Export Collection to HTML	将收藏导出为 HTML
+Install Firmware Update	安装系统更新
+Finishing Firmware Update	正在完成系统更新
+Refresh Automatic Core Assign	刷新自动核心分配
+Replay Tour Introduction	重新播放入门介绍
+System Diagnostics	系统诊断
+Clear Activity Data	清除活动数据
+Clear Catalogue - Everything	清除目录 - 全部
+Clear Catalogue - Folder Only	清除目录 - 仅文件夹
+Clear Collections	清除收藏
+Clear Content Assignments	清除内容分配
+Clear History	清除历史记录
+Clear Network Profiles	清除网络配置文件
+Audio Report	音频报告
+Battery Report	电池报告
+BIOS Report	BIOS 报告
+Boot and Services Report	启动与服务报告
+Display Report	显示报告
+Input Event Test	按键测试
+Input Report	输入报告
+Network Report	网络报告
+Storage Report	存储报告
+Thermal and CPU Report	温度与 CPU 报告
+Toggle Grid Mode Applications	网格模式：应用程序
+Toggle Grid Mode Collections	网格模式：收藏
+Toggle Grid Mode Content Explorer	网格模式：内容浏览器
+Toggle Grid Mode History	网格模式：历史记录
+Toggle Grid Mode Main Menu	网格模式：主菜单
+Restore Background Music	恢复背景音乐
+Restore Friendly Name Files	恢复友好名称文件
+Restore Hotkeys	恢复快捷键
+Restore Network Configuration	恢复网络配置
+Restore Themes	恢复主题
+Eject Secondary Storage	弹出第二存储
+Mount Secondary Storage	挂载第二存储
+Checking and unpacking the update	正在检查并解压更新
+Keep the device on until the menu returns	请保持开机，直到菜单返回
+Not installed	未安装
+Update ready: restarting	更新已就绪：正在重启
+Installing the update: do not power off	正在安装更新：请勿关机
+About 5 minutes, then it restarts	约 5 分钟后重启
+The update could not be installed	无法安装更新
+Update installed: restarting	更新已安装：正在重启
+Run Dot and Junk File Cleanup	删除其他系统留下的隐藏文件和垃圾文件
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	将收藏列表（含找到的封面）导出到 SD1 根目录下的 "collection.html" 文件
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	安装复制到卡上 MUOS/update 的更新（NAME.p2.img.gz 及其 .sha256）。会显示进度并重启设备两次（约 10 分钟）；游戏、存档和设置都会保留。需要连接充电器或电量不低于 30 %。
+Show the introduction on every menu again, as it appeared the first time you used the device.	像第一次使用设备时那样，在每个菜单中再次显示介绍。
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	在 SD1 上生成诊断 ZIP 文件。此移植版不受 MustardOS 团队支持：请将其附加到移植版 GitHub 的 issue 中。

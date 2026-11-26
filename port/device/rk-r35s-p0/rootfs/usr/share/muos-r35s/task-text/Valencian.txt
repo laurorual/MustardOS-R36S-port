@@ -1,0 +1,54 @@
+Clear Tasks	Tasques de neteja
+Diagnostics	Diagnòstics
+Grid Mode Toggles	Commutar mode graella
+Restore Tasks	Tasques de restauració
+Storage Tasks	Tasques d'emmagatzematge
+Dot and Junk File Cleanup	Neteja de fitxers ocults i fem
+Export Collection to HTML	Exporta la col·lecció a HTML
+Install Firmware Update	Instal·la l'actualització del sistema
+Finishing Firmware Update	S'està acabant l'actualització del sistema
+Refresh Automatic Core Assign	Actualitza l'assignació automàtica de nuclis
+Replay Tour Introduction	Torna a vore la introducció
+System Diagnostics	Diagnòstic del sistema
+Clear Activity Data	Esborra les dades d'activitat
+Clear Catalogue - Everything	Esborra el catàleg - tot
+Clear Catalogue - Folder Only	Esborra el catàleg - només carpetes
+Clear Collections	Esborra les col·leccions
+Clear Content Assignments	Esborra les assignacions de contingut
+Clear History	Esborra l'historial
+Clear Network Profiles	Esborra els perfils de xarxa
+Audio Report	Informe d'àudio
+Battery Report	Informe de bateria
+BIOS Report	Informe de BIOS
+Boot and Services Report	Informe d'arrancada i serveis
+Display Report	Informe de pantalla
+Input Event Test	Prova de botons
+Input Report	Informe de controls
+Network Report	Informe de xarxa
+Storage Report	Informe d'emmagatzematge
+Thermal and CPU Report	Informe de temperatura i CPU
+Toggle Grid Mode Applications	Mode graella: Aplicacions
+Toggle Grid Mode Collections	Mode graella: Col·leccions
+Toggle Grid Mode Content Explorer	Mode graella: Explorador de contingut
+Toggle Grid Mode History	Mode graella: Historial
+Toggle Grid Mode Main Menu	Mode graella: Menú principal
+Restore Background Music	Restaura la música de fons
+Restore Friendly Name Files	Restaura els fitxers de noms amigables
+Restore Hotkeys	Restaura les dreceres
+Restore Network Configuration	Restaura la configuració de xarxa
+Restore Themes	Restaura els temes
+Eject Secondary Storage	Expulsa l'emmagatzematge secundari
+Mount Secondary Storage	Munta l'emmagatzematge secundari
+Checking and unpacking the update	S'està comprovant i descomprimint l'actualització
+Keep the device on until the menu returns	Mantín el dispositiu encés fins que torne el menú
+Not installed	No instal·lada
+Update ready: restarting	Actualització a punt: reiniciant
+Installing the update: do not power off	S'està instal·lant l'actualització: no l'apagues
+About 5 minutes, then it restarts	Uns 5 minuts; després es reinicia
+The update could not be installed	No s'ha pogut instal·lar l'actualització
+Update installed: restarting	Actualització instal·lada: reiniciant
+Run Dot and Junk File Cleanup	Elimina fitxers ocults i fem deixats per altres sistemes
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	Exporta la llista de la col·lecció, amb les caràtules trobades, al fitxer "collection.html" a l'arrel de SD1
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Instal·la una actualització copiada a MUOS/update de la targeta (NAME.p2.img.gz i el seu .sha256). Mostra el progrés i reinicia el dispositiu dues vegades (uns 10 minuts); els jocs, les partides i la configuració es conserven. Cal el carregador o un 30 % de bateria.
+Show the introduction on every menu again, as it appeared the first time you used the device.	Torna a mostrar la introducció en cada menú, com la primera vegada que vas usar el dispositiu.
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Genera un fitxer ZIP de diagnòstic en SD1. Este port no té suport de l'equip de MustardOS: adjunta'l a una issue en el GitHub del port.

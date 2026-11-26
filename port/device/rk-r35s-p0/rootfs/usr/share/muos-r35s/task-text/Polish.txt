@@ -1,0 +1,54 @@
+Clear Tasks	Zadania czyszczenia
+Diagnostics	Diagnostyka
+Grid Mode Toggles	Przełącz tryb siatki
+Restore Tasks	Zadania przywracania
+Storage Tasks	Zadania pamięci
+Dot and Junk File Cleanup	Usuń ukryte i zbędne pliki
+Export Collection to HTML	Eksportuj kolekcję do HTML
+Install Firmware Update	Zainstaluj aktualizację systemu
+Finishing Firmware Update	Kończenie aktualizacji systemu
+Refresh Automatic Core Assign	Odśwież automatyczne przypisanie rdzeni
+Replay Tour Introduction	Pokaż ponownie wprowadzenie
+System Diagnostics	Diagnostyka systemu
+Clear Activity Data	Wyczyść dane aktywności
+Clear Catalogue - Everything	Wyczyść katalog - wszystko
+Clear Catalogue - Folder Only	Wyczyść katalog - tylko foldery
+Clear Collections	Wyczyść kolekcje
+Clear Content Assignments	Wyczyść przypisania treści
+Clear History	Wyczyść historię
+Clear Network Profiles	Wyczyść profile sieci
+Audio Report	Raport dźwięku
+Battery Report	Raport baterii
+BIOS Report	Raport BIOS
+Boot and Services Report	Raport uruchamiania i usług
+Display Report	Raport ekranu
+Input Event Test	Test przycisków
+Input Report	Raport sterowania
+Network Report	Raport sieci
+Storage Report	Raport pamięci
+Thermal and CPU Report	Raport temperatury i CPU
+Toggle Grid Mode Applications	Tryb siatki: Aplikacje
+Toggle Grid Mode Collections	Tryb siatki: Kolekcje
+Toggle Grid Mode Content Explorer	Tryb siatki: Eksplorator treści
+Toggle Grid Mode History	Tryb siatki: Historia
+Toggle Grid Mode Main Menu	Tryb siatki: Menu główne
+Restore Background Music	Przywróć muzykę w tle
+Restore Friendly Name Files	Przywróć pliki przyjaznych nazw
+Restore Hotkeys	Przywróć skróty
+Restore Network Configuration	Przywróć konfigurację sieci
+Restore Themes	Przywróć motywy
+Eject Secondary Storage	Wysuń pamięć dodatkową
+Mount Secondary Storage	Zamontuj pamięć dodatkową
+Checking and unpacking the update	Sprawdzanie i rozpakowywanie aktualizacji
+Keep the device on until the menu returns	Nie wyłączaj urządzenia, dopóki nie wróci menu
+Not installed	Nie zainstalowano
+Update ready: restarting	Aktualizacja gotowa: ponowne uruchamianie
+Installing the update: do not power off	Instalowanie aktualizacji: nie wyłączaj
+About 5 minutes, then it restarts	Około 5 minut, potem ponowne uruchomienie
+The update could not be installed	Nie udało się zainstalować aktualizacji
+Update installed: restarting	Aktualizacja zainstalowana: ponowne uruchamianie
+Run Dot and Junk File Cleanup	Usuwa ukryte i zbędne pliki pozostawione przez inne systemy
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	Eksportuje listę kolekcji, ze znalezionymi okładkami, do pliku "collection.html" w katalogu głównym SD1
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Instaluje aktualizację skopiowaną do MUOS/update na karcie (NAME.p2.img.gz i jej .sha256). Pokazuje postęp i dwukrotnie uruchamia urządzenie ponownie (około 10 minut); gry, zapisy i ustawienia zostają. Wymaga ładowarki lub 30 % baterii.
+Show the introduction on every menu again, as it appeared the first time you used the device.	Ponownie pokazuje wprowadzenie w każdym menu, jak przy pierwszym użyciu urządzenia.
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Tworzy plik ZIP z diagnostyką na SD1. Ten port nie jest wspierany przez zespół MustardOS: dołącz go do issue na GitHubie portu.

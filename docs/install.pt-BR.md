@@ -68,9 +68,13 @@ Sega CD (`bios_CD_U.bin`…), PC Engine CD (`syscard3.pce`), Dreamcast
   configurações ficam).
 - Sem Wi-Fi: copie `MustardOS-R36S-port-<versão>.p2.img.gz` e o
   `.p2.img.sha256` da release para `MUOS/update` no cartão (por SFTP, ou
-  pelo leitor no Linux) e use Aplicativos → Task Toolkit → "Install
-  Firmware Update". Se o sistema novo não chegar ao menu, a inicialização
-  seguinte volta sozinha ao anterior.
+  pelo leitor no Linux) e use Aplicativos → Ferramentas de sistema →
+  "Instalar atualização do sistema".
+- A atualização mostra o progresso, reinicia o aparelho duas vezes e leva
+  cerca de 10 minutos: deixe ligado, no carregador ou com pelo menos 30 %
+  de bateria. Se o sistema novo não chegar ao menu, a inicialização
+  seguinte volta sozinha ao anterior; um kernel novo só fica depois de
+  chegar ao menu.
 - Regravar o cartão inteiro (passos acima) apaga os saves: copie antes
   `MUOS/save` e `MUOS/pickles`.
 

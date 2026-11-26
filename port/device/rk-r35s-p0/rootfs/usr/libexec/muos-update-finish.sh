@@ -8,22 +8,27 @@
 
 . /opt/muos/script/var/base.sh
 . /opt/muos/script/var/ui.sh
-# the task texts in Português (Brasil) when the menu is in it, else English
-T() { if [ "$(cat /opt/muos/config/settings/general/language 2>/dev/null)" = "Portuguese (BR)" ]; then printf '%s' "$2"; else printf '%s' "$1"; fi; }
+# T TEXT: TEXT in the menu's language (/usr/share/muos-r35s/task-text,
+# port/scripts/task-texts.py), else as given (English)
+T() {
+	t=$(awk -F '\t' -v k="$1" '$1 == k { print $2; exit }' \
+		"/usr/share/muos-r35s/task-text/$(cat /opt/muos/config/settings/general/language 2>/dev/null).txt" 2>/dev/null)
+	printf '%s' "${t:-$1}"
+}
 
-TASK_BEGIN "finish_firmware_update" "$(T 'Finishing Firmware Update' 'Concluindo a atualização do sistema')"
-TASK_STATUS "$(T 'Installing the update: do not power off' 'Instalando a atualização: não desligue')"
-TASK_DETAIL "$(T 'About 5 minutes, then it restarts' 'Cerca de 5 minutos; depois reinicia')"
+TASK_BEGIN "finish_firmware_update" "$(T 'Finishing Firmware Update')"
+TASK_STATUS "$(T 'Installing the update: do not power off')"
+TASK_DETAIL "$(T 'About 5 minutes, then it restarts')"
 TASK_PROGRESS 0 18
 rm -f /run/muos/update-finished
 /usr/libexec/muos-update finish 2> /run/muos/update-finish.err | while read -r _ n m; do
 	TASK_PROGRESS "$n" "$m"
 done
 if [ ! -e /run/muos/update-finished ]; then
-	TASK_ERROR "update_failed" "$(T 'The update could not be installed' 'Não foi possível instalar a atualização') ($(tail -n 1 /run/muos/update-finish.err 2>/dev/null)). MUOS/update/update.log"
+	TASK_ERROR "update_failed" "$(T 'The update could not be installed') ($(tail -n 1 /run/muos/update-finish.err 2>/dev/null)). MUOS/update/update.log"
 	exit 1
 fi
-TASK_COMPLETE "$(T 'Update installed: restarting' 'Atualização instalada: reiniciando')"
+TASK_COMPLETE "$(T 'Update installed: restarting')"
 sleep 3
 reboot
 exit 0

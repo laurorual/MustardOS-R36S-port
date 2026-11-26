@@ -1,0 +1,54 @@
+Clear Tasks	Opschoontaken
+Diagnostics	Diagnose
+Grid Mode Toggles	Rasterweergave wisselen
+Restore Tasks	Hersteltaken
+Storage Tasks	Opslagtaken
+Dot and Junk File Cleanup	Verborgen en overbodige bestanden opruimen
+Export Collection to HTML	Collectie exporteren naar HTML
+Install Firmware Update	Systeemupdate installeren
+Finishing Firmware Update	Systeemupdate wordt afgerond
+Refresh Automatic Core Assign	Automatische core-toewijzing vernieuwen
+Replay Tour Introduction	Introductie opnieuw tonen
+System Diagnostics	Systeemdiagnose
+Clear Activity Data	Activiteitsgegevens wissen
+Clear Catalogue - Everything	Catalogus wissen - alles
+Clear Catalogue - Folder Only	Catalogus wissen - alleen mappen
+Clear Collections	Collecties wissen
+Clear Content Assignments	Inhoudstoewijzingen wissen
+Clear History	Geschiedenis wissen
+Clear Network Profiles	Netwerkprofielen wissen
+Audio Report	Audiorapport
+Battery Report	Batterijrapport
+BIOS Report	BIOS-rapport
+Boot and Services Report	Opstart- en servicesrapport
+Display Report	Schermrapport
+Input Event Test	Knoppentest
+Input Report	Invoerrapport
+Network Report	Netwerkrapport
+Storage Report	Opslagrapport
+Thermal and CPU Report	Temperatuur- en CPU-rapport
+Toggle Grid Mode Applications	Rasterweergave: Applicaties
+Toggle Grid Mode Collections	Rasterweergave: Collecties
+Toggle Grid Mode Content Explorer	Rasterweergave: Inhoudsverkenner
+Toggle Grid Mode History	Rasterweergave: Geschiedenis
+Toggle Grid Mode Main Menu	Rasterweergave: Hoofdmenu
+Restore Background Music	Achtergrondmuziek herstellen
+Restore Friendly Name Files	Weergavenaambestanden herstellen
+Restore Hotkeys	Sneltoetsen herstellen
+Restore Network Configuration	Netwerkconfiguratie herstellen
+Restore Themes	Thema's herstellen
+Eject Secondary Storage	Secundaire opslag uitwerpen
+Mount Secondary Storage	Secundaire opslag koppelen
+Checking and unpacking the update	Update controleren en uitpakken
+Keep the device on until the menu returns	Houd het apparaat aan tot het menu terugkomt
+Not installed	Niet geïnstalleerd
+Update ready: restarting	Update klaar: herstarten
+Installing the update: do not power off	Update installeren: niet uitschakelen
+About 5 minutes, then it restarts	Ongeveer 5 minuten, daarna herstart
+The update could not be installed	De update kon niet worden geïnstalleerd
+Update installed: restarting	Update geïnstalleerd: herstarten
+Run Dot and Junk File Cleanup	Verwijdert verborgen en overbodige bestanden van andere systemen
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	Exporteert de collectielijst, met gevonden hoesjes, naar het bestand "collection.html" in de hoofdmap van SD1
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Installeert een update die naar MUOS/update op de kaart is gekopieerd (NAME.p2.img.gz en de .sha256). Toont de voortgang en herstart het apparaat twee keer (ongeveer 10 minuten); games, saves en instellingen blijven. Vereist de lader of 30 % batterij.
+Show the introduction on every menu again, as it appeared the first time you used the device.	Toont de introductie opnieuw in elk menu, zoals bij het eerste gebruik.
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Maakt een diagnose-ZIP op SD1. Deze port wordt niet ondersteund door het MustardOS-team: voeg het toe aan een issue op de GitHub van de port.

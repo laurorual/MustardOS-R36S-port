@@ -1,0 +1,54 @@
+Clear Tasks	Tareas de limpieza
+Diagnostics	Diagnósticos
+Grid Mode Toggles	Alternar modo cuadrícula
+Restore Tasks	Tareas de restauración
+Storage Tasks	Tareas de almacenamiento
+Dot and Junk File Cleanup	Limpiar archivos ocultos y basura
+Export Collection to HTML	Exportar colección a HTML
+Install Firmware Update	Instalar actualización del sistema
+Finishing Firmware Update	Finalizando la actualización del sistema
+Refresh Automatic Core Assign	Actualizar asignación automática de núcleos
+Replay Tour Introduction	Ver de nuevo la introducción
+System Diagnostics	Diagnóstico del sistema
+Clear Activity Data	Borrar datos de actividad
+Clear Catalogue - Everything	Borrar catálogo - todo
+Clear Catalogue - Folder Only	Borrar catálogo - solo carpetas
+Clear Collections	Borrar colecciones
+Clear Content Assignments	Borrar asignaciones de contenido
+Clear History	Borrar historial
+Clear Network Profiles	Borrar perfiles de red
+Audio Report	Informe de audio
+Battery Report	Informe de batería
+BIOS Report	Informe de BIOS
+Boot and Services Report	Informe de arranque y servicios
+Display Report	Informe de pantalla
+Input Event Test	Prueba de botones
+Input Report	Informe de controles
+Network Report	Informe de red
+Storage Report	Informe de almacenamiento
+Thermal and CPU Report	Informe de temperatura y CPU
+Toggle Grid Mode Applications	Modo cuadrícula: Aplicaciones
+Toggle Grid Mode Collections	Modo cuadrícula: Colecciones
+Toggle Grid Mode Content Explorer	Modo cuadrícula: Explorador de contenido
+Toggle Grid Mode History	Modo cuadrícula: Historial
+Toggle Grid Mode Main Menu	Modo cuadrícula: Menú principal
+Restore Background Music	Restaurar música de fondo
+Restore Friendly Name Files	Restaurar archivos de nombres amigables
+Restore Hotkeys	Restaurar atajos
+Restore Network Configuration	Restaurar configuración de red
+Restore Themes	Restaurar temas
+Eject Secondary Storage	Expulsar almacenamiento secundario
+Mount Secondary Storage	Montar almacenamiento secundario
+Checking and unpacking the update	Comprobando y descomprimiendo la actualización
+Keep the device on until the menu returns	Mantén el dispositivo encendido hasta que vuelva el menú
+Not installed	No instalada
+Update ready: restarting	Actualización lista: reiniciando
+Installing the update: do not power off	Instalando la actualización: no apagues
+About 5 minutes, then it restarts	Unos 5 minutos; luego se reinicia
+The update could not be installed	No se pudo instalar la actualización
+Update installed: restarting	Actualización instalada: reiniciando
+Run Dot and Junk File Cleanup	Elimina archivos ocultos y basura dejados por otros sistemas
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	Exporta la lista de la colección, con las carátulas encontradas, al archivo "collection.html" en la raíz de SD1
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Instala una actualización copiada en MUOS/update de la tarjeta (NAME.p2.img.gz y su .sha256). Muestra el progreso y reinicia el dispositivo dos veces (unos 10 minutos); tus juegos, partidas y ajustes se conservan. Necesita el cargador o un 30 % de batería.
+Show the introduction on every menu again, as it appeared the first time you used the device.	Muestra de nuevo la introducción en cada menú, como la primera vez que usaste el dispositivo.
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Genera un archivo ZIP de diagnóstico en SD1. Este port no tiene soporte del equipo de MustardOS: adjúntalo a una issue en el GitHub del port.

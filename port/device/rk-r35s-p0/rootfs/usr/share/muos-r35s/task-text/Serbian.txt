@@ -1,0 +1,54 @@
+Clear Tasks	Zadaci čišćenja
+Diagnostics	Dijagnostika
+Grid Mode Toggles	Promeni režim mreže
+Restore Tasks	Zadaci vraćanja
+Storage Tasks	Zadaci skladišta
+Dot and Junk File Cleanup	Očisti skrivene i nepotrebne datoteke
+Export Collection to HTML	Izvezi kolekciju u HTML
+Install Firmware Update	Instaliraj ažuriranje sistema
+Finishing Firmware Update	Završavanje ažuriranja sistema
+Refresh Automatic Core Assign	Osveži automatsku dodelu jezgara
+Replay Tour Introduction	Ponovo prikaži uvod
+System Diagnostics	Dijagnostika sistema
+Clear Activity Data	Obriši podatke o aktivnosti
+Clear Catalogue - Everything	Obriši katalog - sve
+Clear Catalogue - Folder Only	Obriši katalog - samo fascikle
+Clear Collections	Obriši kolekcije
+Clear Content Assignments	Obriši dodele sadržaja
+Clear History	Obriši istoriju
+Clear Network Profiles	Obriši mrežne profile
+Audio Report	Izveštaj o zvuku
+Battery Report	Izveštaj o bateriji
+BIOS Report	Izveštaj o BIOS-u
+Boot and Services Report	Izveštaj o pokretanju i servisima
+Display Report	Izveštaj o ekranu
+Input Event Test	Test dugmadi
+Input Report	Izveštaj o kontrolama
+Network Report	Izveštaj o mreži
+Storage Report	Izveštaj o skladištu
+Thermal and CPU Report	Izveštaj o temperaturi i CPU-u
+Toggle Grid Mode Applications	Režim mreže: Aplikacije
+Toggle Grid Mode Collections	Režim mreže: Kolekcije
+Toggle Grid Mode Content Explorer	Režim mreže: Pregledač sadržaja
+Toggle Grid Mode History	Režim mreže: Istorija
+Toggle Grid Mode Main Menu	Režim mreže: Glavni meni
+Restore Background Music	Vrati muziku u pozadini
+Restore Friendly Name Files	Vrati datoteke prikaznih imena
+Restore Hotkeys	Vrati prečice
+Restore Network Configuration	Vrati mrežnu konfiguraciju
+Restore Themes	Vrati teme
+Eject Secondary Storage	Izbaci sekundarno skladište
+Mount Secondary Storage	Montiraj sekundarno skladište
+Checking and unpacking the update	Provera i raspakivanje ažuriranja
+Keep the device on until the menu returns	Ostavite uređaj uključen dok se meni ne vrati
+Not installed	Nije instalirano
+Update ready: restarting	Ažuriranje spremno: ponovno pokretanje
+Installing the update: do not power off	Instaliranje ažuriranja: ne isključujte
+About 5 minutes, then it restarts	Oko 5 minuta, zatim ponovno pokretanje
+The update could not be installed	Ažuriranje nije moglo da se instalira
+Update installed: restarting	Ažuriranje instalirano: ponovno pokretanje
+Run Dot and Junk File Cleanup	Uklanja skrivene i nepotrebne datoteke drugih sistema
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	Izvozi listu kolekcije, sa pronađenim omotima, u datoteku "collection.html" u korenu SD1
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	Instalira ažuriranje kopirano u MUOS/update na kartici (NAME.p2.img.gz i njegov .sha256). Prikazuje napredak i dvaput ponovo pokreće uređaj (oko 10 minuta); igre, sačuvane pozicije i podešavanja ostaju. Potreban je punjač ili 30 % baterije.
+Show the introduction on every menu again, as it appeared the first time you used the device.	Ponovo prikazuje uvod u svakom meniju, kao pri prvoj upotrebi uređaja.
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	Pravi dijagnostički ZIP na SD1. Ovaj port ne podržava tim MustardOS-a: priložite ga uz issue na GitHub-u porta.

@@ -1,0 +1,54 @@
+Clear Tasks	सफ़ाई कार्य
+Diagnostics	निदान
+Grid Mode Toggles	ग्रिड मोड बदलें
+Restore Tasks	पुनर्स्थापना कार्य
+Storage Tasks	स्टोरेज कार्य
+Dot and Junk File Cleanup	छिपी और बेकार फ़ाइलें साफ़ करें
+Export Collection to HTML	संग्रह को HTML में निर्यात करें
+Install Firmware Update	सिस्टम अपडेट इंस्टॉल करें
+Finishing Firmware Update	सिस्टम अपडेट पूरा हो रहा है
+Refresh Automatic Core Assign	स्वचालित कोर असाइनमेंट ताज़ा करें
+Replay Tour Introduction	परिचय फिर से दिखाएँ
+System Diagnostics	सिस्टम निदान
+Clear Activity Data	गतिविधि डेटा साफ़ करें
+Clear Catalogue - Everything	कैटलॉग साफ़ करें - सब
+Clear Catalogue - Folder Only	कैटलॉग साफ़ करें - केवल फ़ोल्डर
+Clear Collections	संग्रह साफ़ करें
+Clear Content Assignments	सामग्री असाइनमेंट साफ़ करें
+Clear History	इतिहास साफ़ करें
+Clear Network Profiles	नेटवर्क प्रोफ़ाइल साफ़ करें
+Audio Report	ऑडियो रिपोर्ट
+Battery Report	बैटरी रिपोर्ट
+BIOS Report	BIOS रिपोर्ट
+Boot and Services Report	बूट और सेवा रिपोर्ट
+Display Report	डिस्प्ले रिपोर्ट
+Input Event Test	बटन परीक्षण
+Input Report	इनपुट रिपोर्ट
+Network Report	नेटवर्क रिपोर्ट
+Storage Report	स्टोरेज रिपोर्ट
+Thermal and CPU Report	तापमान और CPU रिपोर्ट
+Toggle Grid Mode Applications	ग्रिड मोड: ऐप्लिकेशन
+Toggle Grid Mode Collections	ग्रिड मोड: संग्रह
+Toggle Grid Mode Content Explorer	ग्रिड मोड: सामग्री एक्सप्लोरर
+Toggle Grid Mode History	ग्रिड मोड: इतिहास
+Toggle Grid Mode Main Menu	ग्रिड मोड: मुख्य मेनू
+Restore Background Music	पृष्ठभूमि संगीत पुनर्स्थापित करें
+Restore Friendly Name Files	सरल नाम फ़ाइलें पुनर्स्थापित करें
+Restore Hotkeys	शॉर्टकट पुनर्स्थापित करें
+Restore Network Configuration	नेटवर्क कॉन्फ़िगरेशन पुनर्स्थापित करें
+Restore Themes	थीम पुनर्स्थापित करें
+Eject Secondary Storage	द्वितीयक स्टोरेज निकालें
+Mount Secondary Storage	द्वितीयक स्टोरेज माउंट करें
+Checking and unpacking the update	अपडेट की जाँच और अनपैक हो रहा है
+Keep the device on until the menu returns	मेनू लौटने तक डिवाइस चालू रखें
+Not installed	इंस्टॉल नहीं हुआ
+Update ready: restarting	अपडेट तैयार: पुनः आरंभ
+Installing the update: do not power off	अपडेट इंस्टॉल हो रहा है: बंद न करें
+About 5 minutes, then it restarts	लगभग 5 मिनट, फिर पुनः आरंभ
+The update could not be installed	अपडेट इंस्टॉल नहीं हो सका
+Update installed: restarting	अपडेट इंस्टॉल हुआ: पुनः आरंभ
+Run Dot and Junk File Cleanup	अन्य सिस्टम की छोड़ी गई छिपी और बेकार फ़ाइलें हटाता है
+Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1	संग्रह सूची, मिले कवर सहित, SD1 के रूट में "collection.html" फ़ाइल में निर्यात करता है
+Install a firmware update copied to MUOS/update on the card (NAME.p2.img.gz and its .sha256). It shows its progress and restarts the device twice (about 10 minutes); your games, saves and settings stay. Needs the charger or 30 % battery.	कार्ड के MUOS/update में कॉपी किया गया अपडेट (NAME.p2.img.gz और उसकी .sha256) इंस्टॉल करता है। यह प्रगति दिखाता है और डिवाइस को दो बार पुनः आरंभ करता है (लगभग 10 मिनट); गेम, सेव और सेटिंग्स बनी रहती हैं। चार्जर या 30 % बैटरी चाहिए।
+Show the introduction on every menu again, as it appeared the first time you used the device.	हर मेनू पर परिचय फिर से दिखाता है, जैसे पहली बार उपयोग पर।
+Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!	SD1 पर निदान ZIP फ़ाइल बनाता है। यह पोर्ट MustardOS टीम द्वारा समर्थित नहीं है: इसे पोर्ट के GitHub पर एक issue में संलग्न करें।
