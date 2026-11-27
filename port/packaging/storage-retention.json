@@ -29,15 +29,6 @@
         "dist/firmware/MustardOS-R36S-port-v1.1.1-p4test.manifest"
       ]
     },
-    "m13b-20261127": {
-      "reason": "M13 first boot + card format, one partition (decisions 50, 51): developer image with MUOS_FIRST_BOOT=1 for t2-first-boot.sh; 937b745, raw 023c259a, p2 48225bbb; T1 t1-install-storage (7 cases) + t1-fresh-p3 PASS; public variant 45 checks ok; not booted yet (bench off)",
-      "files": [
-        "dist/firmware/test128-m13b.img.zst",
-        "dist/firmware/test128-m13b.img.zst.sha256",
-        "dist/firmware/test128-m13b.manifest",
-        "build/m3a/test128-m13b.p2.img"
-      ]
-    },
     "test128-m13d": {
       "reason": "M13 T2: pickles + PortMaster exFAT fixes (e6462d9); exFAT update test, T3 base",
       "files": [
@@ -45,6 +36,19 @@
         "dist/firmware/test128-m13d.img.zst.sha256",
         "dist/firmware/test128-m13d.manifest",
         "build/m3a/test128-m13d.p2.img"
+      ]
+    },
+    "v1.1.2-public": {
+      "reason": "v1.1.2 candidate (public, e6462d9, same rootfs as m13d): first boot + games storage format, raw b012fcfc, p2 49ed4c87; 45 public checks; T3 on original32 pending",
+      "files": [
+        "dist/firmware/MustardOS-R36S-port-v1.1.2.img.xz",
+        "dist/firmware/MustardOS-R36S-port-v1.1.2.img.xz.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.1.2.img.zst",
+        "dist/firmware/MustardOS-R36S-port-v1.1.2.img.zst.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.1.2.manifest",
+        "dist/firmware/MustardOS-R36S-port-v1.1.2.p2.img.gz",
+        "dist/firmware/MustardOS-R36S-port-v1.1.2.p2.img.sha256",
+        "build/m3a/MustardOS-R36S-port-v1.1.2.p2.img"
       ]
     }
   },

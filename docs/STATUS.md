@@ -17,33 +17,24 @@ image. **Next: M13**, First Boot and the games card format (decision 50).
 
 ## Device and bench
 
-- **Bench (2026-11-27):** test128 in slot 1, **p2 = m12f**, installed
-  through the new Task Toolkit "Check for Online Update" (the m12f p2
-  served as a local "v9.9.9" by `t2-online-update.sh serve`: download,
-  unpack, trial boot, finishing screen, write-p2; the previous p2, m12e,
-  in `MUOS/trial/p2-previous.img`). m12e before it (`t2-levelbar.sh` +
-  `t2-quit-fade.sh` + `t2-pico8.sh` + `t2-portmaster.sh` PASS). PortMaster reinstalled
-  on p3 2026-11-26 (a trial reboot during its source update corrupted
-  `config/020_portmaster.source.json`); the user's Doukutsu-rs kept. p3 test
-  content: PortMaster with sdlsopwith, turbotabletennis, 2048; ROMS/PICO-8
-  `ld45.p8`, `cartparsetest.p8.png`; the user's official PICO-8 0.2.7 in
-  `MUOS/bios/pico8` (private: never in an image) and the Splore app. Before:
-  the update path m9k → m10a (boot records: main = `Image-494d1c3d5ebd` + the
-  undervolt DTB `panel0-84611ef0394d.dtb`, previous = the same kernel +
-  the stock DTB `panel0-c97151d0ec1a.dtb` since the model T2). p1 has
-  the 22 model DTBs, `models.txt` and the selectors. original32 holds
-  the public v1.1.0 (updated from v1.0.0 in the T3; `model.txt` =
-  `default`; password SSH on port 22, root/`root`, used read-only for
-  the RTL8822BU dongle info) with a TP-Link RTL8822BU dongle (2357:0115).
-- **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), test128
-  in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
+- **Bench (2026-11-27, M13 T2, decision 52):** **original32 in slot 1**
+  with the developer `test128-m13d` (flashed as m13b, updated to m13d by
+  `muos-update stage` on exFAT; p3 now ext4 after the last
+  `t2-first-boot.sh install ext4`, factory_reset 0, Portuguese (BR),
+  São Paulo zone; no games). Its old public v1.1.0 is gone. test128
+  (off, in the drawer) keeps m12f with all the test content (PortMaster,
+  PICO-8 with the user's private official PICO-8, ROMs, T2 states);
+  boot records main = `Image-494d1c3d5ebd` + the undervolt DTB, previous =
+  the stock DTB. Wi-Fi dongle on original32 bench runs: 0bda:c820.
+- **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), the
+  bench card in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
   zone −03. Access, identity and card layout: procedures.md.
-- p2 = m12f (see "Bench"). p1 `bootlogo.bmp` = the press-kit logo
-  (`d6e6d189…`).
+- p1 `bootlogo.bmp` = the press-kit logo (`d6e6d189…`).
 - Charge log of 2026-11-25 stopped (`build/logs/discharge/discharge.csv`).
-- **Boot records:** see "Bench". p1 has all 16 undervolt DTBs, the 21
-  distinct model DTBs and `dtb-variants.txt` (22 `m-` keys).
-- **p3:** ROMs (also in `port/roms/`; systems listed in milestones M8),
+- **Boot records** (both cards): main = `Image-494d1c3d5ebd` + a Panel 0
+  DTB; p1 has all 16 undervolt DTBs, the 21 distinct model DTBs and
+  `dtb-variants.txt` (22 `m-` keys).
+- **test128 p3:** ROMs (also in `port/roms/`; systems listed in milestones M8),
   Wi-Fi profile `Home.ini`, the six themes, BIOS (PSX, DC, Saturn, Sega
   CD, PCE CD). T2 data in `MUOS/t2` (God of War states `state-v120` /
   `state-v112`, DC fight states `dc-fight` / `dc-fight-2022`; `ppsspp-2021`,
@@ -63,14 +54,16 @@ card, bootloader included (procedures.md).
 | Image | Content | State |
 |---|---|---|
 | **`dist/firmware/test128-m12f.img.zst`** (raw `8b9df957…`, p2 `6a29a226…`, `build/m3a/test128-m12f.p2.img`) | M11 + M12 + the v1.1.1 T3 fixes + manual online update | v1.1.1 T3 round 4 ok; **recovery since 2026-11-27** (m12e retired); on the bench p2 |
+| `dist/firmware/MustardOS-R36S-port-v1.1.2.*` (raw `b012fcfc…`, p2 `49ed4c87…`) | v1.1.2 candidate, public (e6462d9, the m13d rootfs), 45 checks | **T3 pending** (original32) |
+| `dist/firmware/test128-m13d.img.zst` (raw `2325c3a6…`, p2 `fdae3cbc…`) | M13 developer, MUOS_FIRST_BOOT=1 | M13 T2 PASS; on original32 |
 | (v1.1.1 public, m12f) | on GitHub (release, latest; raw `d5187bd2…`, p2 `4068786a…`); local images, raw p2 and source zips deleted 2026-11-27 (manifest kept) | T3 ok 2026-11-27 |
 | (v1.1.0 public, m10a) | on GitHub (release); local files and m10a retired 2026-11-27 | T3 ok 2026-11-26 |
 | (v1.0.0 public, m9k) | on GitHub (release); local files and m9k retired 2026-11-26 (m10a recovery) | T3 ok 2026-11-26 |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-2/5 versions in `storage-retention.json` (M2, m12f; m12e, m10a+v1.1.0,
-m12b–m12d, m9k+v1.0.0 and earlier retired 2026-11-26/27). `build/release`
+5/5 versions in `storage-retention.json` (M2, m12f, p4test, m13d,
+v1.1.2-public; m13b, m13c and earlier retired). `build/release`
 keeps only the v1.1.1 publish script and notes (the template).
 
 ## What works (T3-confirmed)
@@ -159,7 +152,23 @@ flash tests on original32).
 
 ## T3 queue
 
-Empty (v1.1.1 round 4 passed 2026-11-27; results in milestones.md).
+**v1.1.2 (public candidate) on original32, blank card** (sent 2026-11-27):
+1. Flash `MustardOS-R36S-port-v1.1.2.img.zst` (flash-card.sh, no
+   `--grow`), slot 1, power on: logo, then the First Boot (English).
+2. Idioma → Português (BR): the screens switch.
+3. Data e hora: time and Fuso horário (São Paulo).
+4. Perfis, Teste de botões: open, every button shows, back.
+5. Desligar: off; power on: the First Boot again, language kept.
+6. Instalar → exFAT: progress screen, restart, the main menu in pt-BR
+   with the time set; no First Boot at the next start.
+7. Configuração → Conectividade → Rede Wi-Fi: connects.
+8. Aplicativos → PortMaster: installs, opens; one port installed plays.
+9. Power off; the card on a PC (Windows if possible): the storage drive
+   with `ROMS` and `MUOS`; copy a ROM into `ROMS/<system>`, eject.
+10. Explorar conteúdo → SD1 → the system → the ROM plays and quits.
+11. Restart: clock and zone right (Configuração → Data e hora).
+12. Aplicativos → Ferramentas de sistema → Buscar atualização online:
+    up to date (GitHub's v1.1.1 is older: not offered).
 
 ## Current milestone: M13 — First Boot and the games card format (started 2026-11-27)
 
@@ -184,26 +193,24 @@ stop); the time zone is text on p3 with the link in /run/muos/localtime
 The README warns about exFAT/FAT32 and power loss (decision 51).
 (A first p4 design, 65f7222/2f16e2d, was replaced by this one.)
 
-Done (host): exfatprogs + dosfstools; public images factory_reset 1
+Done: exfatprogs + dosfstools; public images factory_reset 1
 (`MUOS_FIRST_BOOT=1` for a developer image); install request/apply +
 progress task (texts in 33 languages); content paths through /mnt/mmc;
-PortMaster chmod tolerant; frontend 0004 rebuilt (libmuxmod.so re-pinned);
-M13 extra (the user's question): a model chosen on a PC switches in S89,
-seconds after power-on, instead of once the menu is up.
-T0 shellcheck clean; T1 `t1-install-storage.sh` PASS (exfat, vfat, ext4
-grow, ext4 over exfat, a card with games refused, a failing format back
-to ext4, foreign card), `t1-fresh-p3.sh` (zone scheme updated).
-Left for the release: install guides, known issues, release notes, the
-LICENSING package count.
-**T2 (user present: flash; decision 52):** the user flashes
-`test128-m13b` (raw `023c259a…`, developer, MUOS_FIRST_BOOT=1) on
-**original32** without `--grow` (test128 keeps m12f: no backup);
-`t2-first-boot.sh pre`, `install exfat`, `install vfat`, `install ext4`
-(each checks the format, settings and zone kept, seeds, ScummVM bind);
-on exFAT: DraStic, PPSSPP 2021 saves, PortMaster install, NES fps, an
-update; the early model switch with a Panel 0 copy as the model DTB
-(`t2-model.sh`, never another panel's DTB on the bench).
-Expected T3: the six screens on a blank card, Windows sees the card,
-copy a ROM and play it, the time zone survives a restart.
-
+PortMaster chmod tolerant; frontend 0004 rebuilt; the early model switch
+in S89 (decision 52); install guides, README, CHANGELOG, known issues;
+LICENSING 65 packages (`make-source-bundle.sh check` ok).
+T0 shellcheck; T1 `t1-install-storage.sh` PASS (now with the S91 pickles
+seed). **T2 on original32 (2026-11-27), m13b → m13d, all PASS:**
+`t2-first-boot.sh pre`, `install exfat` (fixed: S91's Flycast seeds in
+MUOS/pickles were taken for a used card; pickles now kept), NES 59.97 fps,
+DraStic (resources/microphone binds, state on exit), PPSSPP 2021
+(SAVEDATA bind), `t2-portmaster.sh` (fixed: on exFAT/FAT32
+`/userdata/roms/ports` matched ROMS/Ports and harbourmaster took
+Batocera's folders; `muos-portmaster` sets HM_*), the update m13b → m13d
+by `muos-update stage` with the trial image on exFAT (~16 min on this
+slow card), `install vfat` (NES 59.97, PortMaster PASS), `install ext4`,
+`t2-model.sh build/m10/t2/p0copy.dtb` (a Panel 0 copy with one extra
+property; armed in S89, promoted 39 s later; the script now refuses a
+DTB already on p1). Public v1.1.2 built (45 checks).
+Left: the T3 above, then the release (procedures "Release").
 Release: v1.1.2. Then M14: the MustardOS next release (decision 45).
