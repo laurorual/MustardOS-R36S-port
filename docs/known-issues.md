@@ -45,6 +45,10 @@ MustardOS team.
   square corners; the menu's own bar follows the theme's rounded corners.
 - A port that hangs on its own exit is closed with Fn+Start (its
   process group is ended after 3 s); unsaved progress is lost then.
+- If the console is switched off while PortMaster updates its port list,
+  it can lose the list ("Unable to find a source"): delete the folder
+  `MUOS/PortMaster` on the card and open Applications → PortMaster again
+  (installed ports stay).
 - Ports are not tested one by one: please report the ones that misbehave
   (name, what happens, and `MUOS/log/system/port.log` from the card).
 
