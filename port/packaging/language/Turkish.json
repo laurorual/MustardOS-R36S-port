@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "Oyun depolaması hazırlanıyor: kapatmayın",
     "Less than a minute, then it restarts": "Bir dakikadan kısa, sonra yeniden başlar",
     "The games storage could not be prepared": "Oyun depolaması hazırlanamadı",
-    "MustardOS is installed: restarting": "MustardOS yüklendi: yeniden başlatılıyor"
+    "MustardOS is installed: restarting": "MustardOS yüklendi: yeniden başlatılıyor",
+    "The device restarts and prepares the card (about a minute)": "Cihaz yeniden başlar ve kartı hazırlar (yaklaşık bir dakika)"
   }
 }

@@ -30,11 +30,6 @@
 #   muos-update stage | finish | resume | status | check | fetch | version NAME
 set -eu
 upd=/userdata/MUOS/update trial=/userdata/MUOS/trial rt=/usr/libexec/muos-root-trial
-# M13: on a card with a separate games storage (p4, exFAT/FAT32) a PC copies
-# updates into ITS MUOS/update (the content root at /mnt/mmc); the state
-# (pending, logs) and downloads stay on p3. Same folder on a p3-only card.
-drop=/mnt/mmc/MUOS/update
-[ -d "$drop" ] && [ "$(stat -c %d:%i "$drop")" != "$(stat -c %d:%i "$upd" 2>/dev/null)" ] || drop=
 repo='' api=https://api.github.com
 [ ! -r /etc/muos-update.conf ] || . /etc/muos-update.conf
 # T2 (t2-online-update.sh): /run/muos/update-test holds MUOS_UPDATE_API and
@@ -106,7 +101,7 @@ fetch() {
 case ${1:-status} in
 status)
     [ -f "$upd/pending" ] && echo "pending $(cat "$upd/pending")" || echo "idle (release ${release:-unknown})"
-    ls "$upd"/*.p2.img.gz ${drop:+"$drop"/*.p2.img.gz} 2>/dev/null || : ;;
+    ls "$upd"/*.p2.img.gz 2>/dev/null || : ;;
 check) check ;;
 fetch) fetch ;;
 version) version "${2:-$release}" ;;
@@ -114,9 +109,9 @@ stage)
     lock
     on_trial && { echo 'an update is already being tried; restart first' >&2; exit 1; }
     # the highest version when several are there (else the newest file)
-    img=$(ls -t "$upd"/*.p2.img.gz ${drop:+"$drop"/*.p2.img.gz} 2>/dev/null | while IFS= read -r f; do
+    img=$(ls -t "$upd"/*.p2.img.gz 2>/dev/null | while IFS= read -r f; do
         echo "$(version "${f##*/}") $f"; done | sort -s -n -r -k 1,1 | head -n 1 | cut -d' ' -f2-)
-    [ -n "$img" ] || { echo "no NAME.p2.img.gz in MUOS/update" >&2; exit 1; }
+    [ -n "$img" ] || { echo "no NAME.p2.img.gz in $upd" >&2; exit 1; }
     want=$(cut -d' ' -f1 "${img%.gz}.sha256" 2>/dev/null) || :
     [ ${#want} = 64 ] || { echo "missing ${img##*/} sha256 (${img%.gz}.sha256)" >&2; exit 1; }
     free=$(df -m /userdata | awk 'NR == 2 {print $4}')

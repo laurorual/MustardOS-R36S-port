@@ -11,9 +11,8 @@
 # list shows every folder in MUOS/theme), so a theme the
 # user deletes stays deleted, and nothing the user has is overwritten.
 # Log: p3 MUOS/log/seed-share.log (only when something was copied).
-# M13: the content root (/mnt/mmc) may be p4 (exFAT/FAT32): themes, names
-# and the theme markers go there (a new games storage is seeded again),
-# the port's own state stays on p3; plain copies (no ownership or links).
+# M13: p3 may be exFAT/FAT32 (the first boot's format): plain copies (no
+# ownership or links); the port's own state is named by /userdata.
 share=/opt/muos/share
 store=/mnt/mmc/MUOS
 state=/userdata/MUOS/port

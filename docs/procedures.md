@@ -23,16 +23,19 @@ put together. Current state and the recovery image are in
   - p3: ext4 `MUOSDATA`, 1152 MiB (640 MiB in the old layout) to the end,
     rw at `/userdata`. 1 GiB in images; `flash-card.sh --grow` or the
     first boot (`muos-grow-p3`, since M3d) extends it.
-  - **Public cards since M13 (decision 50):** the first boot's Install
-    (`muos-install-storage`) sizes the card instead. EXT4: p3 to the end
-    (as above). exFAT/FAT32: p3 (ext4, the port's state: `MUOS/port`,
-    logs, update and trial) 6 GiB (4 GiB under 30 GiB) and **p4** in that
-    format (MBR type 07/0c, label `MustardOS`/`MUSTARDOS`) to the end,
-    mounted at `/mnt/content` by S89 and bound at `/mnt/mmc` by S90: ROMS
-    and the upstream SD1 folders (`MUOS/bios`, `save`, `theme`,
-    `network`, `PortMaster`, ...); updates copied by a PC go to its
-    `MUOS/update`. Developer images keep `boot/factory_reset` 0 (no first
-    boot, p3 grown as before). T1: `port/scripts/t1-install-storage.sh`.
+  - **Public cards since M13 (decisions 50, 51):** the first boot's
+    Install sizes and formats p3 instead: `muos-install-storage request
+    FS` notes the choice, the next start's S89 runs `apply` before
+    anything else uses p3 (state kept in RAM, p3 grown to the end, MBR
+    type 83/07/0c, ext4 `MUOSDATA` only grown, exFAT `MustardOS`, FAT32
+    `MUSTARDOS`; a fresh card only; a failed format falls back to ext4 and
+    the first boot). Everything stays on p3 whatever the format; the shim
+    (trial root), S89 and S90 mount it by type. Links on p3 go through
+    `muos-link-or-bind` (a bind on exFAT/FAT32); the time zone is text on
+    p3 with the link in `/run/muos/localtime` (frontend 0004). Developer
+    images keep `boot/factory_reset` 0 (no first boot, p3 grown as
+    before; `MUOS_FIRST_BOOT=1` for one that starts there). T1:
+    `t1-install-storage.sh`; T2: `t2-first-boot.sh`.
 - **original32 (stock dArkOSen):** the flasher station, in slot 1 with
   the target card in slot 2. Never write original32 itself.
 
@@ -372,9 +375,9 @@ init, which runs `/usr/libexec/muos-rc start`:
 | 1 | stock `seedrng`, syslog, sysctl, `udev`, D-Bus | standard Buildroot services; the TRNG has the RNG ready at 2.6 s |
 | 2 | S41muos-network | Wi-Fi and SSH in the background (waits for p3's profiles); up at about 20 s |
 | 3 | S85 | root ro |
-| 4 | S89 | `e2fsck -p` on p3 (≤ 100 s; log p3 `MUOS/log/fsck-p3.log`), p3 rw at `/userdata`, p1 ro at `/boot`; M13: p4 (games storage, exFAT/FAT32) checked and mounted at `/mnt/content` (log `MUOS/log/fsck-p4.log`) |
-| 4b | (frontend) | M13: with `boot/factory_reset` 1 the menu opens MustardOS's first boot (muxinstall); its Install runs `muos-install-task.sh` on the progress screen, then restarts |
-| 5 | S90 | muOS storage binds (content root: p4 if mounted, else p3) |
+| 4 | S89 | p3 checked by type (`e2fsck -p`, M13: `fsck.exfat -p`, `fsck.fat -a`; ≤ 100 s; log p3 `MUOS/log/fsck-p3.log`), p3 rw at `/userdata`, p1 ro at `/boot`; M13: a first-boot Install request formats p3 here (`muos-install-storage apply`) |
+| 4b | (frontend) | M13: with `boot/factory_reset` 1 the menu opens MustardOS's first boot (muxinstall); its Install notes the format (`muos-install-task.sh`) and restarts |
+| 5 | S90 | muOS storage binds |
 | 6 | S91 | persistent muOS config, core assignments and per-output volume on p3 (`MUOS/port`); tmpfs views for other muOS paths; logs on p3 `MUOS/log/system` (three previous boots in `system.prev*`) |
 | 7 | S95 | audio (retried up to 3× within 25 s) + muinput; audio failure is non-fatal |
 | 8 | S96 | input mapping |

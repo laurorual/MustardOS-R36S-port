@@ -1,128 +1,141 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
 # M13 (decision 50): the "Install" step of MustardOS's first boot on the
-# port's card. muxinstall asks how the games storage is formatted
-# (device storage/rom/type: exfat, vfat or ext4); muos-frontend runs this
-# on the progress screen (muos-install-task.sh), then restarts.
-#   ext4         one ext4 p3 to the end of the card (the layout of every
-#                card before M13); a p4 of an earlier try is removed
-#   exfat|vfat   p3 (ext4, the port's own state: MUOS/port config, logs,
-#                update and trial root) grown to 6 GiB (4 GiB on cards
-#                under 30 GiB) and a new p4 in that format from there to
-#                the end (MBR type 07 / 0c, label MustardOS / MUSTARDOS):
-#                ROMS and the MUOS folders upstream keeps on SD1. S89 mounts
-#                it at /mnt/content, S90 binds it at /mnt/mmc, and the next
-#                start seeds it (ROMS folders, themes, names).
-# p3 is mounted the whole time: it only grows (partition end in the MBR,
-# BLKPG resize, online resize2fs), the start never moves, nothing before
-# its end is written. Then boot/factory_reset becomes 0. A power cut at any
-# point leaves factory_reset 1: the first boot comes back and this runs
-# again (it accepts its own p4).
-# Progress lines "progress N 6" on stdout; log p3 MUOS/log/install-storage.log.
-#   muos-install-storage exfat|vfat|ext4 [DISK]
-# T1 (MUOS_INSTALL_TEST=DIR): DISK is an image file; the table is written
-# with sfdisk, the kernel and mount steps are skipped and p4's filesystem
-# goes to DIR/p4.img (port/scripts/t1-install-storage.sh).
-set -eu
+# port's card, which keeps everything on one partition (p3) as upstream's
+# SD1. muxinstall asks how it is formatted (device storage/rom/type: exfat,
+# vfat or ext4).
+#   request FS   the progress screen (muos-install-task.sh): note FS in p3
+#                MUOS/port/install-storage; the device then restarts
+#   apply        S89, the next start, p3 mounted and nothing else using it:
+#                keep the first boot's state (MUOS/port: settings, time
+#                zone, ...; MUOS/log) in RAM, unmount p3, grow it to the end
+#                of the card (MBR end, type 83/07/0c; the start never moves,
+#                nothing before it is written), format it (ext4 that is
+#                already ext4 is only grown, online), put the state back
+#                with boot/factory_reset 0. S89 then mounts it by type, and
+#                the start seeds it (ROMS folders, themes, names).
+# Safety: it only formats a card without games, BIOS or saves (a fresh
+# one). A failed format becomes ext4 again with the kept state and
+# factory_reset 1: the first boot comes back. A power cut while p3 is
+# unmounted (seconds) leaves a fresh or empty p3: the next start seeds it
+# from the image and the first boot starts over.
+# Log: p3 MUOS/log/install-storage.log (and /run/muos-install-storage.log).
+# T1 (MUOS_INSTALL_TEST=DIR, port/scripts/t1-install-storage.sh): DISK is an
+# image file, p3's files are DIR/data, the new filesystem goes to DIR/p3.img
+# and the restored state to DIR/restored; the kernel, mount and resize steps
+# are skipped.
+#   muos-install-storage request exfat|vfat|ext4 | apply [DISK]
+set -u
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
-fs=${1:-} test=${MUOS_INSTALL_TEST:-}
-case "$fs" in exfat|vfat|ext4) ;; *) echo 'Usage: muos-install-storage exfat|vfat|ext4 [DISK]' >&2; exit 2 ;; esac
+test=${MUOS_INSTALL_TEST:-}
+data=${test:+$test/data}; data=${data:-/userdata}
+req=$data/MUOS/port/install-storage
+rlog=${test:-/run}/muos-install-storage.log
+say() { echo "$(date '+%F %T') $*" >> "$rlog"; }
+die() { say "FAIL $*"; echo "$*" >&2; keep_log; exit 1; }
+keep_log() { [ -d "$data/MUOS" ] && mkdir -p "$data/MUOS/log" && cat "$rlog" >> "$data/MUOS/log/install-storage.log" 2>/dev/null && : > "$rlog"; }
+case "${1:-}" in
+request)
+    case "${2:-}" in exfat|vfat|ext4) ;; *) echo 'Usage: muos-install-storage request exfat|vfat|ext4' >&2; exit 2 ;; esac
+    mkdir -p "${req%/*}" && printf '%s\n' "$2" > "$req.tmp" && mv -f "$req.tmp" "$req" && sync || exit 1
+    say "requested $2"; keep_log; exit 0 ;;
+apply) ;;
+*) echo 'Usage: muos-install-storage request exfat|vfat|ext4 | apply [DISK]' >&2; exit 2 ;;
+esac
+fs=$(head -n 1 "$req" 2>/dev/null)
+case "$fs" in exfat|vfat|ext4) ;; *) rm -f "$req"; die "bad request '$fs'" ;; esac
 disk=${2:-$(/usr/libexec/muos-boot-disk)}
 name=${disk##*/}
 case "$name" in *[0-9]) p=${name}p ;; *) p=$name ;; esac
-log=${test:-/userdata/MUOS/log}/install-storage.log
-mkdir -p "${log%/*}"
-say() { echo "$(date '+%F %T') $*" >> "$log"; }
-die() { say "FAIL $*"; echo "$*" >&2; exit 1; }
-step() { echo "progress $1 6"; }
-say "install $fs on $disk"
-# ---- the table (sectors) -------------------------------------------------
+dev=/dev/${p}3
+say "apply $fs on $disk"
+# ---- the table (sectors) --------------------------------------------------
 dump=$(sfdisk -d "$disk" 2>/dev/null) || die "cannot read the partition table of $disk"
 printf '%s\n' "$dump" | grep -qx 'label: dos' || die 'not an MBR card'
 printf '%s\n' "$dump" | grep -qx 'label-id: 0x4d554432' || die 'not the port card (disk id)'
-field() { # field N start|size: from the sfdisk dump
-    printf '%s\n' "$dump" | sed -n "s|^[^ ]*[^0-9]$1 :.* $2= *\([0-9]*\),.*|\1|p"
+nparts=$(printf '%s\n' "$dump" | grep -c '^/dev\|^[^ :]*[0-9] :')
+[ "$nparts" = 3 ] || die "unexpected layout ($nparts partitions)"
+s3=$(printf '%s\n' "$dump" | sed -n 's|^[^ ]*[^0-9]3 :.* start= *\([0-9]*\),.*|\1|p')
+[ -n "$s3" ] || die 'no p3'
+if [ -n "$test" ]; then cur=$(cat "$test/p3.type" 2>/dev/null || echo ext4)
+else cur=$(blkid -o value -s TYPE "$dev" 2>/dev/null); fi
+grow_table() { # p3 to the end of the card, MBR type $1
+    echo ', +' | sfdisk -q --no-reread --no-tell-kernel -N 3 "$disk" >> "$rlog" 2>&1 || return 1
+    sfdisk -q --no-reread --no-tell-kernel --part-type "$disk" 3 "$1" >> "$rlog" 2>&1 || return 1
+    new=$(sfdisk -d "$disk" 2>/dev/null | sed -n 's|^[^ ]*[^0-9]3 :.* size= *\([0-9]*\),.*|\1|p')
+    say "p3 now $new sectors, type $1"
+    [ -n "$test" ] && return 0
+    resizepart "$disk" 3 "$new" >> "$rlog" 2>&1 || return 1
+    udevadm settle -t 10 >> "$rlog" 2>&1 || :
+    n=0; while [ ! -b "$dev" ] && [ "$n" -lt 50 ]; do sleep 0.1; n=$((n + 1)); done
 }
-nparts=$(printf '%s\n' "$dump" | grep -c '^/dev\|^[^ :]*[0-9] :' || :)
-if [ -n "$test" ]; then total=$(( $(stat -c %s "$disk") / 512 )); else total=$(cat "/sys/block/$name/size"); fi
-s3=$(field 3 start) z3=$(field 3 size) s4=$(field 4 start)
-[ -n "$s3" ] && [ -n "$z3" ] || die 'no p3'
-[ "$nparts" = 3 ] || { [ "$nparts" = 4 ] && [ -n "$s4" ]; } || die "unexpected layout ($nparts partitions)"
-say "card $total sectors, p3 $s3+$z3${s4:+, p4 at $s4}"
-step 1
-kernel_part() { # resize|add|delete N [START SIZE]: tell the kernel (p2 and p3 are busy)
-    [ -z "$test" ] || return 0
-    case $1 in
-        resize) resizepart "$disk" "$2" "$4" >> "$log" 2>&1 ;;
-        add) partx -a --nr "$2" "$disk" >> "$log" 2>&1 ;;
-        delete) partx -d --nr "$2" "$disk" >> "$log" 2>&1 ;;
-    esac
-    udevadm settle -t 10 >> "$log" 2>&1 || :
-}
-grow_p3() { # to $1 sectors (empty: the end of the card)
-    if [ -n "$1" ]; then
-        [ "$z3" -le "$1" ] || die "p3 already has $z3 sectors: it cannot shrink"
-        [ "$z3" != "$1" ] || return 0
-        echo ",$1" | sfdisk -q --no-reread --no-tell-kernel -N 3 "$disk" >> "$log" 2>&1 || die 'sfdisk (p3) failed'
-    else
-        echo ', +' | sfdisk -q --no-reread --no-tell-kernel -N 3 "$disk" >> "$log" 2>&1 || die 'sfdisk (p3) failed'
-    fi
-    new=$(sfdisk -d "$disk" 2>/dev/null | sed -n "s|^[^ ]*[^0-9]3 :.* size= *\([0-9]*\),.*|\1|p")
-    say "p3 now $new sectors in the table"
-    kernel_part resize 3 "$s3" "$new" || die 'the kernel kept the old p3 size'
-    [ -n "$test" ] || resize2fs "/dev/${p}3" >> "$log" 2>&1 || die 'resize2fs (p3) failed'
-}
-if [ "$fs" = ext4 ]; then
-    if [ -n "$s4" ]; then
-        say "removing p4 of an earlier try"
-        [ -n "$test" ] || ! findmnt -rn -S "/dev/${p}4" > /dev/null || umount "/dev/${p}4" || die 'p4 is busy'
-        sfdisk -q --no-reread --no-tell-kernel --delete "$disk" 4 >> "$log" 2>&1 || die 'sfdisk (delete p4) failed'
-        kernel_part delete 4 || :
-    fi
-    step 2; grow_p3 ''; step 3; step 4; step 5
-else
-    want=$((6 * 1024 * 1024 * 2)); [ "$total" -ge $((30 * 1024 * 1024 * 2)) ] || want=$((4 * 1024 * 1024 * 2))
-    [ -z "$s4" ] || [ "$s4" -ge $((s3 + want)) ] || want=$((s4 - s3))
-    end=$((s3 + want))
-    start=$(( (end + 2047) / 2048 * 2048 ))
-    [ $((total - start)) -ge $((1024 * 1024 * 2)) ] || die 'the card is too small for a separate games storage: choose EXT4'
-    step 2; grow_p3 "$want"
-    case $fs in exfat) type=7 label=MustardOS ;; vfat) type=c label=MUSTARDOS ;; esac
-    if [ -z "$s4" ]; then
-        echo "$start,,$type" | sfdisk -q --no-reread --no-tell-kernel -a "$disk" >> "$log" 2>&1 || die 'sfdisk (p4) failed'
-        kernel_part add 4 || die 'the kernel did not add p4'
-    else
-        start=$s4
-        sfdisk -q --no-reread --no-tell-kernel --part-type "$disk" 4 "$type" >> "$log" 2>&1 || die 'sfdisk (p4 type) failed'
-    fi
-    say "p4 from $start, type $type"
-    step 3
-    if [ -n "$test" ]; then
-        dev=$test/p4.img; rm -f "$dev"; truncate -s $(( (total - start) * 512 )) "$dev"
-    else
-        dev=/dev/${p}4
-        n=0; while [ ! -b "$dev" ] && [ "$n" -lt 50 ]; do sleep 0.1; n=$((n + 1)); done
-        [ -b "$dev" ] || die "no $dev"
-        ! findmnt -rn -S "$dev" > /dev/null || umount "$dev" || die 'p4 is busy'
-    fi
-    case $fs in
-        exfat) mkfs.exfat -n "$label" "$dev" >> "$log" 2>&1 || die 'mkfs.exfat failed' ;;
-        vfat) mkfs.vfat -F 32 -n "$label" "$dev" >> "$log" 2>&1 || die 'mkfs.vfat failed' ;;
-    esac
-    say "p4 formatted $fs ($label)"
-    step 4
-    if [ -z "$test" ]; then
-        [ "$fs" != exfat ] || modprobe -q exfat || :
-        mkdir -p /mnt/content
-        mount -t "$fs" -o rw,noatime "$dev" /mnt/content || die 'the new games storage does not mount'
-        mkdir -p /mnt/content/ROMS /mnt/content/MUOS || die 'cannot write to the new games storage'
-        sync; umount /mnt/content || :
-    fi
-    step 5
+set_factory0() { mkdir -p "$1/MUOS/port/config/boot" && printf '0\n' > "$1/MUOS/port/config/boot/factory_reset"; }
+# ---- ext4 that is ext4: grow only, nothing is formatted -------------------
+if [ "$fs" = ext4 ] && [ "$cur" = ext4 ]; then
+    grow_table 83 || die 'growing p3 failed'
+    [ -n "$test" ] || resize2fs "$dev" >> "$rlog" 2>&1 || die 'resize2fs failed'
+    set_factory0 "$data" || die 'cannot clear boot/factory_reset'
+    rm -f "$req"; sync; say "done: ext4 grown"; keep_log; exit 0
 fi
-# ---- done: the first boot is over ---------------------------------------
-cfg=${test:-/opt/muos/config}/boot
-mkdir -p "$cfg" && printf '0\n' > "$cfg/factory_reset" || die 'cannot clear boot/factory_reset'
+# ---- a new filesystem: only on a fresh card -------------------------------
+for d in ROMS MUOS/bios MUOS/save MUOS/pickles MUOS/screenshot MUOS/PortMaster MUOS/application; do
+    [ -z "$(find "$data/$d" -type f 2>/dev/null | head -n 1)" ] ||
+        { rm -f "$req"; die "the card already has files in $d: not formatted (choose EXT4, or flash it again)"; }
+done
+keep=${test:-/run}/muos-install-keep
+rm -rf "$keep"; mkdir -p "$keep/MUOS"
+for d in MUOS/port MUOS/log MUOS/preferences; do
+    [ -d "$data/$d" ] && { cp -R "$data/$d" "$keep/$d" || die "cannot keep $d"; }
+done
+[ ! -f "$data/.muos-r35s-data-v1" ] || cp "$data/.muos-r35s-data-v1" "$keep/"
+rm -rf "$keep/MUOS/port/seeded-theme" "$keep/MUOS/port/install-storage"
+kb=$(du -sk "$keep" | cut -f1)
+[ "$kb" -le $((128 * 1024)) ] || die "the first boot's state is ${kb} KiB: not formatted"
+set_factory0 "$keep" || die 'cannot clear boot/factory_reset'
+cat "$rlog" >> "$keep/MUOS/log/install-storage.log" 2>/dev/null; : > "$rlog"
+say "kept ${kb} KiB of state; formatting p3 as $fs"
 sync
+if [ -z "$test" ]; then
+    umount "$data" || die 'p3 is busy: not formatted'
+fi
+# from here p3 is unmounted: every way out puts a filesystem with the state back
+case $fs in exfat) type=7 ;; vfat) type=c ;; ext4) type=83 ;; esac
+target=$dev; [ -z "$test" ] || target=$test/p3.img
+mkfs_as() { # FS
+    if [ -n "$test" ]; then
+        [ "${MUOS_INSTALL_FAIL:-}" != "$1" ] || return 1 # T1: a failing format
+        size=$(sfdisk -d "$disk" | sed -n 's|^[^ ]*[^0-9]3 :.* size= *\([0-9]*\),.*|\1|p')
+        rm -f "$target"; truncate -s $((size * 512)) "$target"; printf '%s\n' "$1" > "$test/p3.type"
+    fi
+    case $1 in
+        exfat) mkfs.exfat -n MustardOS "$target" ;;
+        vfat) mkfs.vfat -F 32 -n MUSTARDOS "$target" ;;
+        ext4) mke2fs -q -F -t ext4 -L MUOSDATA "$target" ;;
+    esac >> "$rlog" 2>&1
+}
+restore() { # put the state back on the new filesystem (mounted plainly)
+    if [ -n "$test" ]; then mkdir -p "$test/restored" && cp -R "$keep/." "$test/restored/"; return; fi
+    [ "$1" != exfat ] || modprobe -q exfat || :
+    mount -t "$1" -o rw,noatime "$target" "$data" || return 1
+    cp -R "$keep/." "$data/" 2>> "$rlog" || say 'some state was not copied back (links on exFAT/FAT32)'
+    [ -f "$data/MUOS/port/config/boot/factory_reset" ]; rc=$?
+    sync; umount "$data" || :
+    return "$rc"
+}
+ok=0
+if grow_table "$type" && mkfs_as "$fs"; then
+    say "p3 formatted $fs"
+    restore "$fs" && ok=1
+fi
+if [ "$ok" = 0 ]; then
+    say "FAIL formatting p3 as $fs: back to ext4 with the first boot's state (the first boot comes back)"
+    printf '1\n' > "$keep/MUOS/port/config/boot/factory_reset"
+    sfdisk -q --no-reread --no-tell-kernel --part-type "$disk" 3 83 >> "$rlog" 2>&1 || :
+    mkfs_as ext4 && restore ext4 || say 'FAIL the ext4 fallback too: flash the card again'
+    cat "$rlog" >> "$keep/MUOS/log/install-storage.log" 2>/dev/null
+    echo "formatting p3 as $fs failed" >&2
+    exit 1
+fi
 say "done: $fs"
-step 6
+[ -n "$test" ] || rm -rf "$keep"
+exit 0

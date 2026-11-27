@@ -15,7 +15,10 @@
 # kernel updates (its m-<id> key).
 #
 #   muos-model status    the model main boots (default, an id, or unknown)
-#   muos-model check     frontend start: act on p1 model.txt (may reboot)
+#   muos-model check     act on p1 model.txt (may reboot): M13 at the very
+#                        start (S89, MUOS_MODEL_EARLY=1: exit 10 instead of
+#                        rebooting, S89 restarts at once), again at
+#                        frontend start (a no-op by then)
 #   muos-model promote   on a "model" trial boot in the menu
 set -eu
 boot=/boot variants=/boot/dtb-variants.txt src=/usr/share/muos-r35s/boot
@@ -78,6 +81,7 @@ check)
     $slot install-trial "$boot/$image" "$f" "$label" > /dev/null
     echo "$want" > "$armed"; sync
     log "model $want armed ($image + $dtb): restart"
+    [ "${MUOS_MODEL_EARLY:-0}" != 1 ] || exit 10
     reboot ;;
 promote)
     [ "$(booted)" = trial ] || exit 0

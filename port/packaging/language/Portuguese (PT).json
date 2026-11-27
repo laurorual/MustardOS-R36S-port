@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "A preparar o armazenamento de jogos: não desligue",
     "Less than a minute, then it restarts": "Menos de um minuto, depois reinicia",
     "The games storage could not be prepared": "Não foi possível preparar o armazenamento de jogos",
-    "MustardOS is installed: restarting": "MustardOS instalado: a reiniciar"
+    "MustardOS is installed: restarting": "MustardOS instalado: a reiniciar",
+    "The device restarts and prepares the card (about a minute)": "O dispositivo reinicia e prepara o cartão (cerca de um minuto)"
   }
 }

@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "Förbereder spellagringen: stäng inte av",
     "Less than a minute, then it restarts": "Mindre än en minut, sedan startar den om",
     "The games storage could not be prepared": "Spellagringen kunde inte förberedas",
-    "MustardOS is installed: restarting": "MustardOS är installerat: startar om"
+    "MustardOS is installed: restarting": "MustardOS är installerat: startar om",
+    "The device restarts and prepares the card (about a minute)": "Enheten startar om och förbereder kortet (ungefär en minut)"
   }
 }

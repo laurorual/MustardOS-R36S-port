@@ -153,7 +153,13 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-None open.
+1. **The selected DTB from the very first boot (user question
+   2026-11-27).** Done now: the switch happens in S89 (~10 s of black on
+   a Panel 4 instead of ~1 min). Fully from the first boot needs U-Boot to
+   read p1 model.txt and boot that model's DTB (SHA256-checked, then the
+   main record updated without a trial): a bootloader change, T2 with the
+   user present, only for newly flashed cards. Recommendation: wait for
+   the Panel 4 user's result first (the early switch may be enough).
 
 ## T3 queue
 
@@ -161,59 +167,47 @@ Empty (v1.1.1 round 4 passed 2026-11-27; results in milestones.md).
 
 ## Current milestone: M13 — First Boot and the games card format (started 2026-11-27)
 
-Goal (decision 50): a fresh public card starts in MustardOS's own first
-boot (the pin's `muxinstall` in muxfrontend: Date and Time, Language,
-Profiles, Input Tester, Shutdown, Install); Install asks exFAT
-(recommended) / FAT32 / EXT4 for the games storage, so Windows can copy
-ROMs. Host-only for now (the bench is off for the panel); T2 when it is on.
+Goal (decisions 50, 51): a fresh public card starts in MustardOS's own
+first boot (the pin's `muxinstall` in muxfrontend: Date and Time,
+Language, Profiles, Input Tester, Shutdown, Install); Install asks exFAT
+(recommended) / FAT32 / EXT4 for the card, so Windows can copy ROMs. One
+partition (p3) as upstream's SD1, whatever the format. Host-only for now
+(the bench is off for the panel); T2 when it is on.
 
-Design (the port keeps its state on p3, unlike upstream's system
-partition): EXT4 = today's layout (p3 grown to the card). exFAT/FAT32 = p3
-ext4 kept at 4–6 GiB for the port's state (MUOS/port config, logs,
-update and trial root, preferences) and a new **p4** in the chosen format
-for the content (ROMS and the MUOS folders upstream keeps on SD1: bios,
-save, pickles, theme, network, screenshot, PortMaster, ...), mounted at
-/mnt/content and bound at /mnt/mmc. Robust to power loss where the system
-needs it, nothing the trial root or the shim reads moves. Existing cards
-(factory_reset 0 in their p3 config) keep one ext4 p3 through updates.
+Design: the port keeps its state on p3 (not on a system partition as
+upstream), so Install cannot format p3 under the running menu: it notes
+the choice (`muos-install-storage request`) and restarts; S89 applies it
+before anything else uses p3 (`apply`: the first boot's state kept in RAM,
+p3 grown, formatted, state back, factory_reset 0; ext4 is only grown; a
+fresh card only; a failed format falls back to ext4 and the first boot).
+p3 is mounted by type in the shim (trial root), S89 and S90. Links on p3:
+`muos-link-or-bind` (DraStic resources and microphone, PPSSPP 2021's
+shared SAVEDATA, ScummVM's extra/theme: a bind on exFAT/FAT32, undone at
+stop); the time zone is text on p3 with the link in /run/muos/localtime
+(frontend patch 0004, muos-clock zone; older cards' link still read).
+The README warns about exFAT/FAT32 and power loss (decision 51).
+(A first p4 design, 65f7222/2f16e2d, was replaced by this one.)
 
-Items:
-1. Rootfs: exfatprogs, dosfstools (mkfs/fsck/label), so the installer
-   offers all three formats.
-2. Public image: `boot/factory_reset` 1 (developer 0); S89 leaves p3
-   ungrown on a factory rootfs (Install sizes it).
-3. Install (`muos-install-storage`, progress screen via task_autorun):
-   ext4 → grow p3; exFAT/FAT32 → p3 to 4–6 GiB + p4 (type 07/0c) to the
-   end, mkfs, factory_reset 0, restart. Idempotent after a power cut.
-4. S89 mounts p4 (fsck.exfat -p / fsck.fat -a / e2fsck -p, then exfat
-   module + mount); S90 binds the content root (p4 or p3) at /mnt/mmc.
-5. Content paths to /mnt/mmc (S91 ROMS folders, PICO-8, Splore, ScummVM,
-   BIOS paths, screenshots, saves); port state stays on /userdata;
-   muos-update also reads updates dropped in the content's MUOS/update.
-6. Content-fs limits: no symlinks/chmod on exFAT/FAT32 (ScummVM links,
-   PortMaster chmod) handled.
-7. Texts in 33 languages (task-texts), check-public-image checks, docs
-   (README first boot + Windows, procedures card layout, findings,
-   LICENSING for exfatprogs GPL-2.0 / dosfstools GPL-3.0).
-Tests: T0 shellcheck, task-texts check; T1 the install script against
-disk image files under qemu (sfdisk, mkfs.exfat/fat, fsck), public-image
-checks. T2 (bench on): a fresh public-variant p3 in a trial (dev access),
-each format, PortMaster, update from the content MUOS/update. Expected
-T3: the six screens on a blank card, Windows sees the games drive, copy a
-ROM, play it, an online update keeps everything.
-**Progress (2026-11-27, host only):** items 1–7 implemented
-(65f7222 + the S89 retry fix): T0 shellcheck clean, task-texts current;
-T1 `t1-install-storage.sh` PASS (exfat 32 GiB → p3 6 GiB + p4 type 7,
-repeated; vfat on that table, type c; ext4 removes p4; 12 GiB → p3
-4 GiB; 6 GiB refused before any write; foreign disk id refused),
-`t1-fresh-p3.sh` PASS. Public images also check factory_reset 1, the mkfs
-and fsck tools, the install files and /mnt/content. Left for the release:
-README / install guides (first boot, the games drive on Windows), known
-issues, release notes, the LICENSING package count.
+Done (host): exfatprogs + dosfstools; public images factory_reset 1
+(`MUOS_FIRST_BOOT=1` for a developer image); install request/apply +
+progress task (texts in 33 languages); content paths through /mnt/mmc;
+PortMaster chmod tolerant; frontend 0004 rebuilt (libmuxmod.so re-pinned);
+M13 extra (the user's question): a model chosen on a PC switches in S89,
+seconds after power-on, instead of once the menu is up.
+T0 shellcheck clean; T1 `t1-install-storage.sh` PASS (exfat, vfat, ext4
+grow, ext4 over exfat, a card with games refused, a failing format back
+to ext4, foreign card), `t1-fresh-p3.sh` (zone scheme updated).
+Left for the release: install guides, known issues, release notes, the
+LICENSING package count.
 **T2 when the bench is on (user present: flash):** `card-p3.sh backup`;
-flash `test128-m13a` (developer, MUOS_FIRST_BOOT=1) without `--grow`;
-`t2-first-boot.sh pre`, `install exfat`, `install vfat`, `install ext4`;
-then NES fps, PortMaster install, an update copied to p4 MUOS/update;
-reflash the recovery image + `card-p3.sh restore`.
+flash `test128-m13b` (developer, MUOS_FIRST_BOOT=1) without `--grow`;
+`t2-first-boot.sh pre`, `install exfat`, `install vfat`, `install ext4`
+(each checks the format, settings and zone kept, seeds, ScummVM bind);
+on exFAT: DraStic, PPSSPP 2021 saves, PortMaster install, NES fps, an
+update; the early model switch with a Panel 0 copy as the model DTB
+(`t2-model.sh`, never another panel's DTB on the bench); reflash the
+recovery image + `card-p3.sh restore`.
+Expected T3: the six screens on a blank card, Windows sees the card,
+copy a ROM and play it, the time zone survives a restart.
 
 Then M14: the MustardOS next release (decision 45).

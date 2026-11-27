@@ -1,0 +1,22 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# M13: muos-link-or-bind SRC DEST: make DEST show SRC (a directory) on p3.
+# A symlink where the filesystem has them (ext4); on exFAT/FAT32 (decision
+# 50: the first boot may format the card so) an empty folder with SRC bound
+# on it, recorded in /run/muos/runtime/mounts so S91muos-runtime stop
+# unmounts it. DEST is only replaced when it is a symlink or an empty
+# folder: a folder with files in it stays as it is (exit 1).
+src=${1:?src} dest=${2:?dest}
+mounts=/run/muos/runtime/mounts
+[ "$(readlink "$dest" 2>/dev/null)" = "$src" ] && exit 0
+findmnt -rn -M "$dest" > /dev/null && exit 0
+if [ -L "$dest" ]; then
+    rm -f "$dest"
+elif [ -d "$dest" ]; then
+    rmdir "$dest" 2> /dev/null || { echo "muos-link-or-bind: $dest has files, left as it is" >&2; exit 1; }
+elif [ -e "$dest" ]; then
+    echo "muos-link-or-bind: $dest is a file, left as it is" >&2; exit 1
+fi
+ln -s "$src" "$dest" 2> /dev/null && exit 0
+mkdir -p "$dest" && mount --bind "$src" "$dest" || exit 1
+mkdir -p "${mounts%/*}" && printf '%s\n' "$dest" >> "$mounts"

@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "Preparazione della memoria dei giochi: non spegnere",
     "Less than a minute, then it restarts": "Meno di un minuto, poi si riavvia",
     "The games storage could not be prepared": "Impossibile preparare la memoria dei giochi",
-    "MustardOS is installed: restarting": "MustardOS installato: riavvio"
+    "MustardOS is installed: restarting": "MustardOS installato: riavvio",
+    "The device restarts and prepares the card (about a minute)": "Il dispositivo si riavvia e prepara la scheda (circa un minuto)"
   }
 }

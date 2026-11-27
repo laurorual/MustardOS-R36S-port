@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "جارٍ تجهيز مساحة تخزين الألعاب: لا تطفئ الجهاز",
     "Less than a minute, then it restarts": "أقل من دقيقة، ثم يُعاد التشغيل",
     "The games storage could not be prepared": "تعذّر تجهيز مساحة تخزين الألعاب",
-    "MustardOS is installed: restarting": "تم تثبيت MustardOS: جارٍ إعادة التشغيل"
+    "MustardOS is installed: restarting": "تم تثبيت MustardOS: جارٍ إعادة التشغيل",
+    "The device restarts and prepares the card (about a minute)": "يُعاد تشغيل الجهاز ويُجهّز البطاقة (نحو دقيقة)"
   }
 }

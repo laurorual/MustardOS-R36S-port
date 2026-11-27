@@ -274,17 +274,12 @@ case "${1:-}" in
     # M8f T3 4: the ScummVM core looks for its engine data and the virtual
     # keyboard packs in BIOS/scummvm/extra (themes in .../theme): the
     # standalone's data directory serves both.
-    # M13: on an exFAT/FAT32 games storage (no symlinks) an empty folder
-    # gets the data bound instead (unbound at stop with the other binds).
+    # M13: links, or binds on an exFAT/FAT32 p3 (muos-link-or-bind; a folder
+    # the user filled stays as it is).
     b=/mnt/mmc/MUOS/bios/scummvm s=/opt/muos/share/emulator/scummvm
     if [ -d "$s" ]; then
         mkdir -p "$b"
-        for l in extra theme; do
-            if [ -L "$b/$l" ] || [ ! -e "$b/$l" ]; then
-                [ "$(readlink "$b/$l" 2>/dev/null)" = "$s" ] || ln -sfn "$s" "$b/$l" 2>/dev/null || mkdir -p "$b/$l"
-            fi
-            [ -L "$b/$l" ] || [ -n "$(ls -A "$b/$l" 2>/dev/null)" ] || bind "$s" "$b/$l" || :
-        done
+        for l in extra theme; do /usr/libexec/muos-link-or-bind "$s" "$b/$l" || :; done
     fi
     # game-governor (M3d): M3c seeded schedutil, which idles at the 1008 MHz
     # floor through per-frame bursts (PSX 59.1 fps, missed vsyncs); games

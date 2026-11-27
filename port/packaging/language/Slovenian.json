@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "Pripravljanje shrambe za igre: ne izklapljajte",
     "Less than a minute, then it restarts": "Manj kot minuto, nato ponovni zagon",
     "The games storage could not be prepared": "Shrambe za igre ni bilo mogoče pripraviti",
-    "MustardOS is installed: restarting": "MustardOS je nameščen: ponovni zagon"
+    "MustardOS is installed: restarting": "MustardOS je nameščen: ponovni zagon",
+    "The device restarts and prepares the card (about a minute)": "Naprava se znova zažene in pripravi kartico (približno minuto)"
   }
 }

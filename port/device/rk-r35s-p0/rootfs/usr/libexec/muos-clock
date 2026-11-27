@@ -1,9 +1,12 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
 # muos-clock (M4d): wall clock and time zone on the read-only root.
-#   muos-clock zone   make sure /opt/muos/config/localtime exists (the
-#                     zone link the menu's Timezone screen rewrites, frontend
-#                     0004; /etc/localtime points at it). Default: UTC.
+#   muos-clock zone   /run/muos/localtime (/etc/localtime points at it) ->
+#                     the zone kept on p3 in /opt/muos/config/localtime: a
+#                     text line /usr/share/zoneinfo/ZONE (M13: p3 may be
+#                     exFAT/FAT32, no symlinks; the menu's Timezone screen
+#                     writes both, frontend 0004) or, on older cards, a link.
+#                     Default (none, or not a zone file): UTC, kept as text.
 #   muos-clock sync   one SNTP query (busybox ntpd -q) to the pool in
 #                     config clock/pool (upstream key, default pool.ntp.org),
 #                     then the RK817 RTC (kept in UTC, /var/lib/hwclock/
@@ -16,8 +19,15 @@ log=/opt/muos/log/clock.log
 say() { echo "$(date '+%F %T') $*" >> "$log"; }
 case "${1:-}" in
 zone)
-    [ -e "$cfg/localtime" ] || [ -L "$cfg/localtime" ] ||
-        ln -s /usr/share/zoneinfo/Etc/UTC "$cfg/localtime" ;;
+    run=${MUOS_CLOCK_RUN:-/run/muos/localtime}
+    if [ -L "$cfg/localtime" ]; then z=$(readlink "$cfg/localtime")
+    else z=$(head -n 1 "$cfg/localtime" 2>/dev/null | tr -d '\r'); fi
+    case $z in /usr/share/zoneinfo/*) [ -f "$z" ] || z= ;; *) z= ;; esac
+    if [ -z "$z" ]; then
+        z=/usr/share/zoneinfo/Etc/UTC
+        rm -f "$cfg/localtime"; printf '%s\n' "$z" > "$cfg/localtime"
+    fi
+    mkdir -p "${run%/*}"; ln -sfn "$z" "$run" ;;
 sync)
     stamp=/run/muos/clock-synced
     up=$(cut -d. -f1 /proc/uptime)

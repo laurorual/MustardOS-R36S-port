@@ -19,6 +19,7 @@
 # finds it mounted) and dev/proc/sys move along; p2 stays read-only at
 # /media until `muos-root-trial write-p2` unmounts and writes it. Any
 # failure before pivot_root undoes the mounts and boots p2 normally.
+# M13: p3 may be ext4, exFAT (module) or FAT32 (the first boot's format).
 mount -t proc proc /proc 2>/dev/null
 mount -t sysfs sysfs /sys 2>/dev/null
 trial_root() {
@@ -28,7 +29,10 @@ trial_root() {
     [ ! -e /etc/muos-root-trial ] || return 1
     mount -t tmpfs -o size=64k,mode=0700 muos-trial /tmp || return 1
     mkdir /tmp/p3 /tmp/root
-    if mount -t ext4 -o rw,noatime,data=ordered "$(/usr/libexec/muos-boot-disk)p3" /tmp/p3; then
+    p3=$(/usr/libexec/muos-boot-disk)p3
+    if mount -t ext4 -o rw,noatime,data=ordered "$p3" /tmp/p3 2>/dev/null ||
+        { modprobe -q exfat 2>/dev/null; mount -t exfat -o rw,noatime,nosuid,nodev,iocharset=utf8 "$p3" /tmp/p3 2>/dev/null; } ||
+        mount -t vfat -o rw,noatime,nosuid,nodev,utf8,shortname=mixed "$p3" /tmp/p3 2>/dev/null; then
         if mount -t ext4 -o loop,ro /tmp/p3/MUOS/trial/rootfs.img /tmp/root; then
             r=/tmp/root
             if [ -x $r/sbin/muos-ext4-diag ] && [ -x $r/sbin/init ] && [ -d $r/media ] &&

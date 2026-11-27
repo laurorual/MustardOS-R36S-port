@@ -79,6 +79,5 @@ Install it now? The device restarts twice (about 10 minutes); games, saves and s
 Saved in MUOS/update. To install it later:	In MUOS/update gespeichert. Später installieren mit:
 Installing MustardOS	MustardOS wird installiert
 Preparing the games storage: do not power off	Spielespeicher wird vorbereitet: nicht ausschalten
-Less than a minute, then it restarts	Weniger als eine Minute, dann Neustart
+The device restarts and prepares the card (about a minute)	Das Gerät startet neu und bereitet die Karte vor (etwa eine Minute)
 The games storage could not be prepared	Der Spielespeicher konnte nicht vorbereitet werden
-MustardOS is installed: restarting	MustardOS ist installiert: Neustart

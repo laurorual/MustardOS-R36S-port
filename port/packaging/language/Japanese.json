@@ -1954,7 +1954,8 @@
     "Preparing the games storage: do not power off": "ゲームストレージを準備中: 電源を切らないでください",
     "Less than a minute, then it restarts": "1分以内に再起動します",
     "The games storage could not be prepared": "ゲームストレージを準備できませんでした",
-    "MustardOS is installed: restarting": "MustardOSをインストールしました: 再起動中"
+    "MustardOS is installed: restarting": "MustardOSをインストールしました: 再起動中",
+    "The device restarts and prepares the card (about a minute)": "本体が再起動してカードを準備します(約1分)"
   },
   "muxterm": {
     "Black": "黒",

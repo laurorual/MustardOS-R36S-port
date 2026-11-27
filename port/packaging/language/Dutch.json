@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "Gameopslag voorbereiden: niet uitschakelen",
     "Less than a minute, then it restarts": "Minder dan een minuut, daarna herstart",
     "The games storage could not be prepared": "De gameopslag kon niet worden voorbereid",
-    "MustardOS is installed: restarting": "MustardOS is geïnstalleerd: herstarten"
+    "MustardOS is installed: restarting": "MustardOS is geïnstalleerd: herstarten",
+    "The device restarts and prepares the card (about a minute)": "Het apparaat herstart en bereidt de kaart voor (ongeveer een minuut)"
   }
 }

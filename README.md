@@ -70,7 +70,23 @@ Full guide: [docs/install.md](docs/install.md). In short:
 2. Write it to a microSD card (8 GB or more) with balenaEtcher, Rufus or
    Raspberry Pi Imager. This erases the card.
 3. Put the card in slot 1 and power on. The first boot grows the data
-   partition to the whole card.
+   partition to the whole card. From v1.2.0 it is MustardOS's own first
+   boot instead (date and time, language, profiles, input tester); its
+   **Install** asks how to format the card's storage:
+   - **exFAT** (recommended): Windows, macOS and Linux read and write it,
+     so games can be copied straight to the card's `ROMS` folders.
+   - **FAT32**: every computer reads it, but no file can be larger than
+     4 GB.
+   - **EXT4**: copes best with a sudden power loss, but Windows cannot
+     read it without extra software.
+
+   > **exFAT and FAT32 and power loss:** the settings, saves and the
+   > firmware update area live on that same storage. These filesystems
+   > have no journal: if the battery dies or the console is switched off
+   > while it writes (saving a game, changing a setting, installing an
+   > update), files can be damaged, and at worst the card needs to be
+   > flashed again. Shut down from the menu, keep the battery charged, and
+   > back up your saves. Choose EXT4 if you copy games over Wi-Fi anyway.
 4. Add games: over Wi-Fi with SFTP (Configuration → Connectivity → Web Services), or on
    a FAT/exFAT card in slot 2 (`ROMS/<system>`). BIOS files go to
    `MUOS/bios`. No games or BIOS files are included.
@@ -186,7 +202,25 @@ seu modelo ou adaptador (o chip ou o ID USB) e se funcionou.
 baixe `MustardOS-R36S-port-<versão>.img.xz` e o `.sha256` em
 [releases](https://github.com/laurorual/MustardOS-R36S-port/releases),
 grave num cartão microSD (8 GB ou mais) com balenaEtcher, Rufus ou
-Raspberry Pi Imager (o cartão é apagado), coloque no slot 1 e ligue. Os
+Raspberry Pi Imager (o cartão é apagado), coloque no slot 1 e ligue. A
+partir da v1.2.0, o primeiro boot é o do próprio MustardOS (data e hora,
+idioma, perfis, teste dos botões), e o **Instalar** pergunta como
+formatar o armazenamento do cartão: **exFAT** (recomendado: Windows, macOS
+e Linux leem e gravam, os jogos vão direto para as pastas `ROMS`),
+**FAT32** (todo computador lê, mas nenhum arquivo passa de 4 GB) ou
+**EXT4** (aguenta melhor uma queda de energia, mas o Windows não lê sem
+programas extras).
+
+> **exFAT, FAT32 e queda de energia:** configurações, saves e a área de
+> atualização do sistema ficam nesse mesmo armazenamento. Esses sistemas
+> de arquivos não têm journal: se a bateria acabar ou o console for
+> desligado durante uma gravação (salvar o jogo, mudar uma configuração,
+> instalar uma atualização), arquivos podem se corromper e, no pior caso,
+> o cartão precisa ser gravado de novo. Desligue pelo menu, mantenha a
+> bateria carregada e faça cópia dos saves. Escolha EXT4 se for copiar os
+> jogos pelo Wi-Fi de qualquer jeito.
+
+Os
 jogos vão por SFTP pelo Wi-Fi ou num cartão FAT/exFAT no slot 2
 (`ROMS/<sistema>`); BIOS em `MUOS/bios`. Nenhum jogo ou BIOS acompanha o
 sistema. Atualizações: Aplicativos → Ferramentas de sistema → "Instalar

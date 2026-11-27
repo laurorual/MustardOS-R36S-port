@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "Stóráil na gcluichí á hullmhú: ná múch",
     "Less than a minute, then it restarts": "Níos lú ná nóiméad, ansin atosaíonn sé",
     "The games storage could not be prepared": "Níorbh fhéidir stóráil na gcluichí a ullmhú",
-    "MustardOS is installed: restarting": "Tá MustardOS suiteáilte: á atosú"
+    "MustardOS is installed: restarting": "Tá MustardOS suiteáilte: á atosú",
+    "The device restarts and prepares the card (about a minute)": "Atosaíonn an gléas agus ullmhaíonn sé an cárta (thart ar nóiméad)"
   }
 }

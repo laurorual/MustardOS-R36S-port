@@ -88,7 +88,7 @@ check "first boot runs the installer (boot/factory_reset 1)" p2_is /opt/muos/con
 present() { ! absent "$1"; }
 check "installer formats: mkfs.exfat, mkfs.vfat, mkfs.ext4" eval 'present /usr/sbin/mkfs.exfat && present /sbin/mkfs.vfat && present /sbin/mkfs.ext4'
 check "games storage checks: fsck.exfat, fsck.fat" eval 'present /usr/sbin/fsck.exfat && present /sbin/fsck.fat'
-check "the install step and the p4 mount point ship" eval 'present /usr/libexec/muos-install-storage && present /usr/libexec/muos-install-task.sh && present /mnt/content'
+check "the install step ships" eval 'present /usr/libexec/muos-install-storage && present /usr/libexec/muos-install-task.sh && present /usr/libexec/muos-link-or-bind'
 check "debug_mode 0" p2_is /opt/muos/config/system/debug_mode 0
 check "/etc/issue names the unofficial port" p2_grep /etc/issue 'MustardOS for R36S/R35S (unofficial port)'
 # M10: the Wi-Fi firmware with its licences, the models and their selectors

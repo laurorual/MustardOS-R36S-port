@@ -151,6 +151,11 @@ overrides an earlier one where they conflict (noted inline).
     to format the games card (exFAT recommended, FAT32, EXT4): a user on
     Windows could not copy games to the ext4 p3. M13; the MustardOS next
     release moves to M14.
+51. (2026-11-27) The games storage stays one partition (p3) as on
+    upstream's SD1, whatever the format (no separate ext4 partition for
+    the port's state). Links the port needs on p3 (time zone, DraStic,
+    PPSSPP, ScummVM) must work on exFAT/FAT32; the power-loss risk of
+    exFAT is accepted and stated in the README.
 
 Standing rules (AGENTS.md): heavy systems = maximum performance first;
 recovery promotion after a clean T3 without asking.

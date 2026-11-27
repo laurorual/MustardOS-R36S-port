@@ -79,6 +79,5 @@ Install it now? The device restarts twice (about 10 minutes); games, saves and s
 Saved in MUOS/update. To install it later:	Запазено в MUOS/update. За инсталиране по-късно:
 Installing MustardOS	Инсталиране на MustardOS
 Preparing the games storage: do not power off	Подготовка на хранилището за игри: не изключвайте
-Less than a minute, then it restarts	По-малко от минута, след това рестартира
+The device restarts and prepares the card (about a minute)	Устройството се рестартира и подготвя картата (около минута)
 The games storage could not be prepared	Хранилището за игри не можа да бъде подготвено
-MustardOS is installed: restarting	MustardOS е инсталирана: рестартиране

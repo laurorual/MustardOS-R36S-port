@@ -33,9 +33,9 @@ mkdir -p "$sys"
 for f in ppsspp.ini controls.ini; do
     [ -s "$sys/$f" ] || cp "/usr/share/muos-r35s/$name/$f" "$sys/$f"
 done
-if [ "$name" = ppsspp-2021 ] && [ ! -e "$cfg/ppsspp/PSP/SAVEDATA" ]; then
-    mkdir -p /userdata/MUOS/port/ppsspp/PSP/SAVEDATA
-    ln -s /userdata/MUOS/port/ppsspp/PSP/SAVEDATA "$cfg/ppsspp/PSP/SAVEDATA"
+if [ "$name" = ppsspp-2021 ]; then # both versions share the saves (a link, or a bind on exFAT/FAT32)
+    mkdir -p /userdata/MUOS/port/ppsspp/PSP/SAVEDATA "$cfg/ppsspp/PSP"
+    /usr/libexec/muos-link-or-bind /userdata/MUOS/port/ppsspp/PSP/SAVEDATA "$cfg/ppsspp/PSP/SAVEDATA" || say "SAVEDATA not shared"
 fi
 sed -i '/^GraphicsBackend =/c\GraphicsBackend = 0 (OPENGL)' "$sys/ppsspp.ini"
 # M8 T3 4 (God of War: black sky, no post-processing): v1.12's

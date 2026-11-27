@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "Підготовка сховища ігор: не вимикайте",
     "Less than a minute, then it restarts": "Менше хвилини, потім перезапуск",
     "The games storage could not be prepared": "Не вдалося підготувати сховище ігор",
-    "MustardOS is installed: restarting": "MustardOS встановлено: перезапуск"
+    "MustardOS is installed: restarting": "MustardOS встановлено: перезапуск",
+    "The device restarts and prepares the card (about a minute)": "Пристрій перезапуститься й підготує карту (близько хвилини)"
   }
 }

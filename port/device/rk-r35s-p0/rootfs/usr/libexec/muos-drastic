@@ -37,11 +37,13 @@ for f in drastic game_database.xml system/drastic_bios_arm7.bin system/drastic_b
         { cp "$emu/$f" "$w/$f.new" && mv -f "$w/$f.new" "$w/$f"; } || say "copy of $f failed"
     fi
 done
-chmod 755 "$w/drastic"
+chmod 755 "$w/drastic" 2> /dev/null # exFAT/FAT32: every file is 0755 already
+# the hook's resources and the microphone samples: links, or binds on an
+# exFAT/FAT32 p3 (M13, muos-link-or-bind)
 for d in font lang menu pen bg; do
-    [ "$(readlink "$w/resources/$d")" = "$emu/resources/$d" ] || { rm -rf "$w/resources/$d"; ln -s "$emu/resources/$d" "$w/resources/$d"; }
+    /usr/libexec/muos-link-or-bind "$emu/resources/$d" "$w/resources/$d" || say "resources/$d not linked"
 done
-[ "$(readlink "$w/microphone")" = "$emu/microphone" ] || { rm -rf "$w/microphone"; ln -s "$emu/microphone" "$w/microphone"; }
+/usr/libexec/muos-link-or-bind "$emu/microphone" "$w/microphone" || say "microphone not linked"
 [ -s "$w/resources/settings.json" ] || cp /usr/share/muos-r35s/drastic-trngaje/settings.json "$w/resources/settings.json"
 if [ ! -e "$w/config/.muos-advanced" ]; then
     [ -f "$w/config/drastic.cfg" ] && mv -f "$w/config/drastic.cfg" "$w/config/drastic.cfg.plain"

@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "در حال آماده‌سازی فضای ذخیرهٔ بازی‌ها: خاموش نکنید",
     "Less than a minute, then it restarts": "کمتر از یک دقیقه، سپس راه‌اندازی مجدد",
     "The games storage could not be prepared": "فضای ذخیرهٔ بازی‌ها آماده نشد",
-    "MustardOS is installed: restarting": "MustardOS نصب شد: در حال راه‌اندازی مجدد"
+    "MustardOS is installed: restarting": "MustardOS نصب شد: در حال راه‌اندازی مجدد",
+    "The device restarts and prepares the card (about a minute)": "دستگاه دوباره راه‌اندازی می‌شود و کارت را آماده می‌کند (حدود یک دقیقه)"
   }
 }

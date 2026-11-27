@@ -79,6 +79,5 @@ Install it now? The device restarts twice (about 10 minutes); games, saves and s
 Saved in MUOS/update. To install it later:	MUOS/update içine kaydedildi. Daha sonra yüklemek için:
 Installing MustardOS	MustardOS yükleniyor
 Preparing the games storage: do not power off	Oyun depolaması hazırlanıyor: kapatmayın
-Less than a minute, then it restarts	Bir dakikadan kısa, sonra yeniden başlar
+The device restarts and prepares the card (about a minute)	Cihaz yeniden başlar ve kartı hazırlar (yaklaşık bir dakika)
 The games storage could not be prepared	Oyun depolaması hazırlanamadı
-MustardOS is installed: restarting	MustardOS yüklendi: yeniden başlatılıyor

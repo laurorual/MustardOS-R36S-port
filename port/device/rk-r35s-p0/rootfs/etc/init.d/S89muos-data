@@ -1,19 +1,18 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
-# Mount p3 (MUOSDATA, ext4) rw at /userdata and p1 (FAT) ro at /boot.
-# Before mounting, `e2fsck -p` checks p3 (journal replay; a full pass only if
-# the filesystem is flagged with errors), bounded to 100 s. Any result still
-# mounts p3 so the UI comes up; the outcome is kept in p3 MUOS/log/fsck-p3.log
-# (exit 4 = needs a manual fsck, 124 = timed out).
+# Mount p3 (MUOSDATA) rw at /userdata and p1 (FAT) ro at /boot.
+# Before mounting, p3 is checked (ext4: `e2fsck -p`, journal replay, a full
+# pass only if the filesystem is flagged with errors; M13: exFAT `fsck.exfat
+# -p`, FAT32 `fsck.fat -a -w`), bounded to 100 s. Any result still mounts p3
+# so the UI comes up; the outcome is kept in p3 MUOS/log/fsck-p3.log (exit
+# 4 = needs a manual fsck, 124 = timed out).
 # First boot of a freshly written image: muos-grow-p3 grows p3 to the
 # whole card (partition before the mount, ext4 online after it; no-ops
-# afterwards; log p3 MUOS/log/grow-p3.log). M13: not on a public image
-# (rootfs boot/factory_reset 1): its first boot's Install sizes p3 itself.
-# M13: p4, the games storage of an exFAT/FAT32 install (ROMS and the
-# upstream SD1 folders), is checked (fsck.exfat -p / fsck.fat -a / e2fsck
-# -p, 100 s) and mounted at /mnt/content (log p3 MUOS/log/fsck-p4.log);
-# S90 binds it at /mnt/mmc. No p4 (or one that does not mount): p3 holds
-# the games, as before.
+# afterwards; log p3 MUOS/log/grow-p3.log). M13 (decision 50): not on a
+# public image (rootfs boot/factory_reset 1): there the first boot's Install
+# asks for a format (ext4, exFAT or FAT32) and the next start applies it
+# here, before anything else uses p3 (muos-install-storage apply: grows p3,
+# formats it, puts the first boot's settings back).
 # stop: keep the rc log on p3 (MUOS/log/rc-last.log) and the boot's Wi-Fi
 # logs (MUOS/log/network-last.log, M4e), sync, unmount.
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
@@ -25,29 +24,26 @@ part() {
     d=$(/usr/libexec/muos-boot-disk) && { echo "${d}p$1"; return; }
     echo "$disk-0$1"
 }
-# p4 -> /mnt/content (M13)
-content() {
-    c=/mnt/content p4=$(part 4)
-    [ -b "$p4" ] || return 0
-    findmnt -rn -M "$c" >/dev/null && return 0
-    # an install that did not finish (p3's config still in the first boot)
-    # formats p4 again: leave it unmounted for it
-    [ "$(cat "$data/MUOS/port/config/boot/factory_reset" 2>/dev/null)" != 1 ] ||
-        { echo 'data: first boot not finished: p4 left unmounted'; return 0; }
-    t=$(blkid -o value -s TYPE "$p4" 2>/dev/null) || :
+# mount_p3: by its filesystem (M13), the checker first
+mount_p3() {
+    p3=$(part 3)
+    t=$(blkid -o value -s TYPE "$p3" 2>/dev/null) || :
     case $t in
-        exfat) modprobe -q exfat || :; chk="fsck.exfat -p" o=uid=0,gid=0,fmask=0022,dmask=0022,iocharset=utf8,errors=remount-ro ;;
+        exfat) modprobe -q exfat || :; chk="fsck.exfat -p"
+            o=uid=0,gid=0,fmask=0022,dmask=0022,iocharset=utf8,errors=remount-ro ;;
         vfat) chk="fsck.fat -a -w" o=uid=0,gid=0,fmask=0022,dmask=0022,utf8,shortname=mixed,errors=remount-ro ;;
-        ext4) chk="e2fsck -p" o=data=ordered ;;
-        *) echo "data: p4 has no known filesystem (${t:-none}): games stay on p3"; return 0 ;;
+        *) t=ext4 chk="e2fsck -p" o=data=ordered ;;
     esac
-    t0=$(cut -d' ' -f1 /proc/uptime)
-    # shellcheck disable=SC2086 # the checker and its flags
-    out=$(/usr/libexec/muos-run-bounded 100 $chk "$p4" 2>&1); rc=$?
-    printf '%s %s rc=%s took=%ss\n%s\n' "$t0" "$chk" "$rc" "$(awk -v a="$t0" '{print $1 - a}' /proc/uptime)" "$out" > "$data/MUOS/log/fsck-p4.log"
-    mkdir -p "$c"
-    mount -t "$t" -o "rw,noatime,nosuid,nodev,$o" "$p4" "$c" || { echo "data: p4 ($t) not mounted: games stay on p3"; return 0; }
-    mkdir -p "$c/MUOS" "$c/ROMS"
+    fsck=
+    if command -v "${chk%% *}" >/dev/null; then
+        t0=$(cut -d' ' -f1 /proc/uptime)
+        # shellcheck disable=SC2086 # the checker and its flags
+        out=$(/usr/libexec/muos-run-bounded 100 $chk "$p3" 2>&1); rc=$?
+        fsck="$t0 $chk rc=$rc took=$(awk -v a="$t0" '{print $1 - a}' /proc/uptime)s
+$out"
+        case $rc in 0|1) ;; *) echo "data: ${chk%% *} rc=$rc, mounting anyway" ;; esac
+    fi
+    mount -t "$t" -o "rw,noatime,nosuid,nodev,$o" "$p3" "$data"
 }
 case "${1:-}" in
  start)
@@ -57,17 +53,29 @@ case "${1:-}" in
     grow=1; [ "$(cat /opt/muos/config/boot/factory_reset 2>/dev/null)" != 1 ] || grow=0
     [ "$grow" = 0 ] || findmnt -rn -M "$data" >/dev/null || /usr/libexec/muos-run-bounded 30 /usr/libexec/muos-grow-p3 part || :
     n=0; while [ ! -b "$(part 3)" ] && [ "$n" -lt 50 ]; do sleep 0.1; n=$((n+1)); done
-    if ! findmnt -rn -M "$data" >/dev/null && command -v e2fsck >/dev/null; then
-        t0=$(cut -d' ' -f1 /proc/uptime)
-        out=$(/usr/libexec/muos-run-bounded 100 e2fsck -p "$(part 3)" 2>&1); rc=$?
-        fsck="$t0 e2fsck -p rc=$rc took=$(awk -v a="$t0" '{print $1 - a}' /proc/uptime)s
-$out"
-        case $rc in 0|1) ;; *) echo "data: e2fsck rc=$rc, mounting anyway" ;; esac
-    fi
-    findmnt -rn -M "$data" >/dev/null ||
-        mount -t ext4 -o rw,noatime,nosuid,nodev,data=ordered "$(part 3)" "$data" || exit 1
+    findmnt -rn -M "$data" >/dev/null || mount_p3 || exit 1
     findmnt -rn -M /boot >/dev/null ||
         mount -t vfat -o ro,nosuid,nodev,noexec "$(part 1)" /boot || echo 'data: p1 not mounted'
+    # M13: the format the first boot's Install asked for (p3 is unmounted,
+    # formatted and mounted again inside; on any failure p3 is ext4 again
+    # with the first boot's settings, and the first boot comes back)
+    if [ -f "$data/MUOS/port/install-storage" ]; then
+        /usr/libexec/muos-install-storage apply || echo 'data: install-storage failed (see MUOS/log/install-storage.log)'
+        findmnt -rn -M "$data" >/dev/null || mount_p3 || exit 1
+        mkdir -p "$data/MUOS/log"
+        cat /run/muos-install-storage.log >> "$data/MUOS/log/install-storage.log" 2>/dev/null && rm -f /run/muos-install-storage.log
+    fi
+    # M13: a model chosen on a PC (p1 model.txt) switches here, seconds after
+    # power-on, not once the menu is up (the first start of a new card runs
+    # the port's Panel 0 DTB, black on other panels): armed, p1 and p3 are
+    # unmounted and the device restarts into it at once.
+    if [ -f /boot/model.txt ]; then
+        MUOS_MODEL_EARLY=1 /usr/libexec/muos-model check; rc=$?
+        if [ "$rc" = 10 ]; then
+            echo 'data: model armed: restarting'; sync
+            umount /boot; umount "$data"; reboot -f
+        fi
+    fi
     mkdir -p "$data/MUOS/log" "$data/ROMS"
     [ -z "$fsck" ] || printf '%s\n' "$fsck" > "$data/MUOS/log/fsck-p3.log"
     # M4b: an oops/panic of the previous boot (ramoops, kept across the warm
@@ -80,7 +88,6 @@ $out"
         fi
     fi
     [ "$grow" = 0 ] || /usr/libexec/muos-grow-p3 fs || :
-    content
     ;;
  stop)
     if findmnt -rn -M "$data" >/dev/null; then
@@ -92,8 +99,6 @@ $out"
           echo "== dmesg"; dmesg | grep -E 'usb 1-1|RTW|8821|wlan0|dwc2'
         } > "$data/MUOS/log/network-last.log" 2>/dev/null || :
         sync
-        ! findmnt -rn -M /mnt/content >/dev/null ||
-            umount /mnt/content || { echo 'data: p4 busy, remounting ro'; mount -o remount,ro /mnt/content; }
         umount "$data" || { echo 'data: busy, remounting ro'; mount -o remount,ro "$data"; }
     fi
     ! findmnt -rn -M /boot >/dev/null || umount /boot || :

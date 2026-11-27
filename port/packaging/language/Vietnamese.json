@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "Đang chuẩn bị bộ nhớ trò chơi: đừng tắt máy",
     "Less than a minute, then it restarts": "Chưa đến một phút, sau đó khởi động lại",
     "The games storage could not be prepared": "Không thể chuẩn bị bộ nhớ trò chơi",
-    "MustardOS is installed: restarting": "Đã cài đặt MustardOS: đang khởi động lại"
+    "MustardOS is installed: restarting": "Đã cài đặt MustardOS: đang khởi động lại",
+    "The device restarts and prepares the card (about a minute)": "Thiết bị khởi động lại và chuẩn bị thẻ (khoảng một phút)"
   }
 }

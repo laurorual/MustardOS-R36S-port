@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "Forbereder spillagringen: sluk ikke",
     "Less than a minute, then it restarts": "Under et minut, derefter genstart",
     "The games storage could not be prepared": "Spillagringen kunne ikke forberedes",
-    "MustardOS is installed: restarting": "MustardOS er installeret: genstarter"
+    "MustardOS is installed: restarting": "MustardOS er installeret: genstarter",
+    "The device restarts and prepares the card (about a minute)": "Enheden genstarter og forbereder kortet (cirka et minut)"
   }
 }

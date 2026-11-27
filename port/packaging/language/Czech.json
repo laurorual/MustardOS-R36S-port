@@ -83,6 +83,7 @@
     "Preparing the games storage: do not power off": "Příprava úložiště her: nevypínejte",
     "Less than a minute, then it restarts": "Méně než minuta, pak restart",
     "The games storage could not be prepared": "Úložiště her se nepodařilo připravit",
-    "MustardOS is installed: restarting": "MustardOS je nainstalován: restartování"
+    "MustardOS is installed: restarting": "MustardOS je nainstalován: restartování",
+    "The device restarts and prepares the card (about a minute)": "Zařízení se restartuje a připraví kartu (asi minutu)"
   }
 }

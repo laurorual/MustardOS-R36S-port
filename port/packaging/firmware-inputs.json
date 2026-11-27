@@ -5279,7 +5279,7 @@
    "path": "/opt/muos/frontend/lib/libmuxmod.so",
    "type": "file",
    "mode": "644",
-   "sha256": "bdfc5f7143d9d80f03ba33ebee2c76088b9e995969decd3aca836c8379c2b3ec",
+   "sha256": "9d1ba05efb74b259a7e1295e78f6d1c99117fc9a220e75aa14ebdfac51718d1a",
    "origin": "build/m4c/frontend-libs/release/opt/muos/frontend/lib/libmuxmod.so"
   },
   {

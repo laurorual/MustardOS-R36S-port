@@ -36,9 +36,6 @@ ln -sfn /run/muos/gamecontrollerdb.txt "$1/usr/lib/gamecontrollerdb.txt"
 # M5: mount point of the slot-2 card (script/device/storage.sh; the root
 # is read-only, so it must exist in the image)
 mkdir -p "$1/mnt/sdcard"
-# M13: mount point of p4, the games storage an exFAT/FAT32 install creates
-# (S89muos-data; S90muos-storage binds it at /mnt/mmc)
-mkdir -p "$1/mnt/content"
 snd=$1/opt/muos/share/theme/MustardOS/sound
 for n in info_open info_close; do
     python3 /port/scripts/wav-highpass.py "$snd/$n.wav" "$snd/$n.wav.tmp" && mv "$snd/$n.wav.tmp" "$snd/$n.wav"
@@ -113,10 +110,12 @@ with open(os.path.join(d, "payload.sha256")) as f:
 with open(os.path.join(d, "payload.sha256"), "w") as f:
     f.writelines(lines)
 PY
-# Time zone (M4d): /etc/localtime follows the link on p3 that the menu's
-# Timezone screen rewrites (frontend 0004; muos-clock zone creates it, UTC);
-# the RTC is kept in UTC for busybox hwclock (the kernel reads it as UTC).
-ln -sfn /opt/muos/config/localtime "$1/etc/localtime"
+# Time zone (M4d; M13: p3 may be exFAT/FAT32, no symlinks): /etc/localtime
+# follows /run/muos/localtime, which muos-clock zone makes at boot from the
+# zone kept on p3 (/opt/muos/config/localtime: text, or a link on older
+# cards) and the menu's Timezone screen rewrites (frontend 0004); the RTC is
+# kept in UTC for busybox hwclock (the kernel reads it as UTC).
+ln -sfn /run/muos/localtime "$1/etc/localtime"
 rm -f "$1/etc/timezone"
 mkdir -p "$1/var/lib/hwclock"
 printf '0.0 0 0.0\n0\nUTC\n' > "$1/var/lib/hwclock/adjtime"

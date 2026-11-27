@@ -79,6 +79,5 @@ Install it now? The device restarts twice (about 10 minutes); games, saves and s
 Saved in MUOS/update. To install it later:	已儲存到 MUOS/update。稍後安裝請使用：
 Installing MustardOS	正在安裝 MustardOS
 Preparing the games storage: do not power off	正在準備遊戲儲存空間：請勿關機
-Less than a minute, then it restarts	不到一分鐘，然後重新啟動
+The device restarts and prepares the card (about a minute)	裝置將重新啟動並準備記憶卡（約一分鐘）
 The games storage could not be prepared	無法準備遊戲儲存空間
-MustardOS is installed: restarting	MustardOS 已安裝：正在重新啟動
