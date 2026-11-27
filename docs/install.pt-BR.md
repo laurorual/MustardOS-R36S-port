@@ -38,11 +38,32 @@ Guarde o seu cartão original: gravar esta imagem apaga o cartão usado.
 ## Primeira inicialização
 
 1. Coloque o cartão no **slot 1** (o slot de onde o aparelho inicia; na
-   maioria marcado TF1/INT) e ligue.
-2. A primeira inicialização demora um pouco mais: a partição de dados
-   cresce até ocupar o cartão inteiro. O logo mostra "MustardOS R36S /
-   R35S, unofficial port" e depois aparece o menu do MustardOS.
-3. Idioma: Configuração → Idioma → Português (BR).
+   maioria marcado TF1/INT) e ligue. O logo mostra "MustardOS R36S /
+   R35S, unofficial port" e depois abre a configuração inicial do
+   MustardOS.
+2. Ajuste **Data e hora** e **Idioma** (Português (BR)); **Perfis** e
+   **Teste de botões** (confere cada botão) são opcionais. **Desligar**
+   desliga sem instalar: a configuração inicial abre de novo no próximo
+   início.
+3. **Instalar** pergunta como formatar o armazenamento do cartão (jogos,
+   saves, configurações):
+   - **exFAT** (recomendado): Windows, macOS e Linux leem e gravam, então
+     os jogos vão direto para as pastas `ROMS` do cartão.
+   - **FAT32**: todo computador lê, mas nenhum arquivo passa de 4 GB.
+   - **EXT4**: aguenta melhor uma queda de energia, mas o Windows não lê
+     sem programas extras.
+
+   O aparelho reinicia, o armazenamento cresce até ocupar o cartão inteiro
+   e é formatado (alguns segundos), e aparece o menu do MustardOS com a
+   data, o idioma e o perfil escolhidos.
+
+   > **exFAT, FAT32 e queda de energia:** configurações, saves e a área de
+   > atualização do sistema ficam nesse mesmo armazenamento. Esses
+   > sistemas de arquivos não têm journal: se a bateria acabar ou o
+   > console for desligado durante uma gravação (salvar o jogo, mudar uma
+   > configuração, instalar uma atualização), arquivos podem se corromper
+   > e, no pior caso, o cartão precisa ser gravado de novo. Desligue pelo
+   > menu, mantenha a bateria carregada e faça cópia dos saves.
 4. Wi-Fi (com o adaptador): Configuração → Conectividade → Rede Wi-Fi.
 
 ## Jogos e BIOS
@@ -50,6 +71,10 @@ Guarde o seu cartão original: gravar esta imagem apaga o cartão usado.
 Nenhum jogo ou BIOS acompanha o sistema; use apenas cópias de jogos que
 você possui.
 
+- **No PC (exFAT ou FAT32):** desligue o aparelho, coloque o cartão no
+  leitor do PC e copie os jogos para `ROMS/<sistema>` e as BIOS para
+  `MUOS/bios` na unidade de armazenamento (a grande; não mexa na unidade
+  pequena de boot). Ejete o cartão antes de tirá-lo.
 - **Pelo Wi-Fi (SFTP):** Configuração → Conectividade → Serviços web →
   Arquivos via SFTP → ligado. Conecte com FileZilla ou WinSCP: SFTP, o IP
   do aparelho, porta **2022**, usuário **muos**, senha **muos**. Jogos em
@@ -63,13 +88,16 @@ Sega CD (`bios_CD_U.bin`…), PC Engine CD (`syscard3.pce`), Dreamcast
 
 ## Atualizações
 
-- Com Wi-Fi, uma nova versão publicada no GitHub é baixada e instalada na
-  inicialização seguinte (só a partição do sistema muda; jogos, saves e
-  configurações ficam).
+Só a partição do sistema muda; jogos, saves e configurações ficam. Nada
+é baixado sem perguntar.
+
+- Com Wi-Fi: Aplicativos → Ferramentas de sistema → "Buscar atualização
+  online" mostra uma versão nova e pergunta antes de baixar e antes de
+  instalar.
 - Sem Wi-Fi: copie `MustardOS-R36S-port-<versão>.p2.img.gz` e o
-  `.p2.img.sha256` da release para `MUOS/update` no cartão (por SFTP, ou
-  pelo leitor no Linux) e use Aplicativos → Ferramentas de sistema →
-  "Instalar atualização do sistema".
+  `.p2.img.sha256` da release para `MUOS/update` no cartão (no PC com um
+  cartão exFAT/FAT32, ou por SFTP) e use Aplicativos → Ferramentas de
+  sistema → "Instalar atualização do sistema".
 - A atualização mostra o progresso, reinicia o aparelho duas vezes e leva
   cerca de 10 minutos: deixe ligado, no carregador ou com pelo menos 30 %
   de bateria. Se o sistema novo não chegar ao menu, a inicialização

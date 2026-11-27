@@ -3,7 +3,25 @@
 MustardOS for R36S/R35S (unofficial port). Not supported by the MustardOS
 team: https://github.com/laurorual/MustardOS-R36S-port/issues
 
-## v1.1.1 (unreleased)
+## v1.1.2 (unreleased)
+
+- **First boot:** a newly flashed card starts in MustardOS's own
+  first-boot setup (Date and Time, Language, Profiles, Input Tester,
+  Shutdown, Install), as on muOS.
+- **Install asks how to format the card's storage:** exFAT (recommended),
+  FAT32 or EXT4. With exFAT or FAT32 the card opens on Windows and macOS:
+  copy games straight into `ROMS/<system>`. The storage grows to the
+  whole card. exFAT and FAT32 have no journal: shut down from the menu
+  and keep the battery charged (README).
+- A card updated from v1.1.1 keeps its EXT4 storage, its games and its
+  settings (an update does not run the first boot). To switch it to
+  exFAT, copy `ROMS`, `MUOS/save` and `MUOS/pickles` off the card, flash
+  v1.1.2 and copy them back.
+- A model chosen on a PC (`select-model` or `model.txt`) switches a few
+  seconds after power-on, before the menu starts (it used to wait for
+  the menu, about a minute of black screen on another panel).
+
+## v1.1.1 (2026-11-27)
 
 - **PortMaster:** Applications → PortMaster installs PortMaster on its
   first start (Wi-Fi, or `muos.portmaster.zip` in `MUOS/update`) and

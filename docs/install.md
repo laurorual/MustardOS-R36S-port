@@ -38,11 +38,33 @@ Keep your original card: writing this image erases the card you use.
 ## First start
 
 1. Put the card in **slot 1** (the one the handheld boots from; on most
-   units the slot marked TF1/INT) and power on.
-2. The first start takes a little longer: the data partition grows to the
-   whole card. The boot logo shows "MustardOS R36S / R35S, unofficial
-   port", then the MustardOS menu appears.
-3. Language: Configuration → Language.
+   units the slot marked TF1/INT) and power on. The boot logo shows
+   "MustardOS R36S / R35S, unofficial port", then MustardOS's first-boot
+   setup opens.
+2. Set **Date and Time** and **Language**; **Profiles** and **Input
+   Tester** (checks every button) are optional. **Shutdown** turns the
+   handheld off without installing: the setup opens again at the next
+   start.
+3. **Install** asks how to format the card's storage (games, saves,
+   settings):
+   - **exFAT** (recommended): Windows, macOS and Linux read and write it,
+     so games can be copied straight to the card's `ROMS` folders.
+   - **FAT32**: every computer reads it, but no file can be larger than
+     4 GB.
+   - **EXT4**: copes best with a sudden power loss, but Windows cannot
+     read it without extra software.
+
+   The handheld restarts, the storage grows to the whole card and is
+   formatted (a few seconds), and the MustardOS menu appears with the
+   date, language and profile you chose.
+
+   > **exFAT and FAT32 and power loss:** the settings, saves and the
+   > firmware update area live on that same storage. These filesystems
+   > have no journal: if the battery dies or the console is switched off
+   > while it writes (saving a game, changing a setting, installing an
+   > update), files can be damaged, and at worst the card needs to be
+   > flashed again. Shut down from the menu, keep the battery charged, and
+   > back up your saves.
 4. Wi-Fi (adapter plugged in): Configuration → Connectivity → Wi-Fi
    Network.
 
@@ -50,6 +72,10 @@ Keep your original card: writing this image erases the card you use.
 
 No games or BIOS files are included; use only dumps of games you own.
 
+- **On a PC (exFAT or FAT32):** power the handheld off, put the card in
+  the PC's reader and copy games into `ROMS/<system>` and BIOS files
+  into `MUOS/bios` on its storage drive (the large one; leave the small
+  boot drive alone). Eject the card before taking it out.
 - **Over Wi-Fi (SFTP):** Configuration → Connectivity → Web Services →
   Secure File Transfer → on. Connect with FileZilla or WinSCP: SFTP,
   the handheld's IP address, port **2022**, user **muos**, password
@@ -63,13 +89,16 @@ Sega CD (`bios_CD_U.bin`…), PC Engine CD (`syscard3.pce`), Dreamcast
 
 ## Updates
 
-- With Wi-Fi, a new release published on GitHub is downloaded and
-  installed at the next start (only the system partition changes; games,
-  saves and settings stay).
+Only the system partition changes; games, saves and settings stay.
+Nothing is downloaded without asking.
+
+- With Wi-Fi: Applications → Task Toolkit → "Check for Online Update"
+  shows a newer release and asks before downloading it and before
+  installing it.
 - Without Wi-Fi: copy `MustardOS-R36S-port-<version>.p2.img.gz` and its
-  `.p2.img.sha256` from the release into `MUOS/update` on the card (SFTP
-  or the card reader on Linux), then Applications → Task Toolkit →
-  "Install Firmware Update".
+  `.p2.img.sha256` from the release into `MUOS/update` on the card (on a
+  PC with an exFAT/FAT32 card, or over SFTP), then Applications → Task
+  Toolkit → "Install Firmware Update".
 - An update shows its progress, restarts the device twice and takes
   about 10 minutes: keep it on, on the charger or with at least 30 %
   battery. If the new system does not reach the menu, the next start
