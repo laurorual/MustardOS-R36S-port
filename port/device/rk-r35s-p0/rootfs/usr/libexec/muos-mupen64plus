@@ -18,7 +18,10 @@
 # without its version, so version is forced with the mapping.
 # Resume, as muxretro: Fn+Start saves autosave.st first (core patch 0001,
 # MUPEN_AUTOSAVE), the next start loads it (--savestate).
-# Hotkeys (Fn held): Start quit + autosave, R1 save state, L1 load state
+# Hotkeys (Fn held): Start quit + autosave (v1.1.1 T3: muos-standalone-quit
+# fades the screen out first, then SIGTERM, which SDL turns into the same
+# Stop; Mupen64Plus's own Fn+Start mapping took the picture off the screen
+# before the fade began), R1 save state, L1 load state
 # (slot 0), X screenshot (MUOS/screenshot). Vsync on: SDL's KMSDRM flips
 # asynchronously without it, which this 4.4 kernel refuses (EINVAL, nothing
 # shown). Controls follow mupen64plus-next's defaults: A = B, B = Y,
@@ -89,7 +92,7 @@ set -- --corelib "$emu/libmupen64plus.so.2.0.0" --configdir "$cfg" --datadir "$e
     --set "Core[R4300Emulator]=2" --set "Core[OnScreenDisplay]=False" \
     --set "Core[SaveFilenameFormat]=0" --set "Core[SaveSRAMPath]=$sram/" \
     --set "Core[SaveStatePath]=$state/" --set "Core[ScreenshotPath]=/userdata/MUOS/screenshot/" \
-    --set "CoreEvents[Joy Mapping Stop]=J0B9/B10" \
+    --set "CoreEvents[Joy Mapping Stop]=" \
     --set "CoreEvents[Joy Mapping Save State]=J0B5/B10" \
     --set "CoreEvents[Joy Mapping Load State]=J0B4/B10" \
     --set "CoreEvents[Joy Mapping Screenshot]=J0B2/B10" \

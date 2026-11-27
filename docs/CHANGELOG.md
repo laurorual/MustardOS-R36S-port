@@ -20,7 +20,10 @@ team: https://github.com/laurorual/MustardOS-R36S-port/issues
 - GNU wget with HTTPS (Splore downloads, port scripts).
 - Ports, applications, the official PICO-8 and the standalone emulators
   (N64, PSP, Dreamcast, Saturn, NDS, ScummVM) show the same volume and
-  brightness bar as the libretro games, in the theme's style.
+  brightness bar as the libretro games, in the theme's style, with the
+  menu's rounded corners (in games too).
+- **Fixed:** Fn+Start out of an N64 game fades out again (the screen went
+  black at once).
 - **Fixed:** A and B were swapped in ports, PortMaster, the official
   PICO-8, PPSSPP and Flycast on a card without an Input Remap; A is now
   confirm and B back everywhere, and A is PICO-8's O button in every

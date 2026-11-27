@@ -1210,7 +1210,21 @@ The open problems behind each "partial" are in STATUS.
   resources per EGL context) at SDL_GL_SwapWindow/eglSwapBuffers, or SDL
   textures and blended fills at SDL_RenderPresent (logical size switched
   off meanwhile: it clips to the game's viewport); a plain panel without
-  the files. Godot frt and
+  the files. Rounded as the menu's LVGL bar (v1.1.1 T3 round 3): panel
+  BAR_RADIUS with its 2 px border, track and indicator
+  BAR_PROGRESS_RADIUS (clamped to half the short side), anti-aliased
+  coverage; the indicator is the full-width fill image in three slices
+  (caps + stretched middle column; narrower than both caps, its left
+  part, as LVGL masks it with the track's shape) in muxretro and
+  muos-levelbar.so alike (`track.rgba`, `fill.rgba`, `radius` in
+  levelbar.conf).
+- **Quit fade (N64, v1.1.1 T3):** Mupen64Plus's own Fn+Start mapping
+  (CoreEvents Joy Mapping Stop) took its picture off the screen (VOP win1
+  scanout address 0) ~40 ms before muos-standalone-quit started the
+  backlight fade, so the fade ran on black. The mapping is off;
+  muos-standalone-quit fades, then sends SIGTERM (SDL quit → the same
+  Stop with the autosave of core patch 0001). `t2-quit-fade.sh` samples
+  the backlight and the scanout address through the quit. Godot frt and
   pysdl2 (ctypes) look SDL/EGL up with dlsym on a dlopen handle: the
   library exports dlsym (an aarch64 trampoline tail-jumps to libc's, so
   dlsym(RTLD_NEXT) keeps its caller) and returns its wrappers for the

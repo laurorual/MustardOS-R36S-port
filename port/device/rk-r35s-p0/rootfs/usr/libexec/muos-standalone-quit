@@ -5,8 +5,10 @@
 # dArkOSen's killer_daemon (pkill, then kill -9 if still there): SIGTERM,
 # which SDL turns into a normal quit (PPSSPP saves its settings;
 # YabaSanshiro, M8 item 17: SIGKILL after 3 s if it is still there).
+# Mupen64Plus (v1.1.1 T3) gets SIGTERM after the fade (it autosaves on
+# it; its own Fn+Start mapping is off: it blanked the screen at once).
 # Emulators that quit on Fn+Start themselves are only waited for:
-# Mupen64Plus (its own combo, autosave) and DraStic with the advanced hook
+# DraStic with the advanced hook
 # (its HOT_QUIT = Fn+Start writes the auto save state and quits; M8c T3 5:
 # a SIGTERM during that save deadlocked the hook, "busy saving old one",
 # and the SIGKILL 5 s later left an empty temp state, so the next start
@@ -62,7 +64,7 @@ for e in PPSSPPSDL drastic mupen64plus yabasanshiro scummvm flycast pico8_64; do
     # the fade over the game picture first (PPSSPP and YabaSanshiro clear
     # the screen as soon as they get the signal), then the signal
     dim
-    case $e in PPSSPPSDL|yabasanshiro|scummvm|flycast|pico8_64) kill -TERM "$pid" ;; esac
+    case $e in PPSSPPSDL|yabasanshiro|scummvm|flycast|pico8_64|mupen64plus) kill -TERM "$pid" ;; esac
     case $e in
         PPSSPPSDL) wait_gone "$pid" 50 ;;
         yabasanshiro|scummvm|flycast|pico8_64) wait_gone "$pid" 30 || { say "$e still running, SIGKILL"; kill -KILL "$pid"; } ;;

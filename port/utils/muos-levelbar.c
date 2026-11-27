@@ -6,9 +6,10 @@
 // (muhotkey -> muos-volume-step / bright.sh); this checks them every 100 ms
 // at the program's frame swap and then shows the bar exactly as muxretro
 // draws it in games (patch 0002: theme panel, glyph and progress bar, 1.5 s,
-// 200 ms fade): muos-frontend has `muxretro --level-assets` write the active
-// theme's bar to /run/muos/levelbar (levelbar.conf + one RGBA panel per kind
-// and glyph level), drawn here
+// 200 ms fade, rounded as the menu's): muos-frontend has `muxretro
+// --level-assets` write the active theme's bar to /run/muos/levelbar
+// (levelbar.conf, one RGBA panel per kind and glyph level, the rounded track
+// and full-width fill, drawn in slices), drawn here
 //   SDL_GL_SwapWindow / eglSwapBuffers: a GLES2 program, textured and
 //     coloured quads blended over the default framebuffer (every GL state
 //     it touches saved and restored; resources per EGL context)
@@ -24,7 +25,8 @@
 // library handle and passes everything else to libc's dlsym with a tail
 // jump (an aarch64 trampoline, so dlsym(RTLD_NEXT) keeps its caller).
 // T2: while /run/muos/levelbar-grab exists, the next frame (with the bar)
-// goes to /run/muos/levelbar-grab.ppm and the trigger is removed. Each
+// goes to /run/muos/levelbar-grab.ppm and the trigger is removed (with
+// /run/muos/levelbar-nodraw too, nothing is drawn: muxretro's own bar). Each
 // process logs the first swap hook it goes through to stderr.
 // Nothing is shown just after a resume (/run/muos/recent_wake): restoring
 // the levels is not a key press.
@@ -56,7 +58,7 @@ static struct level {
 
 static int shown_kind, shown_pct;
 static uint64_t shown_at, polled_at;
-static int visible, grab_pending;
+static int visible, grab_pending, nodraw;
 // set while an SDL wrapper runs the real function: SDL swaps through the
 // eglSwapBuffers it looked up with dlsym (the wrapper), already drawn then
 static __thread int in_sdl;
@@ -113,6 +115,8 @@ static void poll_levels(void) {
     if (polled_at && t - polled_at < POLL_MS) return;
     polled_at = t;
     grab_pending = access("/run/muos/levelbar-grab", F_OK) == 0;
+    // T2: grab another program's own bar (muxretro) without drawing over it
+    nodraw = grab_pending && access("/run/muos/levelbar-nodraw", F_OK) == 0;
     for (int k = 0; k < 2; k++) {
         struct level *l = &levels[k];
         struct stat st;
@@ -139,10 +143,38 @@ static struct {
     long long mtime;
     int ok, mux_w, mux_h, px, py, pw, ph, bw, bh, main_a, active_a;
     uint32_t main_rgb, active_rgb;
-    int bar_off[2][4];
-    unsigned char *img[2][4];
+    int bar_off[2][4], radius, round; // round: track.rgba + fill.rgba loaded
+    unsigned char *img[2][4], *track, *fill;
     unsigned gen; // bumped on every reload: textures are uploaded again
 } as;
+
+// The rounded indicator of FILL_W theme pixels from the full-width fill
+// image, as muxretro's fill_slices (patch 0002): left cap, stretched middle
+// column, right cap; narrower than both caps, the image's left part.
+typedef struct { int sx, sw, dx, dw; } slice_t;
+static int fill_slices(const int fill_w, slice_t sl[3]) {
+    const int bw = as.bw, r = as.radius;
+    int n = 0;
+    if (fill_w <= 0) return 0;
+    if (fill_w < 2 * r) {
+        sl[n++] = (slice_t) {0, fill_w, 0, fill_w};
+        return n;
+    }
+    if (r > 0) sl[n++] = (slice_t) {0, r, 0, r};
+    if (fill_w - 2 * r > 0) sl[n++] = (slice_t) {r < bw ? r : bw - 1, 1, r, fill_w - 2 * r};
+    if (r > 0) sl[n++] = (slice_t) {bw - r, r, fill_w - r, r};
+    return n;
+}
+
+static int read_file(const char *path, unsigned char **buf, const size_t size) {
+    unsigned char *b = realloc(*buf, size);
+    if (!b) return 0;
+    *buf = b;
+    FILE *f = fopen(path, "re");
+    const int full = f && fread(b, 1, size, f) == size;
+    if (f) fclose(f);
+    return full;
+}
 
 // (Re)load when levelbar.conf changed; 1 = usable.
 static int assets_load(void) {
@@ -164,26 +196,25 @@ static int assets_load(void) {
         else if (sscanf(line, "bar %d %d", &as.bw, &as.bh) == 2) got |= 4;
         else if (sscanf(line, "main %x %d", &as.main_rgb, &as.main_a) == 2) got |= 8;
         else if (sscanf(line, "active %x %d", &as.active_rgb, &as.active_a) == 2) got |= 16;
+        else if (sscanf(line, "radius %d", &as.radius) == 1) got |= 32;
         else if (sscanf(line, "image %d %d %d", &k, &l, &o) == 3 && k >= 0 && k < 2 && l >= 0 && l < 4)
             as.bar_off[k][l] = o;
     }
     fclose(f);
-    if (got != 31 || as.mux_w <= 0 || as.mux_h <= 0 || as.pw <= 0 || as.ph <= 0 || as.pw > 4096 || as.ph > 1024)
+    if ((got & 31) != 31 || as.mux_w <= 0 || as.mux_h <= 0 || as.pw <= 0 || as.ph <= 0 || as.pw > 4096 || as.ph > 1024)
         return 0;
     const size_t size = (size_t) as.pw * as.ph * 4;
     for (int k = 0; k < 2; k++) {
         for (int l = 0; l < 4; l++) {
             char path[96];
             snprintf(path, sizeof(path), ASSETS "/%s_%d.rgba", k ? "bright" : "volume", l);
-            unsigned char *b = realloc(as.img[k][l], size);
-            if (!b) return 0;
-            as.img[k][l] = b;
-            f = fopen(path, "re");
-            const int full = f && fread(b, 1, size, f) == size;
-            if (f) fclose(f);
-            if (!full) return 0;
+            if (!read_file(path, &as.img[k][l], size)) return 0;
         }
     }
+    // v1.1.1: the rounded progress bar (older assets: plain rectangles)
+    const size_t bar = (size_t) as.bw * as.bh * 4;
+    as.round = (got & 32) && as.bw > 0 && as.bh > 0 && as.bw <= 4096 && as.bh <= 1024 &&
+               read_file(ASSETS "/track.rgba", &as.track, bar) && read_file(ASSETS "/fill.rgba", &as.fill, bar);
     return as.ok = 1;
 }
 
@@ -191,8 +222,8 @@ static int assets_load(void) {
 // the glyph level, and the fade (0..1) as muxretro's osd_draw.
 typedef struct {
     rect_t panel, track, fill;
-    int kind, level;
-    float fade;
+    int kind, level, bx, by, fill_w; // bx, by, fill_w: theme units
+    float fade, sx, sy;
 } bar_t;
 
 static float fade_now(void) {
@@ -212,6 +243,11 @@ static void bar_geometry(const int W, const int H, bar_t *b) {
     b->track = SR(bx, by, as.bw, as.bh);
     b->fill = SR(bx, by, as.bw * shown_pct / 100, as.bh);
 #undef SR
+    b->bx = bx;
+    b->by = by;
+    b->fill_w = as.bw * shown_pct / 100;
+    b->sx = sx;
+    b->sy = sy;
     b->fade = fade_now();
 }
 
@@ -514,7 +550,7 @@ static int gx_load(void) {
 static struct {
     void *ctx;
     int failed, loc_s, loc_c;
-    unsigned prog, white, tex[2][4], tex_gen[2][4];
+    unsigned prog, white, tex[2][4], tex_gen[2][4], bar_tex[2], bar_gen[2];
 } gr;
 
 static unsigned shader(const unsigned type, const char *src) {
@@ -575,16 +611,21 @@ static int gr_ready(void) {
     return gr.prog && !gr.failed;
 }
 
-static void quad(const rect_t r, const int W, const int H, const unsigned tex, const uint32_t rgb, const float a) {
+static void quad_uv(const rect_t r, const int W, const int H, const unsigned tex, const uint32_t rgb, const float a,
+                    const float u0, const float u1) {
     if (r.w <= 0 || r.h <= 0 || a <= 0.0f) return;
     const float x0 = 2.0f * r.x / W - 1.0f, x1 = 2.0f * (r.x + r.w) / W - 1.0f;
     const float y0 = 1.0f - 2.0f * r.y / H, y1 = 1.0f - 2.0f * (r.y + r.h) / H;
-    const float v[16] = {x0, y0, 0, 0, x0, y1, 0, 1, x1, y0, 1, 0, x1, y1, 1, 1};
+    const float v[16] = {x0, y0, u0, 0, x0, y1, u0, 1, x1, y0, u1, 0, x1, y1, u1, 1};
     gx.BindTexture(GL_TEXTURE_2D, tex);
     gx.Uniform4f(gr.loc_c, (rgb >> 16 & 0xFF) / 255.0f, (rgb >> 8 & 0xFF) / 255.0f, (rgb & 0xFF) / 255.0f, a);
     gx.VertexAttribPointer(0, 2, GL_FLOAT, 0, 16, v);
     gx.VertexAttribPointer(1, 2, GL_FLOAT, 0, 16, v + 2);
     gx.DrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+static void quad(const rect_t r, const int W, const int H, const unsigned tex, const uint32_t rgb, const float a) {
+    quad_uv(r, W, H, tex, rgb, a, 0.0f, 1.0f);
 }
 
 struct attrib { int enabled, size, stride, type, norm, buffer, integer, divisor; void *ptr; };
@@ -693,8 +734,29 @@ static int gl_draw_bar(const int W, const int H) {
             gr.tex_gen[b.kind][b.level] = as.gen;
         }
         quad(b.panel, W, H, *t, 0xFFFFFF, b.fade);
-        quad(b.track, W, H, gr.white, as.main_rgb, as.main_a / 255.0f * b.fade);
-        quad(b.fill, W, H, gr.white, as.active_rgb, as.active_a / 255.0f * b.fade);
+        if (as.round) {
+            for (int i = 0; i < 2; i++) {
+                if (!gr.bar_tex[i]) gx.GenTextures(1, &gr.bar_tex[i]);
+                if (gr.bar_gen[i] != as.gen) {
+                    upload(gr.bar_tex[i], as.bw, as.bh, i ? as.fill : as.track);
+                    gr.bar_gen[i] = as.gen;
+                }
+            }
+            quad(b.track, W, H, gr.bar_tex[0], 0xFFFFFF, b.fade);
+            slice_t sl[3];
+            const int n = fill_slices(b.fill_w, sl);
+            for (int i = 0; i < n; i++) {
+                const int x0 = (int) ((b.bx + sl[i].dx) * b.sx + 0.5f), x1 = (int) ((b.bx + sl[i].dx + sl[i].dw) * b.sx + 0.5f);
+                const rect_t d = {x0, b.track.y, x1 - x0, b.track.h};
+                // the middle column is sampled at its centre, the caps edge to edge
+                const float u0 = sl[i].sw == 1 ? (sl[i].sx + 0.5f) / as.bw : (float) sl[i].sx / as.bw;
+                const float u1 = sl[i].sw == 1 ? u0 : (float) (sl[i].sx + sl[i].sw) / as.bw;
+                quad_uv(d, W, H, gr.bar_tex[1], 0xFFFFFF, b.fade, u0, u1);
+            }
+        } else {
+            quad(b.track, W, H, gr.white, as.main_rgb, as.main_a / 255.0f * b.fade);
+            quad(b.fill, W, H, gr.white, as.active_rgb, as.active_a / 255.0f * b.fade);
+        }
         drawn = 1;
     }
 
@@ -783,7 +845,7 @@ void SDL_GL_SwapWindow(void *window) {
     if ((visible || grab_pending) && drawable) {
         int w = 0, h = 0;
         drawable(window, &w, &h);
-        if (visible && !gl_draw_bar(w, h)) gl_draw(w, h);
+        if (visible && !nodraw && !gl_draw_bar(w, h)) gl_draw(w, h);
         if (grab_pending) gl_grab(w, h);
     }
     in_sdl++;
@@ -803,7 +865,7 @@ unsigned eglSwapBuffers(void *dpy, void *surface) {
     if ((visible || grab_pending) && query) {
         int w = 0, h = 0;
         if (query(dpy, surface, EGL_WIDTH, &w) && query(dpy, surface, EGL_HEIGHT, &h)) {
-            if (visible && !gl_draw_bar(w, h)) gl_draw(w, h);
+            if (visible && !nodraw && !gl_draw_bar(w, h)) gl_draw(w, h);
             if (grab_pending) gl_grab(w, h);
         }
     }
@@ -857,8 +919,8 @@ static struct {
     int (*UpdateTexture)(void *, const SDL_Rect *, const void *, int);
     int (*SetTextureBlendMode)(void *, int), (*SetTextureAlphaMod)(void *, uint8_t);
     int (*RenderCopy)(void *, void *, const SDL_Rect *, const SDL_Rect *);
-    void *ren, *tex[2][4];
-    unsigned gen[2][4];
+    void *ren, *tex[2][4], *bar_tex[2];
+    unsigned gen[2][4], bar_gen[2];
 } st;
 
 static void sdl_fill(void *ren, const rect_t r, const uint32_t rgb, const int a) {
@@ -881,6 +943,8 @@ static int sdl_draw_bar(void *ren, const int W, const int H) {
     if (st.ren != ren) {
         memset(st.tex, 0, sizeof(st.tex));
         memset(st.gen, 0, sizeof(st.gen));
+        memset(st.bar_tex, 0, sizeof(st.bar_tex));
+        memset(st.bar_gen, 0, sizeof(st.bar_gen));
         st.ren = ren;
     }
     bar_t b;
@@ -900,6 +964,31 @@ static int sdl_draw_bar(void *ren, const int W, const int H) {
     st.SetTextureAlphaMod(*t, (uint8_t) f);
     const SDL_Rect dst = {b.panel.x, b.panel.y, b.panel.w, b.panel.h};
     st.RenderCopy(ren, *t, NULL, &dst);
+    if (as.round) {
+        for (int i = 0; i < 2; i++) {
+            void **bt = &st.bar_tex[i];
+            if (!*bt) {
+                *bt = st.CreateTexture(ren, 0x16762004u, 0, as.bw, as.bh);
+                if (!*bt) return 1;
+                st.SetTextureBlendMode(*bt, 1);
+            }
+            if (st.bar_gen[i] != as.gen) {
+                if (st.UpdateTexture(*bt, NULL, i ? as.fill : as.track, as.bw * 4) != 0) return 1;
+                st.bar_gen[i] = as.gen;
+            }
+            st.SetTextureAlphaMod(*bt, (uint8_t) f);
+        }
+        const SDL_Rect td = {b.track.x, b.track.y, b.track.w, b.track.h};
+        st.RenderCopy(ren, st.bar_tex[0], NULL, &td);
+        slice_t sl[3];
+        const int n = fill_slices(b.fill_w, sl);
+        for (int i = 0; i < n; i++) {
+            const int x0 = (int) ((b.bx + sl[i].dx) * b.sx + 0.5f), x1 = (int) ((b.bx + sl[i].dx + sl[i].dw) * b.sx + 0.5f);
+            const SDL_Rect src = {sl[i].sx, 0, sl[i].sw, as.bh}, dst = {x0, b.track.y, x1 - x0, b.track.h};
+            if (dst.w > 0) st.RenderCopy(ren, st.bar_tex[1], &src, &dst);
+        }
+        return 1;
+    }
     sdl.SetRenderDrawBlendMode(ren, 1);
     sdl_fill(ren, b.track, as.main_rgb, as.main_a * f / 255);
     sdl_fill(ren, b.fill, as.active_rgb, as.active_a * f / 255);
@@ -984,7 +1073,7 @@ void SDL_RenderPresent(void *renderer) {
     if (!real_present) *(void **) &real_present = next_sym(NULL, "SDL_RenderPresent");
     said("SDL_RenderPresent");
     poll_levels();
-    if (visible) sdl_draw(renderer);
+    if (visible && !nodraw) sdl_draw(renderer);
     if (grab_pending) sdl_grab(renderer);
     in_sdl++;
     if (real_present) real_present(renderer);

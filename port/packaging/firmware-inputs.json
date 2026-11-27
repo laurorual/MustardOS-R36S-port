@@ -5328,7 +5328,7 @@
    "path": "/opt/muos/frontend/muxretro",
    "type": "file",
    "mode": "755",
-   "sha256": "e1e386145669468d92c3b4fcb49e5e82057803f33e9e51467cef718472f5b3cf",
+   "sha256": "f3f4c5edb3904ffe5880364ae64bb3ae529fa32807a2a956d2f9288502f64570",
    "origin": "build/m3d/muxretro/release/opt/muos/frontend/muxretro"
   },
   {
@@ -17362,7 +17362,7 @@
    "path": "/usr/lib/muos-levelbar.so",
    "type": "file",
    "mode": "755",
-   "sha256": "dab4cfc8705a3a296cb9462ab6a81917027831884402e87d79f1251a6e4d94c8",
+   "sha256": "e5953a72d83a2009ecfbcbb4d68704cba52d51c1dfed1cd64e9a90ea1f3742d8",
    "origin": "build/m12/levelbar/tree/usr/lib/muos-levelbar.so"
   }
  ],

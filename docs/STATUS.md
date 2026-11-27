@@ -113,15 +113,6 @@ power-cut recovery. Full list per milestone in milestones.md.
   "M8 thermal block"); play them on battery. Saturn too heavy for Sonic R.
 - **Audio:** occasional PipeWire sink stall (self-healed before each
   game, root cause open); 200 % overdrive distorts (as upstream).
-- **N64 Fn+Start fade (v1.1.1 T3 round 2):** the user saw no fade, an
-  abrupt black screen; on the bench (m12c, MK64, Rice) the backlight fades
-  55 → 0 in 0.3 s while Mupen64Plus still runs and it exits 1.1 s later
-  (sampled every ~70 ms): not reproduced. Waiting for the game, the video
-  plugin and whether it happens every time. N64 screenshots give no
-  feedback.
-- **Bars:** in games (libretro, ports, standalone emulators) one bar,
-  muxretro's (square corners); the menu's LVGL bar has the theme's rounded
-  corners (BAR_RADIUS / BAR_PROGRESS_RADIUS): unify them later if wanted.
 - **User report (2026-11-26, another user, DTB "R36S-V12 2023-08-18
   Panel 4"):** a black screen while changing settings, and the B/back
   button also lowered the volume. Our Panel 4 DTB is dArkOSen's (plus the

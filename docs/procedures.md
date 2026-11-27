@@ -478,7 +478,10 @@ official PICO-8 (v1.1.1): `port/scripts/build-levelbar.sh` builds
 `muos-levelbar.so` (then `firmware-inputs.py pin-file`
 `/usr/lib/muos-levelbar.so`); `t2-levelbar.sh` checks the board pad
 mapping, the cursor plane and the bar; a frame of any of them:
-`touch /run/muos/levelbar-grab` → `/run/muos/levelbar-grab.ppm`. Heavy-system speed: compare
+`touch /run/muos/levelbar-grab` → `/run/muos/levelbar-grab.ppm` (with
+`/run/muos/levelbar-nodraw` too, a preloaded library only grabs: the
+program's own bar, e.g. muxretro's). Quit fade of a standalone emulator:
+`t2-quit-fade.sh [NAME CORE DIR FILE PROCESS]` (default N64). Heavy-system speed: compare
 settings at a fixed CPU cap (`T2_CAP`), not under thermal throttling;
 DC: `t2-dc-fps.sh` (variants, `T2_DC_SO`, `T2_DC_STATE=none`,
 `T2_COREMETER=1`). Real game speed of any libretro core (M8e):

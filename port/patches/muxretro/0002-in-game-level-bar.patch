@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-3.0
 ---
 --- /dev/null
 +++ b/frontend/retro/input/level_osd.c
-@@ -0,0 +1,293 @@
+@@ -0,0 +1,441 @@
 +#include <unistd.h>
 +#include <stdio.h>
 +#include <stdlib.h>
@@ -99,6 +99,146 @@ SPDX-License-Identifier: GPL-3.0
 +    return t;
 +}
 +
++static void over(uint8_t *px, const int stride, const int x0, const int y0, const int w, const int h, const uint32_t rgb,
++                 const int alpha, const uint32_t *src, const int src_pitch) {
++    for (int y = 0; y < h; y++) {
++        for (int x = 0; x < w; x++) {
++            uint32_t c = rgb;
++            int sa = alpha;
++            if (src) {
++                const uint32_t p = src[y * src_pitch + x];
++                c = p & 0xFFFFFFu;
++                sa = (int) (p >> 24) * alpha / 255;
++            }
++            if (sa <= 0) continue;
++            uint8_t *d = px + (size_t) (y0 + y) * stride + (size_t) (x0 + x) * 4;
++            const int da = d[3];
++            const int oa = sa + da * (255 - sa) / 255;
++            if (oa <= 0) continue;
++            const int sc[3] = {(int) (c >> 16 & 0xFF), (int) (c >> 8 & 0xFF), (int) (c & 0xFF)};
++            for (int i = 0; i < 3; i++) d[i] = (uint8_t) ((sc[i] * sa + d[i] * da * (255 - sa) / 255) / oa);
++            d[3] = (uint8_t) oa;
++        }
++    }
++}
++
++/* Rounded shapes as LVGL draws the menu's bar (lv_obj radius, 2 px border,
++ * lv_bar background and indicator radius): coverage of a pixel by a rounded
++ * rectangle (anti-aliased over one pixel), radius clamped to half the short
++ * side as LVGL does. */
++static float round_cov(const float px, const float py, const float w, const float h, float r) {
++    if (w <= 0 || h <= 0) return 0.0f;
++    if (r > w / 2) r = w / 2;
++    if (r > h / 2) r = h / 2;
++    if (r < 0) r = 0;
++    const float cx = px < r ? r : px > w - r ? w - r : px;
++    const float cy = py < r ? r : py > h - r ? h - r : py;
++    const float dx = px - cx, dy = py - cy;
++    float d;
++    if (dx == 0 && dy == 0) {
++        const float ex = px < w - px ? px : w - px, ey = py < h - py ? py : h - py;
++        d = -(ex < ey ? ex : ey);
++    } else {
++        d = SDL_sqrtf(dx * dx + dy * dy) - r;
++    }
++    const float c = 0.5f - d;
++    return c < 0 ? 0.0f : c > 1 ? 1.0f : c;
++}
++
++/* RGBA8 (straight alpha) w x h: a rounded rectangle filled with BG and,
++ * when BORDER_W > 0, an inner border ring of BORDER_W pixels. */
++static uint8_t *round_rect(const int w, const int h, const int r, const uint32_t bg, const int bg_a,
++                           const uint32_t border, const int border_a, const int border_w) {
++    uint8_t *px = calloc((size_t) w * h, 4);
++    if (!px) return NULL;
++    for (int y = 0; y < h; y++) {
++        for (int x = 0; x < w; x++) {
++            const float fx = x + 0.5f, fy = y + 0.5f;
++            const float outer = round_cov(fx, fy, (float) w, (float) h, (float) r);
++            if (outer <= 0) continue;
++            const int a = (int) (outer * bg_a + 0.5f);
++            if (a > 0) over(px, w * 4, x, y, 1, 1, bg, a, NULL, 0);
++            if (border_w > 0 && border_a > 0) {
++                const float inner = round_cov(fx - border_w, fy - border_w, (float) (w - 2 * border_w),
++                                              (float) (h - 2 * border_w), (float) (r - border_w));
++                const float ring = outer - inner;
++                const int ba = (int) (ring * border_a + 0.5f);
++                if (ba > 0) over(px, w * 4, x, y, 1, 1, border, ba, NULL, 0);
++            }
++        }
++    }
++    return px;
++}
++
++static int bar_radius(void) {
++    int r = theme.bar.progress_radius, bh = theme.bar.progress_height, bw = theme.bar.progress_width;
++    if (r > bh / 2) r = bh / 2;
++    if (r > bw / 2) r = bw / 2;
++    return r < 0 ? 0 : r;
++}
++
++static uint8_t *panel_pixels(void) {
++    return round_rect(theme.bar.panel_width, theme.bar.panel_height, theme.bar.panel_border_radius,
++                      theme.bar.panel_background & 0xFFFFFFu, theme.bar.panel_background_alpha,
++                      theme.bar.panel_border & 0xFFFFFFu, theme.bar.panel_border_alpha, 2);
++}
++
++static uint8_t *progress_pixels(const int active) {
++    return round_rect(theme.bar.progress_width, theme.bar.progress_height, bar_radius(),
++                      (active ? theme.bar.progress_active_background : theme.bar.progress_main_background) & 0xFFFFFFu,
++                      active ? theme.bar.progress_active_background_alpha : theme.bar.progress_main_background_alpha, 0,
++                      0, 0);
++}
++
++static SDL_Texture *shape_tex[3]; /* panel, track, fill */
++
++static SDL_Texture *shape(SDL_Renderer *renderer, const int i) {
++    if (shape_tex[i]) return shape_tex[i];
++    const int w = i ? theme.bar.progress_width : theme.bar.panel_width;
++    const int h = i ? theme.bar.progress_height : theme.bar.panel_height;
++    if (w <= 0 || h <= 0) return NULL;
++    uint8_t *px = i ? progress_pixels(i == 2) : panel_pixels();
++    if (!px) return NULL;
++    SDL_Texture *t = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, w, h);
++    if (t && SDL_UpdateTexture(t, NULL, px, w * 4) == 0) {
++        SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
++    } else if (t) {
++        SDL_DestroyTexture(t);
++        t = NULL;
++    }
++    free(px);
++    shape_tex[i] = t;
++    return t;
++}
++
++/* The indicator of FILL_W pixels from the full-width rounded fill image:
++ * left cap, stretched middle column, right cap (LVGL's indicator radius);
++ * narrower than both caps, the left part of the image (LVGL masks it with
++ * the background's shape). Rectangles: SRC within the image, DST offsets
++ * from the bar's left edge; returns the count (0..3). */
++static int fill_slices(const int bw, const int fill_w, const int r, SDL_Rect src[3], SDL_Rect dst[3], const int bh) {
++    int n = 0;
++    if (fill_w <= 0) return 0;
++    if (fill_w < 2 * r) {
++        src[n] = (SDL_Rect) {0, 0, fill_w, bh};
++        dst[n++] = (SDL_Rect) {0, 0, fill_w, bh};
++        return n;
++    }
++    if (r > 0) {
++        src[n] = (SDL_Rect) {0, 0, r, bh};
++        dst[n++] = (SDL_Rect) {0, 0, r, bh};
++    }
++    if (fill_w - 2 * r > 0) {
++        src[n] = (SDL_Rect) {r < bw ? r : bw - 1, 0, 1, bh};
++        dst[n++] = (SDL_Rect) {r, 0, fill_w - 2 * r, bh};
++    }
++    if (r > 0) {
++        src[n] = (SDL_Rect) {bw - r, 0, r, bh};
++        dst[n++] = (SDL_Rect) {fill_w - r, 0, r, bh};
++    }
++    return n;
++}
++
 +static void fill(SDL_Renderer *renderer, const SDL_Rect *r, const uint32_t rgb, const int alpha) {
 +    SDL_SetRenderDrawColor(renderer, rgb >> 16 & 0xFF, rgb >> 8 & 0xFF, rgb & 0xFF, (uint8_t) alpha);
 +    SDL_RenderFillRect(renderer, r);
@@ -120,12 +260,12 @@ SPDX-License-Identifier: GPL-3.0
 +    SDL_GetRenderDrawBlendMode(renderer, &old_mode);
 +    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 +
-+    fill(renderer, &panel, theme.bar.panel_background, A(theme.bar.panel_background_alpha));
-+    const SDL_Rect edges[4] = {
-+        {panel.x, panel.y, pw, 2}, {panel.x, panel.y + ph - 2, pw, 2},
-+        {panel.x, panel.y + 2, 2, ph - 4}, {panel.x + pw - 2, panel.y + 2, 2, ph - 4},
-+    };
-+    for (int i = 0; i < 4; i++) fill(renderer, &edges[i], theme.bar.panel_border, A(theme.bar.panel_border_alpha));
++    /* v1.1.1: the menu's rounded panel (radius, 2 px border) */
++    SDL_Texture *pt = shape(renderer, 0);
++    if (pt) {
++        SDL_SetTextureAlphaMod(pt, (uint8_t) fade);
++        SDL_RenderCopy(renderer, pt, NULL, &panel);
++    }
 +
 +    /* LVGL flex row, space evenly: icon, then the bar. */
 +    const int level = glyph_level(osd_percent);
@@ -142,10 +282,25 @@ SPDX-License-Identifier: GPL-3.0
 +    }
 +
 +    const SDL_Rect bar = {panel.x + gap + iw + gap, panel.y + (ph - bh) / 2, bw, bh};
-+    fill(renderer, &bar, theme.bar.progress_main_background, A(theme.bar.progress_main_background_alpha));
 +    const int pct = osd_percent < 0 ? 0 : osd_percent > 100 ? 100 : osd_percent;
-+    const SDL_Rect on = {bar.x, bar.y, bw * pct / 100, bh};
-+    if (on.w > 0) fill(renderer, &on, theme.bar.progress_active_background, A(theme.bar.progress_active_background_alpha));
++    SDL_Texture *tt = shape(renderer, 1), *ft = shape(renderer, 2);
++    if (tt && ft) {
++        /* v1.1.1: the menu's rounded track and indicator */
++        SDL_SetTextureAlphaMod(tt, (uint8_t) fade);
++        SDL_RenderCopy(renderer, tt, NULL, &bar);
++        SDL_Rect src[3], dst[3];
++        const int n = fill_slices(bw, bw * pct / 100, bar_radius(), src, dst, bh);
++        SDL_SetTextureAlphaMod(ft, (uint8_t) fade);
++        for (int i = 0; i < n; i++) {
++            const SDL_Rect d = {bar.x + dst[i].x, bar.y + dst[i].y, dst[i].w, dst[i].h};
++            SDL_RenderCopy(renderer, ft, &src[i], &d);
++        }
++    } else {
++        fill(renderer, &bar, theme.bar.progress_main_background, A(theme.bar.progress_main_background_alpha));
++        const SDL_Rect on = {bar.x, bar.y, bw * pct / 100, bh};
++        if (on.w > 0)
++            fill(renderer, &on, theme.bar.progress_active_background, A(theme.bar.progress_active_background_alpha));
++    }
 +#undef A
 +
 +    SDL_SetRenderDrawBlendMode(renderer, old_mode);
@@ -210,33 +365,12 @@ SPDX-License-Identifier: GPL-3.0
 + * The bar as drawn above, for programs muxretro does not run: muos-levelbar.so
 + * (preloaded into ports, applications and standalone emulators) draws these
 + * files over their frames. Per kind and glyph level, DIR/<volume|bright>_N.rgba
-+ * is the panel (background, 2 px border, glyph; RGBA8, straight alpha, the
-+ * layers composited "over" as SDL blends them) and DIR/levelbar.conf the
-+ * theme size, the panel position, the progress bar (x per image) and its
-+ * colours. */
-+static void over(uint8_t *px, const int stride, const int x0, const int y0, const int w, const int h, const uint32_t rgb,
-+                 const int alpha, const uint32_t *src, const int src_pitch) {
-+    for (int y = 0; y < h; y++) {
-+        for (int x = 0; x < w; x++) {
-+            uint32_t c = rgb;
-+            int sa = alpha;
-+            if (src) {
-+                const uint32_t p = src[y * src_pitch + x];
-+                c = p & 0xFFFFFFu;
-+                sa = (int) (p >> 24) * alpha / 255;
-+            }
-+            if (sa <= 0) continue;
-+            uint8_t *d = px + (size_t) (y0 + y) * stride + (size_t) (x0 + x) * 4;
-+            const int da = d[3];
-+            const int oa = sa + da * (255 - sa) / 255;
-+            if (oa <= 0) continue;
-+            const int sc[3] = {(int) (c >> 16 & 0xFF), (int) (c >> 8 & 0xFF), (int) (c & 0xFF)};
-+            for (int i = 0; i < 3; i++) d[i] = (uint8_t) ((sc[i] * sa + d[i] * da * (255 - sa) / 255) / oa);
-+            d[3] = (uint8_t) oa;
-+        }
-+    }
-+}
-+
++ * is the panel (rounded background and 2 px border, glyph; RGBA8, straight
++ * alpha, the layers composited "over" as SDL blends them), DIR/track.rgba
++ * and DIR/fill.rgba the rounded progress bar's background and full-width
++ * indicator (drawn in slices, fill_slices), and DIR/levelbar.conf the theme
++ * size, the panel position, the progress bar (x per image), its colours and
++ * radius. */
 +int level_osd_export(const char *dir) {
 +    const int pw = theme.bar.panel_width, ph = theme.bar.panel_height;
 +    const int bw = theme.bar.progress_width, bh = theme.bar.progress_height;
@@ -248,18 +382,30 @@ SPDX-License-Identifier: GPL-3.0
 +                     device.mux.width, device.mux.height, (device.mux.width - pw) / 2, theme.bar.y_pos, pw, ph, bw, bh,
 +                     theme.bar.progress_main_background & 0xFFFFFFu, theme.bar.progress_main_background_alpha,
 +                     theme.bar.progress_active_background & 0xFFFFFFu, theme.bar.progress_active_background_alpha);
-+    uint8_t *px = malloc((size_t) pw * ph * 4);
-+    if (!px) return 0;
++    uint8_t *px = malloc((size_t) pw * ph * 4), *base = panel_pixels();
++    if (!px || !base) {
++        free(px);
++        free(base);
++        return 0;
++    }
++    /* the rounded track and the full-width rounded fill (drawn in slices) */
++    for (int i = 1; i <= 2; i++) {
++        uint8_t *bar = bw > 0 && bh > 0 ? progress_pixels(i == 2) : NULL;
++        snprintf(path, sizeof(path), "%s/%s.rgba", dir, i == 2 ? "fill" : "track");
++        FILE *f = bar ? fopen(path, "wb") : NULL;
++        const int ok = f && fwrite(bar, 1, (size_t) bw * bh * 4, f) == (size_t) bw * bh * 4;
++        if (f) fclose(f);
++        free(bar);
++        if (!ok) {
++            free(px);
++            free(base);
++            return 0;
++        }
++    }
++    if (n > 0 && (size_t) n < sizeof(conf)) n += snprintf(conf + n, sizeof(conf) - (size_t) n, "radius %d\n", bar_radius());
 +    for (int kind = 0; kind < 2; kind++) {
 +        for (int level = 0; level < 4; level++) {
-+            memset(px, 0, (size_t) pw * ph * 4);
-+            over(px, pw * 4, 0, 0, pw, ph, theme.bar.panel_background & 0xFFFFFFu, theme.bar.panel_background_alpha, NULL, 0);
-+            const uint32_t bc = theme.bar.panel_border & 0xFFFFFFu;
-+            const int ba = theme.bar.panel_border_alpha;
-+            over(px, pw * 4, 0, 0, pw, 2, bc, ba, NULL, 0);
-+            over(px, pw * 4, 0, ph - 2, pw, 2, bc, ba, NULL, 0);
-+            over(px, pw * 4, 0, 2, 2, ph - 4, bc, ba, NULL, 0);
-+            over(px, pw * 4, pw - 2, 2, 2, ph - 4, bc, ba, NULL, 0);
++            memcpy(px, base, (size_t) pw * ph * 4);
 +            SDL_Surface *g = glyph_surface((enum level_osd_kind) kind, level);
 +            int iw = 0;
 +            int gap = (pw - bw) / 3;
@@ -282,6 +428,7 @@ SPDX-License-Identifier: GPL-3.0
 +            if (f) fclose(f);
 +            if (!ok) {
 +                free(px);
++                free(base);
 +                return 0;
 +            }
 +            if (n > 0 && (size_t) n < sizeof(conf))
@@ -289,6 +436,7 @@ SPDX-License-Identifier: GPL-3.0
 +        }
 +    }
 +    free(px);
++    free(base);
 +    if (n <= 0 || (size_t) n >= sizeof(conf)) return 0;
 +    char tmp[MAX_BUFFER_SIZE + 8];
 +    snprintf(path, sizeof(path), "%s/levelbar.conf", dir);
