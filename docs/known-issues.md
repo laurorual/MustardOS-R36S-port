@@ -58,6 +58,19 @@ MustardOS team.
 - Without the official PICO-8, choosing the "PICO-8 - Standalone" cores
   only returns to the menu.
 
+## Card storage (since v1.1.2)
+
+- exFAT and FAT32 have no journal: a power cut while the system writes
+  (a save, a setting, an update) can damage files on the card. Shut down
+  from the menu and keep the battery charged; choose EXT4 at Install if
+  you copy games over Wi-Fi anyway.
+- FAT32 can't hold a file larger than 4 GB (some PSP and Dreamcast
+  games): use exFAT for those.
+- Install formats the storage only on a fresh card: a card that already
+  has games or saves keeps its format (choose EXT4 there, or flash again).
+- A card updated from v1.1.1 or older stays EXT4 (Windows can't open it
+  without extra software).
+
 ## System
 
 - **Sound:** rarely, sound stops in the menu until the next game starts

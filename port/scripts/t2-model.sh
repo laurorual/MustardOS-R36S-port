@@ -7,7 +7,9 @@
 # m-t2-panel4; restores p1 and the undervolt choice at the end. Four
 # restarts plus one for the undervolt (~10 min). Developer image only.
 #   t2-model.sh TEST.DTB   (2026-11-26: build/m10/t2/test.dtb = the Panel 4
-#                          model DTB + the port battery node, fdtput)
+#                          model DTB + the port battery node, fdtput; M13:
+#                          build/m10/t2/p0copy.dtb = the port DTB + one
+#                          root property, never another panel's DTB)
 #     1. p1 model.txt "T2-Panel4\r" (case, CR): check arms, restarts; the
 #        trial boots the test DTB and is promoted after 20 s; input names,
 #        root, Wi-Fi, undervolt "unavailable"
@@ -36,8 +38,12 @@ wait_up() {
     done
     fail "no $1 start"
 }
+# a DTB already on p1 (e.g. a plain copy of the stock one) would be a no-op
+# switch (muos-model compares files) and step 4 would delete it
+on "[ ! -e /boot/panel0-$sha.dtb ]" || fail "panel0-$sha.dtb is already on p1: use a DTB with its own sha"
 on "cat > /tmp/t2-model.dtb" < "$dtb"
-on "cfg=/opt/muos/config/danger; echo \"\$(cat \$cfg/undervolt) \$(cat \$cfg/uv_cpu) \$(cat \$cfg/uv_gpu)\" > /userdata/MUOS/t2/model-uv.before"
+# (a fresh card has no uv_cpu/uv_gpu and no MUOS/t2 yet: M13 T2)
+on "cfg=/opt/muos/config/danger; mkdir -p /userdata/MUOS/t2; echo \"\$(cat \$cfg/undervolt 2>/dev/null || echo 0) \$(cat \$cfg/uv_cpu 2>/dev/null || echo 0) \$(cat \$cfg/uv_gpu 2>/dev/null || echo 0)\" > /userdata/MUOS/t2/model-uv.before"
 p1 "cp /boot/dtb-variants.txt /boot/dtb-variants.txt.t2-before && cp /tmp/t2-model.dtb /boot/panel0-$sha.dtb && echo m-t2-panel4=panel0-$sha.dtb >> /boot/dtb-variants.txt && printf 'T2-Panel4\r\n' > /boot/model.txt"
 on reboot || :
 wait_up trial 35
