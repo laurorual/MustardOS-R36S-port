@@ -41,6 +41,7 @@ fresh() { # a first-boot p3 tree in $w/t/data (+ request FS)
     echo 1 > "$d/MUOS/port/config/boot/factory_reset"; echo "Portuguese (BR)" > "$d/MUOS/port/config/settings/general/language"
     echo /usr/share/zoneinfo/America/Sao_Paulo > "$d/MUOS/port/config/localtime"
     : > "$d/MUOS/port/seeded-theme/MustardOS"; echo boot > "$d/MUOS/log/system.log"
+    mkdir -p "$d/MUOS/pickles/coreopt/core"; printf "[options]\nreicast_framerate=normal\n" > "$d/MUOS/pickles/coreopt/core/flycast2022.ini" # the S91 seed
     printf "MUOS-R35S-DATA-V1\n" > "$d/.muos-r35s-data-v1"
     MUOS_INSTALL_TEST=$w/t /usr/libexec/muos-install-storage request "$1" > /dev/null
 }
@@ -56,7 +57,7 @@ run() { # LABEL NAME [env] -> rc, table, fs check, state
         esac
     fi
     r=$w/t/restored st=-
-    [ -d "$r" ] && st="factory=$(cat "$r/MUOS/port/config/boot/factory_reset") lang=$(tr " " _ < "$r/MUOS/port/config/settings/general/language") zone=$(cat "$r/MUOS/port/config/localtime") marker=$([ -f "$r/.muos-r35s-data-v1" ] && echo y || echo n) themes=$(ls "$r/MUOS/port/seeded-theme" 2>/dev/null | wc -l) req=$([ -e "$r/MUOS/port/install-storage" ] && echo y || echo n) log=$(grep -c "" "$r/MUOS/log/install-storage.log" 2>/dev/null)"
+    [ -d "$r" ] && st="factory=$(cat "$r/MUOS/port/config/boot/factory_reset") lang=$(tr " " _ < "$r/MUOS/port/config/settings/general/language") zone=$(cat "$r/MUOS/port/config/localtime") marker=$([ -f "$r/.muos-r35s-data-v1" ] && echo y || echo n) themes=$(ls "$r/MUOS/port/seeded-theme" 2>/dev/null | wc -l) pickles=$(grep -c reicast "$r/MUOS/pickles/coreopt/core/flycast2022.ini" 2>/dev/null) req=$([ -e "$r/MUOS/port/install-storage" ] && echo y || echo n) log=$(grep -c "" "$r/MUOS/log/install-storage.log" 2>/dev/null)"
     inplace="factory=$(cat "$w/t/data/MUOS/port/config/boot/factory_reset") req=$([ -e "$w/t/data/MUOS/port/install-storage" ] && echo y || echo n)"
     echo "case $1: rc=$rc table=[$tab] fs=$fs check=[$chk] state=[$st] data=[$inplace] err=[$(tail -n 1 "$w/t/err")]"
 }
@@ -74,7 +75,7 @@ l=$logs/t1-install-storage.log
 G=$((1024 * 1024 * 2)) p3=2359296
 head="p1=32768+204800:c p2=262144+2097152:83"
 full="p3=$p3+$((32 * G - p3))"
-st0="factory=0 lang=Portuguese_(BR) zone=/usr/share/zoneinfo/America/Sao_Paulo marker=y themes=0 req=n log="
+st0="factory=0 lang=Portuguese_(BR) zone=/usr/share/zoneinfo/America/Sao_Paulo marker=y themes=0 pickles=1 req=n log="
 ok=1
 expect() { grep -qF -- "$1" "$l" || { echo "MISSING: $1"; ok=0; }; }
 expect "case exfat: rc=0 table=[$head $full:7 ] fs=exfat check=[MustardOS] state=[$st0"

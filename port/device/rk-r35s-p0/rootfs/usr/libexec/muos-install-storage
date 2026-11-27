@@ -78,13 +78,16 @@ if [ "$fs" = ext4 ] && [ "$cur" = ext4 ]; then
     rm -f "$req"; sync; say "done: ext4 grown"; keep_log; exit 0
 fi
 # ---- a new filesystem: only on a fresh card -------------------------------
-for d in ROMS MUOS/bios MUOS/save MUOS/pickles MUOS/screenshot MUOS/PortMaster MUOS/application; do
+# (MUOS/pickles is not a sign of use: S91's one-shot migrations seed the
+# Flycast options there on the first start; it is kept below instead, as
+# .migrations in MUOS/port says they already ran.)
+for d in ROMS MUOS/bios MUOS/save MUOS/screenshot MUOS/PortMaster MUOS/application; do
     [ -z "$(find "$data/$d" -type f 2>/dev/null | head -n 1)" ] ||
         { rm -f "$req"; die "the card already has files in $d: not formatted (choose EXT4, or flash it again)"; }
 done
 keep=${test:-/run}/muos-install-keep
 rm -rf "$keep"; mkdir -p "$keep/MUOS"
-for d in MUOS/port MUOS/log MUOS/preferences; do
+for d in MUOS/port MUOS/pickles MUOS/log MUOS/preferences; do
     [ -d "$data/$d" ] && { cp -R "$data/$d" "$keep/$d" || die "cannot keep $d"; }
 done
 [ ! -f "$data/.muos-r35s-data-v1" ] || cp "$data/.muos-r35s-data-v1" "$keep/"
