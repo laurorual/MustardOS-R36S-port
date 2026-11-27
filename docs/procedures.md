@@ -473,7 +473,12 @@ in the script), then
 `firmware-inputs.py pin-tree`/`pin-file`. Screenshots of a GL emulator
 for T2 (M8): `t2-swapstat.sh arm`, launch, `t2-swapstat.sh grab FILE.png`
 (the next frame's default framebuffer; PPSSPP, DraStic, Mupen64Plus);
-`t2-psp-fps.sh` takes `T2_PSP_GRAB=1`. Heavy-system speed: compare
+`t2-psp-fps.sh` takes `T2_PSP_GRAB=1`. Ports, applications and the
+official PICO-8 (v1.1.1): `port/scripts/build-levelbar.sh` builds
+`muos-levelbar.so` (then `firmware-inputs.py pin-file`
+`/usr/lib/muos-levelbar.so`); `t2-levelbar.sh` checks the board pad
+mapping, the cursor plane and the bar; a frame of any of them:
+`touch /run/muos/levelbar-grab` → `/run/muos/levelbar-grab.ppm`. Heavy-system speed: compare
 settings at a fixed CPU cap (`T2_CAP`), not under thermal throttling;
 DC: `t2-dc-fps.sh` (variants, `T2_DC_SO`, `T2_DC_STATE=none`,
 `T2_COREMETER=1`). Real game speed of any libretro core (M8e):

@@ -37,8 +37,10 @@ MustardOS team.
 
 - Ports that exist only for 32-bit (armhf) systems do not run: the
   firmware is 64-bit only. PortMaster lists them; about 200 of 1500.
-- No on-screen volume/brightness bar in ports (the keys still work), except
-  ports that run a libretro core, which get the in-game bar and menu.
+- The volume/brightness bar shows when the port draws its next frame: in
+  a still screen that waits for a key (a title screen, PortMaster's menu)
+  it appears with the next button press. Ports that bring their own SDL
+  library or draw without SDL/EGL show no bar (the keys still work).
 - A port that hangs on its own exit is closed with Fn+Start (its
   process group is ended after 3 s); unsaved progress is lost then.
 - Ports are not tested one by one: please report the ones that misbehave

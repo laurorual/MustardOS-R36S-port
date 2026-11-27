@@ -30,7 +30,7 @@ it with a commercial product. The port itself is free and must stay so.
 | Linux kernel (rk351 BSP) + in-tree modules incl. rtl8821cu Wi-Fi | christianhaitian/linux `d8402159` + `port/patches/kernel`; also the M2 Image (`780935823…`, reproduced by `build-boot.sh kernel-ref`) as the previous boot record | GPL-2.0 | open |
 | U-Boot | christianhaitian/RG351MP-u-boot `5606e804` + the port's tree (`uboot-tree.py`), `uboot.img` `159e086c…` built by `build-boot.sh uboot` | GPL-2.0+ | open (the old "dirty" banner = a patched tree; source and patches are in the bundle) |
 | Rockchip boot payloads (DDR 333 MHz v1.10, miniloader v1.12, BL31 v1.14, BL32 v1.10) | rkbin (byte-identical; trust.img `3531668a…`) | rkbin LICENSE: use, copy, distribute; no reverse engineering | permitted |
-| Buildroot root filesystem (63 packages: glibc, busybox, SDL2, PipeWire, wpa_supplicant, dropbear, curl, ffmpeg, …) | Buildroot 2025.02.19 | per package (`legal-info/manifest.csv` in the bundle) | open |
+| Buildroot root filesystem (63 packages: glibc, busybox, SDL2, PipeWire, wpa_supplicant, dropbear, curl, ffmpeg, …) | Buildroot 2025.02.19; SDL2 with `port/patches/phase4-graphics/sdl2` (GBM provider, v1.1.1: no default KMSDRM cursor) | per package (`legal-info/manifest.csv` in the bundle) | open |
 | Mali-G31 userspace driver | Hardkernel `rk3326_r13p0_gbm_with_vulkan_and_cl.zip` (sha256 `ef1a18fa…`), aarch64 member `2a067ea3…`, shipped **unmodified** as `/usr/lib/libmali-bifrost-g31-rxp0-gbm.so` (+ links) | Arm proprietary; no terms in the archive | community practice |
 | Fonts: Noto Sans (SC/TC/JP/KR), M+ | from MustardOS | SIL OFL-1.1, M+ FONT LICENSE | open |
 | Boot logo (U-Boot and the splash until the menu) | MustardOS press-kit boot screen `images/mustardos-boot-screen-640x480.png` (sha256 `84b30eb3…`, badge as supplied) + the port's text "R36S / R35S", "unofficial port" (`make-boot-logo.py`) | CC BY-NC 4.0 (MustardOS); the text MIT | permitted (decision 34) |
@@ -73,7 +73,7 @@ the bundle), patches in `port/patches/cores`.
 | gambatte | libretro/gambatte-libretro `77f2567d` | GPL-2.0 | open (moved to `build-cores.sh` 2026-11-25) |
 | fceumm | libretro/libretro-fceumm `ac0d00a7` | GPL-2.0 | open (moved to `build-cores.sh` 2026-11-25) |
 | picante8 (PICO-8, M12; the default) | MustardOS/picante8 `86236842` | GPL-3.0 | open |
-| fake08 (PICO-8, M12) | jtothebell/fake-08 `814991a2` | MIT (with z8lua, MIT) | open |
+| fake08 (PICO-8, M12) | jtothebell/fake-08 `814991a2` + `port/patches/cores/fake08` (v1.1.1: A is O) | MIT (with z8lua, MIT) | open |
 | scummvm (core) | scummvm/scummvm `7d2709da` (v2026.4.0) + libretro deps | GPL-3.0+ | open |
 
 ## Standalone emulators

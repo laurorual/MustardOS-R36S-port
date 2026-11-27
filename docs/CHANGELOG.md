@@ -18,6 +18,14 @@ team: https://github.com/laurorual/MustardOS-R36S-port/issues
   download in `MUOS/bios/pico8`) adds the standalone and pixel-perfect
   choices and the Splore app.
 - GNU wget with HTTPS (Splore downloads, port scripts).
+- Ports, applications and the official PICO-8 show the volume and
+  brightness bar, as games do.
+- **Fixed:** A and B were swapped in ports, PortMaster, the official
+  PICO-8, PPSSPP and Flycast on a card without an Input Remap; A is now
+  confirm and B back everywhere, and A is PICO-8's O button in every
+  PICO-8 core (FAKE-08 too).
+- **Fixed:** a mouse arrow in the top-left corner of PortMaster and of
+  ports.
 
 ## v1.1.0 (2026-11-26)
 

@@ -1180,6 +1180,35 @@ The open problems behind each "partial" are in STATUS.
   group must be ended (muos-standalone-quit, then SIGKILL).
 - **libretro ports** (2048 and others) call `/usr/bin/retroarch -L CORE`:
   the port's shim runs muxretro (`--no-content` when no file is given).
+- **Pad mapping (v1.1.1 T3):** the gamecontrollerdb store
+  (`share/info/gamecontrollerdb/retro|modern.txt`) holds a muOS-Keys line
+  only after an Input Remap; without one, SDL's own evdev mapping puts
+  `a` on BTN_SOUTH (the bottom button, labelled B): A and B swapped in
+  ports, PortMaster, the official PICO-8, PPSSPP and Flycast on a fresh
+  card (the bench had a remap line). As upstream SETUP_SDL_ENVIRONMENT,
+  `sdl_map_line` falls back to the generated `board/sdl_map` (`a:b1` =
+  BTN_EAST, the physical A).
+- **Cursor:** SDL2's KMSDRM backend shows its default arrow on the VOP
+  cursor plane (win2-0, 64x64 at 0,0; `/sys/kernel/debug/dri/0/summary`)
+  in any SDL program that does not hide it (PortMaster's GUI, Godot frt,
+  doukutsu-rs). Upstream preloads `libmucursor.so` (SDL_ShowCursor(0)),
+  which misses SDL loaded through ctypes; SDL2 patch 0004 creates no
+  default cursor unless `SDL_KMSDRM_DEFAULT_CURSOR=1`.
+- **Level bar:** `muos-levelbar.so` (port/utils, `build-levelbar.sh`),
+  preloaded by muos-frontend into ports, applications and the official
+  PICO-8, draws a volume/brightness panel for 1.5 s after
+  `config/settings/general/{volume,brightness}` change (checked every
+  100 ms at the frame swap) with scissored glClear (SDL_GL_SwapWindow,
+  eglSwapBuffers) or SDL_RenderFillRect (SDL_RenderPresent, logical size
+  switched off meanwhile: it clips to the game's viewport). Godot frt and
+  pysdl2 (ctypes) look SDL/EGL up with dlsym on a dlopen handle: the
+  library exports dlsym (an aarch64 trampoline tail-jumps to libc's, so
+  dlsym(RTLD_NEXT) keeps its caller) and returns its wrappers for the
+  three swap functions; SDL's own EGL swap is skipped inside an SDL
+  wrapper. Drawn only when the program presents (Sopwith's title screen
+  and PortMaster's menu redraw on input only). T2 hooks:
+  `/run/muos/levelbar-grab` (next frame to `levelbar-grab.ppm`),
+  `/run/muos/levelbar-debug` (swaps/s to `levelbar-debug.log`).
 - **T2 (2026-11-26, m11a/m11b):** install from the network in 6 s
   (39.8 MB); SDL Sopwith and TurboTableTennis (Godot 3.5.2 frt, GLES 3.0 on
   Mali-G31, runtime squashfs) ran and quit back to the menu in 1–4 s.
@@ -1197,5 +1226,9 @@ The open problems behind each "partial" are in STATUS.
   where muOS keeps favourites/bbs), `-root_path`, `-joystick 0`,
   `-windowed 0`, `-pixel_perfect 1`; `sdl_controllers.txt` in the home.
   Splore opens (splore_init); BBS downloads unverified at T2.
+- **Buttons:** O is PICO-8's primary (confirm/jump) and X the secondary.
+  Picante8 maps RetroPad A (the physical A) to O, the official PICO-8 maps
+  SDL `a` to O (with the board mapping: the physical A); upstream FAKE-08
+  maps B to O, patched to A (`port/patches/cores/fake08`).
 - **BusyBox wget has no HTTPS:** GNU wget (Buildroot, OpenSSL) replaces it
   (M12), for PICO-8's `use_wget 1` and port scripts.
