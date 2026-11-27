@@ -13,14 +13,17 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 Phase 5 (own-card firmware). M1–M10 done: **v1.1.0 published 2026-11-26**
 (GitHub release, latest; v1.0.0 before it; m10a, the v1.1.0 developer
 twin, is the recovery image). **Current: M11 — PortMaster + M12 — PICO-8**
-(2026-11-26, one release, decision 48): both done to T2, **v1.1.1**
-built; the user runs one T3 for both, then publishes v1.1.1. Next: M13,
+(2026-11-26, one release, decision 48): both done to T2; the first
+v1.1.1 T3 passed with small findings (A/B, cursor, no bar in ports),
+fixed and T2-checked in m12c; **v1.1.1 rebuilt**. The user repeats the
+T3 on test128, then on original32, then publishes v1.1.1. Next: M13,
 the MustardOS next release.
 
 ## Device and bench
 
-- **Bench (2026-11-26):** test128 in slot 1, **p2 = m12b** (written
-  with `write-p2` after `t2-pico8.sh` + `t2-portmaster.sh` PASS). p3 test
+- **Bench (2026-11-26):** test128 in slot 1, **p2 = m12c** (written
+  with `write-p2` after `t2-levelbar.sh` + `t2-pico8.sh` +
+  `t2-portmaster.sh` PASS; m12b before it). p3 test
   content: PortMaster with sdlsopwith, turbotabletennis, 2048; ROMS/PICO-8
   `ld45.p8`, `cartparsetest.p8.png`; the user's official PICO-8 0.2.7 in
   `MUOS/bios/pico8` (private: never in an image) and the Splore app. Before:
@@ -59,12 +62,13 @@ card, bootloader included (procedures.md).
 | Image | Content | State |
 |---|---|---|
 | **`dist/firmware/test128-m10a-20261126.img.zst`** (raw `cc85290c…`, p2 `77ff5a87…`) + `MustardOS-R36S-port-v1.1.0.*` (public, raw `8378de0c…`, p2 `8bedd242…`, 32 checks) | M10: Wi-Fi dongles, model DTBs + switch | m10a on the bench (update path from m9k); v1.1.0 T3 ok and **published 2026-11-26**; **m10a recovery since 2026-11-26** |
+| `dist/firmware/test128-m12c.img.zst` (raw `792c33a5…`, p2 `97e153b3…`) + `MustardOS-R36S-port-v1.1.1.*` (public, raw `549d087e…`, p2 `8c5e8f6b…`, 38 checks; source zips in `build/release`) | M11 + M12 + the v1.1.1 T3 fixes | m12c on the bench p2; v1.1.1 T3 round 2 pending, then publish |
 | (v1.0.0 public, m9k) | on GitHub (release); local files and m9k retired 2026-11-26 (m10a recovery) | T3 ok 2026-11-26 |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-2/5 versions in `storage-retention.json` (M2, m10a+v1.1.0; m9k+v1.0.0
-and earlier retired 2026-11-26). The v1.0.0 and v1.1.0 source zips in
+3/5 versions in `storage-retention.json` (M2, m10a+v1.1.0,
+m12c+v1.1.1; m12b and m9k+v1.0.0 and earlier retired 2026-11-26). The v1.0.0 and v1.1.0 source zips in
 `build/release` (2.6 GB each, also on GitHub) are outside retention.
 
 ## What works (T3-confirmed)
@@ -107,8 +111,14 @@ power-cut recovery. Full list per milestone in milestones.md.
   "M8 thermal block"); play them on battery. Saturn too heavy for Sonic R.
 - **Audio:** occasional PipeWire sink stall (self-healed before each
   game, root cause open); 200 % overdrive distorts (as upstream).
-- **Standalone N64:** no volume/brightness bar; screenshots give no
-  feedback. muxretro has no capture.
+- **Standalone emulators (N64, PSP, DC, NDS, Saturn):** no
+  volume/brightness bar (the keys work); `muos-levelbar.so` could be
+  preloaded there too (M13 candidate: fps T2 per emulator; DraStic's hook
+  wraps SDL itself). N64 screenshots give no feedback.
+- **User report (2026-11-26, another user, model unknown):** a black
+  screen while changing settings, and the B/back button also lowered the
+  volume. Waiting for the model (DTB) and details from the user; then
+  reproduce (input profile per model? `muos-model`).
 - **Menu:** "Direct Link", "Proxy Settings" and static addresses
   untested; one missed Power press in a 15-cycle soak (logged since M8).
 - **Pinned, not rebuilt:** idbloader/trust (rkbin files, identical to
@@ -126,36 +136,31 @@ tested a TP-Link RTL8822BU dongle, 2357:0115: it works.)
 
 ## T3 queue
 
-**v1.1.1 checklist (M11 + M12)** (public image on original32 in slot 1,
-as before; full pt-BR paths; Wi-Fi on):
-1. Update from v1.1.0: copy `MustardOS-R36S-port-v1.1.1.p2.img.gz` +
+**v1.1.1 checklist, round 2** (round 1 2026-11-26: all 8 OK, with
+findings: a cursor in the corner, A/B swapped in PortMaster, ports and
+between the PICO-8 cores, no volume bar in ports; fixed in m12c). First
+on **test128** (already m12c), then on **original32** (public v1.1.1):
+1. Aplicativos → PortMaster: no arrow in the top-left corner; A
+   confirms, B goes back. Volume −/+: the bar appears (with the next
+   button press on a still screen).
+2. Explorar conteúdo → Ports → Doukutsu-rs and TurboTableTennis: no
+   arrow; A confirms/jumps, B cancels; Volume −/+ and Fn+Volume −/+: the
+   volume and brightness bars at the top; Fn+Start back.
+3. Explorar conteúdo → PICO-8 → a cart, once per core (Y → Núcleo):
+   Picante8, FAKE-08, "PICO-8 - Standalone": A is the same button (O,
+   start/jump) and B the other (X) in all three; the bar in Standalone.
+4. Aplicativos → Splore: A opens, B back; a download plays.
+5. Regression: Explorar conteúdo → PSP (PPSSPP) and Dreamcast: menus
+   confirm with A as before.
+6. original32: copy the new `MustardOS-R36S-port-v1.1.1.p2.img.gz` +
    `.p2.img.sha256` to `MUOS/update`, Aplicativos → Ferramentas de
-   sistema → Instalar atualização do sistema: progress, restarts, menu.
-   Informações → Detalhes do dispositivo: Compilação = v1.1.1.
-2. Aplicativos → PortMaster: "Instalando o PortMaster", then "PortMaster
-   instalado: abra-o de novo em Aplicativos"; B back. Open it again:
-   PortMaster's screen with music; D-pad/A/B work.
-3. In PortMaster install a free "Ready to Run" port (SDL Sopwith or
-   2048) and a Godot one (TurboTableTennis); leave PortMaster.
-4. Explorar conteúdo → Ports: start each: picture, sound, buttons;
-   TurboTableTennis downloads its runtime on its first start; 2048 shows
-   the volume bar; Volume +/− work in all; Fn+Start back to the menu
-   within ~5 s.
-5. During a port: Suspender (short Power), wait 10 s, wake: it continues.
-6. PICO-8 with the free core: copy a cart (`.p8` or `.p8.png`) to
-   `ROMS/PICO-8`; Explorar conteúdo → PICO-8 → the cart: plays with sound
-   (Picante8); Menu+… as other libretro games; Fn+Start or the in-game
-   menu back.
-7. Official PICO-8: copy `pico-8_0.2.7_raspi.zip` to `MUOS/bios/pico8`,
-   restart: Aplicativos shows **Splore**. In Explorar conteúdo → PICO-8,
-   Y (opções do conteúdo) → Núcleo → "PICO-8 - Standalone" and play a
-   cart: fills the screen height; "PICO-8 - Pixel-Perfect - Standalone":
-   sharp, smaller square; buttons and sound; Fn+Start back.
-8. Aplicativos → Splore: the Lexaloffle BBS lists carts (Wi-Fi); download
-   and play one; Fn+Start back to Aplicativos.
-After it passes: m12b becomes the recovery image and the user runs
-`build/release/publish-v1.1.1.sh` (tags the final commit: the image was
-built at 0c89e88, same `port/device` tree; the merged README is the user's).
+   sistema → Instalar atualização do sistema; Informações → Detalhes do
+   dispositivo: Compilação v1.1.1; then items 1–3 there (a card without
+   an Input Remap: the case the A/B fix is for).
+After it passes: m12c becomes the recovery image (m10a retired) and the
+user runs `build/release/publish-v1.1.1.sh` (tags the final commit;
+the image was built at a49ea71, same `port/device` tree as m12c's
+1858c4f).
 
 ## Current milestone: M12 — PICO-8 (done to T2 2026-11-26)
 
@@ -174,7 +179,16 @@ The user's focus after PortMaster, released with it as v1.1.1
 3. GNU wget with OpenSSL (BusyBox wget has no HTTPS).
 4. Docs (README, CHANGELOG, known issues, findings, LICENSING: the
    official PICO-8 is never distributed); `t2-pico8.sh`; public checks.
-Unverified: Splore's BBS downloads (T3 8).
+Splore's BBS downloads: T3 round 1 OK.
+5. **v1.1.1 T3 fixes (m12c, done to T2 2026-11-26):** `sdl_map_line`
+   falls back to `board/sdl_map` (fresh cards had A/B swapped in SDL
+   programs: ports, PortMaster, official PICO-8, PPSSPP, Flycast); SDL2
+   patch 0004 (no default KMSDRM cursor); `muos-levelbar.so` preloaded
+   into ports, applications and PICO-8 (GL, EGL, SDL renderer; dlsym
+   wrappers for frt and pysdl2); FAKE-08 patched to A = O.
+   `t2-levelbar.sh` PASS (board mapping on a fresh store, bar in
+   PortMaster's GUI / TurboTableTennis / PICO-8, cursor plane off);
+   t2-pico8 (both cores 60.0 fps), t2-portmaster and NES 59.99 fps PASS.
 
 ## Milestone M11 — PortMaster (and muOS applications) (done to T2 2026-11-26)
 
