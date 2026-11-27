@@ -535,7 +535,7 @@ host key is the only persistent identity (M1 decision, see archive/milestones-m1
 | btusb blacklist (Wi-Fi-only) | The warm-reboot dongle fix. |
 | `muos-run-bounded` | Time limits for services. |
 | Boot records + one-shot trial kernel; previous = the M2 kernel | Kernel/DTB changes never touch the bootloader; a bad kernel costs a power cycle. |
-| Never `saveenv` or dArkOSen `flash_uboot.sh`; never write original32 | Protects the bootloader and the stock card. |
+| Never `saveenv` or dArkOSen `flash_uboot.sh` | Protects the bootloader. |
 | ≤ 5 firmware versions (`retention.py`) | Host disk space. |
 
 The M1 retirements are listed in archive/milestones-m1-m7.md. M3a retired 410 Phase 4
