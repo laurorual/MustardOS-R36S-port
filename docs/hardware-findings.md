@@ -66,8 +66,14 @@ The open problems behind each "partial" are in STATUS.
   DTB, dArkOSen's Panel 0 differs only in the mmc aliases, the panel
   timing (29 MHz rk351, the glitching one), battery (3140 vs 2500 mAh),
   CPU max-volt and a GPU 600 MHz OPP; Panel 4 and the V21/V22 models add
-  their panel init sequence, backlight PWM period, battery table and
-  slot-2 UHS modes. A model DTB boots the bench (Panel 4 test DTB with the
+  their panel init sequence, backlight PWM period and battery table, and
+  Panel 4 limits slot 2 to 3.3 V (`no-1-8-v`, no UHS modes).
+  Panel 4 timing variants (2026-11-27): dArkOSen's current Panel 4 runs
+  the native 60Hz mode at vfp 165 (59.94 Hz); a user's working dArkOSen
+  DTB and arkos4clone's "origin panel4 type1" use vfp 16 (vtotal 512,
+  ~77 Hz at 29 MHz) with the same init sequence and inputs. arkos4clone
+  also has an "origin panel4 type2" with another panel (58 MHz, other
+  init sequence): "Panel 4" names more than one panel. A model DTB boots the bench (Panel 4 test DTB with the
   port battery node, 2026-11-26): same input names, root mmcblk0p2,
   Wi-Fi; the screen is not checked (another panel's init sequence).
 

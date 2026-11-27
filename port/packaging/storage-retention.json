@@ -11,30 +11,14 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m12e-v111-20261127": {
-      "reason": "M11+M12 (decision 48): PortMaster, PICO-8 (Picante8, FAKE-08, the user's official PICO-8 + Splore), GNU wget, Python 3; v1.1.1 T3 fixes (board SDL mapping fallback, SDL2 no default KMSDRM cursor, FAKE-08 A = O) and one in-game bar everywhere (muxretro --level-assets + muos-levelbar.so in ports, apps, PICO-8, standalone emulators); developer m12e (rounded bar, N64 quit fade; raw 8eba11d6, p2 65f3c678, written to the bench p2 after t2-levelbar + t2-quit-fade + t2-pico8 + t2-portmaster PASS); recovery since 2026-11-27 (v1.1.1 T3 round 3 items 1-3 ok; item 4, the background updater, is public-only and fixed in m12f); its public v1.1.1 build was replaced by m12f's. m12b, m12c, m12d retired 2026-11-26/27.",
-      "files": [
-        "build/m3a/test128-m12e.p2.img",
-        "dist/firmware/test128-m12e.img.zst",
-        "dist/firmware/test128-m12e.img.zst.sha256",
-        "dist/firmware/test128-m12e.manifest"
-      ]
-    },
     "m12f-v111-20261127": {
-      "reason": "v1.1.1 T3 round 3 item 4: manual online update (Task Toolkit -> Check for Online Update, newer releases only, asks before download and install; no background updater: it installed v1.1.0 over v1.1.1), flock on stage/fetch, texts in 31 languages, the port's glyphs (update, cloud, splore), frontend patch 0013 SORT_AFTER; developer m12f (raw 8b9df957, p2 6a29a226; installed on the bench through the new online task, e2e); public v1.1.1 (raw d5187bd2, p2 4068786a; 41 checks)",
+      "reason": "v1.1.1 T3 round 3 item 4: manual online update (Task Toolkit -> Check for Online Update, newer releases only, asks before download and install; no background updater: it installed v1.1.0 over v1.1.1), flock on stage/fetch, texts in 31 languages, the port's glyphs (update, cloud, splore), frontend patch 0013 SORT_AFTER; developer m12f (raw 8b9df957, p2 6a29a226; installed on the bench through the new online task, e2e); public v1.1.1 (raw d5187bd2, p2 4068786a; 41 checks); recovery since 2026-11-27 (v1.1.1 T3 round 4 ok, m12e retired); the public v1.1.1 images, raw p2 and source zips deleted 2026-11-27 after the publish (on GitHub, assets verified)",
       "files": [
         "dist/firmware/test128-m12f.img.zst",
         "dist/firmware/test128-m12f.img.zst.sha256",
         "dist/firmware/test128-m12f.manifest",
         "build/m3a/test128-m12f.p2.img",
-        "build/m3a/MustardOS-R36S-port-v1.1.1.p2.img",
-        "dist/firmware/MustardOS-R36S-port-v1.1.1.img.xz",
-        "dist/firmware/MustardOS-R36S-port-v1.1.1.img.xz.sha256",
-        "dist/firmware/MustardOS-R36S-port-v1.1.1.img.zst",
-        "dist/firmware/MustardOS-R36S-port-v1.1.1.img.zst.sha256",
-        "dist/firmware/MustardOS-R36S-port-v1.1.1.manifest",
-        "dist/firmware/MustardOS-R36S-port-v1.1.1.p2.img.gz",
-        "dist/firmware/MustardOS-R36S-port-v1.1.1.p2.img.sha256"
+        "dist/firmware/MustardOS-R36S-port-v1.1.1.manifest"
       ]
     }
   },
