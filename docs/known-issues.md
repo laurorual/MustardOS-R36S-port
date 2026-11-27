@@ -67,6 +67,12 @@ MustardOS team.
   ends.
 - Menus not yet tested on this port: Direct Link, Proxy Settings, static
   IP addresses.
-- Updating through Wi-Fi or the Task Toolkit replaces only the system
-  partition; a new kernel or boot loader (rare) needs a full reflash.
-- English task names in the Task Toolkit, as in MustardOS.
+- Updating through Wi-Fi or the Task Toolkit replaces the system
+  partition and the kernel; a new boot loader (rare) needs a full reflash.
+- **On v1.1.0 only:** its automatic updater runs in the background with
+  Wi-Fi on. Don't start Install Firmware Update while it is downloading
+  (the first minutes after a start with Wi-Fi, when a new release is out):
+  both unpack into the same file and the update falls back to the old
+  system at the restart. Turn Wi-Fi off first, or let the automatic
+  update finish. From v1.1.1 on, updates over Wi-Fi only start from
+  Task Toolkit → Check for Online Update.
