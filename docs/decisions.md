@@ -157,5 +157,10 @@ overrides an earlier one where they conflict (noted inline).
     PPSSPP, ScummVM) must work on exFAT/FAT32; the power-loss risk of
     exFAT is accepted and stated in the README.
 
+52. (2026-11-27) M13: the selected model's DTB stays switched in S89
+    (no U-Boot change for now). The M13 flash tests run on original32
+    (wiped, the developer image in slot 1); test128 keeps m12f, so no p3
+    backup/restore. The M13 release is v1.1.2 (not v1.2.0).
+
 Standing rules (AGENTS.md): heavy systems = maximum performance first;
 recovery promotion after a clean T3 without asking.

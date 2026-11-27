@@ -49,7 +49,8 @@ image. **Next: M13**, First Boot and the games card format (decision 50).
   `state-v112`, DC fight states `dc-fight` / `dc-fight-2022`; `ppsspp-2021`,
   `drastic`, `m1-backup`, `emu` are removable), CTR state in
   `MUOS/port/t2/ctr-race`, ScummVM test game (Monkey Island).
-- **original32 (stock dArkOSen):** the flasher station only. Never write it.
+- **original32:** the user's flash-test card (decision 52); flashed
+  with the host reader like test128.
 - `refs/darkosen` at `28f5427`; its `.git` is 361 MB (a fresh blobless
   clone would free ~340 MB: the user's call, refs/ is read-only).
 
@@ -153,13 +154,8 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-1. **The selected DTB from the very first boot (user question
-   2026-11-27).** Done now: the switch happens in S89 (~10 s of black on
-   a Panel 4 instead of ~1 min). Fully from the first boot needs U-Boot to
-   read p1 model.txt and boot that model's DTB (SHA256-checked, then the
-   main record updated without a trial): a bootloader change, T2 with the
-   user present, only for newly flashed cards. Recommendation: wait for
-   the Panel 4 user's result first (the early switch may be enough).
+None (decision 52: the model switch stays in S89; M13 = v1.1.2;
+flash tests on original32).
 
 ## T3 queue
 
@@ -199,15 +195,15 @@ grow, ext4 over exfat, a card with games refused, a failing format back
 to ext4, foreign card), `t1-fresh-p3.sh` (zone scheme updated).
 Left for the release: install guides, known issues, release notes, the
 LICENSING package count.
-**T2 when the bench is on (user present: flash):** `card-p3.sh backup`;
-flash `test128-m13b` (raw `023c259a…`) (developer, MUOS_FIRST_BOOT=1) without `--grow`;
+**T2 (user present: flash; decision 52):** the user flashes
+`test128-m13b` (raw `023c259a…`, developer, MUOS_FIRST_BOOT=1) on
+**original32** without `--grow` (test128 keeps m12f: no backup);
 `t2-first-boot.sh pre`, `install exfat`, `install vfat`, `install ext4`
 (each checks the format, settings and zone kept, seeds, ScummVM bind);
 on exFAT: DraStic, PPSSPP 2021 saves, PortMaster install, NES fps, an
 update; the early model switch with a Panel 0 copy as the model DTB
-(`t2-model.sh`, never another panel's DTB on the bench); reflash the
-recovery image + `card-p3.sh restore`.
+(`t2-model.sh`, never another panel's DTB on the bench).
 Expected T3: the six screens on a blank card, Windows sees the card,
 copy a ROM and play it, the time zone survives a restart.
 
-Then M14: the MustardOS next release (decision 45).
+Release: v1.1.2. Then M14: the MustardOS next release (decision 45).

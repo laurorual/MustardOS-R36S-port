@@ -36,8 +36,8 @@ put together. Current state and the recovery image are in
     images keep `boot/factory_reset` 0 (no first boot, p3 grown as
     before; `MUOS_FIRST_BOOT=1` for one that starts there). T1:
     `t1-install-storage.sh`; T2: `t2-first-boot.sh`.
-- **original32 (stock dArkOSen):** the flasher station, in slot 1 with
-  the target card in slot 2. Never write original32 itself.
+- **original32:** no longer stock dArkOSen (decisions 46, 52): it holds
+  the public image or an M13 flash test, flashed by the user like test128.
 
 ## Flash with the host card reader (primary, since 2026-11-11)
 

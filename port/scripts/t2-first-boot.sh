@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
 # shellcheck disable=SC2016 # device-side commands in single quotes
-# T2 (M13): the first boot's Install on the bench, after the user flashed
-# test128 with a developer image made with MUOS_FIRST_BOOT=1 (first boot on,
-# SSH kept; flash-card.sh WITHOUT --grow; back up p3 first: card-p3.sh).
+# T2 (M13): the first boot's Install on the bench, after the user flashed a
+# card (original32, decision 52) with a developer image made with
+# MUOS_FIRST_BOOT=1 (first boot on, SSH kept; flash-card.sh WITHOUT --grow).
 # The install runs as the progress screen runs it (muos-install-storage
 # request, restart; S89 applies it); the user checks the screens in the T3.
 #   t2-first-boot.sh pre          fresh card: factory_reset 1, the menu in the
