@@ -30,6 +30,10 @@ content() {
     c=/mnt/content p4=$(part 4)
     [ -b "$p4" ] || return 0
     findmnt -rn -M "$c" >/dev/null && return 0
+    # an install that did not finish (p3's config still in the first boot)
+    # formats p4 again: leave it unmounted for it
+    [ "$(cat "$data/MUOS/port/config/boot/factory_reset" 2>/dev/null)" != 1 ] ||
+        { echo 'data: first boot not finished: p4 left unmounted'; return 0; }
     t=$(blkid -o value -s TYPE "$p4" 2>/dev/null) || :
     case $t in
         exfat) modprobe -q exfat || :; chk="fsck.exfat -p" o=uid=0,gid=0,fmask=0022,dmask=0022,iocharset=utf8,errors=remount-ro ;;

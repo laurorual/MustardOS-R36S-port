@@ -196,4 +196,19 @@ checks. T2 (bench on): a fresh public-variant p3 in a trial (dev access),
 each format, PortMaster, update from the content MUOS/update. Expected
 T3: the six screens on a blank card, Windows sees the games drive, copy a
 ROM, play it, an online update keeps everything.
+**Progress (2026-11-27, host only):** items 1–7 implemented
+(65f7222 + the S89 retry fix): T0 shellcheck clean, task-texts current;
+T1 `t1-install-storage.sh` PASS (exfat 32 GiB → p3 6 GiB + p4 type 7,
+repeated; vfat on that table, type c; ext4 removes p4; 12 GiB → p3
+4 GiB; 6 GiB refused before any write; foreign disk id refused),
+`t1-fresh-p3.sh` PASS. Public images also check factory_reset 1, the mkfs
+and fsck tools, the install files and /mnt/content. Left for the release:
+README / install guides (first boot, the games drive on Windows), known
+issues, release notes, the LICENSING package count.
+**T2 when the bench is on (user present: flash):** `card-p3.sh backup`;
+flash `test128-m13a` (developer, MUOS_FIRST_BOOT=1) without `--grow`;
+`t2-first-boot.sh pre`, `install exfat`, `install vfat`, `install ext4`;
+then NES fps, PortMaster install, an update copied to p4 MUOS/update;
+reflash the recovery image + `card-p3.sh restore`.
+
 Then M14: the MustardOS next release (decision 45).
