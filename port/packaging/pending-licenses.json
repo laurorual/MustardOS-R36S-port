@@ -78,7 +78,7 @@
    "id": "nds-drastic-m8",
    "component": "NDS: DraStic r2.5.2.2 aarch64 binary (closed source, Exophase), trngaje advanced_drastic hook (libadvdrastic.so, dArkOS build, no licence file) + libjson-c.so.5, steward-fu/trngaje layout art (drastic_layout, no licence file)",
    "source": "https://github.com/trngaje/advanced_drastic d445a56349cce68f5337d02c9fe890de9d390f3f; https://github.com/trngaje/drastic_layout e8dc3eb5bb51351bf3e93229e388ae9e5fea9adc",
-   "status": "community practice (decision 35, 2026-11-25): DraStic, libadvdrastic.so and the 640x480 layout (steward-fu) shipped with credits; other drastic_layout resolutions never shipped. Exophase e-mailed, steward-fu/nds#110 open, trngaje: the layout art is not his (drastic_layout#3); advanced_drastic has no licence or source",
+   "status": "community practice (decision 35, 2026-11-25): DraStic, libadvdrastic.so and the 640x480 layout (steward-fu) shipped with credits; other drastic_layout resolutions never shipped. Exophase e-mailed; steward-fu (nds#110, 2026-11-27): the layout art may be redistributed and modified, crediting all its contributors (THIRD-PARTY.txt); trngaje: the layout art is not his (drastic_layout#3); advanced_drastic has no licence or source",
    "reference": "docs/LICENSING.md"
   },
   {

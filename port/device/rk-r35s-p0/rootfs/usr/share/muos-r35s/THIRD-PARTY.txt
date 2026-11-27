@@ -13,7 +13,7 @@ after the last release). Non-commercial licences (marked) forbid selling
 this firmware or bundling it with a commercial product.
 
 Closed components without published terms (Mali userspace, DraStic, the
-DraStic hook and layout art) are included as other community firmwares
+DraStic hook) are included as other community firmwares
 (dArkOS, ArkOS) do, with credit to their authors. Authors who want a
 component removed: open an issue on the project page and it is removed
 in the next release.
@@ -35,7 +35,7 @@ System
 - Mali-G31 r13p0 userspace driver (c) Arm Limited, as published by Hardkernel for the ODROID-GO Advance
   (rk3326_r13p0_gbm_with_vulkan_and_cl.zip), unmodified; proprietary, no terms were supplied with it
 - Fonts: Noto Sans SC/TC/JP/KR (SIL OFL-1.1), M+ (M+ FONT LICENSE), shipped by MustardOS
-- Model device trees (experimental, 22 R36S models): from dArkOSen (MIT, https://github.com/djparentx/dArkOSen-R36S
+- Model device trees (experimental, 23 R36S models): from dArkOSen (MIT, https://github.com/djparentx/dArkOSen-R36S
   28f5427f7ae9) with the port's changes; derived from the GPL-2.0 kernel device trees, their source is in the bundle
 - Wi-Fi firmware for the mainline USB drivers (mt7601u, rt2800usb, rt73usb, rtl8192cu, r8712u, r8723au):
   linux-firmware 20261019, unmodified, (c) MediaTek/Ralink and Realtek, redistributable
@@ -85,4 +85,6 @@ Standalone emulators
 - DraStic r2.5.2.2 (c) Exophase, freeware, closed source, unmodified: https://drastic-ds.com
 - advanced_drastic hook libadvdrastic.so (trngaje, based on steward-fu's drastic-steward work), no licence file:
   https://github.com/trngaje/advanced_drastic d445a56349cce68f5337d02c9fe890de9d390f3f (libjson-c: MIT)
-- DraStic 640x480 layout art by steward-fu, via https://github.com/trngaje/drastic_layout e8dc3eb5bb51351bf3e93229e388ae9e5fea9adc
+- DraStic 640x480 layout art (steward-fu's collection; redistributed and modified with steward-fu's permission, 2026-11-27), via
+  https://github.com/trngaje/drastic_layout e8dc3eb5bb51351bf3e93229e388ae9e5fea9adc
+  Contributors: 河馬, 皓, CrazySiz, 雯瑾文曦, Dana, FlyHoney, 背包胖熊, 小凱, Schmurtz, Totofaki, XK, tGecko, Aemiii91, Steward_Fu

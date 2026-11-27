@@ -2,7 +2,8 @@
 # for, besides the port's own Panel 0 DTB (the default). Wave 1: dArkOSen's
 # models (refs/darkosen, MIT; docs/upstream-revisions.txt) on the port's
 # board type (rg351mp U-Boot DTB) at 640x480 whose input device names and
-# key codes equal the port DTB's (port/scripts/dtb-survey.sh). dArkOSen's
+# key codes equal the port DTB's (port/scripts/dtb-survey.sh). A "+BASE"
+# line derives a variant of BASE (make-dtb-model.sh). dArkOSen's
 # own Panel 0 DTB is left out: its 29 MHz timing glitches (hardware-findings
 # "Bottom-rows glitch"). make-dtb-model.sh adds the port's DT deltas.
 #   ID SHA256 DTB   (DTB relative to refs/darkosen/boot/dtb; the folder
@@ -11,6 +12,7 @@ hl-r36h-v20-2024-05-18 0b8ffbf8981017ff698ef06f08c3406ce6ca808d4df65e3b80c9729af
 hl-r36h-v21-2024-11-18 1b629e612cc9d89e5323d8dfee7ccf7cfbe9d73c1155dc0ae2f3076e9e60bcc1 r36s/HL-R36H-V21 2024-11-18/rk3326-r36h-linux.dtb
 hl-r46h-v22-2026-03-12 60e153a7ba8aa7a653d8eb9992f2b63fe3c557919dc1eab60956cce0c5aeb25c r36s/HL-R46H-V22 2026-03-12/rk3326-r46h-linux.dtb
 r36s-v12-2023-08-18-panel-4 0614144b04aa017995c128818ab41b27121646aeebd0db6be2b1a66673a900b4 r36s/R36S-V12 2023-08-18 Panel 4/rk3326-r36s-linux.dtb
+r36s-v12-2023-08-18-panel-4-vfp16 +r36s-v12-2023-08-18-panel-4 /dsi@ff450000/panel@0/display-timings/60Hz:vfront-porch=16 R36S-V12 2023-08-18 Panel 4 (vfp 16, test)
 r36s-v21-2024-12-18-2503 2d6969666860e8d5f65405ba8d64ee92ab4888d0d16fb20e206faf8d45d3a296 r36s/R36S-V21 2024-12-18 2503/rk3326-r36s-linux.dtb
 r36s-v21-2024-12-18-2529 ba463b13b004b4c002a64c1c221b48c32debf68d08cd83f0d947b2d5e88e3b7a r36s/R36S-V21 2024-12-18 2529/rk3326-r36s-linux.dtb
 r36s-v21-2024-12-18-2537 15540bd153fe893a031269c14af1e4daf3d3dcb1a502a13d49c297d6265bbf45 r36s/R36S-V21 2024-12-18 2537/rk3326-r36s-linux.dtb

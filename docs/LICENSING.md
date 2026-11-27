@@ -88,7 +88,7 @@ the bundle), patches in `port/patches/cores`.
 | DraStic r2.5.2.2 (aarch64) | `drastic_v2522` from trngaje/advanced_drastic `d445a563` (md5 `17550db7…`, sha256 `dab3275e…`), with its `system/`, `game_database.xml`, `microphone/` | freeware, closed source (Exophase) | community practice |
 | advanced_drastic hook `libadvdrastic.so` (dArkOS build) | trngaje/advanced_drastic `d445a563` `libs/arkos` (sha256 `ffa77841…`), with its `resources/` menu, pen, lang | no licence file, no published source; README: based on steward-fu's drastic-steward hook (steward-fu/nds is LGPL-2.1) | community practice |
 | `libjson-c.so.5` (in the hook's folder) | trngaje/advanced_drastic `libs/arkos` (sha256 `35c940c7…`) | MIT (json-c) | open |
-| DraStic 640x480 layout art | trngaje/drastic_layout `e8dc3eb5` `bg/640x480` (by steward-fu, per trngaje) | no licence file | community practice |
+| DraStic 640x480 layout art | trngaje/drastic_layout `e8dc3eb5` `bg/640x480` (by steward-fu, per trngaje) | no licence; steward-fu's permission (2026-11-27): redistribute and modify, crediting all contributors (河馬, 皓, CrazySiz, 雯瑾文曦, Dana, FlyHoney, 背包胖熊, 小凱, Schmurtz, Totofaki, XK, tGecko, Aemiii91, Steward_Fu) | permitted |
 | drastic_layout other resolutions (1024x768, 720x720, 1280x720, 720x480, …; other authors) | — | — | removed (never shipped; `build-drastic.sh` copies only 640x480) |
 | Noto Sans KR (in the hook's resources) | — | SIL OFL-1.1 | open |
 
@@ -145,7 +145,7 @@ outside the themes.
 | 2 | Exophase | DraStic r2.5.2.2 | e-mail (by 2026-11-25) | none as of 2026-11-25 |
 | 3 | trngaje | drastic_layout art | issue trngaje/drastic_layout#3, 2026-11-23 | 2026-11-23: "None of it is my own work"; 640x480 by steward-fu, 1024x768 resized from it, 720x720 duncanyoyo1/Vidnez/anbernic, 1280x720 crossmix, 720x480 tamarindojuice ([comment](https://github.com/trngaje/drastic_layout/issues/3#issuecomment-7116865774)) |
 | 3b | trngaje | libadvdrastic.so | — (checked the repository 2026-11-25) | no LICENSE, no source in the repository, README credits steward-fu's drastic-steward |
-| 4 | steward-fu | 640x480 layout art | issue steward-fu/nds#110, 2026-11-23 | none as of 2026-11-25 |
+| 4 | steward-fu | 640x480 layout art | issue steward-fu/nds#110, 2026-11-23 | 2026-11-27: all the artworks may be redistributed and modified; no licence (contributed by open-source lovers); include all contributors: 河馬, 皓, CrazySiz, 雯瑾文曦, Dana, FlyHoney, 背包胖熊, 小凱, Schmurtz, Totofaki, XK, tGecko, Aemiii91, Steward_Fu |
 | 5 | MustardOS team | name, port, bundled themes | 2026-11-22/23 | 2026-11-25: allowed on the conditions of decision 34 |
 
 Earlier request texts: git history of `docs/license-requests.md`

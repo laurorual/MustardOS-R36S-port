@@ -30,7 +30,7 @@ after the last release). Non-commercial licences (marked) forbid selling
 this firmware or bundling it with a commercial product.
 
 Closed components without published terms (Mali userspace, DraStic, the
-DraStic hook and layout art) are included as other community firmwares
+DraStic hook) are included as other community firmwares
 (dArkOS, ArkOS) do, with credit to their authors. Authors who want a
 component removed: open an issue on the project page and it is removed
 in the next release.
@@ -77,7 +77,9 @@ Standalone emulators
 - DraStic r2.5.2.2 (c) Exophase, freeware, closed source, unmodified: https://drastic-ds.com
 - advanced_drastic hook libadvdrastic.so (trngaje, based on steward-fu's drastic-steward work), no licence file:
   https://github.com/trngaje/advanced_drastic d445a56349cce68f5337d02c9fe890de9d390f3f (libjson-c: MIT)
-- DraStic 640x480 layout art by steward-fu, via https://github.com/trngaje/drastic_layout e8dc3eb5bb51351bf3e93229e388ae9e5fea9adc
+- DraStic 640x480 layout art (steward-fu's collection; redistributed and modified with steward-fu's permission, 2026-11-27), via
+  https://github.com/trngaje/drastic_layout e8dc3eb5bb51351bf3e93229e388ae9e5fea9adc
+  Contributors: 河馬, 皓, CrazySiz, 雯瑾文曦, Dana, FlyHoney, 背包胖熊, 小凱, Schmurtz, Totofaki, XK, tGecko, Aemiii91, Steward_Fu
 EOF
 } > "$out"
 echo "wrote ${out#"$repo"/} ($(wc -l < "$out") lines)"
