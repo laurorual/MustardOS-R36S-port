@@ -93,6 +93,12 @@ track=/opt/muos/script/mux/track.sh
 # brightness bar muxretro draws in games (muos-levelbar.so, preloaded).
 levelbar=/usr/lib/muos-levelbar.so
 [ -f "$levelbar" ] || levelbar=
+# ... drawn as muxretro's in-game bar: muxretro writes the active theme's bar
+# to /run/muos/levelbar (~0.1 s, in the background) at every such launch
+# (the standalone emulators' launchers preload the library too).
+level_assets() {
+    [ -z "$levelbar" ] || /opt/muos/frontend/muxretro --level-assets /run/muos/levelbar > /dev/null 2>&1 &
+}
 run_session() { # LOG CMD...
     l=$1; shift
     run_child env -u LD_LIBRARY_PATH HOME=/root XDG_CONFIG_HOME=/root/.config LD_PRELOAD="$levelbar" \
@@ -129,6 +135,7 @@ launch_app() {
     [ -x "$a/mux_launch.sh" ] || { say "app: no launcher in $a"; clear_requests; return 0; }
     if [ -s "$run/governor" ]; then set_governor "$(head -n1 "$run/governor")"; else default_governor; fi
     sdl_env
+    level_assets
     clear_requests
     audio_check
     foreground "${a##*/}"
@@ -166,6 +173,7 @@ launch_content() {
     fresh=; [ ! -e /tmp/ra_no_load ] || fresh=--fresh
     if [ -s "$run/governor" ]; then set_governor "$(head -n1 "$run/governor")"; else default_governor; fi
     case $ext in port | pico8) sdl_env ;; esac
+    [ -z "$ext" ] || level_assets
     clear_requests
     audio_check
     if [ -n "$ext" ]; then

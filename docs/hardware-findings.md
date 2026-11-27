@@ -1196,11 +1196,21 @@ The open problems behind each "partial" are in STATUS.
   default cursor unless `SDL_KMSDRM_DEFAULT_CURSOR=1`.
 - **Level bar:** `muos-levelbar.so` (port/utils, `build-levelbar.sh`),
   preloaded by muos-frontend into ports, applications and the official
-  PICO-8, draws a volume/brightness panel for 1.5 s after
+  PICO-8 and by the standalone emulators' launchers (DraStic: after its
+  hook, which draws the screens at the present), shows muxretro's in-game
+  bar for 1.5 s + 200 ms fade after
   `config/settings/general/{volume,brightness}` change (checked every
-  100 ms at the frame swap) with scissored glClear (SDL_GL_SwapWindow,
-  eglSwapBuffers) or SDL_RenderFillRect (SDL_RenderPresent, logical size
-  switched off meanwhile: it clips to the game's viewport). Godot frt and
+  100 ms at the frame swap). `muxretro --level-assets /run/muos/levelbar`
+  (patch 0005; ~0.1 s, run in the background at each such launch) writes
+  the active theme's bar with the in-game bar's own code (patch 0002:
+  panel, 2 px border, recoloured glyph; RGBA per kind and glyph level,
+  `levelbar.conf` with the theme size, panel, progress bar and colours).
+  Drawn with a GLES2 program (textured/coloured quads, blending; every GL
+  state it changes saved and restored, VAO 0 and sampler 0 on GLES3,
+  resources per EGL context) at SDL_GL_SwapWindow/eglSwapBuffers, or SDL
+  textures and blended fills at SDL_RenderPresent (logical size switched
+  off meanwhile: it clips to the game's viewport); a plain panel without
+  the files. Godot frt and
   pysdl2 (ctypes) look SDL/EGL up with dlsym on a dlopen handle: the
   library exports dlsym (an aarch64 trampoline tail-jumps to libc's, so
   dlsym(RTLD_NEXT) keeps its caller) and returns its wrappers for the

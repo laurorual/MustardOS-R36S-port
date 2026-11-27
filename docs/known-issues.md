@@ -41,6 +41,8 @@ MustardOS team.
   a still screen that waits for a key (a title screen, PortMaster's menu)
   it appears with the next button press. Ports that bring their own SDL
   library or draw without SDL/EGL show no bar (the keys still work).
+- In games (libretro, ports, standalone emulators) the bar is drawn with
+  square corners; the menu's own bar follows the theme's rounded corners.
 - A port that hangs on its own exit is closed with Fn+Start (its
   process group is ended after 3 s); unsaved progress is lost then.
 - Ports are not tested one by one: please report the ones that misbehave

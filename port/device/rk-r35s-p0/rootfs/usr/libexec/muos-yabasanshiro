@@ -23,9 +23,11 @@ mkdir -p "$w/save" || exit 1
 [ -s "$w/input.cfg" ] || cp /usr/share/muos-r35s/yabasanshiro/input.cfg "$w/input.cfg"
 say "start rom=$rom"
 cd "$w" || exit 1
-pre=
+# v1.1.1: the in-game volume/brightness bar (muos-levelbar.so, as muxretro's)
+bar=/usr/lib/muos-levelbar.so; [ -f "$bar" ] || bar=
+pre=$bar
 # T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file
-[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && pre=/run/muos/swapstat.so
+[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && pre="${pre:+$pre:}/run/muos/swapstat.so"
 # T2: emulated fps once a second on stderr ("yabafps 60/60 skip=0 vdp1=30")
 [ -e /run/muos/perf-capture ] && export MUOS_YABA_FPSLOG=1
 if [ -f "$bios" ]; then

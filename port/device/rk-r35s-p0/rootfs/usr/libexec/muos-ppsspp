@@ -53,7 +53,11 @@ export SDL_GAMECONTROLLERCONFIG
 say "start $name rom=$rom"
 cd "$emu" || exit 1
 # T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file
-[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && export LD_PRELOAD=/run/muos/swapstat.so
+# v1.1.1: the in-game volume/brightness bar (muos-levelbar.so, as muxretro's)
+bar=/usr/lib/muos-levelbar.so; [ -f "$bar" ] || bar=
+LD_PRELOAD=$bar
+[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && LD_PRELOAD="${LD_PRELOAD:+$LD_PRELOAD:}/run/muos/swapstat.so"
+export LD_PRELOAD
 # T2 hook: core dumps (/run/muos/ppsspp-core; kernel core_pattern set by the test)
 # shellcheck disable=SC3045 # busybox ash has ulimit -c
 [ -e /run/muos/ppsspp-core ] && ulimit -c unlimited

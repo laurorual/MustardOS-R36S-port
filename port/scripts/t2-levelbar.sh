@@ -6,12 +6,17 @@
 #   1. mapping: with the store's muOS-Keys line taken out (as on a fresh
 #      card; restored afterwards) PortMaster's GUI gets the board mapping
 #      (a:b1 = the physical A) in SDL_GAMECONTROLLERCONFIG
-#   2. level bar (muos-levelbar.so): Volume-, a D-pad press (the GUI only
-#      redraws on input), next frame grabbed (/run/muos/levelbar-grab):
-#      the panel's light border at the top; Volume+ back
+#   2. level bar (muos-levelbar.so, the active theme's bar written by
+#      `muxretro --level-assets` to /run/muos/levelbar): Volume-, a D-pad
+#      press (the GUI only redraws on input), next frame grabbed
+#      (/run/muos/levelbar-grab): the progress bar's track and fill in the
+#      theme's colours where levelbar.conf puts them; Volume+ back
 #   3. cursor: the VOP cursor plane (win2) stays off during TurboTableTennis
 #      (SDL2 patch 0004); the bar in it (Godot frt, SDL_GL_SwapWindow)
 #   4. the bar in the official PICO-8 (SDL_RenderPresent), if installed
+#   5. the bar in the standalone emulators with test content on the bench
+#      (Mupen64Plus, PPSSPP 2021, Flycast, DraStic; t2-standalone.sh writes
+#      their frame rate and CPU share to the log)
 # Frame grabs in build/logs/m12/levelbar-*.ppm.
 #   t2-levelbar.sh
 set -uo pipefail
@@ -24,21 +29,17 @@ r() { "$dev" run "$@" 2>> "$log" < /dev/null; }
 db=/opt/muos/share/info/gamecontrollerdb/retro.txt
 restore="[ ! -f /run/t2-retro.txt ] || { cat /run/t2-retro.txt > $db; rm -f /run/t2-retro.txt; }"
 r '[ -f /usr/lib/muos-levelbar.so ]' || fail "no /usr/lib/muos-levelbar.so (image before v1.1.1)"
-# grab NAME KEY: Volume-, KEY (or none), the next frame, Volume+; the
-# panel border (x 150, y 13 at 640x480) must be light grey
+# grab NAME KEY: Volume- (to 5 from t2-standalone's 10), KEY (or none), the
+# next frame, Volume+; the track's right end and the fill's left end must be
+# the theme's colours (opaque ones; levelbar.conf scaled to the frame)
 grab() {
     r 'rm -f /run/muos/levelbar-grab*; /opt/muos/script/device/audio.sh D
        touch /run/muos/levelbar-grab; [ '"$2"' = none ] || /usr/libexec/muos-press '"$2"'
        for _ in $(seq 20); do [ -e /run/muos/levelbar-grab ] || break; sleep 0.2; done
        /opt/muos/script/device/audio.sh U' || return 1
     r 'cat /run/muos/levelbar-grab.ppm' > "$out/levelbar-$1.ppm" || return 1
-    python3 - "$out/levelbar-$1.ppm" << 'EOF'
-import sys
-d = open(sys.argv[1], 'rb').read()
-h = d.split(b'\n', 3); w = int(h[1].split()[0]); px = h[3]
-o = (13 * w + 150) * 3
-sys.exit(0 if all(abs(c - 224) <= 8 for c in px[o:o + 3]) else 1)
-EOF
+    r 'cat /run/muos/levelbar/levelbar.conf' > "$out/levelbar.conf" || return 1
+    python3 port/scripts/t2-levelbar-check.py "$out/levelbar-$1.ppm" "$out/levelbar.conf"
 }
 # 1. + 2. PortMaster's GUI
 r "cp $db /run/t2-retro.txt && grep -v ',muOS-Keys,' /run/t2-retro.txt > $db" || fail "1: store"
@@ -84,4 +85,24 @@ if r '[ -f /mnt/mmc/MUOS/bios/pico8/pico8_64 ]'; then
 else
     say "skip 4: no official PICO-8"
 fi
+# 5. standalone emulators: NAME CORE DIR FILE (_ = space) PROCESS
+while read -r n core dir file p; do
+    file=${file//_/ }
+    r "[ -f '/mnt/mmc/ROMS/$dir/$file' ]" || { say "skip 5: $n (no $dir/$file)"; continue; }
+    for _ in $(seq 20); do r 'pidof muxfrontend' > /dev/null && break; sleep 1; done
+    sleep 3
+    port/scripts/t2-standalone.sh "lb-$n" "$core" "$dir" "$file" "$p" 30 > "$out/lb-$n.log" 2>&1 < /dev/null &
+    t=$!
+    ok=; for _ in $(seq 90); do r "pidof $p" > /dev/null && { ok=1; break; }; sleep 1; done
+    [ -n "$ok" ] || fail "5: $n did not start"
+    sleep 15
+    grab "$n" none || fail "5: no bar in $n"
+    wait "$t" || fail "5: $n t2-standalone ($(tail -n 1 "$out/lb-$n.log"))"
+    say "ok   5: bar in $n; $(grep -a -m1 "^ *[0-9]" "$out/lb-$n.log" | tr -s ' ' | cut -c1-80)"
+done << 'LIST'
+n64 ext-mupen64plus-rice N64 Mario_Kart_64_(USA).z64 mupen64plus
+psp ext-ppsspp-2021 PSP God_of_War_-_Chains_of_Olympus_(USA).iso PPSSPPSDL
+dc ext-flycast DC Power_Stone_2_(USA).cue flycast
+nds ext-drastic NDS New_Super_Mario_Bros._(USA).nds drastic
+LIST
 say PASS

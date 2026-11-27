@@ -36,5 +36,7 @@ if [ -z "$id" ]; then
     say "detected $id"
 fi
 say "start id=$id path=$game"
-exec env HOME="$w" "$emu/scummvm" --config="$w/scummvm.ini" --logfile="$w/scummvm.log" --savepath="$w/saves" \
+# v1.1.1: the in-game volume/brightness bar (muos-levelbar.so, as muxretro's)
+bar=/usr/lib/muos-levelbar.so; [ -f "$bar" ] || bar=
+exec env HOME="$w" LD_PRELOAD="$bar" "$emu/scummvm" --config="$w/scummvm.ini" --logfile="$w/scummvm.log" --savepath="$w/saves" \
     --extrapath="$emu" --themepath="$emu" --fullscreen --joystick=0 -p "$game" "$id"

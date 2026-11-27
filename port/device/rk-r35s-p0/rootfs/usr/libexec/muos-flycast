@@ -25,9 +25,11 @@ map=/userdata/MUOS/port/gamecontrollerdb/retro.txt
 . /usr/share/muos-r35s/sdl-env.sh
 SDL_GAMECONTROLLERCONFIG=$(sdl_map_line "$map")
 export SDL_GAMECONTROLLERCONFIG
-pre=
+# v1.1.1: the in-game volume/brightness bar (muos-levelbar.so, as muxretro's)
+bar=/usr/lib/muos-levelbar.so; [ -f "$bar" ] || bar=
+pre=$bar
 # T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file
-[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && pre=/run/muos/swapstat.so
+[ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && pre="${pre:+$pre:}/run/muos/swapstat.so"
 say "start rom=$rom"
 cd "$w" || exit 1
 HOME=$w XDG_CONFIG_HOME=$w/config XDG_DATA_HOME=$w/data LD_PRELOAD=$pre exec "$emu/flycast" "$rom"

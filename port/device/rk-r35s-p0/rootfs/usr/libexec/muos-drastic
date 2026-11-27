@@ -72,7 +72,10 @@ fi
 [ -s "$w/savestates/_savestate_temp.dss" ] || rm -f "$w/savestates/_savestate_temp.dss"
 say "start rom=$rom"
 cd "$w" || exit 1
-pre=$emu/libs/libadvdrastic.so
+# v1.1.1: the in-game volume/brightness bar (muos-levelbar.so, as muxretro's)
+bar=/usr/lib/muos-levelbar.so; [ -f "$bar" ] || bar=
+# after the hook, which draws DraStic's screens at the present
+pre=$emu/libs/libadvdrastic.so${bar:+:$bar}
 # T2 hook (t2-swapstat.sh): frame timing, only with a test-pushed /run file
 [ -e /run/muos/perf-capture ] && [ -f /run/muos/swapstat.so ] && pre="$pre:/run/muos/swapstat.so"
 LD_LIBRARY_PATH=$emu/libs${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH} LD_PRELOAD=$pre \

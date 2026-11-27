@@ -1,0 +1,35 @@
+From: muOS R35S port
+Subject: [PATCH] 0005-level-assets-export
+
+SPDX-License-Identifier: GPL-3.0
+---
+--- a/frontend/retro/core/main.c
++++ b/frontend/retro/core/main.c
+@@ -36,6 +36,9 @@
+ #include "../state/patch.h"
+ #include "../input/deck.h"
+ #include "../input/hotkeys.h"
++#include "../input/level_osd.h"
++#include <common/display/theme_base.h>
++#include <common/display/theme.h>
+ #include "remote.h"
+ #include "muxretro.h"
+ #include "../ui/options.h"
+@@ -695,6 +698,17 @@
+         return EXIT_SUCCESS;
+     }
+     startup_options startup;
++    /* muOS R35S port (v1.1.1): the in-game level bar of the active theme as
++     * files for muos-levelbar.so; no display, input or process rename. */
++    if (argc == 3 && strcmp(argv[1], "--level-assets") == 0) {
++        load_device(&device);
++        load_config(&config);
++        snprintf(mux_module, sizeof(mux_module), "%s", "muxretro");
++        theme_base = get_theme_base();
++        load_theme(&theme, &config, &device);
++        return level_osd_export(argv[2]) ? EXIT_SUCCESS : EXIT_FAILURE;
++    }
++
+     if (!startup_options_parse(argc, argv, &startup)) {
+         if (startup.unknown_option) fprintf(stderr, "Unknown option: %s\n", startup.unknown_option);
+         startup_options_print_usage(stderr, argv[0]);

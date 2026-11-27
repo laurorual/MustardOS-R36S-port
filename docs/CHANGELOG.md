@@ -18,8 +18,9 @@ team: https://github.com/laurorual/MustardOS-R36S-port/issues
   download in `MUOS/bios/pico8`) adds the standalone and pixel-perfect
   choices and the Splore app.
 - GNU wget with HTTPS (Splore downloads, port scripts).
-- Ports, applications and the official PICO-8 show the volume and
-  brightness bar, as games do.
+- Ports, applications, the official PICO-8 and the standalone emulators
+  (N64, PSP, Dreamcast, Saturn, NDS, ScummVM) show the same volume and
+  brightness bar as the libretro games, in the theme's style.
 - **Fixed:** A and B were swapped in ports, PortMaster, the official
   PICO-8, PPSSPP and Flycast on a card without an Input Remap; A is now
   confirm and B back everywhere, and A is PICO-8's O button in every

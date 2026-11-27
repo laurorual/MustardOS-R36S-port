@@ -5,8 +5,12 @@ SPDX-License-Identifier: GPL-3.0
 ---
 --- /dev/null
 +++ b/frontend/retro/input/level_osd.c
-@@ -0,0 +1,188 @@
+@@ -0,0 +1,293 @@
 +#include <unistd.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
 +#include <SDL2/SDL.h>
 +#include <SDL2/SDL_image.h>
 +#include <common/base/options.h>
@@ -39,12 +43,9 @@ SPDX-License-Identifier: GPL-3.0
 +}
 +
 +/* The theme's SVG glyph at libui's default size (3/4 of a list item),
-+ * recoloured to the bar icon colour as LVGL's img_recolor does. Loaded once
-+ * per kind and level, on first use. */
-+static SDL_Texture *glyph(SDL_Renderer *renderer, const enum level_osd_kind kind, const int level) {
-+    if (glyphs[kind][level] || glyph_failed[kind][level]) return glyphs[kind][level];
-+    glyph_failed[kind][level] = 1;
-+
++ * recoloured to the bar icon colour as LVGL's img_recolor does (ARGB8888;
++ * shared with level_osd_export). */
++static SDL_Surface *glyph_surface(const enum level_osd_kind kind, const int level) {
 +    char name[16], path[MAX_BUFFER_SIZE], embed[MAX_BUFFER_SIZE];
 +    snprintf(name, sizeof(name), "%s_%d", kind == level_osd_volume ? "volume" : "bright", level);
 +    if (!generate_image_embed(mux_dim, "bar", name, path, sizeof(path), embed, sizeof(embed))) return NULL;
@@ -75,6 +76,16 @@ SPDX-License-Identifier: GPL-3.0
 +        }
 +        SDL_UnlockSurface(s);
 +    }
++    return s;
++}
++
++/* Loaded once per kind and level, on first use. */
++static SDL_Texture *glyph(SDL_Renderer *renderer, const enum level_osd_kind kind, const int level) {
++    if (glyphs[kind][level] || glyph_failed[kind][level]) return glyphs[kind][level];
++    glyph_failed[kind][level] = 1;
++
++    SDL_Surface *s = glyph_surface(kind, level);
++    if (!s) return NULL;
 +
 +    SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);
 +    glyph_w[kind][level] = s->w;
@@ -194,9 +205,103 @@ SPDX-License-Identifier: GPL-3.0
 +                                                  : brightness_to_percent(current_brightness));
 +    return 1;
 +}
++
++/* ---- muxretro --level-assets DIR (v1.1.1) -------------------------------
++ * The bar as drawn above, for programs muxretro does not run: muos-levelbar.so
++ * (preloaded into ports, applications and standalone emulators) draws these
++ * files over their frames. Per kind and glyph level, DIR/<volume|bright>_N.rgba
++ * is the panel (background, 2 px border, glyph; RGBA8, straight alpha, the
++ * layers composited "over" as SDL blends them) and DIR/levelbar.conf the
++ * theme size, the panel position, the progress bar (x per image) and its
++ * colours. */
++static void over(uint8_t *px, const int stride, const int x0, const int y0, const int w, const int h, const uint32_t rgb,
++                 const int alpha, const uint32_t *src, const int src_pitch) {
++    for (int y = 0; y < h; y++) {
++        for (int x = 0; x < w; x++) {
++            uint32_t c = rgb;
++            int sa = alpha;
++            if (src) {
++                const uint32_t p = src[y * src_pitch + x];
++                c = p & 0xFFFFFFu;
++                sa = (int) (p >> 24) * alpha / 255;
++            }
++            if (sa <= 0) continue;
++            uint8_t *d = px + (size_t) (y0 + y) * stride + (size_t) (x0 + x) * 4;
++            const int da = d[3];
++            const int oa = sa + da * (255 - sa) / 255;
++            if (oa <= 0) continue;
++            const int sc[3] = {(int) (c >> 16 & 0xFF), (int) (c >> 8 & 0xFF), (int) (c & 0xFF)};
++            for (int i = 0; i < 3; i++) d[i] = (uint8_t) ((sc[i] * sa + d[i] * da * (255 - sa) / 255) / oa);
++            d[3] = (uint8_t) oa;
++        }
++    }
++}
++
++int level_osd_export(const char *dir) {
++    const int pw = theme.bar.panel_width, ph = theme.bar.panel_height;
++    const int bw = theme.bar.progress_width, bh = theme.bar.progress_height;
++    if (pw <= 4 || ph <= 4 || pw > 4096 || ph > 1024) return 0;
++    mkdir(dir, 0755);
++
++    char path[MAX_BUFFER_SIZE], conf[4096];
++    int n = snprintf(conf, sizeof(conf), "mux %d %d\npanel %d %d %d %d\nbar %d %d\nmain %06X %d\nactive %06X %d\n",
++                     device.mux.width, device.mux.height, (device.mux.width - pw) / 2, theme.bar.y_pos, pw, ph, bw, bh,
++                     theme.bar.progress_main_background & 0xFFFFFFu, theme.bar.progress_main_background_alpha,
++                     theme.bar.progress_active_background & 0xFFFFFFu, theme.bar.progress_active_background_alpha);
++    uint8_t *px = malloc((size_t) pw * ph * 4);
++    if (!px) return 0;
++    for (int kind = 0; kind < 2; kind++) {
++        for (int level = 0; level < 4; level++) {
++            memset(px, 0, (size_t) pw * ph * 4);
++            over(px, pw * 4, 0, 0, pw, ph, theme.bar.panel_background & 0xFFFFFFu, theme.bar.panel_background_alpha, NULL, 0);
++            const uint32_t bc = theme.bar.panel_border & 0xFFFFFFu;
++            const int ba = theme.bar.panel_border_alpha;
++            over(px, pw * 4, 0, 0, pw, 2, bc, ba, NULL, 0);
++            over(px, pw * 4, 0, ph - 2, pw, 2, bc, ba, NULL, 0);
++            over(px, pw * 4, 0, 2, 2, ph - 4, bc, ba, NULL, 0);
++            over(px, pw * 4, pw - 2, 2, 2, ph - 4, bc, ba, NULL, 0);
++            SDL_Surface *g = glyph_surface((enum level_osd_kind) kind, level);
++            int iw = 0;
++            int gap = (pw - bw) / 3;
++            if (g) {
++                iw = g->w;
++                gap = (pw - iw - bw) / 3;
++                if (gap < 0) gap = 0;
++                const int gx = gap, gy = (ph - g->h) / 2;
++                const int w = gx + g->w > pw ? pw - gx : g->w, h = gy + g->h > ph ? ph - gy : g->h;
++                if (gy >= 0 && w > 0 && h > 0 && SDL_LockSurface(g) == 0) {
++                    over(px, pw * 4, gx, gy, w, h, 0, 255, (const uint32_t *) g->pixels, g->pitch / 4);
++                    SDL_UnlockSurface(g);
++                }
++                SDL_FreeSurface(g);
++            }
++            if (gap < 0) gap = 0;
++            snprintf(path, sizeof(path), "%s/%s_%d.rgba", dir, kind ? "bright" : "volume", level);
++            FILE *f = fopen(path, "wb");
++            const int ok = f && fwrite(px, 1, (size_t) pw * ph * 4, f) == (size_t) pw * ph * 4;
++            if (f) fclose(f);
++            if (!ok) {
++                free(px);
++                return 0;
++            }
++            if (n > 0 && (size_t) n < sizeof(conf))
++                n += snprintf(conf + n, sizeof(conf) - (size_t) n, "image %d %d %d\n", kind, level, gap + iw + gap);
++        }
++    }
++    free(px);
++    if (n <= 0 || (size_t) n >= sizeof(conf)) return 0;
++    char tmp[MAX_BUFFER_SIZE + 8];
++    snprintf(path, sizeof(path), "%s/levelbar.conf", dir);
++    snprintf(tmp, sizeof(tmp), "%s.tmp", path);
++    FILE *f = fopen(tmp, "w");
++    if (!f) return 0;
++    const int ok = fputs(conf, f) >= 0;
++    if (fclose(f) != 0 || !ok) return 0;
++    return rename(tmp, path) == 0;
++}
 --- /dev/null
 +++ b/frontend/retro/input/level_osd.h
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,27 @@
 +#pragma once
 +
 +/* muOS R35S port: in-game volume/brightness level bar drawn by muxretro
@@ -220,6 +325,10 @@ SPDX-License-Identifier: GPL-3.0
 +/* A volume/brightness key in game: show the current level (as upstream's
 + * ui_common_handle_*). Returns 0 when the pause menu is open. */
 +int level_osd_key(enum level_osd_kind kind);
++
++/* muxretro --level-assets DIR: the bar of the active theme as files for
++ * muos-levelbar.so (ports, applications, standalone emulators). 1 = ok. */
++int level_osd_export(const char *dir);
 --- a/frontend/retro/input/hotkeys.c
 +++ b/frontend/retro/input/hotkeys.c
 @@ -16,6 +16,7 @@

@@ -1,15 +1,21 @@
 // SPDX-License-Identifier: MIT
-// muOS R35S port (v1.1.1 T3): the volume/brightness level bar for programs
+// muOS R35S port (v1.1.1): the in-game volume/brightness bar for programs
 // muxretro does not run (PortMaster ports, applications, the official
-// PICO-8), preloaded by muos-frontend. A volume or brightness key changes
-// config/settings/general/{volume,brightness} (muhotkey -> muos-volume-step
-// / bright.sh); this checks them every 100 ms at the app's frame swap and
-// for 1.5 s after a change draws a panel with the level at the top of the
-// screen, as muxretro's in-game bar (patch 0002), from rectangles only:
-//   SDL_GL_SwapWindow / eglSwapBuffers: scissored glClear on the default
-//     framebuffer (GL state saved and restored)
-//   SDL_RenderPresent: SDL_RenderFillRect (draw colour, blend mode, clip,
-//     viewport and scale saved and restored; not on a render target)
+// PICO-8, the standalone emulators), preloaded by their launchers. A volume
+// or brightness key changes config/settings/general/{volume,brightness}
+// (muhotkey -> muos-volume-step / bright.sh); this checks them every 100 ms
+// at the program's frame swap and then shows the bar exactly as muxretro
+// draws it in games (patch 0002: theme panel, glyph and progress bar, 1.5 s,
+// 200 ms fade): muos-frontend has `muxretro --level-assets` write the active
+// theme's bar to /run/muos/levelbar (levelbar.conf + one RGBA panel per kind
+// and glyph level), drawn here
+//   SDL_GL_SwapWindow / eglSwapBuffers: a GLES2 program, textured and
+//     coloured quads blended over the default framebuffer (every GL state
+//     it touches saved and restored; resources per EGL context)
+//   SDL_RenderPresent: SDL textures and blended fills (draw colour, blend
+//     mode, clip, viewport, scale and logical size restored; not on a
+//     render target)
+// Without the assets a plain panel of rectangles is drawn instead.
 // No SDL/GL headers or link: the hooked and used functions are looked up at
 // run time, so it adds nothing to a program that never swaps. Programs that
 // load SDL2 or EGL with dlopen and look the functions up with dlsym (Godot
@@ -35,7 +41,9 @@
 #define CONF "/opt/muos/config/"
 #define DEV  "/opt/muos/device/config/"
 #define HOLD_MS 1500
+#define FADE_MS 200
 #define POLL_MS 100
+#define ASSETS "/run/muos/levelbar"
 
 typedef struct { int x, y, w, h; } rect_t;
 enum { VOLUME, BRIGHT };
@@ -101,7 +109,7 @@ static int percent(const int kind, const int v) {
 // Once per POLL_MS: a changed level file (mtime) with a new value shows it.
 static void poll_levels(void) {
     const uint64_t t = now_ms();
-    if (visible && t - shown_at >= HOLD_MS) visible = 0;
+    if (visible && t - shown_at >= HOLD_MS + FADE_MS) visible = 0;
     if (polled_at && t - polled_at < POLL_MS) return;
     polled_at = t;
     grab_pending = access("/run/muos/levelbar-grab", F_OK) == 0;
@@ -124,6 +132,87 @@ static void poll_levels(void) {
             visible = 1;
         }
     }
+}
+
+// ---- the theme's bar (muxretro --level-assets) ----------------------------
+static struct {
+    long long mtime;
+    int ok, mux_w, mux_h, px, py, pw, ph, bw, bh, main_a, active_a;
+    uint32_t main_rgb, active_rgb;
+    int bar_off[2][4];
+    unsigned char *img[2][4];
+    unsigned gen; // bumped on every reload: textures are uploaded again
+} as;
+
+// (Re)load when levelbar.conf changed; 1 = usable.
+static int assets_load(void) {
+    struct stat st;
+    if (stat(ASSETS "/levelbar.conf", &st) != 0) return as.ok = 0;
+    const long long m = (long long) st.st_mtim.tv_sec * 1000000000LL + st.st_mtim.tv_nsec;
+    if (as.gen && m == as.mtime) return as.ok;
+    as.mtime = m;
+    as.gen++;
+    as.ok = 0;
+    FILE *f = fopen(ASSETS "/levelbar.conf", "re");
+    if (!f) return 0;
+    char line[128];
+    int got = 0;
+    while (fgets(line, sizeof(line), f)) {
+        int k, l, o;
+        if (sscanf(line, "mux %d %d", &as.mux_w, &as.mux_h) == 2) got |= 1;
+        else if (sscanf(line, "panel %d %d %d %d", &as.px, &as.py, &as.pw, &as.ph) == 4) got |= 2;
+        else if (sscanf(line, "bar %d %d", &as.bw, &as.bh) == 2) got |= 4;
+        else if (sscanf(line, "main %x %d", &as.main_rgb, &as.main_a) == 2) got |= 8;
+        else if (sscanf(line, "active %x %d", &as.active_rgb, &as.active_a) == 2) got |= 16;
+        else if (sscanf(line, "image %d %d %d", &k, &l, &o) == 3 && k >= 0 && k < 2 && l >= 0 && l < 4)
+            as.bar_off[k][l] = o;
+    }
+    fclose(f);
+    if (got != 31 || as.mux_w <= 0 || as.mux_h <= 0 || as.pw <= 0 || as.ph <= 0 || as.pw > 4096 || as.ph > 1024)
+        return 0;
+    const size_t size = (size_t) as.pw * as.ph * 4;
+    for (int k = 0; k < 2; k++) {
+        for (int l = 0; l < 4; l++) {
+            char path[96];
+            snprintf(path, sizeof(path), ASSETS "/%s_%d.rgba", k ? "bright" : "volume", l);
+            unsigned char *b = realloc(as.img[k][l], size);
+            if (!b) return 0;
+            as.img[k][l] = b;
+            f = fopen(path, "re");
+            const int full = f && fread(b, 1, size, f) == size;
+            if (f) fclose(f);
+            if (!full) return 0;
+        }
+    }
+    return as.ok = 1;
+}
+
+// The bar of the theme in a W x H output: panel, track and fill rectangles,
+// the glyph level, and the fade (0..1) as muxretro's osd_draw.
+typedef struct {
+    rect_t panel, track, fill;
+    int kind, level;
+    float fade;
+} bar_t;
+
+static float fade_now(void) {
+    const uint64_t age = now_ms() - shown_at;
+    if (age <= HOLD_MS) return 1.0f;
+    if (age >= HOLD_MS + FADE_MS) return 0.0f;
+    return 1.0f - (float) (age - HOLD_MS) / FADE_MS;
+}
+
+static void bar_geometry(const int W, const int H, bar_t *b) {
+    const float sx = (float) W / as.mux_w, sy = (float) H / as.mux_h;
+#define SR(X, Y, WW, HH) ((rect_t) {(int) ((X) * sx + 0.5f), (int) ((Y) * sy + 0.5f), (int) ((WW) * sx + 0.5f), (int) ((HH) * sy + 0.5f)})
+    b->kind = shown_kind;
+    b->level = shown_pct > 70 ? 3 : shown_pct > 35 ? 2 : shown_pct > 0 ? 1 : 0;
+    b->panel = SR(as.px, as.py, as.pw, as.ph);
+    const int bx = as.px + as.bar_off[b->kind][b->level], by = as.py + (as.ph - as.bh) / 2;
+    b->track = SR(bx, by, as.bw, as.bh);
+    b->fill = SR(bx, by, as.bw * shown_pct / 100, as.bh);
+#undef SR
+    b->fade = fade_now();
 }
 
 // The bar's rectangles in a W x H surface (y down) and their colours.
@@ -306,6 +395,336 @@ static void gl_draw(const int W, const int H) {
     if (fb) gl.BindFramebuffer(GL_FRAMEBUFFER, (unsigned) fb);
 }
 
+// ---- GL path with the theme's bar: a GLES2 textured-quad program ----------
+#define GL_BLEND 0x0BE2
+#define GL_DEPTH_TEST 0x0B71
+#define GL_STENCIL_TEST 0x0B90
+#define GL_CULL_FACE 0x0B44
+#define GL_RASTERIZER_DISCARD 0x8C89
+#define GL_SAMPLE_ALPHA_TO_COVERAGE 0x809E
+#define GL_BLEND_SRC_RGB 0x80C9
+#define GL_BLEND_DST_RGB 0x80C8
+#define GL_BLEND_SRC_ALPHA 0x80CB
+#define GL_BLEND_DST_ALPHA 0x80CA
+#define GL_BLEND_EQUATION_RGB 0x8009
+#define GL_BLEND_EQUATION_ALPHA 0x883D
+#define GL_VIEWPORT 0x0BA2
+#define GL_CURRENT_PROGRAM 0x8B8D
+#define GL_ARRAY_BUFFER 0x8892
+#define GL_ARRAY_BUFFER_BINDING 0x8894
+#define GL_ACTIVE_TEXTURE 0x84E0
+#define GL_TEXTURE0 0x84C0
+#define GL_TEXTURE_2D 0x0DE1
+#define GL_TEXTURE_BINDING_2D 0x8069
+#define GL_SAMPLER_BINDING 0x8919
+#define GL_VERTEX_ARRAY_BINDING 0x85B5
+#define GL_UNPACK_ALIGNMENT 0x0CF5
+#define GL_UNPACK_ROW_LENGTH 0x0CF2
+#define GL_UNPACK_SKIP_ROWS 0x0CF3
+#define GL_UNPACK_SKIP_PIXELS 0x0CF4
+#define GL_PIXEL_UNPACK_BUFFER 0x88EC
+#define GL_PIXEL_UNPACK_BUFFER_BINDING 0x88EF
+#define GL_VERTEX_ATTRIB_ARRAY_ENABLED 0x8622
+#define GL_VERTEX_ATTRIB_ARRAY_SIZE 0x8623
+#define GL_VERTEX_ATTRIB_ARRAY_STRIDE 0x8624
+#define GL_VERTEX_ATTRIB_ARRAY_TYPE 0x8625
+#define GL_VERTEX_ATTRIB_ARRAY_NORMALIZED 0x886A
+#define GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING 0x889F
+#define GL_VERTEX_ATTRIB_ARRAY_POINTER 0x8645
+#define GL_VERTEX_ATTRIB_ARRAY_INTEGER 0x88FD
+#define GL_VERTEX_ATTRIB_ARRAY_DIVISOR 0x88FE
+#define GL_FLOAT 0x1406
+#define GL_TRIANGLE_STRIP 0x0005
+#define GL_RGBA 0x1908
+#define GL_UNSIGNED_BYTE 0x1401
+#define GL_TEXTURE_MIN_FILTER 0x2801
+#define GL_TEXTURE_MAG_FILTER 0x2800
+#define GL_TEXTURE_WRAP_S 0x2802
+#define GL_TEXTURE_WRAP_T 0x2803
+#define GL_LINEAR 0x2601
+#define GL_CLAMP_TO_EDGE 0x812F
+#define GL_SRC_ALPHA 0x0302
+#define GL_ONE_MINUS_SRC_ALPHA 0x0303
+#define GL_FUNC_ADD 0x8006
+#define GL_VERTEX_SHADER 0x8B31
+#define GL_FRAGMENT_SHADER 0x8B30
+#define GL_COMPILE_STATUS 0x8B81
+#define GL_LINK_STATUS 0x8B82
+#define GL_VERSION 0x1F02
+
+static struct {
+    int ok, es3;
+    unsigned (*CreateShader)(unsigned), (*CreateProgram)(void);
+    void (*ShaderSource)(unsigned, int, const char *const *, const int *), (*CompileShader)(unsigned);
+    void (*GetShaderiv)(unsigned, unsigned, int *), (*AttachShader)(unsigned, unsigned);
+    void (*BindAttribLocation)(unsigned, unsigned, const char *), (*LinkProgram)(unsigned);
+    void (*GetProgramiv)(unsigned, unsigned, int *), (*UseProgram)(unsigned);
+    int (*GetUniformLocation)(unsigned, const char *);
+    void (*Uniform1i)(int, int), (*Uniform4f)(int, float, float, float, float);
+    void (*GenTextures)(int, unsigned *), (*BindTexture)(unsigned, unsigned), (*ActiveTexture)(unsigned);
+    void (*TexParameteri)(unsigned, unsigned, int), (*PixelStorei)(unsigned, int);
+    void (*TexImage2D)(unsigned, int, int, int, int, int, unsigned, unsigned, const void *);
+    void (*BlendFuncSeparate)(unsigned, unsigned, unsigned, unsigned), (*BlendEquationSeparate)(unsigned, unsigned);
+    void (*Viewport)(int, int, int, int), (*BindBuffer)(unsigned, unsigned);
+    void (*VertexAttribPointer)(unsigned, int, unsigned, unsigned char, int, const void *);
+    void (*VertexAttribIPointer)(unsigned, int, unsigned, int, const void *);
+    void (*EnableVertexAttribArray)(unsigned), (*DisableVertexAttribArray)(unsigned);
+    void (*GetVertexAttribiv)(unsigned, unsigned, int *), (*GetVertexAttribPointerv)(unsigned, unsigned, void **);
+    void (*VertexAttribDivisor)(unsigned, unsigned);
+    void (*DrawArrays)(unsigned, int, int);
+    void (*BindVertexArray)(unsigned), (*BindSampler)(unsigned, unsigned);
+    const unsigned char *(*GetString)(unsigned);
+    void *(*GetCurrentContext)(void);
+} gx;
+
+static int gx_load(void) {
+    if (gx.ok) return gx.ok > 0;
+    gx.ok = -1;
+    if (!gl_load()) return 0;
+#define L(f) (*(void **) &gx.f = sym("gl" #f))
+    L(CreateShader); L(CreateProgram); L(ShaderSource); L(CompileShader); L(GetShaderiv); L(AttachShader);
+    L(BindAttribLocation); L(LinkProgram); L(GetProgramiv); L(UseProgram); L(GetUniformLocation); L(Uniform1i);
+    L(Uniform4f); L(GenTextures); L(BindTexture); L(ActiveTexture); L(TexParameteri); L(PixelStorei);
+    L(TexImage2D); L(BlendFuncSeparate); L(BlendEquationSeparate); L(Viewport); L(BindBuffer);
+    L(VertexAttribPointer); L(EnableVertexAttribArray); L(DisableVertexAttribArray); L(GetVertexAttribiv);
+    L(GetVertexAttribPointerv); L(DrawArrays); L(GetString);
+    if (!(gx.CreateShader && gx.CreateProgram && gx.ShaderSource && gx.CompileShader && gx.GetShaderiv &&
+          gx.AttachShader && gx.BindAttribLocation && gx.LinkProgram && gx.GetProgramiv && gx.UseProgram &&
+          gx.GetUniformLocation && gx.Uniform1i && gx.Uniform4f && gx.GenTextures && gx.BindTexture &&
+          gx.ActiveTexture && gx.TexParameteri && gx.PixelStorei && gx.TexImage2D && gx.BlendFuncSeparate &&
+          gx.BlendEquationSeparate && gx.Viewport && gx.BindBuffer && gx.VertexAttribPointer &&
+          gx.EnableVertexAttribArray && gx.DisableVertexAttribArray && gx.GetVertexAttribiv &&
+          gx.GetVertexAttribPointerv && gx.DrawArrays && gx.GetString)) {
+        dbg("GL: missing GLES2 functions");
+        return 0;
+    }
+    const char *v = (const char *) gx.GetString(GL_VERSION);
+    gx.es3 = v && strncmp(v, "OpenGL ES ", 10) == 0 && v[10] >= '3';
+    if (gx.es3) {
+        L(BindVertexArray); L(BindSampler); L(VertexAttribIPointer); L(VertexAttribDivisor);
+    }
+#undef L
+    *(void **) &gx.GetCurrentContext = next_sym(egl_lib, "eglGetCurrentContext");
+    if (!gx.GetCurrentContext) *(void **) &gx.GetCurrentContext = sym("eglGetCurrentContext");
+    gx.ok = 1;
+    return 1;
+}
+
+// Per EGL context: the program, its uniforms, a white texel and the panels.
+static struct {
+    void *ctx;
+    int failed, loc_s, loc_c;
+    unsigned prog, white, tex[2][4], tex_gen[2][4];
+} gr;
+
+static unsigned shader(const unsigned type, const char *src) {
+    const unsigned sh = gx.CreateShader(type);
+    int ok = 0;
+    gx.ShaderSource(sh, 1, &src, NULL);
+    gx.CompileShader(sh);
+    gx.GetShaderiv(sh, GL_COMPILE_STATUS, &ok);
+    return ok ? sh : 0;
+}
+
+static void upload(const unsigned tex, const int w, const int h, const void *px) {
+    gx.BindTexture(GL_TEXTURE_2D, tex);
+    gx.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gx.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gx.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gx.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gx.TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
+}
+
+static void *current_context(void) {
+    return gx.GetCurrentContext ? gx.GetCurrentContext() : NULL;
+}
+
+// Inside gl_draw_bar's saved state: program and white texel for this context.
+static int gr_ready(void) {
+    void *ctx = current_context();
+    if (gr.ctx != ctx || (!gr.prog && !gr.failed)) {
+        memset(&gr, 0, sizeof(gr));
+        gr.ctx = ctx;
+        const unsigned vs = shader(GL_VERTEX_SHADER, "attribute vec2 p; attribute vec2 t; varying vec2 v;\n"
+                                                     "void main() { v = t; gl_Position = vec4(p, 0.0, 1.0); }\n");
+        const unsigned fs = shader(GL_FRAGMENT_SHADER, "precision mediump float; varying vec2 v;\n"
+                                                       "uniform sampler2D s; uniform vec4 c;\n"
+                                                       "void main() { gl_FragColor = texture2D(s, v) * c; }\n");
+        int ok = 0;
+        if (vs && fs) {
+            gr.prog = gx.CreateProgram();
+            gx.AttachShader(gr.prog, vs);
+            gx.AttachShader(gr.prog, fs);
+            gx.BindAttribLocation(gr.prog, 0, "p");
+            gx.BindAttribLocation(gr.prog, 1, "t");
+            gx.LinkProgram(gr.prog);
+            gx.GetProgramiv(gr.prog, GL_LINK_STATUS, &ok);
+        }
+        if (!ok) {
+            dbg("GL: program failed");
+            gr.prog = 0;
+            gr.failed = 1;
+            return 0;
+        }
+        gr.loc_s = gx.GetUniformLocation(gr.prog, "s");
+        gr.loc_c = gx.GetUniformLocation(gr.prog, "c");
+        const unsigned char white[4] = {255, 255, 255, 255};
+        gx.GenTextures(1, &gr.white);
+        upload(gr.white, 1, 1, white);
+    }
+    return gr.prog && !gr.failed;
+}
+
+static void quad(const rect_t r, const int W, const int H, const unsigned tex, const uint32_t rgb, const float a) {
+    if (r.w <= 0 || r.h <= 0 || a <= 0.0f) return;
+    const float x0 = 2.0f * r.x / W - 1.0f, x1 = 2.0f * (r.x + r.w) / W - 1.0f;
+    const float y0 = 1.0f - 2.0f * r.y / H, y1 = 1.0f - 2.0f * (r.y + r.h) / H;
+    const float v[16] = {x0, y0, 0, 0, x0, y1, 0, 1, x1, y0, 1, 0, x1, y1, 1, 1};
+    gx.BindTexture(GL_TEXTURE_2D, tex);
+    gx.Uniform4f(gr.loc_c, (rgb >> 16 & 0xFF) / 255.0f, (rgb >> 8 & 0xFF) / 255.0f, (rgb & 0xFF) / 255.0f, a);
+    gx.VertexAttribPointer(0, 2, GL_FLOAT, 0, 16, v);
+    gx.VertexAttribPointer(1, 2, GL_FLOAT, 0, 16, v + 2);
+    gx.DrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+struct attrib { int enabled, size, stride, type, norm, buffer, integer, divisor; void *ptr; };
+
+static void attrib_save(const unsigned i, struct attrib *a) {
+    gx.GetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &a->enabled);
+    gx.GetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &a->size);
+    gx.GetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &a->stride);
+    gx.GetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, &a->type);
+    gx.GetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &a->norm);
+    gx.GetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &a->buffer);
+    gx.GetVertexAttribPointerv(i, GL_VERTEX_ATTRIB_ARRAY_POINTER, &a->ptr);
+    a->integer = a->divisor = 0;
+    if (gx.es3) {
+        gx.GetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_INTEGER, &a->integer);
+        if (gx.VertexAttribDivisor) gx.GetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, &a->divisor);
+    }
+}
+
+static void attrib_restore(const unsigned i, const struct attrib *a) {
+    gx.BindBuffer(GL_ARRAY_BUFFER, (unsigned) a->buffer);
+    if (a->integer && gx.VertexAttribIPointer) gx.VertexAttribIPointer(i, a->size, (unsigned) a->type, a->stride, a->ptr);
+    else gx.VertexAttribPointer(i, a->size, (unsigned) a->type, (unsigned char) a->norm, a->stride, a->ptr);
+    if (gx.VertexAttribDivisor) gx.VertexAttribDivisor(i, (unsigned) a->divisor);
+    if (a->enabled) gx.EnableVertexAttribArray(i);
+    else gx.DisableVertexAttribArray(i);
+}
+
+// The theme's bar over the default framebuffer; 0 = not drawn (no assets or
+// no usable GLES2), the caller falls back to the plain panel.
+static int gl_draw_bar(const int W, const int H) {
+    if (W <= 0 || H <= 0 || !assets_load() || !gx_load()) return 0;
+    if (gr.failed && gr.ctx == current_context()) return 0;
+    bar_t b;
+    bar_geometry(W, H, &b);
+    if (b.fade <= 0.0f) return 1;
+
+    int fb = 0, prog = 0, vao = 0, abuf = 0, active = 0, tex2d = 0, sampler = 0, unpack_buf = 0, vp[4];
+    int bsrc_rgb, bdst_rgb, bsrc_a, bdst_a, beq_rgb, beq_a, align, row_len = 0, skip_rows = 0, skip_px = 0;
+    unsigned char mask[4];
+    gl.GetIntegerv(GL_FRAMEBUFFER_BINDING, &fb);
+    gl.GetIntegerv(GL_CURRENT_PROGRAM, &prog);
+    gl.GetIntegerv(GL_ARRAY_BUFFER_BINDING, &abuf);
+    gl.GetIntegerv(GL_ACTIVE_TEXTURE, &active);
+    gl.GetIntegerv(GL_VIEWPORT, vp);
+    gl.GetIntegerv(GL_BLEND_SRC_RGB, &bsrc_rgb);
+    gl.GetIntegerv(GL_BLEND_DST_RGB, &bdst_rgb);
+    gl.GetIntegerv(GL_BLEND_SRC_ALPHA, &bsrc_a);
+    gl.GetIntegerv(GL_BLEND_DST_ALPHA, &bdst_a);
+    gl.GetIntegerv(GL_BLEND_EQUATION_RGB, &beq_rgb);
+    gl.GetIntegerv(GL_BLEND_EQUATION_ALPHA, &beq_a);
+    gl.GetIntegerv(GL_UNPACK_ALIGNMENT, &align);
+    gl.GetBooleanv(GL_COLOR_WRITEMASK, mask);
+    static const unsigned caps[] = {GL_BLEND, GL_DEPTH_TEST, GL_STENCIL_TEST, GL_CULL_FACE, GL_SCISSOR_TEST,
+                                    GL_SAMPLE_ALPHA_TO_COVERAGE, GL_RASTERIZER_DISCARD};
+    const unsigned ncaps = gx.es3 ? 7 : 6;
+    unsigned char cap_on[7];
+    for (unsigned i = 0; i < ncaps; i++) cap_on[i] = gl.IsEnabled(caps[i]);
+    if (gx.es3) {
+        if (gx.BindVertexArray) gl.GetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao);
+        gl.GetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, &unpack_buf);
+        gl.GetIntegerv(GL_UNPACK_ROW_LENGTH, &row_len);
+        gl.GetIntegerv(GL_UNPACK_SKIP_ROWS, &skip_rows);
+        gl.GetIntegerv(GL_UNPACK_SKIP_PIXELS, &skip_px);
+    }
+    if (vao) gx.BindVertexArray(0);
+    struct attrib a0, a1;
+    attrib_save(0, &a0);
+    attrib_save(1, &a1);
+    gx.ActiveTexture(GL_TEXTURE0);
+    gl.GetIntegerv(GL_TEXTURE_BINDING_2D, &tex2d);
+    if (gx.es3 && gx.BindSampler) {
+        gl.GetIntegerv(GL_SAMPLER_BINDING, &sampler);
+        if (sampler) gx.BindSampler(0, 0);
+    }
+    if (unpack_buf) gx.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    gx.PixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    if (gx.es3) {
+        gx.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        gx.PixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+        gx.PixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+    }
+
+    int drawn = 0;
+    if (gr_ready()) {
+        if (fb) gl.BindFramebuffer(GL_FRAMEBUFFER, 0);
+        for (unsigned i = 1; i < ncaps; i++) gl.Disable(caps[i]);
+        gl.Enable(GL_BLEND);
+        gx.BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1, GL_ONE_MINUS_SRC_ALPHA);
+        gx.BlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+        gl.ColorMask(1, 1, 1, 1);
+        gx.Viewport(0, 0, W, H);
+        gx.UseProgram(gr.prog);
+        gx.Uniform1i(gr.loc_s, 0);
+        gx.BindBuffer(GL_ARRAY_BUFFER, 0);
+        gx.EnableVertexAttribArray(0);
+        gx.EnableVertexAttribArray(1);
+        if (gx.VertexAttribDivisor) {
+            gx.VertexAttribDivisor(0, 0);
+            gx.VertexAttribDivisor(1, 0);
+        }
+        unsigned *t = &gr.tex[b.kind][b.level];
+        if (!*t) gx.GenTextures(1, t);
+        if (gr.tex_gen[b.kind][b.level] != as.gen) {
+            upload(*t, as.pw, as.ph, as.img[b.kind][b.level]);
+            gr.tex_gen[b.kind][b.level] = as.gen;
+        }
+        quad(b.panel, W, H, *t, 0xFFFFFF, b.fade);
+        quad(b.track, W, H, gr.white, as.main_rgb, as.main_a / 255.0f * b.fade);
+        quad(b.fill, W, H, gr.white, as.active_rgb, as.active_a / 255.0f * b.fade);
+        drawn = 1;
+    }
+
+    gx.UseProgram((unsigned) prog);
+    attrib_restore(0, &a0);
+    attrib_restore(1, &a1);
+    gx.BindBuffer(GL_ARRAY_BUFFER, (unsigned) abuf);
+    if (vao) gx.BindVertexArray((unsigned) vao);
+    gx.BindTexture(GL_TEXTURE_2D, (unsigned) tex2d);
+    if (sampler) gx.BindSampler(0, (unsigned) sampler);
+    gx.ActiveTexture((unsigned) active);
+    if (unpack_buf) gx.BindBuffer(GL_PIXEL_UNPACK_BUFFER, (unsigned) unpack_buf);
+    gx.PixelStorei(GL_UNPACK_ALIGNMENT, align);
+    if (gx.es3) {
+        gx.PixelStorei(GL_UNPACK_ROW_LENGTH, row_len);
+        gx.PixelStorei(GL_UNPACK_SKIP_ROWS, skip_rows);
+        gx.PixelStorei(GL_UNPACK_SKIP_PIXELS, skip_px);
+    }
+    gx.BlendFuncSeparate((unsigned) bsrc_rgb, (unsigned) bdst_rgb, (unsigned) bsrc_a, (unsigned) bdst_a);
+    gx.BlendEquationSeparate((unsigned) beq_rgb, (unsigned) beq_a);
+    for (unsigned i = 0; i < ncaps; i++) {
+        if (cap_on[i]) gl.Enable(caps[i]);
+        else gl.Disable(caps[i]);
+    }
+    gl.ColorMask(mask[0], mask[1], mask[2], mask[3]);
+    gx.Viewport(vp[0], vp[1], vp[2], vp[3]);
+    if (fb) gl.BindFramebuffer(GL_FRAMEBUFFER, (unsigned) fb);
+    return drawn;
+}
+
 static void write_ppm(const unsigned char *px, const int w, const int h, const int stride, const int flip) {
     FILE *f = fopen("/run/muos/levelbar-grab.ppm", "we");
     if (f) {
@@ -364,7 +783,7 @@ void SDL_GL_SwapWindow(void *window) {
     if ((visible || grab_pending) && drawable) {
         int w = 0, h = 0;
         drawable(window, &w, &h);
-        if (visible) gl_draw(w, h);
+        if (visible && !gl_draw_bar(w, h)) gl_draw(w, h);
         if (grab_pending) gl_grab(w, h);
     }
     in_sdl++;
@@ -384,7 +803,7 @@ unsigned eglSwapBuffers(void *dpy, void *surface) {
     if ((visible || grab_pending) && query) {
         int w = 0, h = 0;
         if (query(dpy, surface, EGL_WIDTH, &w) && query(dpy, surface, EGL_HEIGHT, &h)) {
-            if (visible) gl_draw(w, h);
+            if (visible && !gl_draw_bar(w, h)) gl_draw(w, h);
             if (grab_pending) gl_grab(w, h);
         }
     }
@@ -430,6 +849,63 @@ static int sdl_load(void) {
     return sdl.ok > 0;
 }
 
+// The theme's bar with SDL textures (one per kind and glyph level, per
+// renderer); 0 = no assets or no texture functions.
+static struct {
+    int ok;
+    void *(*CreateTexture)(void *, uint32_t, int, int, int);
+    int (*UpdateTexture)(void *, const SDL_Rect *, const void *, int);
+    int (*SetTextureBlendMode)(void *, int), (*SetTextureAlphaMod)(void *, uint8_t);
+    int (*RenderCopy)(void *, void *, const SDL_Rect *, const SDL_Rect *);
+    void *ren, *tex[2][4];
+    unsigned gen[2][4];
+} st;
+
+static void sdl_fill(void *ren, const rect_t r, const uint32_t rgb, const int a) {
+    if (r.w <= 0 || r.h <= 0 || a <= 0) return;
+    const SDL_Rect q = {r.x, r.y, r.w, r.h};
+    sdl.SetRenderDrawColor(ren, rgb >> 16 & 0xFF, rgb >> 8 & 0xFF, rgb & 0xFF, (uint8_t) (a > 255 ? 255 : a));
+    sdl.RenderFillRect(ren, &q);
+}
+
+static int sdl_draw_bar(void *ren, const int W, const int H) {
+    if (!assets_load()) return 0;
+    if (!st.ok) {
+#define L(f) (*(void **) &st.f = next_sym(sdl_lib, "SDL_" #f))
+        L(CreateTexture); L(UpdateTexture); L(SetTextureBlendMode); L(SetTextureAlphaMod); L(RenderCopy);
+#undef L
+        st.ok = st.CreateTexture && st.UpdateTexture && st.SetTextureBlendMode && st.SetTextureAlphaMod &&
+                st.RenderCopy ? 1 : -1;
+    }
+    if (st.ok < 0) return 0;
+    if (st.ren != ren) {
+        memset(st.tex, 0, sizeof(st.tex));
+        memset(st.gen, 0, sizeof(st.gen));
+        st.ren = ren;
+    }
+    bar_t b;
+    bar_geometry(W, H, &b);
+    void **t = &st.tex[b.kind][b.level];
+    if (!*t) {
+        // SDL_PIXELFORMAT_ABGR8888 (bytes R, G, B, A), SDL_TEXTUREACCESS_STATIC
+        *t = st.CreateTexture(ren, 0x16762004u, 0, as.pw, as.ph);
+        if (!*t) return 0;
+        st.SetTextureBlendMode(*t, 1);
+    }
+    if (st.gen[b.kind][b.level] != as.gen) {
+        if (st.UpdateTexture(*t, NULL, as.img[b.kind][b.level], as.pw * 4) != 0) return 0;
+        st.gen[b.kind][b.level] = as.gen;
+    }
+    const int f = (int) (b.fade * 255.0f + 0.5f);
+    st.SetTextureAlphaMod(*t, (uint8_t) f);
+    const SDL_Rect dst = {b.panel.x, b.panel.y, b.panel.w, b.panel.h};
+    st.RenderCopy(ren, *t, NULL, &dst);
+    sdl.SetRenderDrawBlendMode(ren, 1);
+    sdl_fill(ren, b.track, as.main_rgb, as.main_a * f / 255);
+    sdl_fill(ren, b.fill, as.active_rgb, as.active_a * f / 255);
+    return 1;
+}
+
 static void sdl_draw(void *ren) {
     int W = 0, H = 0, lw = 0, lh = 0, mode = 0, clip_on;
     if (!sdl_load() || sdl.GetRenderTarget(ren) || sdl.GetRendererOutputSize(ren, &W, &H) || W <= 0 || H <= 0) {
@@ -459,15 +935,17 @@ static void sdl_draw(void *ren) {
     sdl.RenderSetScale(ren, 1.0f, 1.0f);
     sdl.RenderSetViewport(ren, NULL);
     if (clip_on) sdl.RenderSetClipRect(ren, NULL);
-    sdl.SetRenderDrawBlendMode(ren, 0);
-    rect_t r[MAX_RECTS];
-    uint32_t c[MAX_RECTS];
-    const int n = layout(W, H, r, c);
-    for (int i = 0; i < n; i++) {
-        const SDL_Rect q = {r[i].x, r[i].y, r[i].w, r[i].h};
-        if (q.w <= 0 || q.h <= 0) continue;
-        sdl.SetRenderDrawColor(ren, c[i] >> 16 & 0xFF, c[i] >> 8 & 0xFF, c[i] & 0xFF, 0xFF);
-        sdl.RenderFillRect(ren, &q);
+    if (!sdl_draw_bar(ren, W, H)) {
+        sdl.SetRenderDrawBlendMode(ren, 0);
+        rect_t r[MAX_RECTS];
+        uint32_t c[MAX_RECTS];
+        const int n = layout(W, H, r, c);
+        for (int i = 0; i < n; i++) {
+            const SDL_Rect q = {r[i].x, r[i].y, r[i].w, r[i].h};
+            if (q.w <= 0 || q.h <= 0) continue;
+            sdl.SetRenderDrawColor(ren, c[i] >> 16 & 0xFF, c[i] >> 8 & 0xFF, c[i] & 0xFF, 0xFF);
+            sdl.RenderFillRect(ren, &q);
+        }
     }
     if (logical) {
         sdl.RenderSetLogicalSize(ren, lw, lh);
