@@ -126,7 +126,12 @@ panels or clones.
   (rg351p), the 720/1024 panels (a frontend resolution port).
 - **PortMaster: M11** and **Pico-8: M12**: done, v1.1.1 (2026-11-27;
   milestones.md).
-- **MustardOS next release (decision 45): M13.** port the frontend/internal
+- **First Boot and the games card format (decision 50): M13.** the
+  upstream first-boot sequence (Date and Time, Language, Profiles, Input
+  Tester, Shutdown, Install; muxinstall and the prepare/storage scripts
+  of the pin) with Install formatting p3 as exFAT (default), FAT32 or
+  EXT4, so Windows can copy ROMs.
+- **MustardOS next release (decision 45): M14.** port the frontend/internal
   pin to the next official release after 2606.0 Andromeda (main on
   2026-11-25: Pickles/Wasabi content, Chutney reader, muaudio daemon,
   performance levels instead of governors, JSON theme layouts and main

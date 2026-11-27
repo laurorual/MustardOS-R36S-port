@@ -72,8 +72,12 @@ The open problems behind each "partial" are in STATUS.
   the native 60Hz mode at vfp 165 (59.94 Hz); a user's working dArkOSen
   DTB and arkos4clone's "origin panel4 type1" use vfp 16 (vtotal 512,
   ~77 Hz at 29 MHz) with the same init sequence and inputs. arkos4clone
-  also has an "origin panel4 type2" with another panel (58 MHz, other
-  init sequence): "Panel 4" names more than one panel.
+  also has an "origin panel4 type2" (58 MHz, another init sequence);
+  its selector says the two types mainly differ in whether Wi-Fi works.
+  No public tool builds such a DTB: arkos4clone's web DTB tool only
+  switches native-mode between existing timing nodes (plus joypad
+  inverts/remaps, battery capacity, Wi-Fi slot); the user's DTB edits
+  the 60Hz node itself, so it was assembled by hand.
   A Panel 4 DTB on the bench's Panel 0 (2026-11-27 trial) garbles the
   picture; after a warm reboot to Panel 0 the picture came back with a
   white haze around it (the panel keeps part of the foreign init state

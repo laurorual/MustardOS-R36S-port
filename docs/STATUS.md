@@ -13,7 +13,7 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 Phase 5 (own-card firmware). M1–M12 done: **v1.1.1 published 2026-11-27**
 (GitHub release, latest; M11 PortMaster + M12 PICO-8, decision 48; v1.1.0
 and v1.0.0 before it). v1.1.1 T3 round 4 passed; m12f is the recovery
-image. **Next: M13**, the MustardOS next release.
+image. **Next: M13**, First Boot and the games card format (decision 50).
 
 ## Device and bench
 
@@ -152,9 +152,18 @@ None open.
 
 Empty (v1.1.1 round 4 passed 2026-11-27; results in milestones.md).
 
-## Current milestone: M13 — MustardOS next release (not started)
+## Current milestone: M13 — First Boot and the games card format (not started)
 
-From the release plan (roadmap.md, decision 45): port the frontend/internal
-pin to the next official MustardOS release after 2606.0 Andromeda and
-rebase the port's patches; the theme format update comes with it. The
-plan (goal, items, tests, expected T3) is written here at its start.
+Decision 50 (a Windows user could not copy games to the ext4 p3; until
+then: SFTP over Wi-Fi, or ROMs on an exFAT card in slot 2). Known so
+far: the pin has `muxinstall` and `prepare.sh`/`storage.sh` with exFAT
+(`mkfs.exfat`, `EXFAT_NATIVE_READY`); the kernel has `CONFIG_EXFAT_FS=m`
+and slot 2 already mounts exFAT; the port skips the first boot and ships
+p3 as an auto-growing ext4. Items to settle in the plan: the six screens
+in order; Install formats p3 (exFAT default, FAT32, EXT4) after the grow;
+what the port keeps on p3 that needs POSIX (PortMaster exec bits and
+symlinks, the SFTP jail, `MUOS/trial` and update files, Wi-Fi profiles,
+the seed) and where it goes; existing ext4 cards stay ext4 through
+updates; power cut during Install; T2 on a fresh card per format. The
+full plan (goal, items, tests, expected T3) is written here at its
+start. Then M14: the MustardOS next release (decision 45).

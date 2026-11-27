@@ -145,6 +145,12 @@ overrides an earlier one where they conflict (noted inline).
     the newer version and asks before downloading (with progress) and
     before installing; nothing is downloaded in the background. Every
     new menu entry is translated into all MustardOS languages.
+50. (2026-11-27) The next version's priority is MustardOS's First Boot
+    (muos.dev/installation/first-steps: Date and Time, Language,
+    Profiles, Input Tester, Shutdown, Install), with Install asking how
+    to format the games card (exFAT recommended, FAT32, EXT4): a user on
+    Windows could not copy games to the ext4 p3. M13; the MustardOS next
+    release moves to M14.
 
 Standing rules (AGENTS.md): heavy systems = maximum performance first;
 recovery promotion after a clean T3 without asking.
