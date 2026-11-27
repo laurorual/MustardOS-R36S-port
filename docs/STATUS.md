@@ -200,7 +200,7 @@ to ext4, foreign card), `t1-fresh-p3.sh` (zone scheme updated).
 Left for the release: install guides, known issues, release notes, the
 LICENSING package count.
 **T2 when the bench is on (user present: flash):** `card-p3.sh backup`;
-flash `test128-m13b` (developer, MUOS_FIRST_BOOT=1) without `--grow`;
+flash `test128-m13b` (raw `023c259a…`) (developer, MUOS_FIRST_BOOT=1) without `--grow`;
 `t2-first-boot.sh pre`, `install exfat`, `install vfat`, `install ext4`
 (each checks the format, settings and zone kept, seeds, ScummVM bind);
 on exFAT: DraStic, PPSSPP 2021 saves, PortMaster install, NES fps, an
