@@ -11,19 +11,22 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 ## Current phase
 
 Phase 5 (own-card firmware). M1–M10 done: **v1.1.0 published 2026-11-26**
-(GitHub release, latest; v1.0.0 before it; m10a, the v1.1.0 developer
-twin, is the recovery image). **Current: M11 — PortMaster + M12 — PICO-8**
-(2026-11-26, one release, decision 48): both done to T2; the first
-v1.1.1 T3 passed with small findings (A/B, cursor, no bar in ports),
-fixed and T2-checked in m12c; **v1.1.1 rebuilt**. The user repeats the
-T3 on test128, then on original32, then publishes v1.1.1. Next: M13,
-the MustardOS next release.
+(GitHub release, latest; v1.0.0 before it). **Current: M11 — PortMaster
++ M12 — PICO-8** (2026-11-26, one release, decision 48): both done to
+T2; v1.1.1 T3 rounds 1–3 fixed (A/B, cursor, one rounded bar, N64 fade;
+m12e, now the recovery image); round 3 item 4 (the background updater
+installed v1.1.0 over v1.1.1) fixed in **m12f**: manual "Check for
+Online Update" task. **v1.1.1 rebuilt from m12f**; the user runs round 4,
+then publishes. Next: M13, the MustardOS next release.
 
 ## Device and bench
 
-- **Bench (2026-11-27):** test128 in slot 1, **p2 = m12e** (written
-  with `write-p2` after `t2-levelbar.sh` + `t2-quit-fade.sh` +
-  `t2-pico8.sh` + `t2-portmaster.sh` PASS; m12d, m12c, m12b before it). PortMaster reinstalled
+- **Bench (2026-11-27):** test128 in slot 1, **p2 = m12f**, installed
+  through the new Task Toolkit "Check for Online Update" (the m12f p2
+  served as a local "v9.9.9" by `t2-online-update.sh serve`: download,
+  unpack, trial boot, finishing screen, write-p2; the previous p2, m12e,
+  in `MUOS/trial/p2-previous.img`). m12e before it (`t2-levelbar.sh` +
+  `t2-quit-fade.sh` + `t2-pico8.sh` + `t2-portmaster.sh` PASS). PortMaster reinstalled
   on p3 2026-11-26 (a trial reboot during its source update corrupted
   `config/020_portmaster.source.json`); the user's Doukutsu-rs kept. p3 test
   content: PortMaster with sdlsopwith, turbotabletennis, 2048; ROMS/PICO-8
@@ -63,14 +66,15 @@ card, bootloader included (procedures.md).
 
 | Image | Content | State |
 |---|---|---|
-| **`dist/firmware/test128-m10a-20261126.img.zst`** (raw `cc85290c…`, p2 `77ff5a87…`) + `MustardOS-R36S-port-v1.1.0.*` (public, raw `8378de0c…`, p2 `8bedd242…`, 32 checks) | M10: Wi-Fi dongles, model DTBs + switch | m10a on the bench (update path from m9k); v1.1.0 T3 ok and **published 2026-11-26**; **m10a recovery since 2026-11-26** |
-| `dist/firmware/test128-m12e.img.zst` (raw `8eba11d6…`, p2 `65f3c678…`) + `MustardOS-R36S-port-v1.1.1.*` (public, raw `6b28d2cd…`, p2 `d2371236…`, 38 checks; source zips in `build/release`) | M11 + M12 + the v1.1.1 T3 fixes + one rounded bar + N64 quit fade | m12e on the bench p2; v1.1.1 T3 round 3 pending, then publish |
+| **`dist/firmware/test128-m12e.img.zst`** (raw `8eba11d6…`, p2 `65f3c678…`) | M11 + M12 + the v1.1.1 T3 fixes + one rounded bar + N64 quit fade | T3 round 3 items 1–3 ok; **recovery since 2026-11-27** (m10a retired) |
+| `dist/firmware/test128-m12f.img.zst` (raw `8b9df957…`, p2 `6a29a226…`) + `MustardOS-R36S-port-v1.1.1.*` (public, raw `d5187bd2…`, p2 `4068786a…`, 41 checks; source zips in `build/release`) | m12e + manual online update (no background updater), glyphs for the update tasks and Splore | m12f on the bench p2 (through the online task); v1.1.1 T3 round 4 pending, then publish |
+| (v1.1.0 public, m10a) | on GitHub (release, latest); local files and m10a retired 2026-11-27 | T3 ok 2026-11-26 |
 | (v1.0.0 public, m9k) | on GitHub (release); local files and m9k retired 2026-11-26 (m10a recovery) | T3 ok 2026-11-26 |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-3/5 versions in `storage-retention.json` (M2, m10a+v1.1.0,
-m12e+v1.1.1; m12d, m12c, m12b and m9k+v1.0.0 and earlier retired
+3/5 versions in `storage-retention.json` (M2, m12e, m12f+v1.1.1;
+m10a+v1.1.0, m12d, m12c, m12b and m9k+v1.0.0 and earlier retired
 2026-11-26/27). The v1.0.0 and v1.1.0 source zips in
 `build/release` (2.6 GB each, also on GitHub) are outside retention.
 
@@ -142,34 +146,45 @@ tested a TP-Link RTL8822BU dongle, 2357:0115: it works.)
 
 ## T3 queue
 
-**v1.1.1 checklist, round 3** (round 1 2026-11-26: all OK with A/B,
-cursor and bar findings; round 2 on m12c: 1–3 OK, 4 not tellable (Splore
-has no button labels), Doukutsu-rs confirms dialogs with its jump button,
-"East" = the physical B (the port's own default, changeable in its
-Options → Controls), 5: no fade on N64 Fn+Start, not reproduced on the
-bench; round 3 first look: bars unified OK, asked for rounded corners;
-N64 fade still missing: found (Mupen64Plus blanked the screen ~40 ms
-before the fade), fixed in m12e). On **test128** (m12e), then
-**original32** (public v1.1.1):
-1. Volume −/+ and Fn+Volume −/+ in the menu and in each: a libretro game
-   (e.g. NES), a port (Doukutsu-rs or TurboTableTennis), the official
-   PICO-8, Splore, and the standalone N64, PSP, Dreamcast (Flycast
-   standalone core), NDS: the **same rounded bar** as the menu's (icon,
-   colours, place, ~1.5 s then a fade) everywhere, no slowdown.
-2. Explorar conteúdo → N64 → Mario Kart 64 and Donkey Kong 64, Fn+Start:
-   the game fades out, the menu fades in; starting it again resumes where
-   it was (autosave).
-3. Aplicativos → PortMaster: no arrow, A confirms, B back (round 2 item 1,
-   again on the new image).
-4. original32: copy the new `MustardOS-R36S-port-v1.1.1.p2.img.gz` +
-   `.p2.img.sha256` to `MUOS/update`, Aplicativos → Ferramentas de
-   sistema → Instalar atualização do sistema; Informações → Detalhes do
-   dispositivo: Compilação v1.1.1; then items 1 and 3 there and a PICO-8
-   cart with each core (A = O in all three).
-After it passes: m12e becomes the recovery image (m10a retired) and the
-user runs `build/release/publish-v1.1.1.sh` (tags the final commit;
-the public image was built at the retention commit after beca55e, same
-`port/device` tree as m12e's beca55e).
+**v1.1.1 checklist, round 4** (rounds 1–3: A/B, cursor, one rounded
+bar, N64 fade, all OK on m12e; round 3 item 4: an update copied to
+`MUOS/update` on original32 (old v1.1.1) showed no finishing screen, a
+flashed v1.1.1 opened PortMaster slowly and then installed v1.1.0 by
+itself at the next start. Cause: the background updater took GitHub's
+latest (v1.1.0) whenever it differed from the card's, and its download +
+unpack ran while the menu and PortMaster were used; the missing
+finishing screen fits its unpack racing the manual one into the same
+`rootfs.img.tmp` (the sha256 is taken from the stream, so a corrupt file
+passed, and the trial boot fell back). Fixed in m12f: no background
+updater, a lock on stage/fetch, newer versions only).
+On **test128** (m12f, already installed through the new task):
+1. Aplicativos → Ferramentas de sistema: "Buscar atualização online"
+   right below "Instalar atualização do sistema", each with its new icon
+   (tray with an arrow; cloud with an arrow); Aplicativos: Splore with
+   its icon (cartridge + magnifier). Switch the language once (e.g.
+   English: "Check for Online Update" right below "Install Firmware
+   Update"), then back.
+2. "Buscar atualização online" with Wi-Fi: "Você já tem a versão mais
+   recente" or v1.1.0 offered (a developer image counts every release as
+   newer): choose Cancelar; nothing is downloaded. Without Wi-Fi:
+   "Conecte ao Wi-Fi primeiro".
+On **original32** (now v1.1.0 after the automatic install):
+3. Copy `MustardOS-R36S-port-v1.1.1.p2.img.gz` + `.p2.img.sha256` (the
+   new build) to `MUOS/update`; Wi-Fi may stay on (v1.1.0's updater sees
+   v1.1.0 = latest and does nothing); Aplicativos → Ferramentas de sistema
+   → Instalar atualização do sistema: progress, restart, "Concluindo a
+   atualização do sistema", restart; Informações → Detalhes do
+   dispositivo: Compilação v1.1.1.
+4. There: Ferramentas de sistema → Buscar atualização online with Wi-Fi:
+   "Você já tem a versão mais recente (v1.1.1)" (GitHub's latest is
+   v1.1.0, not offered); restart with Wi-Fi on and use PortMaster for a
+   few minutes: nothing is downloaded (`MUOS/update` stays empty) and
+   PortMaster opens and closes at its usual speed.
+5. There: volume/brightness bar in the menu, a game and a port (same
+   rounded bar), PortMaster A/B and no arrow, a PICO-8 cart (A = O).
+After it passes: the user runs `build/release/publish-v1.1.1.sh` (it
+tags the final commit; the image was built at e0f9e01 + docs, same
+`port/device` tree).
 
 ## Current milestone: M12 — PICO-8 (done to T2 2026-11-26)
 
@@ -198,6 +213,18 @@ Splore's BBS downloads: T3 round 1 OK.
    `t2-levelbar.sh` PASS (board mapping on a fresh store, bar in
    PortMaster's GUI / TurboTableTennis / PICO-8, cursor plane off);
    t2-pico8 (both cores 60.0 fps), t2-portmaster and NES 59.99 fps PASS.
+6. **Round 3 item 4 (m12f, 2026-11-27):** updates over Wi-Fi are manual:
+   Task Toolkit "Check for Online Update" (`SORT_AFTER: Install Firmware
+   Update`, frontend patch 0013) offers a release only when its version
+   is newer, asks before downloading (progress) and before installing;
+   `muos-update auto` removed; `flock` on stage/fetch; `update-task.sh`
+   helper; texts in all 31 languages; the port's glyphs `muxtask/update`,
+   `muxtask/cloud`, `muxapp/splore` in the MustardOS theme (the internal
+   theme: every theme falls back to it). T2: `t2-online-update.sh unit`
+   PASS (GitHub's v1.1.0 not offered to v1.1.1; latest; Cancel; Download
+   + Later with progress), menu run (order, icons, pt-BR, "latest"
+   dialog), and the full install of m12f from the menu (download, unpack,
+   trial boot with the finishing screen, write-p2 verified).
 6. **One bar (round 2 request, m12d):** `muxretro --level-assets`
    (patch 0005) exports the in-game bar of the active theme;
    `muos-levelbar.so` draws it (GLES2 / SDL textures, muxretro's hold and
