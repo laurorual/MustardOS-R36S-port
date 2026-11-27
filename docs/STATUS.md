@@ -155,7 +155,7 @@ flash tests on original32).
 **v1.1.2 (public candidate) on original32, blank card** (sent 2026-11-27):
 1. Flash `MustardOS-R36S-port-v1.1.2.img.zst` (flash-card.sh, no
    `--grow`), slot 1, power on: logo, then the First Boot (English).
-2. Idioma → Português (BR): the screens switch.
+2. Language → Português (BR) (the First Boot starts in English): the screens switch.
 3. Data e hora: time and Fuso horário (São Paulo).
 4. Perfis, Teste de botões: open, every button shows, back.
 5. Desligar: off; power on: the First Boot again, language kept.
