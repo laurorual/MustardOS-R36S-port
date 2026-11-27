@@ -21,9 +21,11 @@ the MustardOS next release.
 
 ## Device and bench
 
-- **Bench (2026-11-26):** test128 in slot 1, **p2 = m12c** (written
+- **Bench (2026-11-26):** test128 in slot 1, **p2 = m12d** (written
   with `write-p2` after `t2-levelbar.sh` + `t2-pico8.sh` +
-  `t2-portmaster.sh` PASS; m12b before it). p3 test
+  `t2-portmaster.sh` PASS; m12c, m12b before it). PortMaster reinstalled
+  on p3 2026-11-26 (a trial reboot during its source update corrupted
+  `config/020_portmaster.source.json`); the user's Doukutsu-rs kept. p3 test
   content: PortMaster with sdlsopwith, turbotabletennis, 2048; ROMS/PICO-8
   `ld45.p8`, `cartparsetest.p8.png`; the user's official PICO-8 0.2.7 in
   `MUOS/bios/pico8` (private: never in an image) and the Splore app. Before:
@@ -62,13 +64,13 @@ card, bootloader included (procedures.md).
 | Image | Content | State |
 |---|---|---|
 | **`dist/firmware/test128-m10a-20261126.img.zst`** (raw `cc85290c…`, p2 `77ff5a87…`) + `MustardOS-R36S-port-v1.1.0.*` (public, raw `8378de0c…`, p2 `8bedd242…`, 32 checks) | M10: Wi-Fi dongles, model DTBs + switch | m10a on the bench (update path from m9k); v1.1.0 T3 ok and **published 2026-11-26**; **m10a recovery since 2026-11-26** |
-| `dist/firmware/test128-m12c.img.zst` (raw `792c33a5…`, p2 `97e153b3…`) + `MustardOS-R36S-port-v1.1.1.*` (public, raw `549d087e…`, p2 `8c5e8f6b…`, 38 checks; source zips in `build/release`) | M11 + M12 + the v1.1.1 T3 fixes | m12c on the bench p2; v1.1.1 T3 round 2 pending, then publish |
+| `dist/firmware/test128-m12d.img.zst` (raw `efb340ec…`, p2 `bd514532…`) + `MustardOS-R36S-port-v1.1.1.*` (public, raw `53fe5b14…`, p2 `8d9920cc…`, 38 checks; source zips in `build/release`) | M11 + M12 + the v1.1.1 T3 fixes + one bar | m12d on the bench p2; v1.1.1 T3 round 3 pending, then publish |
 | (v1.0.0 public, m9k) | on GitHub (release); local files and m9k retired 2026-11-26 (m10a recovery) | T3 ok 2026-11-26 |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
 3/5 versions in `storage-retention.json` (M2, m10a+v1.1.0,
-m12c+v1.1.1; m12b and m9k+v1.0.0 and earlier retired 2026-11-26). The v1.0.0 and v1.1.0 source zips in
+m12d+v1.1.1; m12c, m12b and m9k+v1.0.0 and earlier retired 2026-11-26). The v1.0.0 and v1.1.0 source zips in
 `build/release` (2.6 GB each, also on GitHub) are outside retention.
 
 ## What works (T3-confirmed)
@@ -120,10 +122,17 @@ power-cut recovery. Full list per milestone in milestones.md.
 - **Bars:** in games (libretro, ports, standalone emulators) one bar,
   muxretro's (square corners); the menu's LVGL bar has the theme's rounded
   corners (BAR_RADIUS / BAR_PROGRESS_RADIUS): unify them later if wanted.
-- **User report (2026-11-26, another user, model unknown):** a black
-  screen while changing settings, and the B/back button also lowered the
-  volume. Waiting for the model (DTB) and details from the user; then
-  reproduce (input profile per model? `muos-model`).
+- **User report (2026-11-26, another user, DTB "R36S-V12 2023-08-18
+  Panel 4"):** a black screen while changing settings, and the B/back
+  button also lowered the volume. Our Panel 4 DTB is dArkOSen's (plus the
+  mmc aliases, minus the GPU 600 MHz OPP): joypad and keys use the same
+  GPIOs and key codes as Panel 0 (phandles resolved), so the DTB does not
+  explain B + volume; differences: panel init sequence, backlight PWM
+  period 62.7 µs (Panel 0 40 µs), default brightness 51 (80). Suspects: a
+  board that is not a genuine V12 Panel 4 (clone wiring), the backlight at
+  low levels. Asked the user: dArkOSen with the same DTB fine? which
+  setting, does the picture come back, B → volume everywhere?, Input
+  Tester, `MUOS/log` + `model.txt`.
 - **Menu:** "Direct Link", "Proxy Settings" and static addresses
   untested; one missed Power press in a 15-cycle soak (logged since M8).
 - **Pinned, not rebuilt:** idbloader/trust (rkbin files, identical to
@@ -163,8 +172,8 @@ bench). On **test128** (m12d), then **original32** (public v1.1.1):
    cart with each core (A = O in all three).
 After it passes: m12d becomes the recovery image (m10a retired) and the
 user runs `build/release/publish-v1.1.1.sh` (tags the final commit;
-the image was built at a49ea71, same `port/device` tree as m12c's
-1858c4f).
+the public image was built at 0ee2786, same `port/device` tree as
+m12d's e341b73).
 
 ## Current milestone: M12 — PICO-8 (done to T2 2026-11-26)
 
