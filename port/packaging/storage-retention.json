@@ -28,6 +28,15 @@
         "dist/firmware/MustardOS-R36S-port-v1.1.1-p4test.img.xz.sha256",
         "dist/firmware/MustardOS-R36S-port-v1.1.1-p4test.manifest"
       ]
+    },
+    "m13a-20261127": {
+      "reason": "M13 first boot + games storage format (decision 50): developer image with MUOS_FIRST_BOOT=1 (first boot on, SSH kept, fresh p3) for t2-first-boot.sh; 2f16e2d, raw a23ea178, p2 d6370615; T1 t1-install-storage + t1-fresh-p3 PASS; not booted yet (bench off for the panel)",
+      "files": [
+        "dist/firmware/test128-m13a.img.zst",
+        "dist/firmware/test128-m13a.img.zst.sha256",
+        "dist/firmware/test128-m13a.manifest",
+        "build/m3a/test128-m13a.p2.img"
+      ]
     }
   },
   "keep": {

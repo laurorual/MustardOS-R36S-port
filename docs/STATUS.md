@@ -134,8 +134,13 @@ power-cut recovery. Full list per milestone in milestones.md.
   the selector entry "R36S-V12 2023-08-18 Panel 4 (vfp 16, test)"
   (`models.txt` "+BASE" line). T2: that DTB with the port battery node
   boots the bench at 640x480p77 (V 480/496/498/512), menu up, same input
-  names, NES 60.16 fps. Waiting for the user's result; then keep the entry
-  (or make it Panel 4's default) or drop it, and retire `p4test`.
+  names, NES 60.16 fps. **Result (2026-11-27): no picture on his
+  console.** Unknown yet: whether he chose the vfp-16 entry in the
+  selector, waited through the first start (Panel 0 DTB first, black on
+  Panel 4, then the model trial restart), and whether the regular Panel 4
+  entry of the same build shows a picture; BOOT `model.txt` /
+  `model.txt.failed` tell whether the trial reached the menu (logs are on
+  the ext4 p3, unreadable on Windows).
 - **Menu:** "Direct Link", "Proxy Settings" and static addresses
   untested; one missed Power press in a 15-cycle soak (logged since M8).
 - **Pinned, not rebuilt:** idbloader/trust (rkbin files, identical to
