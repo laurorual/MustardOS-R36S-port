@@ -111,10 +111,15 @@ power-cut recovery. Full list per milestone in milestones.md.
   "M8 thermal block"); play them on battery. Saturn too heavy for Sonic R.
 - **Audio:** occasional PipeWire sink stall (self-healed before each
   game, root cause open); 200 % overdrive distorts (as upstream).
-- **Standalone emulators (N64, PSP, DC, NDS, Saturn):** no
-  volume/brightness bar (the keys work); `muos-levelbar.so` could be
-  preloaded there too (M13 candidate: fps T2 per emulator; DraStic's hook
-  wraps SDL itself). N64 screenshots give no feedback.
+- **N64 Fn+Start fade (v1.1.1 T3 round 2):** the user saw no fade, an
+  abrupt black screen; on the bench (m12c, MK64, Rice) the backlight fades
+  55 → 0 in 0.3 s while Mupen64Plus still runs and it exits 1.1 s later
+  (sampled every ~70 ms): not reproduced. Waiting for the game, the video
+  plugin and whether it happens every time. N64 screenshots give no
+  feedback.
+- **Bars:** in games (libretro, ports, standalone emulators) one bar,
+  muxretro's (square corners); the menu's LVGL bar has the theme's rounded
+  corners (BAR_RADIUS / BAR_PROGRESS_RADIUS): unify them later if wanted.
 - **User report (2026-11-26, another user, model unknown):** a black
   screen while changing settings, and the B/back button also lowered the
   volume. Waiting for the model (DTB) and details from the user; then
@@ -136,28 +141,27 @@ tested a TP-Link RTL8822BU dongle, 2357:0115: it works.)
 
 ## T3 queue
 
-**v1.1.1 checklist, round 2** (round 1 2026-11-26: all 8 OK, with
-findings: a cursor in the corner, A/B swapped in PortMaster, ports and
-between the PICO-8 cores, no volume bar in ports; fixed in m12c). First
-on **test128** (already m12c), then on **original32** (public v1.1.1):
-1. Aplicativos → PortMaster: no arrow in the top-left corner; A
-   confirms, B goes back. Volume −/+: the bar appears (with the next
-   button press on a still screen).
-2. Explorar conteúdo → Ports → Doukutsu-rs and TurboTableTennis: no
-   arrow; A confirms/jumps, B cancels; Volume −/+ and Fn+Volume −/+: the
-   volume and brightness bars at the top; Fn+Start back.
-3. Explorar conteúdo → PICO-8 → a cart, once per core (Y → Núcleo):
-   Picante8, FAKE-08, "PICO-8 - Standalone": A is the same button (O,
-   start/jump) and B the other (X) in all three; the bar in Standalone.
-4. Aplicativos → Splore: A opens, B back; a download plays.
-5. Regression: Explorar conteúdo → PSP (PPSSPP) and Dreamcast: menus
-   confirm with A as before.
-6. original32: copy the new `MustardOS-R36S-port-v1.1.1.p2.img.gz` +
+**v1.1.1 checklist, round 3** (round 1 2026-11-26: all OK with A/B,
+cursor and bar findings; round 2 on m12c: 1–3 OK, 4 not tellable (Splore
+has no button labels), Doukutsu-rs confirms dialogs with its jump button,
+"East" = the physical B (the port's own default, changeable in its
+Options → Controls), 5: no fade on N64 Fn+Start, not reproduced on the
+bench). On **test128** (m12d), then **original32** (public v1.1.1):
+1. Volume −/+ and Fn+Volume −/+ in each: a libretro game (e.g. NES), a
+   port (Doukutsu-rs or TurboTableTennis), the official PICO-8, Splore,
+   and the standalone N64, PSP, Dreamcast (Flycast standalone core),
+   NDS: the **same bar** (icon, colours, place, ~1.5 s then a fade) in
+   all of them, no slowdown while it shows.
+2. Explorar conteúdo → N64 → a game, Fn+Start: does the screen fade out
+   now? If not: which game and which N64 core (Y → Núcleo), every time?
+3. Aplicativos → PortMaster: no arrow, A confirms, B back (round 2 item 1,
+   again on the new image).
+4. original32: copy the new `MustardOS-R36S-port-v1.1.1.p2.img.gz` +
    `.p2.img.sha256` to `MUOS/update`, Aplicativos → Ferramentas de
    sistema → Instalar atualização do sistema; Informações → Detalhes do
-   dispositivo: Compilação v1.1.1; then items 1–3 there (a card without
-   an Input Remap: the case the A/B fix is for).
-After it passes: m12c becomes the recovery image (m10a retired) and the
+   dispositivo: Compilação v1.1.1; then items 1 and 3 there and a PICO-8
+   cart with each core (A = O in all three).
+After it passes: m12d becomes the recovery image (m10a retired) and the
 user runs `build/release/publish-v1.1.1.sh` (tags the final commit;
 the image was built at a49ea71, same `port/device` tree as m12c's
 1858c4f).
@@ -189,6 +193,15 @@ Splore's BBS downloads: T3 round 1 OK.
    `t2-levelbar.sh` PASS (board mapping on a fresh store, bar in
    PortMaster's GUI / TurboTableTennis / PICO-8, cursor plane off);
    t2-pico8 (both cores 60.0 fps), t2-portmaster and NES 59.99 fps PASS.
+6. **One bar (round 2 request, m12d):** `muxretro --level-assets`
+   (patch 0005) exports the in-game bar of the active theme;
+   `muos-levelbar.so` draws it (GLES2 / SDL textures, muxretro's hold and
+   fade) in ports, applications, PICO-8 and the standalone emulators
+   (launchers preload it; DraStic after its hook). T2 on the bench:
+   t2-levelbar.sh PASS with the theme's bar in PortMaster's GUI,
+   TurboTableTennis, PICO-8, Mupen64Plus (60.1 VI/s), PPSSPP 2021,
+   Flycast, DraStic (A/B: no cost beyond scene noise). YabaSanshiro and
+   ScummVM standalone unverified (no test content).
 
 ## Milestone M11 — PortMaster (and muOS applications) (done to T2 2026-11-26)
 
