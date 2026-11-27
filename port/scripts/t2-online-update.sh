@@ -69,8 +69,9 @@ unit)
 serve)
     gz=${2:?serve GZ}; [ -f "${gz%.gz}.sha256" ] || { echo "no ${gz%.gz}.sha256" >&2; exit 1; }
     r "mkdir -p $d" || exit 1
-    "$dev" push "$gz" "$d/MustardOS-R36S-port-v9.9.9.p2.img.gz" || exit 1
-    "$dev" push "${gz%.gz}.sha256" "$d/MustardOS-R36S-port-v9.9.9.p2.img.sha256" || exit 1
+    "$dev" push "$gz" "$d" && "$dev" push "${gz%.gz}.sha256" "$d" || exit 1  # into the directory DST
+    r "cd $d && mv -f '${gz##*/}' MustardOS-R36S-port-v9.9.9.p2.img.gz &&
+       mv -f '$(basename "${gz%.gz}.sha256")' MustardOS-R36S-port-v9.9.9.p2.img.sha256" || exit 1
     r "$mock && echo MUOS_UPDATE_RELEASE=MustardOS-R36S-port-v1.1.1 >> /run/muos/update-test && /usr/libexec/muos-update check" ;;
 clean) r "rm -f /userdata/MUOS/update/MustardOS-R36S-port-v9.9.9.* /run/muos/update-test; rm -rf $d" ;;
 *) sed -n '7,18p' "$0"; exit 2 ;;
