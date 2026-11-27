@@ -116,16 +116,18 @@ power-cut recovery. Full list per milestone in milestones.md.
   Panel 4"):** a black screen while changing settings, and the B/back
   button also lowered the volume. No `MUOS/log` (muOS already removed).
   The user's own dArkOSen DTB (`build/rk3326-r36s-linux.dtb`, sha256
-  `ebf08da5…`, 2026-11-27) is dArkOSen's Panel 0 DTB with Panel 4's
-  panel section, and its native 60Hz mode has **vfront-porch 16**
-  (vtotal 512, ~77 Hz at 29 MHz) where dArkOSen's current Panel 4 and
-  ours have 165 (59.94 Hz). arkos4clone's "origin panel4 type1" has the
-  same init sequence, PWM and vfp-16 timing (no byte-identical match
-  there, in southoz/dArkOSRE-R36 or christianhaitian/dArkOS). Inputs
+  `ebf08da5…`, 2026-11-27) is dArkOSen's own Panel 4 DTB of 2026-08-31
+  (commit 7b30ae7, blob 2176862b; the user runs that dArkOSen). dArkOSen
+  then dropped the GPU 600 MHz OPP (09-18) and, in its final update
+  (11-14, our pin), set the native 60Hz mode's **vfront-porch 16 → 165**
+  (~77 Hz → 59.94 Hz), CPU max-volt 1.40 → 1.35 V (the kernel drops the
+  OPPs above it: no instability; Panel 0 has the same cap), the battery
+  table 3140 → 3380 mAh, slot 2 to 3.3 V and compatible odroidgo3 →
+  r36s. arkos4clone's "origin panel4 type1" keeps vfp 16. Inputs
   (joypad, gpio-keys, ADC, GPIOs and codes) are identical in all of them:
-  B + volume is not the DTB. Other differences (Panel 0 base): CPU
-  max-volt 1.40 V (ours 1.35 V), battery 3140 mAh table, slot-2 UHS. The
-  timing is the only display difference: the black-screen suspect.
+  B + volume is not the DTB. The timing is the only display change
+  between his working DTB and ours: the black-screen suspect. Cheap
+  cross-check for him: dArkOSen's final (11-14) release.
   **Test build for that user (2026-11-27):**
   `dist/firmware/MustardOS-R36S-port-v1.1.1-p4test.img.xz` (sha256
   `4344ae80…`, raw `9805db59…`; 0f5bff9, all public checks ok) = v1.1.1 +
