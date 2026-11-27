@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "Se descarcă PortMaster (circa 25 MB)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Necesită Wi-Fi sau muos.portmaster.zip în MUOS/update",
     "PortMaster could not be installed": "PortMaster nu a putut fi instalat",
-    "PortMaster installed: open it again from Applications": "PortMaster instalat: deschideți-l din nou din Aplicații"
+    "PortMaster installed: open it again from Applications": "PortMaster instalat: deschideți-l din nou din Aplicații",
+    "Check for Online Update": "Caută actualizare online",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "Caută un sistem mai nou pe GitHub-ul portului (necesită Wi-Fi). Dacă există, afișează versiunea și întreabă înainte de descărcare; după descărcare alegi să-l instalezi acum (dispozitivul repornește de două ori, aproximativ 10 minute) sau mai târziu cu Instalează actualizarea de sistem. Jocurile, salvările și setările rămân.",
+    "Looking for a new version": "Se caută o versiune nouă",
+    "Connect to Wi-Fi first": "Conectează-te mai întâi la Wi-Fi",
+    "You have the latest version": "Ai cea mai nouă versiune",
+    "Could not reach the update server": "Serverul de actualizări nu poate fi accesat",
+    "Update available": "Actualizare disponibilă",
+    "Download it now?": "O descarci acum?",
+    "installed": "instalată",
+    "Download": "Descarcă",
+    "Cancel": "Anulează",
+    "Not downloaded": "Nedescărcată",
+    "Downloading": "Se descarcă",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Lasă Wi-Fi pornit; o descărcare anulată continuă data viitoare",
+    "Download failed": "Descărcarea a eșuat",
+    "Install now": "Instalează acum",
+    "Later": "Mai târziu",
+    "Download complete": "Descărcare finalizată",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "O instalezi acum? Dispozitivul repornește de două ori (aproximativ 10 minute); jocurile, salvările și setările rămân. Necesită încărcătorul sau 30 % baterie.",
+    "Saved in MUOS/update. To install it later:": "Salvată în MUOS/update. Pentru instalare mai târziu:"
   }
 }

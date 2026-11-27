@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	Pobieranie PortMaster (około 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Wymaga Wi-Fi lub pliku muos.portmaster.zip w MUOS/update
 PortMaster could not be installed	Nie udało się zainstalować PortMaster
 PortMaster installed: open it again from Applications	PortMaster zainstalowany: otwórz go ponownie z Aplikacji
+Check for Online Update	Szukaj aktualizacji online
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Szuka nowszego systemu na GitHubie portu (wymaga Wi-Fi). Jeśli jest, pokazuje wersję i pyta przed pobraniem; po pobraniu wybierasz instalację teraz (urządzenie uruchomi się ponownie dwa razy, około 10 minut) lub później przez Zainstaluj aktualizację systemu. Gry, zapisy i ustawienia zostają.
+Looking for a new version	Szukanie nowej wersji
+Connect to Wi-Fi first	Najpierw połącz się z Wi-Fi
+You have the latest version	Masz najnowszą wersję
+Could not reach the update server	Nie można połączyć się z serwerem aktualizacji
+Update available	Dostępna aktualizacja
+Download it now?	Pobrać teraz?
+installed	zainstalowana
+Download	Pobierz
+Cancel	Anuluj
+Not downloaded	Nie pobrano
+Downloading	Pobieranie
+Keep Wi-Fi on; a cancelled download resumes next time	Nie wyłączaj Wi-Fi; anulowane pobieranie zostanie wznowione następnym razem
+Download failed	Pobieranie nie powiodło się
+Install now	Zainstaluj teraz
+Later	Później
+Download complete	Pobieranie zakończone
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Zainstalować teraz? Urządzenie uruchomi się ponownie dwa razy (około 10 minut); gry, zapisy i ustawienia zostają. Wymaga ładowarki lub 30 % baterii.
+Saved in MUOS/update. To install it later:	Zapisano w MUOS/update. Aby zainstalować później:

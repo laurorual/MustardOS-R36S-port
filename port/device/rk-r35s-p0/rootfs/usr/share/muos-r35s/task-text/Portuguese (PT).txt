@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	A transferir o PortMaster (cerca de 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Precisa de Wi-Fi, ou de muos.portmaster.zip em MUOS/update
 PortMaster could not be installed	Não foi possível instalar o PortMaster
 PortMaster installed: open it again from Applications	PortMaster instalado: abra-o novamente em Aplicações
+Check for Online Update	Procurar atualização online
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Procura um sistema mais recente no GitHub do port (precisa de Wi-Fi). Se existir, mostra a versão e pergunta antes de transferir; depois da transferência escolhe instalar já (o aparelho reinicia duas vezes, cerca de 10 minutos) ou mais tarde com Instalar atualização do sistema. Jogos, gravações e definições mantêm-se.
+Looking for a new version	A procurar uma nova versão
+Connect to Wi-Fi first	Ligue-se primeiro ao Wi-Fi
+You have the latest version	Já tem a versão mais recente
+Could not reach the update server	Não foi possível contactar o servidor de atualizações
+Update available	Atualização disponível
+Download it now?	Transferir agora?
+installed	instalada
+Download	Transferir
+Cancel	Cancelar
+Not downloaded	Não transferida
+Downloading	A transferir
+Keep Wi-Fi on; a cancelled download resumes next time	Mantenha o Wi-Fi ligado; uma transferência cancelada continua da próxima vez
+Download failed	A transferência falhou
+Install now	Instalar já
+Later	Mais tarde
+Download complete	Transferência concluída
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Instalar já? O aparelho reinicia duas vezes (cerca de 10 minutos); jogos, gravações e definições mantêm-se. Precisa do carregador ou de 30 % de bateria.
+Saved in MUOS/update. To install it later:	Guardada em MUOS/update. Para instalar mais tarde:

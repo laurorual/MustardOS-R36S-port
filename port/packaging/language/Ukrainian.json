@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "Завантаження PortMaster (близько 25 МБ)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Потрібен Wi-Fi або muos.portmaster.zip у MUOS/update",
     "PortMaster could not be installed": "Не вдалося встановити PortMaster",
-    "PortMaster installed: open it again from Applications": "PortMaster встановлено: відкрийте його знову в Застосунках"
+    "PortMaster installed: open it again from Applications": "PortMaster встановлено: відкрийте його знову в Застосунках",
+    "Check for Online Update": "Перевірити оновлення онлайн",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "Шукає новішу систему на GitHub порту (потрібен Wi-Fi). Якщо вона є, показує версію і питає перед завантаженням; після завантаження ви обираєте встановити зараз (пристрій перезавантажиться двічі, близько 10 хвилин) або пізніше через «Встановити оновлення системи». Ігри, збереження та налаштування залишаються.",
+    "Looking for a new version": "Пошук нової версії",
+    "Connect to Wi-Fi first": "Спершу підключіться до Wi-Fi",
+    "You have the latest version": "У вас остання версія",
+    "Could not reach the update server": "Не вдалося зв'язатися із сервером оновлень",
+    "Update available": "Доступне оновлення",
+    "Download it now?": "Завантажити зараз?",
+    "installed": "встановлена",
+    "Download": "Завантажити",
+    "Cancel": "Скасувати",
+    "Not downloaded": "Не завантажено",
+    "Downloading": "Завантаження",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Не вимикайте Wi-Fi; скасоване завантаження продовжиться наступного разу",
+    "Download failed": "Помилка завантаження",
+    "Install now": "Встановити зараз",
+    "Later": "Пізніше",
+    "Download complete": "Завантаження завершено",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "Встановити зараз? Пристрій перезавантажиться двічі (близько 10 хвилин); ігри, збереження та налаштування залишаються. Потрібен зарядний пристрій або 30 % заряду.",
+    "Saved in MUOS/update. To install it later:": "Збережено в MUOS/update. Щоб встановити пізніше:"
   }
 }

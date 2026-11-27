@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	Baixando o PortMaster (cerca de 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Precisa de Wi-Fi, ou de muos.portmaster.zip em MUOS/update
 PortMaster could not be installed	Não foi possível instalar o PortMaster
 PortMaster installed: open it again from Applications	PortMaster instalado: abra-o de novo em Aplicativos
+Check for Online Update	Buscar atualização online
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Procura um sistema mais novo no GitHub do port (precisa de Wi-Fi). Se houver, mostra a versão e pergunta antes de baixar; depois do download você escolhe instalar agora (o aparelho reinicia duas vezes, cerca de 10 minutos) ou depois com Instalar atualização do sistema. Jogos, saves e configurações ficam.
+Looking for a new version	Procurando uma nova versão
+Connect to Wi-Fi first	Conecte ao Wi-Fi primeiro
+You have the latest version	Você já tem a versão mais recente
+Could not reach the update server	Não foi possível acessar o servidor de atualizações
+Update available	Atualização disponível
+Download it now?	Baixar agora?
+installed	instalada
+Download	Baixar
+Cancel	Cancelar
+Not downloaded	Não baixada
+Downloading	Baixando
+Keep Wi-Fi on; a cancelled download resumes next time	Mantenha o Wi-Fi ligado; um download cancelado continua da próxima vez
+Download failed	Falha no download
+Install now	Instalar agora
+Later	Depois
+Download complete	Download concluído
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Instalar agora? O aparelho reinicia duas vezes (cerca de 10 minutos); jogos, saves e configurações ficam. Precisa do carregador ou de 30 % de bateria.
+Saved in MUOS/update. To install it later:	Salva em MUOS/update. Para instalar depois:

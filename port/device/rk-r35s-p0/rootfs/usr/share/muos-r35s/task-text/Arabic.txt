@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	جارٍ تنزيل PortMaster (نحو 25 �
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	يتطلب Wi-Fi أو الملف muos.portmaster.zip في MUOS/update
 PortMaster could not be installed	تعذّر تثبيت PortMaster
 PortMaster installed: open it again from Applications	تم تثبيت PortMaster: افتحه مجددًا من التطبيقات
+Check for Online Update	البحث عن تحديث عبر الإنترنت
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	يبحث عن نظام أحدث في صفحة GitHub الخاصة بالمنفذ (يحتاج إلى Wi-Fi). إذا وُجد، يعرض الإصدار ويسأل قبل تنزيله؛ بعد التنزيل تختار تثبيته الآن (يُعاد تشغيل الجهاز مرتين، نحو 10 دقائق) أو لاحقًا عبر تثبيت تحديث النظام. تبقى ألعابك وحفظاتك وإعداداتك.
+Looking for a new version	جارٍ البحث عن إصدار جديد
+Connect to Wi-Fi first	اتصل بشبكة Wi-Fi أولًا
+You have the latest version	لديك أحدث إصدار
+Could not reach the update server	تعذّر الوصول إلى خادم التحديثات
+Update available	يتوفر تحديث
+Download it now?	هل تريد تنزيله الآن؟
+installed	المثبّت
+Download	تنزيل
+Cancel	إلغاء
+Not downloaded	لم يُنزَّل
+Downloading	جارٍ التنزيل
+Keep Wi-Fi on; a cancelled download resumes next time	أبقِ Wi-Fi قيد التشغيل؛ يُستأنف التنزيل الملغى في المرة القادمة
+Download failed	فشل التنزيل
+Install now	تثبيت الآن
+Later	لاحقًا
+Download complete	اكتمل التنزيل
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	هل تريد تثبيته الآن؟ يُعاد تشغيل الجهاز مرتين (نحو 10 دقائق)؛ تبقى الألعاب والحفظات والإعدادات. يحتاج إلى الشاحن أو 30 % من البطارية.
+Saved in MUOS/update. To install it later:	حُفظ في MUOS/update. لتثبيته لاحقًا:

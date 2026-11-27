@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "Descargando PortMaster (unos 25 MB)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Necesita Wi-Fi, o muos.portmaster.zip en MUOS/update",
     "PortMaster could not be installed": "No se pudo instalar PortMaster",
-    "PortMaster installed: open it again from Applications": "PortMaster instalado: vuelve a abrirlo desde Aplicaciones"
+    "PortMaster installed: open it again from Applications": "PortMaster instalado: vuelve a abrirlo desde Aplicaciones",
+    "Check for Online Update": "Buscar actualización en línea",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "Busca un sistema más reciente en el GitHub del port (necesita Wi-Fi). Si lo hay, muestra la versión y pregunta antes de descargarlo; tras la descarga eliges instalarlo ahora (el dispositivo se reinicia dos veces, unos 10 minutos) o más tarde con Instalar actualización del sistema. Tus juegos, partidas guardadas y ajustes se conservan.",
+    "Looking for a new version": "Buscando una nueva versión",
+    "Connect to Wi-Fi first": "Conéctate primero al Wi-Fi",
+    "You have the latest version": "Ya tienes la versión más reciente",
+    "Could not reach the update server": "No se pudo contactar con el servidor de actualizaciones",
+    "Update available": "Actualización disponible",
+    "Download it now?": "¿Descargarla ahora?",
+    "installed": "instalada",
+    "Download": "Descargar",
+    "Cancel": "Cancelar",
+    "Not downloaded": "No descargada",
+    "Downloading": "Descargando",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Mantén el Wi-Fi encendido; una descarga cancelada continúa la próxima vez",
+    "Download failed": "Error en la descarga",
+    "Install now": "Instalar ahora",
+    "Later": "Más tarde",
+    "Download complete": "Descarga completada",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "¿Instalarla ahora? El dispositivo se reinicia dos veces (unos 10 minutos); juegos, partidas guardadas y ajustes se conservan. Necesita el cargador o un 30 % de batería.",
+    "Saved in MUOS/update. To install it later:": "Guardada en MUOS/update. Para instalarla más tarde:"
   }
 }

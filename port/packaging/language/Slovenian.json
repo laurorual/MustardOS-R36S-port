@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "Prenašanje PortMaster (približno 25 MB)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Potreben je Wi-Fi ali muos.portmaster.zip v MUOS/update",
     "PortMaster could not be installed": "PortMaster ni bilo mogoče namestiti",
-    "PortMaster installed: open it again from Applications": "PortMaster nameščen: znova ga odprite v Aplikacijah"
+    "PortMaster installed: open it again from Applications": "PortMaster nameščen: znova ga odprite v Aplikacijah",
+    "Check for Online Update": "Poišči posodobitev na spletu",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "Poišče novejši sistem na GitHubu porta (potreben je Wi-Fi). Če obstaja, pokaže različico in vpraša pred prenosom; po prenosu izberete namestitev zdaj (naprava se dvakrat znova zažene, približno 10 minut) ali pozneje z Namesti posodobitev sistema. Igre, shranjeni položaji in nastavitve ostanejo.",
+    "Looking for a new version": "Iskanje nove različice",
+    "Connect to Wi-Fi first": "Najprej se povežite z Wi-Fi",
+    "You have the latest version": "Imate najnovejšo različico",
+    "Could not reach the update server": "Strežnika za posodobitve ni mogoče doseči",
+    "Update available": "Na voljo je posodobitev",
+    "Download it now?": "Prenesem zdaj?",
+    "installed": "nameščeno",
+    "Download": "Prenesi",
+    "Cancel": "Prekliči",
+    "Not downloaded": "Ni preneseno",
+    "Downloading": "Prenašanje",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Pustite Wi-Fi vklopljen; preklican prenos se naslednjič nadaljuje",
+    "Download failed": "Prenos ni uspel",
+    "Install now": "Namesti zdaj",
+    "Later": "Pozneje",
+    "Download complete": "Prenos končan",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "Namestim zdaj? Naprava se dvakrat znova zažene (približno 10 minut); igre, shranjeni položaji in nastavitve ostanejo. Potreben je polnilnik ali 30 % baterije.",
+    "Saved in MUOS/update. To install it later:": "Shranjeno v MUOS/update. Za poznejšo namestitev:"
   }
 }

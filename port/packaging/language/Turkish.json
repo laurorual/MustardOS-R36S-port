@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "PortMaster indiriliyor (yaklaşık 25 MB)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Wi-Fi veya MUOS/update içinde muos.portmaster.zip gerekir",
     "PortMaster could not be installed": "PortMaster yüklenemedi",
-    "PortMaster installed: open it again from Applications": "PortMaster yüklendi: Uygulamalar'dan yeniden açın"
+    "PortMaster installed: open it again from Applications": "PortMaster yüklendi: Uygulamalar'dan yeniden açın",
+    "Check for Online Update": "Çevrimiçi güncelleme ara",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "Portun GitHub sayfasında daha yeni bir sistem arar (Wi-Fi gerekir). Varsa sürümü gösterir ve indirmeden önce sorar; indirmeden sonra şimdi yüklemeyi (cihaz iki kez yeniden başlar, yaklaşık 10 dakika) ya da daha sonra Sistem güncellemesini yükle ile yüklemeyi seçersin. Oyunların, kayıtların ve ayarların korunur.",
+    "Looking for a new version": "Yeni sürüm aranıyor",
+    "Connect to Wi-Fi first": "Önce Wi-Fi'ye bağlan",
+    "You have the latest version": "En son sürüme sahipsin",
+    "Could not reach the update server": "Güncelleme sunucusuna ulaşılamadı",
+    "Update available": "Güncelleme mevcut",
+    "Download it now?": "Şimdi indirilsin mi?",
+    "installed": "yüklü",
+    "Download": "İndir",
+    "Cancel": "İptal",
+    "Not downloaded": "İndirilmedi",
+    "Downloading": "İndiriliyor",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Wi-Fi'yi açık tut; iptal edilen indirme bir dahaki sefere devam eder",
+    "Download failed": "İndirme başarısız",
+    "Install now": "Şimdi yükle",
+    "Later": "Sonra",
+    "Download complete": "İndirme tamamlandı",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "Şimdi yüklensin mi? Cihaz iki kez yeniden başlar (yaklaşık 10 dakika); oyunlar, kayıtlar ve ayarlar korunur. Şarj cihazı veya %30 pil gerekir.",
+    "Saved in MUOS/update. To install it later:": "MUOS/update içine kaydedildi. Daha sonra yüklemek için:"
   }
 }

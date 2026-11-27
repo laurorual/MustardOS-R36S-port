@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "PortMaster 다운로드 중 (약 25MB)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Wi-Fi 또는 MUOS/update의 muos.portmaster.zip이 필요합니다",
     "PortMaster could not be installed": "PortMaster를 설치할 수 없습니다",
-    "PortMaster installed: open it again from Applications": "PortMaster 설치 완료: 애플리케이션에서 다시 여세요"
+    "PortMaster installed: open it again from Applications": "PortMaster 설치 완료: 애플리케이션에서 다시 여세요",
+    "Check for Online Update": "온라인 업데이트 확인",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "포트의 GitHub에서 더 새로운 시스템을 찾습니다 (Wi-Fi 필요). 있으면 버전을 보여 주고 다운로드 전에 묻습니다. 다운로드 후 지금 설치할지 (기기가 두 번 재시작, 약 10분) 나중에 시스템 업데이트 설치로 설치할지 선택합니다. 게임, 저장 파일, 설정은 유지됩니다.",
+    "Looking for a new version": "새 버전을 찾는 중",
+    "Connect to Wi-Fi first": "먼저 Wi-Fi에 연결하세요",
+    "You have the latest version": "최신 버전입니다",
+    "Could not reach the update server": "업데이트 서버에 연결할 수 없습니다",
+    "Update available": "업데이트 있음",
+    "Download it now?": "지금 다운로드할까요?",
+    "installed": "설치됨",
+    "Download": "다운로드",
+    "Cancel": "취소",
+    "Not downloaded": "다운로드하지 않음",
+    "Downloading": "다운로드 중",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Wi-Fi를 켜 두세요. 취소한 다운로드는 다음에 이어서 받습니다",
+    "Download failed": "다운로드 실패",
+    "Install now": "지금 설치",
+    "Later": "나중에",
+    "Download complete": "다운로드 완료",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "지금 설치할까요? 기기가 두 번 재시작합니다 (약 10분). 게임, 저장 파일, 설정은 유지됩니다. 충전기 또는 배터리 30 %가 필요합니다.",
+    "Saved in MUOS/update. To install it later:": "MUOS/update에 저장했습니다. 나중에 설치하려면:"
   }
 }

@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	PortMaster á íoslódáil (thart ar 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Teastaíonn Wi-Fi, nó muos.portmaster.zip in MUOS/update
 PortMaster could not be installed	Níorbh fhéidir PortMaster a shuiteáil
 PortMaster installed: open it again from Applications	PortMaster suiteáilte: oscail arís é ó Fheidhmchláir
+Check for Online Update	Cuardaigh nuashonrú ar líne
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Cuardaíonn sé córas níos nuaí ar GitHub an phoirt (Wi-Fi ag teastáil). Má tá ceann ann, taispeánann sé an leagan agus fiafraíonn sé sula n-íoslódálann sé é; tar éis na híoslódála roghnaíonn tú é a shuiteáil anois (atosaíonn an gléas faoi dhó, timpeall 10 nóiméad) nó níos déanaí le Suiteáil nuashonrú córais. Fanann do chluichí, sábhálacha agus socruithe.
+Looking for a new version	Ag cuardach leagan nua
+Connect to Wi-Fi first	Ceangail le Wi-Fi ar dtús
+You have the latest version	Tá an leagan is déanaí agat
+Could not reach the update server	Níorbh fhéidir an freastalaí nuashonraithe a bhaint amach
+Update available	Nuashonrú ar fáil
+Download it now?	É a íoslódáil anois?
+installed	suiteáilte
+Download	Íoslódáil
+Cancel	Cealaigh
+Not downloaded	Níor íoslódáladh
+Downloading	Á íoslódáil
+Keep Wi-Fi on; a cancelled download resumes next time	Coinnigh an Wi-Fi ar siúl; leanann íoslódáil chealaithe ar aghaidh an chéad uair eile
+Download failed	Theip ar an íoslódáil
+Install now	Suiteáil anois
+Later	Níos déanaí
+Download complete	Íoslódáil críochnaithe
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	É a shuiteáil anois? Atosaíonn an gléas faoi dhó (timpeall 10 nóiméad); fanann cluichí, sábhálacha agus socruithe. Teastaíonn an luchtaire nó 30 % ceallraí.
+Saved in MUOS/update. To install it later:	Sábháilte in MUOS/update. Le suiteáil níos déanaí:

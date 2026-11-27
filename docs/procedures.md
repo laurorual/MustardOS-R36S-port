@@ -248,6 +248,15 @@ snapshots.
   port's binary name in the same SSH command as the Fn+Start press
   (gptokeyb kills matching command lines). Logs: `MUOS/log/system/port.log`,
   `app.log`, `MUOS/PortMaster/log.txt`.
+- Online update (v1.1.1, manual): Task Toolkit "Check for Online Update"
+  = `muos-update check` (newer version only: `muos-update version NAME`
+  orders release names) → prompt → `fetch` (progress from the `.part`
+  size) → prompt → `stage` + restart (the `update-task.sh` helper, shared
+  with "Install Firmware Update"). `stage` and `fetch` hold
+  `/run/muos/update.lock`. T2: `t2-online-update.sh unit` (headless: the
+  task's records are on stdout in native mode, answers on stdin);
+  `t2-online-update.sh serve GZ` offers a p2 as v9.9.9 for a run from
+  the menu, through `/run/muos/update-test` (gone at the next start).
 
 ## Update U-Boot in place (M8)
 

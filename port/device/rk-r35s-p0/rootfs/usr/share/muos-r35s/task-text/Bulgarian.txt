@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	Изтегляне на PortMaster (око�
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Нужен е Wi-Fi или muos.portmaster.zip в MUOS/update
 PortMaster could not be installed	PortMaster не можа да бъде инсталиран
 PortMaster installed: open it again from Applications	PortMaster е инсталиран: отворете го отново от Приложения
+Check for Online Update	Проверка за актуализация онлайн
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Търси по-нова система в GitHub на порта (нужен е Wi-Fi). Ако има, показва версията и пита преди изтегляне; след изтеглянето избирате да я инсталирате сега (устройството се рестартира два пъти, около 10 минути) или по-късно с „Инсталиране на системна актуализация“. Игрите, записите и настройките остават.
+Looking for a new version	Търсене на нова версия
+Connect to Wi-Fi first	Първо се свържете с Wi-Fi
+You have the latest version	Имате най-новата версия
+Could not reach the update server	Няма връзка със сървъра за актуализации
+Update available	Налична е актуализация
+Download it now?	Изтегляне сега?
+installed	инсталирана
+Download	Изтегли
+Cancel	Отказ
+Not downloaded	Не е изтеглена
+Downloading	Изтегляне
+Keep Wi-Fi on; a cancelled download resumes next time	Оставете Wi-Fi включен; прекъснато изтегляне продължава следващия път
+Download failed	Изтеглянето е неуспешно
+Install now	Инсталирай сега
+Later	По-късно
+Download complete	Изтеглянето завърши
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Инсталиране сега? Устройството се рестартира два пъти (около 10 минути); игрите, записите и настройките остават. Нужно е зарядно или 30 % батерия.
+Saved in MUOS/update. To install it later:	Запазено в MUOS/update. За инсталиране по-късно:

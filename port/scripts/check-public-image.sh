@@ -70,6 +70,12 @@ check "DraStic layouts: only steward-fu's 640x480" only_640
 check "THIRD-PARTY.txt states the unofficial port and support" \
     p2_grep /usr/share/muos-r35s/THIRD-PARTY.txt 'not made, approved or supported by the MustardOS team'
 check "updates come from laurorual/MustardOS-R36S-port" p2_grep /etc/muos-update.conf 'repo=laurorual/MustardOS-R36S-port'
+# v1.1.1 T3: updates over Wi-Fi only from Task Toolkit -> Check for Online Update
+# shellcheck disable=SC2329
+no_auto() { ! p2_grep /usr/libexec/muos-frontend 'muos-update auto' && ! p2_grep /usr/libexec/muos-update 'auto)'; }
+check "no automatic update download" no_auto
+check "the online update task is there" p2_grep '"/opt/muos/share/task/Check for Online Update.sh"' 'muos-update check'
+check "the port's own glyphs (update, online update, Splore)" p2_grep /opt/muos/share/theme/MustardOS/glyph/muxapp/splore.svg '<svg'
 # M9 rc1 T3: a fresh card starts in English at 50 % volume
 # shellcheck disable=SC2329
 p2_is() { [ "$(debugfs -R "cat $1" "$work/p2.img" 2>/dev/null)" = "$2" ]; }

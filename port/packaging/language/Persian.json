@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "در حال دانلود PortMaster (حدود ۲۵ مگابایت)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "به Wi-Fi یا فایل muos.portmaster.zip در MUOS/update نیاز دارد",
     "PortMaster could not be installed": "نصب PortMaster ممکن نشد",
-    "PortMaster installed: open it again from Applications": "PortMaster نصب شد: دوباره آن را از برنامه‌ها باز کنید"
+    "PortMaster installed: open it again from Applications": "PortMaster نصب شد: دوباره آن را از برنامه‌ها باز کنید",
+    "Check for Online Update": "جستجوی به‌روزرسانی آنلاین",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "سیستم جدیدتری را در GitHub پورت جستجو می‌کند (به Wi-Fi نیاز دارد). اگر باشد، نسخه را نشان می‌دهد و پیش از دانلود می‌پرسد؛ پس از دانلود انتخاب می‌کنید که اکنون نصب شود (دستگاه دو بار راه‌اندازی مجدد می‌شود، حدود ۱۰ دقیقه) یا بعداً با نصب به‌روزرسانی سیستم. بازی‌ها، ذخیره‌ها و تنظیمات می‌مانند.",
+    "Looking for a new version": "در حال جستجوی نسخه جدید",
+    "Connect to Wi-Fi first": "ابتدا به Wi-Fi وصل شوید",
+    "You have the latest version": "شما آخرین نسخه را دارید",
+    "Could not reach the update server": "دسترسی به سرور به‌روزرسانی ممکن نشد",
+    "Update available": "به‌روزرسانی موجود است",
+    "Download it now?": "اکنون دانلود شود؟",
+    "installed": "نصب‌شده",
+    "Download": "دانلود",
+    "Cancel": "لغو",
+    "Not downloaded": "دانلود نشد",
+    "Downloading": "در حال دانلود",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Wi-Fi را روشن نگه دارید؛ دانلود لغوشده دفعه بعد ادامه می‌یابد",
+    "Download failed": "دانلود ناموفق بود",
+    "Install now": "اکنون نصب کن",
+    "Later": "بعداً",
+    "Download complete": "دانلود کامل شد",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "اکنون نصب شود؟ دستگاه دو بار راه‌اندازی مجدد می‌شود (حدود ۱۰ دقیقه)؛ بازی‌ها، ذخیره‌ها و تنظیمات می‌مانند. به شارژر یا ۳۰٪ باتری نیاز دارد.",
+    "Saved in MUOS/update. To install it later:": "در MUOS/update ذخیره شد. برای نصب بعدی:"
   }
 }

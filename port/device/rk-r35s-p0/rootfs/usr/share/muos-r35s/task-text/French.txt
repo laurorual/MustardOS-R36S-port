@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	Téléchargement de PortMaster (environ 25 
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Nécessite le Wi-Fi, ou muos.portmaster.zip dans MUOS/update
 PortMaster could not be installed	PortMaster n'a pas pu être installé
 PortMaster installed: open it again from Applications	PortMaster installé : rouvrez-le depuis Applications
+Check for Online Update	Rechercher une mise à jour en ligne
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Recherche un système plus récent sur le GitHub du port (Wi-Fi requis). S'il y en a un, affiche la version et demande avant de le télécharger ; après le téléchargement, vous choisissez de l'installer maintenant (l'appareil redémarre deux fois, environ 10 minutes) ou plus tard avec Installer la mise à jour du système. Vos jeux, sauvegardes et réglages sont conservés.
+Looking for a new version	Recherche d'une nouvelle version
+Connect to Wi-Fi first	Connectez-vous d'abord au Wi-Fi
+You have the latest version	Vous avez la version la plus récente
+Could not reach the update server	Impossible de joindre le serveur de mises à jour
+Update available	Mise à jour disponible
+Download it now?	La télécharger maintenant ?
+installed	installée
+Download	Télécharger
+Cancel	Annuler
+Not downloaded	Non téléchargée
+Downloading	Téléchargement
+Keep Wi-Fi on; a cancelled download resumes next time	Gardez le Wi-Fi activé ; un téléchargement annulé reprend la fois suivante
+Download failed	Échec du téléchargement
+Install now	Installer maintenant
+Later	Plus tard
+Download complete	Téléchargement terminé
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	L'installer maintenant ? L'appareil redémarre deux fois (environ 10 minutes) ; jeux, sauvegardes et réglages sont conservés. Nécessite le chargeur ou 30 % de batterie.
+Saved in MUOS/update. To install it later:	Enregistrée dans MUOS/update. Pour l'installer plus tard :

@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	PortMaster wird heruntergeladen (etwa 25 MB
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Benötigt WLAN oder muos.portmaster.zip in MUOS/update
 PortMaster could not be installed	PortMaster konnte nicht installiert werden
 PortMaster installed: open it again from Applications	PortMaster installiert: erneut über Anwendungen öffnen
+Check for Online Update	Online nach Updates suchen
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Sucht auf dem GitHub des Ports nach einem neueren System (WLAN nötig). Gibt es eins, zeigt es die Version und fragt vor dem Herunterladen; danach wählst du, ob es jetzt installiert wird (das Gerät startet zweimal neu, etwa 10 Minuten) oder später mit Systemupdate installieren. Spiele, Spielstände und Einstellungen bleiben erhalten.
+Looking for a new version	Suche nach einer neuen Version
+Connect to Wi-Fi first	Zuerst mit dem WLAN verbinden
+You have the latest version	Du hast die neueste Version
+Could not reach the update server	Update-Server nicht erreichbar
+Update available	Update verfügbar
+Download it now?	Jetzt herunterladen?
+installed	installiert
+Download	Herunterladen
+Cancel	Abbrechen
+Not downloaded	Nicht heruntergeladen
+Downloading	Wird heruntergeladen
+Keep Wi-Fi on; a cancelled download resumes next time	WLAN eingeschaltet lassen; ein abgebrochener Download wird beim nächsten Mal fortgesetzt
+Download failed	Download fehlgeschlagen
+Install now	Jetzt installieren
+Later	Später
+Download complete	Download abgeschlossen
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Jetzt installieren? Das Gerät startet zweimal neu (etwa 10 Minuten); Spiele, Spielstände und Einstellungen bleiben erhalten. Benötigt das Ladegerät oder 30 % Akku.
+Saved in MUOS/update. To install it later:	In MUOS/update gespeichert. Später installieren mit:

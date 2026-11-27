@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	Laddar ner PortMaster (cirka 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Kräver Wi-Fi, eller muos.portmaster.zip i MUOS/update
 PortMaster could not be installed	PortMaster kunde inte installeras
 PortMaster installed: open it again from Applications	PortMaster installerat: öppna det igen från Program
+Check for Online Update	Sök efter uppdatering online
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Söker efter ett nyare system på portens GitHub (kräver wifi). Finns det ett visas versionen och du tillfrågas innan nedladdningen; efter nedladdningen väljer du att installera nu (enheten startar om två gånger, cirka 10 minuter) eller senare med Installera systemuppdatering. Spel, sparfiler och inställningar finns kvar.
+Looking for a new version	Söker efter en ny version
+Connect to Wi-Fi first	Anslut till wifi först
+You have the latest version	Du har den senaste versionen
+Could not reach the update server	Kunde inte nå uppdateringsservern
+Update available	Uppdatering tillgänglig
+Download it now?	Ladda ner nu?
+installed	installerad
+Download	Ladda ner
+Cancel	Avbryt
+Not downloaded	Inte nedladdad
+Downloading	Laddar ner
+Keep Wi-Fi on; a cancelled download resumes next time	Håll wifi påslaget; en avbruten nedladdning fortsätter nästa gång
+Download failed	Nedladdningen misslyckades
+Install now	Installera nu
+Later	Senare
+Download complete	Nedladdningen är klar
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Installera nu? Enheten startar om två gånger (cirka 10 minuter); spel, sparfiler och inställningar finns kvar. Kräver laddaren eller 30 % batteri.
+Saved in MUOS/update. To install it later:	Sparad i MUOS/update. Installera senare med:

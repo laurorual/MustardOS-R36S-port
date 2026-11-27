@@ -17,21 +17,28 @@
 # shows its progress, then the device restarts. `resume` writes in the
 # background only if that screen never ran. Updates need the charger or
 # >= 30 % battery.
-# M9 (T3 request): `auto` checks the GitHub releases of $repo
-# (/etc/muos-update.conf) once per boot (at most every 6 h) when Wi-Fi is
-# up, downloads a newer NAME.p2.img.gz + .sha256 (curl, CA-verified TLS)
-# and stages it: installed on the next start, as above. Off in developer
-# images (/etc/muos-developer) and when MUOS/update/disabled exists.
+# v1.1.1 (T3 request): updates over Wi-Fi are manual. The Task Toolkit
+# task "Check for Online Update" runs `check` (the latest GitHub release of
+# $repo in /etc/muos-update.conf, offered only when its version is newer
+# than this one's) and, when the user accepts, `fetch` (NAME.p2.img.gz +
+# .sha256 into MUOS/update, curl with CA-verified TLS, resumable), then
+# `stage` as above. Before v1.1.1 an `auto` mode downloaded and staged the
+# latest release in the background, older ones too (v1.1.1 to v1.1.0).
 # The kernel and DTBs ride in the new p2 (/usr/share/muos-r35s/boot):
 # after write-p2, muos-boot-sync arms them as a trial for the next start
 # (promoted once it reaches the menu). U-Boot is not updated this way.
-#   muos-update stage | finish | resume | status | check | fetch | auto
+#   muos-update stage | finish | resume | status | check | fetch | version NAME
 set -eu
 upd=/userdata/MUOS/update trial=/userdata/MUOS/trial rt=/usr/libexec/muos-root-trial
 repo='' api=https://api.github.com
 [ ! -r /etc/muos-update.conf ] || . /etc/muos-update.conf
+# T2 (t2-online-update.sh): /run/muos/update-test holds MUOS_UPDATE_API and
+# MUOS_UPDATE_RELEASE lines (a local release JSON, a release name to compare
+# with); /run is root-only tmpfs, gone at the next start.
+# shellcheck disable=SC1091
+[ ! -r /run/muos/update-test ] || . /run/muos/update-test
 api=${MUOS_UPDATE_API:-$api/repos/$repo/releases/latest}
-release=$(sed -n 's/^release=//p' /etc/muos-port-release 2>/dev/null)
+release=${MUOS_UPDATE_RELEASE:-$(sed -n 's/^release=//p' /etc/muos-port-release 2>/dev/null)}
 log() { echo "muos-update: $*"; echo "$(date '+%F %T') $*" >> "$upd/update.log"; }
 on_trial() { $rt status 2>/dev/null | grep -q '^trial-root yes'; }
 power_ok() { # charger in, or >= 30 % battery
@@ -40,32 +47,53 @@ power_ok() { # charger in, or >= 30 % battery
 }
 in_menu() { [ "$(cat /opt/muos/config/system/foreground_process 2>/dev/null)" = muxfrontend ]; }
 mkdir -p "$upd"
-# latest: print "NAME P2_URL SHA_URL" of the newest release's p2 assets.
+# lock: one update step at a time (a second task, or the old background
+# updater of a card being updated, would write the same files)
+lock() {
+    exec 9> /run/muos/update.lock
+    flock -n 9 || { echo 'another update is running: wait for it to end' >&2; exit 1; }
+}
+# version NAME: a number that orders release names (MustardOS-R36S-port-
+# v1.2.3[-rcN]; a release after its candidates); 0 for any other name
+# (developer images: every release is newer).
+version() {
+    echo "$1" | awk '{ if (!match($0, /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/)) { print 0; exit }
+        v = substr($0, RSTART + 1, RLENGTH - 1); rc = 999
+        if (sub(/-rc/, " ", v)) { split(v, r, " "); rc = r[2]; v = r[1] }
+        split(v, n, "."); printf "%d\n", ((n[1] * 1000 + n[2]) * 1000 + n[3]) * 1000 + rc }'
+}
+# latest: print "NAME P2_URL SHA_URL P2_BYTES" of the newest release's p2
+# assets (GitHub lists an asset's size before its download URL).
 latest() {
     curl -fsSL --max-time 30 -H 'Accept: application/vnd.github+json' "$api" |
-        tr ',{}' '\n\n\n' | sed -n 's/^ *"browser_download_url": *"\([^"]*\)".*/\1/p' |
-        awk '/\.p2\.img\.gz$/ { g = $0 } /\.p2\.img\.sha256$/ { s = $0 }
-            END { if (g == "" || s == "") exit 1; n = g; sub(/.*\//, "", n); sub(/\.p2\.img\.gz$/, "", n); print n, g, s }'
+        tr ',{}' '\n\n\n' | sed -n -e 's/^ *"size": *\([0-9]*\).*/size \1/p' \
+            -e 's/^ *"browser_download_url": *"\([^"]*\)".*/url \1/p' |
+        awk '$1 == "size" { z = $2 } $1 == "url" && $2 ~ /\.p2\.img\.gz$/ { g = $2; gz = z }
+            $1 == "url" && $2 ~ /\.p2\.img\.sha256$/ { s = $2 }
+            END { if (g == "" || s == "") exit 1; n = g; sub(/.*\//, "", n); sub(/\.p2\.img\.gz$/, "", n); print n, g, s, gz + 0 }'
 }
-# check: exit 0 and print the name when a different release is published.
+# check: exit 0 and print "NAME P2_URL SHA_URL P2_BYTES" when a newer
+# release is published; 1 when up to date, 2 when GitHub can't be read.
 check() {
     [ -n "$repo" ] || [ -n "${MUOS_UPDATE_API:-}" ] || { echo 'no update repository configured' >&2; return 2; }
     out=$(latest) || { echo 'no release found' >&2; return 2; }
-    # shellcheck disable=SC2086 # three words
+    # shellcheck disable=SC2086 # four words
     set -- $out
-    [ "$1" != "$release" ] || { echo "up to date ($release)"; return 1; }
-    echo "$1 $2 $3"
+    [ "$(version "$1")" -gt "$(version "$release")" ] || { echo "up to date ($release; latest $1)"; return 1; }
+    echo "$1 $2 $3 $4"
 }
 fetch() {
     out=$(check) || return $?
-    # shellcheck disable=SC2086 # three words
+    # shellcheck disable=SC2086 # four words
     set -- $out
+    lock
     name=$1 gz=$upd/$1.p2.img.gz
     [ ! -f "$gz" ] || [ ! -f "${gz%.gz}.sha256" ] || { echo "$name already downloaded"; return 0; }
     free=$(df -m /userdata | awk 'NR == 2 {print $4}')
     [ "$free" -ge 2800 ] || { log "update $name: need 2.8 GB free on the card (have ${free} MB)"; return 1; }
+    for f in "$upd"/*.p2.img.gz.part; do [ ! -f "$f" ] || [ "$f" = "$gz.part" ] || rm -f "$f"; done
     log "downloading $name"
-    curl -fsSL --max-time 30 -o "${gz%.gz}.sha256" "$3"
+    curl -fsSL --max-time 30 -o "${gz%.gz}.sha256" "$3" || { log "download of $name failed (no sha256)"; return 1; }
     curl -fsSL --retry 2 --speed-limit 1024 --speed-time 60 -C - -o "$gz.part" "$2" ||
         { log "download of $name interrupted (resumed next time)"; return 1; }
     mv "$gz.part" "$gz"; log "downloaded $name"; sync
@@ -76,26 +104,13 @@ status)
     ls "$upd"/*.p2.img.gz 2>/dev/null || : ;;
 check) check ;;
 fetch) fetch ;;
-auto)
-    [ ! -e /etc/muos-developer ] || exit 0
-    [ ! -e "$upd/disabled" ] || exit 0
-    [ ! -f "$upd/pending" ] && ! on_trial || exit 0
-    stamp=$upd/last-check
-    [ -z "$(find "$stamp" -mmin -360 2>/dev/null)" ] || exit 0
-    # Wi-Fi up (the worker's ready marker); give up after 10 min.
-    n=0; while [ ! -e /run/muos/network/ready ]; do [ "$n" -lt 120 ] || exit 0; sleep 5; n=$((n + 1)); done
-    /usr/libexec/muos-cpu-pin 8 $$ 2>/dev/null || :
-    renice -n 19 $$ > /dev/null 2>&1 || :
-    rc=0; fetch > /dev/null || rc=$?
-    touch "$stamp"
-    [ "$rc" = 0 ] || exit 0
-    # Unpack and arm the trial root only while the menu is in front (the
-    # unpack is ~1 GiB of card writes); installed on the next start.
-    n=0; until in_menu; do [ "$n" -lt 720 ] || exit 0; sleep 5; n=$((n + 1)); done
-    "$0" stage > /dev/null && log 'update ready: installed on the next start' ;;
+version) version "${2:-$release}" ;;
 stage)
+    lock
     on_trial && { echo 'an update is already being tried; restart first' >&2; exit 1; }
-    img=$(ls -t "$upd"/*.p2.img.gz 2>/dev/null | head -n 1)
+    # the highest version when several are there (else the newest file)
+    img=$(ls -t "$upd"/*.p2.img.gz 2>/dev/null | while IFS= read -r f; do
+        echo "$(version "${f##*/}") $f"; done | sort -s -n -r -k 1,1 | head -n 1 | cut -d' ' -f2-)
     [ -n "$img" ] || { echo "no NAME.p2.img.gz in $upd" >&2; exit 1; }
     want=$(cut -d' ' -f1 "${img%.gz}.sha256" 2>/dev/null) || :
     [ ${#want} = 64 ] || { echo "missing ${img##*/} sha256 (${img%.gz}.sha256)" >&2; exit 1; }
@@ -147,5 +162,5 @@ resume)
     rm -f "$upd/pending" "$trial/rootfs.img" "$upd/$img" "$upd/${img%.gz}.sha256"
     log "installed $want (running now; booted from p2 from the next start)"; sync
     /usr/libexec/muos-boot-sync arm --after-update > /dev/null 2>&1 || log 'kernel update not armed (see boot-sync lines)' ;;
-*) sed -n '28p' "$0"; exit 2 ;;
+*) sed -n '/^#   muos-update /p' "$0"; exit 2 ;;
 esac

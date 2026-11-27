@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	正在下载 PortMaster（约 25 MB）
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	需要 Wi-Fi，或 MUOS/update 中的 muos.portmaster.zip
 PortMaster could not be installed	无法安装 PortMaster
 PortMaster installed: open it again from Applications	PortMaster 已安装：请从应用程序中重新打开
+Check for Online Update	在线检查更新
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	在移植版的 GitHub 上查找更新的系统（需要 Wi-Fi）。如有，会显示版本并在下载前询问；下载后可选择立即安装（设备重启两次，约 10 分钟）或稍后通过“安装系统更新”安装。游戏、存档和设置都会保留。
+Looking for a new version	正在查找新版本
+Connect to Wi-Fi first	请先连接 Wi-Fi
+You have the latest version	已是最新版本
+Could not reach the update server	无法连接更新服务器
+Update available	有可用更新
+Download it now?	立即下载？
+installed	已安装
+Download	下载
+Cancel	取消
+Not downloaded	未下载
+Downloading	正在下载
+Keep Wi-Fi on; a cancelled download resumes next time	请保持 Wi-Fi 开启；已取消的下载会在下次继续
+Download failed	下载失败
+Install now	立即安装
+Later	稍后
+Download complete	下载完成
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	立即安装？设备会重启两次（约 10 分钟）；游戏、存档和设置都会保留。需要连接充电器或电量 30 %。
+Saved in MUOS/update. To install it later:	已保存到 MUOS/update。稍后安装请用：

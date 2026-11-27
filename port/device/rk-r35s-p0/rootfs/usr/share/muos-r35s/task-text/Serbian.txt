@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	Preuzimanje PortMastera (oko 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Potreban je Wi-Fi ili muos.portmaster.zip u MUOS/update
 PortMaster could not be installed	PortMaster nije moguće instalirati
 PortMaster installed: open it again from Applications	PortMaster je instaliran: ponovo ga otvorite iz Aplikacija
+Check for Online Update	Potraži ažuriranje na mreži
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Traži noviji sistem na GitHub-u porta (potreban je Wi-Fi). Ako postoji, prikazuje verziju i pita pre preuzimanja; posle preuzimanja biraš instalaciju odmah (uređaj se dvaput ponovo pokreće, oko 10 minuta) ili kasnije preko Instaliraj ažuriranje sistema. Igre, sačuvane pozicije i podešavanja ostaju.
+Looking for a new version	Traženje nove verzije
+Connect to Wi-Fi first	Prvo se poveži na Wi-Fi
+You have the latest version	Imaš najnoviju verziju
+Could not reach the update server	Nije moguće pristupiti serveru za ažuriranja
+Update available	Dostupno ažuriranje
+Download it now?	Preuzeti sada?
+installed	instalirano
+Download	Preuzmi
+Cancel	Otkaži
+Not downloaded	Nije preuzeto
+Downloading	Preuzimanje
+Keep Wi-Fi on; a cancelled download resumes next time	Drži Wi-Fi uključen; otkazano preuzimanje nastavlja se sledeći put
+Download failed	Preuzimanje nije uspelo
+Install now	Instaliraj sada
+Later	Kasnije
+Download complete	Preuzimanje završeno
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Instalirati sada? Uređaj se dvaput ponovo pokreće (oko 10 minuta); igre, sačuvane pozicije i podešavanja ostaju. Potreban je punjač ili 30 % baterije.
+Saved in MUOS/update. To install it later:	Sačuvano u MUOS/update. Za kasniju instalaciju:

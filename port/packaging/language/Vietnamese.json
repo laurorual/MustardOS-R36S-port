@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "Đang tải PortMaster (khoảng 25 MB)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Cần Wi-Fi, hoặc muos.portmaster.zip trong MUOS/update",
     "PortMaster could not be installed": "Không thể cài PortMaster",
-    "PortMaster installed: open it again from Applications": "Đã cài PortMaster: hãy mở lại từ Ứng dụng"
+    "PortMaster installed: open it again from Applications": "Đã cài PortMaster: hãy mở lại từ Ứng dụng",
+    "Check for Online Update": "Tìm bản cập nhật trực tuyến",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "Tìm hệ thống mới hơn trên GitHub của bản port (cần Wi-Fi). Nếu có, hiển thị phiên bản và hỏi trước khi tải xuống; sau khi tải xong bạn chọn cài ngay (thiết bị khởi động lại hai lần, khoảng 10 phút) hoặc cài sau bằng Cài đặt bản cập nhật hệ thống. Trò chơi, bản lưu và cài đặt vẫn được giữ.",
+    "Looking for a new version": "Đang tìm phiên bản mới",
+    "Connect to Wi-Fi first": "Hãy kết nối Wi-Fi trước",
+    "You have the latest version": "Bạn đang dùng phiên bản mới nhất",
+    "Could not reach the update server": "Không thể kết nối máy chủ cập nhật",
+    "Update available": "Có bản cập nhật",
+    "Download it now?": "Tải xuống ngay?",
+    "installed": "đã cài",
+    "Download": "Tải xuống",
+    "Cancel": "Hủy",
+    "Not downloaded": "Chưa tải xuống",
+    "Downloading": "Đang tải xuống",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Giữ Wi-Fi bật; lượt tải bị hủy sẽ tiếp tục vào lần sau",
+    "Download failed": "Tải xuống thất bại",
+    "Install now": "Cài ngay",
+    "Later": "Để sau",
+    "Download complete": "Đã tải xong",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "Cài ngay? Thiết bị khởi động lại hai lần (khoảng 10 phút); trò chơi, bản lưu và cài đặt vẫn được giữ. Cần sạc hoặc 30 % pin.",
+    "Saved in MUOS/update. To install it later:": "Đã lưu vào MUOS/update. Để cài sau:"
   }
 }

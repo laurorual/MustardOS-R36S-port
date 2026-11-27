@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	Henter PortMaster (ca. 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Kræver Wi-Fi eller muos.portmaster.zip i MUOS/update
 PortMaster could not be installed	PortMaster kunne ikke installeres
 PortMaster installed: open it again from Applications	PortMaster installeret: åbn det igen fra Programmer
+Check for Online Update	Søg efter opdatering online
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Søger efter et nyere system på portens GitHub (kræver wi-fi). Hvis der er et, vises versionen, og du bliver spurgt før download; efter download vælger du at installere nu (enheden genstarter to gange, ca. 10 minutter) eller senere med Installér systemopdatering. Spil, gemte spil og indstillinger bevares.
+Looking for a new version	Søger efter en ny version
+Connect to Wi-Fi first	Opret først forbindelse til wi-fi
+You have the latest version	Du har den nyeste version
+Could not reach the update server	Kunne ikke nå opdateringsserveren
+Update available	Opdatering tilgængelig
+Download it now?	Download nu?
+installed	installeret
+Download	Download
+Cancel	Annuller
+Not downloaded	Ikke downloadet
+Downloading	Downloader
+Keep Wi-Fi on; a cancelled download resumes next time	Hold wi-fi tændt; en annulleret download fortsætter næste gang
+Download failed	Download mislykkedes
+Install now	Installér nu
+Later	Senere
+Download complete	Download fuldført
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Installér nu? Enheden genstarter to gange (ca. 10 minutter); spil, gemte spil og indstillinger bevares. Kræver opladeren eller 30 % batteri.
+Saved in MUOS/update. To install it later:	Gemt i MUOS/update. Installér senere med:

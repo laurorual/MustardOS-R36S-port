@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "Загрузка PortMaster (около 25 МБ)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Нужен Wi-Fi или muos.portmaster.zip в MUOS/update",
     "PortMaster could not be installed": "Не удалось установить PortMaster",
-    "PortMaster installed: open it again from Applications": "PortMaster установлен: откройте его снова в Приложениях"
+    "PortMaster installed: open it again from Applications": "PortMaster установлен: откройте его снова в Приложениях",
+    "Check for Online Update": "Проверить обновления онлайн",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "Ищет более новую систему на GitHub порта (нужен Wi-Fi). Если она есть, показывает версию и спрашивает перед загрузкой; после загрузки вы выбираете установить сейчас (устройство перезагрузится дважды, около 10 минут) или позже через «Установить обновление системы». Игры, сохранения и настройки остаются.",
+    "Looking for a new version": "Поиск новой версии",
+    "Connect to Wi-Fi first": "Сначала подключитесь к Wi-Fi",
+    "You have the latest version": "У вас последняя версия",
+    "Could not reach the update server": "Не удалось связаться с сервером обновлений",
+    "Update available": "Доступно обновление",
+    "Download it now?": "Загрузить сейчас?",
+    "installed": "установлена",
+    "Download": "Загрузить",
+    "Cancel": "Отмена",
+    "Not downloaded": "Не загружено",
+    "Downloading": "Загрузка",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Не выключайте Wi-Fi; отменённая загрузка продолжится в следующий раз",
+    "Download failed": "Ошибка загрузки",
+    "Install now": "Установить сейчас",
+    "Later": "Позже",
+    "Download complete": "Загрузка завершена",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "Установить сейчас? Устройство перезагрузится дважды (около 10 минут); игры, сохранения и настройки остаются. Нужно зарядное устройство или 30 % заряда.",
+    "Saved in MUOS/update. To install it later:": "Сохранено в MUOS/update. Чтобы установить позже:"
   }
 }

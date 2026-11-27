@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	PortMaster をダウンロード中（約 2
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Wi-Fi、または MUOS/update の muos.portmaster.zip が必要です
 PortMaster could not be installed	PortMaster をインストールできませんでした
 PortMaster installed: open it again from Applications	PortMaster をインストールしました: アプリケーションから開き直してください
+Check for Online Update	オンラインでアップデートを確認
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	ポートの GitHub で新しいシステムを探します（Wi-Fi が必要）。あればバージョンを表示し、ダウンロードの前に確認します。ダウンロード後、今すぐインストールするか（本体が 2 回再起動、約 10 分）、あとで「システムアップデートをインストール」でインストールするかを選びます。ゲーム、セーブ、設定はそのまま残ります。
+Looking for a new version	新しいバージョンを確認中
+Connect to Wi-Fi first	先に Wi-Fi に接続してください
+You have the latest version	最新バージョンです
+Could not reach the update server	アップデートサーバーに接続できません
+Update available	アップデートがあります
+Download it now?	今すぐダウンロードしますか？
+installed	インストール済み
+Download	ダウンロード
+Cancel	キャンセル
+Not downloaded	ダウンロードしませんでした
+Downloading	ダウンロード中
+Keep Wi-Fi on; a cancelled download resumes next time	Wi-Fi はオンのままにしてください。キャンセルしたダウンロードは次回続きから再開します
+Download failed	ダウンロードに失敗しました
+Install now	今すぐインストール
+Later	あとで
+Download complete	ダウンロード完了
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	今すぐインストールしますか？本体が 2 回再起動します（約 10 分）。ゲーム、セーブ、設定はそのまま残ります。充電器またはバッテリー 30 % が必要です。
+Saved in MUOS/update. To install it later:	MUOS/update に保存しました。あとでインストールするには:

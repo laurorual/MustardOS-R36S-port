@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	Laster ned PortMaster (ca. 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Krever Wi-Fi, eller muos.portmaster.zip i MUOS/update
 PortMaster could not be installed	PortMaster kunne ikke installeres
 PortMaster installed: open it again from Applications	PortMaster installert: åpne det igjen fra Programmer
+Check for Online Update	Søk etter oppdatering på nett
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Søker etter et nyere system på portens GitHub (krever wifi). Hvis det finnes, vises versjonen og du blir spurt før nedlasting; etter nedlastingen velger du å installere nå (enheten starter på nytt to ganger, ca. 10 minutter) eller senere med Installer systemoppdatering. Spill, lagringer og innstillinger beholdes.
+Looking for a new version	Søker etter en ny versjon
+Connect to Wi-Fi first	Koble til wifi først
+You have the latest version	Du har den nyeste versjonen
+Could not reach the update server	Kunne ikke nå oppdateringsserveren
+Update available	Oppdatering tilgjengelig
+Download it now?	Laste ned nå?
+installed	installert
+Download	Last ned
+Cancel	Avbryt
+Not downloaded	Ikke lastet ned
+Downloading	Laster ned
+Keep Wi-Fi on; a cancelled download resumes next time	Hold wifi på; en avbrutt nedlasting fortsetter neste gang
+Download failed	Nedlastingen mislyktes
+Install now	Installer nå
+Later	Senere
+Download complete	Nedlasting fullført
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Installere nå? Enheten starter på nytt to ganger (ca. 10 minutter); spill, lagringer og innstillinger beholdes. Krever laderen eller 30 % batteri.
+Saved in MUOS/update. To install it later:	Lagret i MUOS/update. Installer senere med:

@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	PortMaster downloaden (ongeveer 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Vereist wifi, of muos.portmaster.zip in MUOS/update
 PortMaster could not be installed	PortMaster kon niet worden geïnstalleerd
 PortMaster installed: open it again from Applications	PortMaster geïnstalleerd: open het opnieuw via Applicaties
+Check for Online Update	Online naar update zoeken
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Zoekt op de GitHub van de port naar een nieuwer systeem (wifi nodig). Als er een is, toont het de versie en vraagt het voor het downloaden; na het downloaden kies je of je het nu installeert (het apparaat start twee keer opnieuw, ongeveer 10 minuten) of later met Systeemupdate installeren. Je games, saves en instellingen blijven bewaard.
+Looking for a new version	Zoeken naar een nieuwe versie
+Connect to Wi-Fi first	Maak eerst verbinding met wifi
+You have the latest version	Je hebt de nieuwste versie
+Could not reach the update server	Kan de updateserver niet bereiken
+Update available	Update beschikbaar
+Download it now?	Nu downloaden?
+installed	geïnstalleerd
+Download	Downloaden
+Cancel	Annuleren
+Not downloaded	Niet gedownload
+Downloading	Bezig met downloaden
+Keep Wi-Fi on; a cancelled download resumes next time	Laat wifi aan; een geannuleerde download gaat de volgende keer verder
+Download failed	Downloaden mislukt
+Install now	Nu installeren
+Later	Later
+Download complete	Download voltooid
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Nu installeren? Het apparaat start twee keer opnieuw (ongeveer 10 minuten); games, saves en instellingen blijven bewaard. Lader nodig of 30 % batterij.
+Saved in MUOS/update. To install it later:	Opgeslagen in MUOS/update. Later installeren met:

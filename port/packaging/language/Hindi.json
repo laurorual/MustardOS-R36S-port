@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "PortMaster डाउनलोड हो रहा है (लगभग 25 MB)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Wi-Fi चाहिए, या MUOS/update में muos.portmaster.zip",
     "PortMaster could not be installed": "PortMaster इंस्टॉल नहीं हो सका",
-    "PortMaster installed: open it again from Applications": "PortMaster इंस्टॉल हो गया: इसे ऐप्लिकेशन से फिर खोलें"
+    "PortMaster installed: open it again from Applications": "PortMaster इंस्टॉल हो गया: इसे ऐप्लिकेशन से फिर खोलें",
+    "Check for Online Update": "ऑनलाइन अपडेट खोजें",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "पोर्ट के GitHub पर नया सिस्टम खोजता है (Wi-Fi ज़रूरी)। अगर मिले, तो संस्करण दिखाता है और डाउनलोड से पहले पूछता है; डाउनलोड के बाद आप अभी इंस्टॉल करना चुनते हैं (डिवाइस दो बार रीस्टार्ट होता है, लगभग 10 मिनट) या बाद में सिस्टम अपडेट इंस्टॉल करें से। आपके गेम, सेव और सेटिंग्स बने रहते हैं।",
+    "Looking for a new version": "नया संस्करण खोजा जा रहा है",
+    "Connect to Wi-Fi first": "पहले Wi-Fi से कनेक्ट करें",
+    "You have the latest version": "आपके पास नवीनतम संस्करण है",
+    "Could not reach the update server": "अपडेट सर्वर तक नहीं पहुँच सके",
+    "Update available": "अपडेट उपलब्ध है",
+    "Download it now?": "अभी डाउनलोड करें?",
+    "installed": "इंस्टॉल किया हुआ",
+    "Download": "डाउनलोड करें",
+    "Cancel": "रद्द करें",
+    "Not downloaded": "डाउनलोड नहीं हुआ",
+    "Downloading": "डाउनलोड हो रहा है",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Wi-Fi चालू रखें; रद्द किया गया डाउनलोड अगली बार जारी रहेगा",
+    "Download failed": "डाउनलोड विफल",
+    "Install now": "अभी इंस्टॉल करें",
+    "Later": "बाद में",
+    "Download complete": "डाउनलोड पूरा हुआ",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "अभी इंस्टॉल करें? डिवाइस दो बार रीस्टार्ट होता है (लगभग 10 मिनट); गेम, सेव और सेटिंग्स बने रहते हैं। चार्जर या 30 % बैटरी ज़रूरी है।",
+    "Saved in MUOS/update. To install it later:": "MUOS/update में सहेजा गया। बाद में इंस्टॉल करने के लिए:"
   }
 }

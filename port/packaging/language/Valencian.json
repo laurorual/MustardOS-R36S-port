@@ -58,6 +58,26 @@
     "Downloading PortMaster (about 25 MB)": "S'està baixant PortMaster (uns 25 MB)",
     "Needs Wi-Fi, or muos.portmaster.zip in MUOS/update": "Cal Wi-Fi, o muos.portmaster.zip a MUOS/update",
     "PortMaster could not be installed": "No s'ha pogut instal·lar PortMaster",
-    "PortMaster installed: open it again from Applications": "PortMaster instal·lat: torna a obrir-lo des d'Aplicacions"
+    "PortMaster installed: open it again from Applications": "PortMaster instal·lat: torna a obrir-lo des d'Aplicacions",
+    "Check for Online Update": "Busca una actualització en línia",
+    "Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.": "Busca un sistema més recent al GitHub del port (cal Wi-Fi). Si n'hi ha, mostra la versió i pregunta abans de baixar-lo; després de la baixada tries instal·lar-lo ara (el dispositiu es reinicia dues vegades, uns 10 minuts) o més tard amb Instal·la l'actualització del sistema. Els jocs, les partides desades i la configuració es conserven.",
+    "Looking for a new version": "S'està buscant una versió nova",
+    "Connect to Wi-Fi first": "Connecta't primer a la Wi-Fi",
+    "You have the latest version": "Ja tens la versió més recent",
+    "Could not reach the update server": "No s'ha pogut contactar amb el servidor d'actualitzacions",
+    "Update available": "Actualització disponible",
+    "Download it now?": "La vols baixar ara?",
+    "installed": "instal·lada",
+    "Download": "Baixa",
+    "Cancel": "Cancel·la",
+    "Not downloaded": "No s'ha baixat",
+    "Downloading": "S'està baixant",
+    "Keep Wi-Fi on; a cancelled download resumes next time": "Mantén la Wi-Fi activa; una baixada cancel·lada continua la propera vegada",
+    "Download failed": "La baixada ha fallat",
+    "Install now": "Instal·la ara",
+    "Later": "Després",
+    "Download complete": "Baixada completada",
+    "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "La vols instal·lar ara? El dispositiu es reinicia dues vegades (uns 10 minuts); els jocs, les partides desades i la configuració es conserven. Cal el carregador o un 30 % de bateria.",
+    "Saved in MUOS/update. To install it later:": "Desada a MUOS/update. Per a instal·lar-la després:"
   }
 }

@@ -75,8 +75,10 @@ Full guide: [docs/install.md](docs/install.md). In short:
    a FAT/exFAT card in slot 2 (`ROMS/<system>`). BIOS files go to
    `MUOS/bios`. No games or BIOS files are included.
 
-Updates: Applications → Task Toolkit → "Install Firmware Update", or
-automatic with Wi-Fi when a new release is published here.
+Updates: Applications → Task Toolkit → "Check for Online Update" (Wi-Fi:
+shows the new version and asks before downloading and installing), or
+"Install Firmware Update" for the `.p2.img.gz` + `.p2.img.sha256` of a
+release copied to `MUOS/update`. Nothing is downloaded without asking.
 
 ## What is included
 
@@ -188,7 +190,9 @@ Raspberry Pi Imager (o cartão é apagado), coloque no slot 1 e ligue. Os
 jogos vão por SFTP pelo Wi-Fi ou num cartão FAT/exFAT no slot 2
 (`ROMS/<sistema>`); BIOS em `MUOS/bios`. Nenhum jogo ou BIOS acompanha o
 sistema. Atualizações: Aplicativos → Ferramentas de sistema → "Instalar
-atualização do sistema", ou automáticas com Wi-Fi.
+atualização do sistema" (arquivos `.p2.img.gz` + `.p2.img.sha256` de um
+release copiados para `MUOS/update`) ou "Buscar atualização online" (com
+Wi-Fi: mostra a nova versão e pergunta antes de baixar e instalar).
 
 **PortMaster (desde a v1.1.1):** Aplicativos → PortMaster baixa e roda
 ports de jogos de PC feitos para portáteis Linux. A primeira abertura

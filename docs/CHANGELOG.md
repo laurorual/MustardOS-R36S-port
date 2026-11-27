@@ -22,6 +22,16 @@ team: https://github.com/laurorual/MustardOS-R36S-port/issues
   (N64, PSP, Dreamcast, Saturn, NDS, ScummVM) show the same volume and
   brightness bar as the libretro games, in the theme's style, with the
   menu's rounded corners (in games too).
+- **Updates over Wi-Fi are manual:** Task Toolkit → "Check for Online
+  Update" (below "Install Firmware Update") looks for a newer release,
+  shows its version and asks before downloading (with progress), then
+  asks to install now or later. Nothing is downloaded in the background
+  any more.
+- **Fixed:** the automatic updater installed the latest GitHub release
+  even when it was older than the card's (v1.1.1 went back to v1.1.0),
+  and its background download and unpack slowed PortMaster and the menu.
+- Icons for "Install Firmware Update", "Check for Online Update" and the
+  Splore app, in the MustardOS theme's style.
 - **Fixed:** Fn+Start out of an N64 game fades out again (the screen went
   black at once).
 - **Fixed:** A and B were swapped in ports, PortMaster, the official

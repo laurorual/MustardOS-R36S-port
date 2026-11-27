@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	Download di PortMaster (circa 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Serve il Wi-Fi, oppure muos.portmaster.zip in MUOS/update
 PortMaster could not be installed	Impossibile installare PortMaster
 PortMaster installed: open it again from Applications	PortMaster installato: riaprilo da Applicazioni
+Check for Online Update	Cerca aggiornamento online
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Cerca un sistema più recente sul GitHub del port (serve il Wi-Fi). Se c'è, mostra la versione e chiede prima di scaricarlo; dopo il download scegli se installarlo subito (il dispositivo si riavvia due volte, circa 10 minuti) o più tardi con Installa aggiornamento di sistema. Giochi, salvataggi e impostazioni restano.
+Looking for a new version	Ricerca di una nuova versione
+Connect to Wi-Fi first	Connettiti prima al Wi-Fi
+You have the latest version	Hai già la versione più recente
+Could not reach the update server	Impossibile raggiungere il server degli aggiornamenti
+Update available	Aggiornamento disponibile
+Download it now?	Scaricarlo ora?
+installed	installata
+Download	Scarica
+Cancel	Annulla
+Not downloaded	Non scaricato
+Downloading	Download in corso
+Keep Wi-Fi on; a cancelled download resumes next time	Tieni il Wi-Fi acceso; un download annullato riprende la volta successiva
+Download failed	Download non riuscito
+Install now	Installa ora
+Later	Più tardi
+Download complete	Download completato
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Installarlo ora? Il dispositivo si riavvia due volte (circa 10 minuti); giochi, salvataggi e impostazioni restano. Serve il caricatore o il 30 % di batteria.
+Saved in MUOS/update. To install it later:	Salvato in MUOS/update. Per installarlo più tardi:

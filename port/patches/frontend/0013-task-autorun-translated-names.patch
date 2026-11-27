@@ -15,16 +15,34 @@ SPDX-License-Identifier: GPL-3.0
          } else if (tf->d_type == DT_REG) {
              char filename[FILENAME_MAX];
              snprintf(filename, sizeof(filename), "%s/%s", sys_dir, tf->d_name);
-@@ -64,7 +65,7 @@
+@@ -64,7 +65,25 @@
              char *last_dot = strrchr(tf->d_name, '.');
              if (last_dot && strcasecmp(last_dot, ".sh") == 0) {
                  *last_dot = '\0';
 -                add_item(&items, &item_count, tf->d_name, tf->d_name, filename, content_type_item);
-+                add_item(&items, &item_count, tf->d_name, TRS(tf->d_name), filename, content_type_item);
++                /* R35S port: "# SORT_AFTER: TASK" lists a task right below
++                 * TASK in every language (sorted on "TASK name", shown as
++                 * its own name) */
++                char *after = get_script_value(filename, "SORT_AFTER", "");
++                if (after && after[0]) {
++                    char shown[MAX_BUFFER_SIZE], key[2 * MAX_BUFFER_SIZE + 2];
++                    snprintf(shown, sizeof(shown), "%s", TRS(tf->d_name));
++                    snprintf(key, sizeof(key), "%s %s", TRS(after), shown);
++                    content_item *it = add_item(&items, &item_count, tf->d_name, key, filename, content_type_item);
++                    char *name = it ? strdup(shown) : NULL;
++                    if (name) {
++                        free(it->display_name);
++                        it->display_name = name;
++                        adjust_content_label(it->display_name);
++                    }
++                } else {
++                    add_item(&items, &item_count, tf->d_name, TRS(tf->d_name), filename, content_type_item);
++                }
++                free(after);
              }
          }
      }
-@@ -309,6 +310,32 @@
+@@ -309,6 +328,32 @@
      }
      init_timer(ui_refresh_task, NULL);
  

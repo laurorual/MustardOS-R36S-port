@@ -57,3 +57,23 @@ Downloading PortMaster (about 25 MB)	Stahování PortMaster (asi 25 MB)
 Needs Wi-Fi, or muos.portmaster.zip in MUOS/update	Vyžaduje Wi-Fi nebo muos.portmaster.zip v MUOS/update
 PortMaster could not be installed	PortMaster se nepodařilo nainstalovat
 PortMaster installed: open it again from Applications	PortMaster nainstalován: znovu jej otevřete z Aplikací
+Check for Online Update	Vyhledat aktualizaci online
+Look for a newer firmware on the port's GitHub (needs Wi-Fi). If there is one, it shows the version and asks before downloading it; after the download you choose to install it now (the device restarts twice, about 10 minutes) or later with Install Firmware Update. Your games, saves and settings stay.	Hledá novější systém na GitHubu portu (vyžaduje Wi-Fi). Pokud existuje, zobrazí verzi a před stažením se zeptá; po stažení zvolíte instalaci hned (zařízení se dvakrát restartuje, asi 10 minut) nebo později přes Nainstalovat aktualizaci systému. Hry, uložené pozice a nastavení zůstanou.
+Looking for a new version	Hledání nové verze
+Connect to Wi-Fi first	Nejprve se připojte k Wi-Fi
+You have the latest version	Máte nejnovější verzi
+Could not reach the update server	Nelze se spojit se serverem aktualizací
+Update available	Je k dispozici aktualizace
+Download it now?	Stáhnout nyní?
+installed	nainstalováno
+Download	Stáhnout
+Cancel	Zrušit
+Not downloaded	Nestaženo
+Downloading	Stahování
+Keep Wi-Fi on; a cancelled download resumes next time	Nechte Wi-Fi zapnuté; zrušené stahování bude příště pokračovat
+Download failed	Stahování selhalo
+Install now	Nainstalovat nyní
+Later	Později
+Download complete	Stahování dokončeno
+Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Nainstalovat nyní? Zařízení se dvakrát restartuje (asi 10 minut); hry, uložené pozice a nastavení zůstanou. Vyžaduje nabíječku nebo 30 % baterie.
+Saved in MUOS/update. To install it later:	Uloženo v MUOS/update. Pro pozdější instalaci:

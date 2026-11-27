@@ -22,7 +22,7 @@ it with a commercial product. The port itself is free and must stay so.
 
 | Component | Version / pin | Licence | State |
 |---|---|---|---|
-| Port code (scripts, device files, patches, own tools) | this repository | MIT (`LICENSE`); patches to GPL code follow that code's licence | open |
+| Port code (scripts, device files, patches, own tools; v1.1.1: the glyphs `muxtask/update.svg`, `muxtask/cloud.svg`, `muxapp/splore.svg` added to the MustardOS theme, drawn by the port) | this repository | MIT (`LICENSE`); patches to GPL code follow that code's licence | open |
 | MustardOS frontend (muxfrontend, muxretro, libui, libmuxcom, libmuxmod, muhotkey, mubattery) | MustardOS/frontend `5e8635b3`, built from source + `port/patches/frontend`, `port/patches/muxretro` | GPL-3.0 (vendored deps: their own, e.g. rcheevos MIT) | open |
 | MustardOS internal scripts, configs, share data | MustardOS/internal `550cc58f` (640x480 subset) | GPL-3.0 | open |
 | MustardOS language pack | `release-main-3db301a-20261112-073445` | GPL-3.0 | open |
