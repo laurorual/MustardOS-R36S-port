@@ -20,6 +20,14 @@
         "build/m3a/test128-m12f.p2.img",
         "dist/firmware/MustardOS-R36S-port-v1.1.1.manifest"
       ]
+    },
+    "p4test-20261127": {
+      "reason": "Test build for one user's R36S Panel 4 (black screen while changing settings): v1.1.1 + the model r36s-v12-2023-08-18-panel-4-vfp16 (vfront-porch 16, ~77 Hz, as the user's working dArkOSen DTB) + steward-fu's DraStic art credits; public, raw 9805db59, p2 e0a8a357; T2: the DTB (port battery node) boots the bench at 640x480p77, NES 60.16 fps. Retire after that user's test.",
+      "files": [
+        "dist/firmware/MustardOS-R36S-port-v1.1.1-p4test.img.xz",
+        "dist/firmware/MustardOS-R36S-port-v1.1.1-p4test.img.xz.sha256",
+        "dist/firmware/MustardOS-R36S-port-v1.1.1-p4test.manifest"
+      ]
     }
   },
   "keep": {
