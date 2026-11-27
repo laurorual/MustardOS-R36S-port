@@ -73,7 +73,16 @@ The open problems behind each "partial" are in STATUS.
   DTB and arkos4clone's "origin panel4 type1" use vfp 16 (vtotal 512,
   ~77 Hz at 29 MHz) with the same init sequence and inputs. arkos4clone
   also has an "origin panel4 type2" with another panel (58 MHz, other
-  init sequence): "Panel 4" names more than one panel. A model DTB boots the bench (Panel 4 test DTB with the
+  init sequence): "Panel 4" names more than one panel.
+  A Panel 4 DTB on the bench's Panel 0 (2026-11-27 trial) garbles the
+  picture; after a warm reboot to Panel 0 the picture came back with a
+  white haze around it (the panel keeps part of the foreign init state
+  through a warm reboot). A cold boot (1 min off) did not clear it,
+  though the mode (50 MHz, 1618x515), backlight (75/160, 40 us) and
+  config were back to normal: residual charge in the liquid crystal
+  (image retention), expected to fade with time. Bench rule: no
+  foreign-panel DTB trial on the bench without the user's consent; after
+  one, power off fully. A model DTB boots the bench (Panel 4 test DTB with the
   port battery node, 2026-11-26): same input names, root mmcblk0p2,
   Wi-Fi; the screen is not checked (another panel's init sequence).
 

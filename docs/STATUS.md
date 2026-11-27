@@ -125,8 +125,15 @@ power-cut recovery. Full list per milestone in milestones.md.
   (joypad, gpio-keys, ADC, GPIOs and codes) are identical in all of them:
   B + volume is not the DTB. Other differences (Panel 0 base): CPU
   max-volt 1.40 V (ours 1.35 V), battery 3140 mAh table, slot-2 UHS. The
-  timing is the only display difference: the black-screen suspect (see
-  "Decisions for the user").
+  timing is the only display difference: the black-screen suspect.
+  **Test build for that user (2026-11-27):**
+  `dist/firmware/MustardOS-R36S-port-v1.1.1-p4test.img.xz` (sha256
+  `4344ae80…`, raw `9805db59…`; 0f5bff9, all public checks ok) = v1.1.1 +
+  the selector entry "R36S-V12 2023-08-18 Panel 4 (vfp 16, test)"
+  (`models.txt` "+BASE" line). T2: that DTB with the port battery node
+  boots the bench at 640x480p77 (V 480/496/498/512), menu up, same input
+  names, NES 60.16 fps. Waiting for the user's result; then keep the entry
+  (or make it Panel 4's default) or drop it, and retire `p4test`.
 - **Menu:** "Direct Link", "Proxy Settings" and static addresses
   untested; one missed Power press in a 15-cycle soak (logged since M8).
 - **Pinned, not rebuilt:** idbloader/trust (rkbin files, identical to
@@ -139,13 +146,7 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-1. **Panel 4 timing (user report, 2026-11-27).** The reporting user's
-   working dArkOSen DTB drives Panel 4 with vfp 16 (~77 Hz), ours with
-   165 (60 Hz, as dArkOSen's current one). Recommendation: add a second
-   model entry "R36S-V12 Panel 4 (vfp 16, as arkos4clone type1)" to the
-   selector in the next image, ask that user to try it, keep the 60 Hz
-   one the default (a 77 Hz display breaks 60 fps pacing in RetroArch).
-   B + volume stays open (not the DTB): needs that user's `MUOS/log`.
+None open.
 
 ## T3 queue
 
