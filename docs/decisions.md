@@ -140,6 +140,11 @@ overrides an earlier one where they conflict (noted inline).
     M11 and Pico-8 from M12, one build, one T3); the minor number goes
     up (v1.2.0) only for a big change. The user tests M11 and M12
     together.
+49. (2026-11-27) Updates over Wi-Fi are manual from v1.1.1: Task Toolkit
+    → "Check for Online Update" (below "Install Firmware Update") shows
+    the newer version and asks before downloading (with progress) and
+    before installing; nothing is downloaded in the background. Every
+    new menu entry is translated into all MustardOS languages.
 
 Standing rules (AGENTS.md): heavy systems = maximum performance first;
 recovery promotion after a clean T3 without asking.
