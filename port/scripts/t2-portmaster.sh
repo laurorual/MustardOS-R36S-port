@@ -28,7 +28,7 @@ fi
 st=$(r '/usr/libexec/muos-portmaster status'); case $st in installed*) ;; *) fail "1: $st" ;; esac
 say "ok   1: $st"
 for p in sdlsopwith turbotabletennis 2048; do
-    r "cd $pm && HOME=/root PYSDL2_DLL_PATH=/usr/lib python3 ./harbourmaster --quiet install $p.zip" >> "$log" 2>&1 ||
+    r "eval \"\$(/usr/libexec/muos-portmaster hm-env)\"; cd $pm && HOME=/root PYSDL2_DLL_PATH=/usr/lib python3 ./harbourmaster --quiet install $p.zip" >> "$log" 2>&1 ||
         fail "2: harbourmaster install $p"
 done
 say "ok   2: ports installed: $(r 'ls /mnt/mmc/ROMS/Ports | tr "\n" "|"')"

@@ -37,6 +37,15 @@
         "dist/firmware/test128-m13b.manifest",
         "build/m3a/test128-m13b.p2.img"
       ]
+    },
+    "test128-m13c": {
+      "reason": "M13 T2: pickles fix; exFAT update test, T3 base",
+      "files": [
+        "dist/firmware/test128-m13c.img.zst",
+        "dist/firmware/test128-m13c.img.zst.sha256",
+        "dist/firmware/test128-m13c.manifest",
+        "build/m3a/test128-m13c.p2.img"
+      ]
     }
   },
   "keep": {

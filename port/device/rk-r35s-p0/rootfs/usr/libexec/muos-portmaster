@@ -11,6 +11,7 @@
 #   muos-portmaster run       Applications -> PortMaster (mux_launch.sh)
 #   muos-portmaster install   fetch, check, unzip; "progress N M" lines
 #   muos-portmaster status    installed VERSION | missing
+#   muos-portmaster hm-env    the export lines below (shell use: eval)
 set -eu
 pm=/mnt/mmc/MUOS/PortMaster
 url=https://github.com/PortsMaster/PortMaster-GUI/releases/download/2026.11.17-0700/muos.portmaster.zip
@@ -27,7 +28,20 @@ is_pm_zip() {
     printf '%s\n' "$l" | grep -q ' mnt/mmc/MUOS/PortMaster/PortMaster.sh$' &&
         printf '%s\n' "$l" | grep -q ' mnt/mmc/MUOS/PortMaster/control.txt$'
 }
+# M13: harbourmaster takes Batocera's folders when /userdata/roms/ports is
+# a directory, before its muOS check. /userdata is p3 here, and on an
+# exFAT/FAT32 p3 (case-insensitive) that is ROMS/Ports: PortMaster then
+# installed into /root/.local/share. On such a card its folders are given
+# (HM_* variables, harbourmaster's own override) as its muOS branch picks
+# them: ports on a slot-2 card unless muos_mmc_master_race.txt says SD1.
+hm_env() {
+    [ -d /userdata/roms/ports ] || return 0
+    d=/mnt/mmc
+    if [ ! -f "$pm/config/muos_mmc_master_race.txt" ] && df | grep -q /mnt/sdcard; then d=/mnt/sdcard; fi
+    echo "export HM_TOOLS_DIR=/mnt/mmc/MUOS HM_PORTS_DIR=$d/ports HM_SCRIPTS_DIR=$d/ROMS/Ports"
+}
 case ${1:-status} in
+hm-env) hm_env ;;
 status)
     if installed; then echo "installed $(head -n 1 "$pm/version" 2>/dev/null || echo unknown)"; else echo missing; fi ;;
 install)
@@ -71,7 +85,8 @@ run)
     muvarctl set system foreground_process portmaster > /dev/null 2>&1 || :
     export HOME=/root XDG_CONFIG_HOME=/root/.config SDL_RENDER_VSYNC=1 SDL_HINT_VIDEO_DOUBLE_BUFFER=1
     unset LD_LIBRARY_PATH
+    e=$(hm_env); eval "$e"
     cd "$pm"
     exec bash ./PortMaster.sh ;;
-*) sed -n '11,13p' "$0"; exit 2 ;;
+*) sed -n '11,14p' "$0"; exit 2 ;;
 esac
