@@ -21,9 +21,9 @@ the MustardOS next release.
 
 ## Device and bench
 
-- **Bench (2026-11-26):** test128 in slot 1, **p2 = m12d** (written
-  with `write-p2` after `t2-levelbar.sh` + `t2-pico8.sh` +
-  `t2-portmaster.sh` PASS; m12c, m12b before it). PortMaster reinstalled
+- **Bench (2026-11-27):** test128 in slot 1, **p2 = m12e** (written
+  with `write-p2` after `t2-levelbar.sh` + `t2-quit-fade.sh` +
+  `t2-pico8.sh` + `t2-portmaster.sh` PASS; m12d, m12c, m12b before it). PortMaster reinstalled
   on p3 2026-11-26 (a trial reboot during its source update corrupted
   `config/020_portmaster.source.json`); the user's Doukutsu-rs kept. p3 test
   content: PortMaster with sdlsopwith, turbotabletennis, 2048; ROMS/PICO-8
@@ -64,13 +64,14 @@ card, bootloader included (procedures.md).
 | Image | Content | State |
 |---|---|---|
 | **`dist/firmware/test128-m10a-20261126.img.zst`** (raw `cc85290c…`, p2 `77ff5a87…`) + `MustardOS-R36S-port-v1.1.0.*` (public, raw `8378de0c…`, p2 `8bedd242…`, 32 checks) | M10: Wi-Fi dongles, model DTBs + switch | m10a on the bench (update path from m9k); v1.1.0 T3 ok and **published 2026-11-26**; **m10a recovery since 2026-11-26** |
-| `dist/firmware/test128-m12d.img.zst` (raw `efb340ec…`, p2 `bd514532…`) + `MustardOS-R36S-port-v1.1.1.*` (public, raw `53fe5b14…`, p2 `8d9920cc…`, 38 checks; source zips in `build/release`) | M11 + M12 + the v1.1.1 T3 fixes + one bar | m12d on the bench p2; v1.1.1 T3 round 3 pending, then publish |
+| `dist/firmware/test128-m12e.img.zst` (raw `8eba11d6…`, p2 `65f3c678…`) + `MustardOS-R36S-port-v1.1.1.*` (public, raw `6b28d2cd…`, p2 `d2371236…`, 38 checks; source zips in `build/release`) | M11 + M12 + the v1.1.1 T3 fixes + one rounded bar + N64 quit fade | m12e on the bench p2; v1.1.1 T3 round 3 pending, then publish |
 | (v1.0.0 public, m9k) | on GitHub (release); local files and m9k retired 2026-11-26 (m10a recovery) | T3 ok 2026-11-26 |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
 3/5 versions in `storage-retention.json` (M2, m10a+v1.1.0,
-m12d+v1.1.1; m12c, m12b and m9k+v1.0.0 and earlier retired 2026-11-26). The v1.0.0 and v1.1.0 source zips in
+m12e+v1.1.1; m12d, m12c, m12b and m9k+v1.0.0 and earlier retired
+2026-11-26/27). The v1.0.0 and v1.1.0 source zips in
 `build/release` (2.6 GB each, also on GitHub) are outside retention.
 
 ## What works (T3-confirmed)
@@ -146,14 +147,18 @@ cursor and bar findings; round 2 on m12c: 1–3 OK, 4 not tellable (Splore
 has no button labels), Doukutsu-rs confirms dialogs with its jump button,
 "East" = the physical B (the port's own default, changeable in its
 Options → Controls), 5: no fade on N64 Fn+Start, not reproduced on the
-bench). On **test128** (m12d), then **original32** (public v1.1.1):
-1. Volume −/+ and Fn+Volume −/+ in each: a libretro game (e.g. NES), a
-   port (Doukutsu-rs or TurboTableTennis), the official PICO-8, Splore,
-   and the standalone N64, PSP, Dreamcast (Flycast standalone core),
-   NDS: the **same bar** (icon, colours, place, ~1.5 s then a fade) in
-   all of them, no slowdown while it shows.
-2. Explorar conteúdo → N64 → a game, Fn+Start: does the screen fade out
-   now? If not: which game and which N64 core (Y → Núcleo), every time?
+bench; round 3 first look: bars unified OK, asked for rounded corners;
+N64 fade still missing: found (Mupen64Plus blanked the screen ~40 ms
+before the fade), fixed in m12e). On **test128** (m12e), then
+**original32** (public v1.1.1):
+1. Volume −/+ and Fn+Volume −/+ in the menu and in each: a libretro game
+   (e.g. NES), a port (Doukutsu-rs or TurboTableTennis), the official
+   PICO-8, Splore, and the standalone N64, PSP, Dreamcast (Flycast
+   standalone core), NDS: the **same rounded bar** as the menu's (icon,
+   colours, place, ~1.5 s then a fade) everywhere, no slowdown.
+2. Explorar conteúdo → N64 → Mario Kart 64 and Donkey Kong 64, Fn+Start:
+   the game fades out, the menu fades in; starting it again resumes where
+   it was (autosave).
 3. Aplicativos → PortMaster: no arrow, A confirms, B back (round 2 item 1,
    again on the new image).
 4. original32: copy the new `MustardOS-R36S-port-v1.1.1.p2.img.gz` +
@@ -161,10 +166,10 @@ bench). On **test128** (m12d), then **original32** (public v1.1.1):
    sistema → Instalar atualização do sistema; Informações → Detalhes do
    dispositivo: Compilação v1.1.1; then items 1 and 3 there and a PICO-8
    cart with each core (A = O in all three).
-After it passes: m12d becomes the recovery image (m10a retired) and the
+After it passes: m12e becomes the recovery image (m10a retired) and the
 user runs `build/release/publish-v1.1.1.sh` (tags the final commit;
-the public image was built at 0ee2786, same `port/device` tree as
-m12d's e341b73).
+the public image was built at the retention commit after beca55e, same
+`port/device` tree as m12e's beca55e).
 
 ## Current milestone: M12 — PICO-8 (done to T2 2026-11-26)
 
@@ -202,6 +207,12 @@ Splore's BBS downloads: T3 round 1 OK.
    TurboTableTennis, PICO-8, Mupen64Plus (60.1 VI/s), PPSSPP 2021,
    Flycast, DraStic (A/B: no cost beyond scene noise). YabaSanshiro and
    ScummVM standalone unverified (no test content).
+7. **Round 3 (m12e):** the bar rounded as the menu's in muxretro and
+   muos-levelbar.so (panel, track, indicator in slices; checked in
+   muxretro's own frame with the grab-only mode, PICO-8 and the GL path);
+   N64 Fn+Start: Mupen64Plus's own Stop mapping off, fade then SIGTERM
+   (`t2-quit-fade.sh` PASS, autosave written). t2-levelbar, t2-pico8,
+   t2-portmaster, NES 60.00 fps PASS.
 
 ## Milestone M11 — PortMaster (and muOS applications) (done to T2 2026-11-26)
 
