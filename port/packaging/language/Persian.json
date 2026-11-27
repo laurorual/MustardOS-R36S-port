@@ -78,6 +78,11 @@
     "Later": "بعداً",
     "Download complete": "دانلود کامل شد",
     "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "اکنون نصب شود؟ دستگاه دو بار راه‌اندازی مجدد می‌شود (حدود ۱۰ دقیقه)؛ بازی‌ها، ذخیره‌ها و تنظیمات می‌مانند. به شارژر یا ۳۰٪ باتری نیاز دارد.",
-    "Saved in MUOS/update. To install it later:": "در MUOS/update ذخیره شد. برای نصب بعدی:"
+    "Saved in MUOS/update. To install it later:": "در MUOS/update ذخیره شد. برای نصب بعدی:",
+    "Installing MustardOS": "در حال نصب MustardOS",
+    "Preparing the games storage: do not power off": "در حال آماده‌سازی فضای ذخیرهٔ بازی‌ها: خاموش نکنید",
+    "Less than a minute, then it restarts": "کمتر از یک دقیقه، سپس راه‌اندازی مجدد",
+    "The games storage could not be prepared": "فضای ذخیرهٔ بازی‌ها آماده نشد",
+    "MustardOS is installed: restarting": "MustardOS نصب شد: در حال راه‌اندازی مجدد"
   }
 }

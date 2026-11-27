@@ -77,3 +77,8 @@ Later	Senere
 Download complete	Download fuldført
 Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Installér nu? Enheden genstarter to gange (ca. 10 minutter); spil, gemte spil og indstillinger bevares. Kræver opladeren eller 30 % batteri.
 Saved in MUOS/update. To install it later:	Gemt i MUOS/update. Installér senere med:
+Installing MustardOS	Installerer MustardOS
+Preparing the games storage: do not power off	Forbereder spillagringen: sluk ikke
+Less than a minute, then it restarts	Under et minut, derefter genstart
+The games storage could not be prepared	Spillagringen kunne ikke forberedes
+MustardOS is installed: restarting	MustardOS er installeret: genstarter

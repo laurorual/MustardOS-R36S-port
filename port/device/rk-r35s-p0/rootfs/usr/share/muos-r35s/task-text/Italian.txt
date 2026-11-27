@@ -77,3 +77,8 @@ Later	Più tardi
 Download complete	Download completato
 Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Installarlo ora? Il dispositivo si riavvia due volte (circa 10 minuti); giochi, salvataggi e impostazioni restano. Serve il caricatore o il 30 % di batteria.
 Saved in MUOS/update. To install it later:	Salvato in MUOS/update. Per installarlo più tardi:
+Installing MustardOS	Installazione di MustardOS
+Preparing the games storage: do not power off	Preparazione della memoria dei giochi: non spegnere
+Less than a minute, then it restarts	Meno di un minuto, poi si riavvia
+The games storage could not be prepared	Impossibile preparare la memoria dei giochi
+MustardOS is installed: restarting	MustardOS installato: riavvio

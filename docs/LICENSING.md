@@ -41,6 +41,7 @@ it with a commercial product. The port itself is free and must stay so.
 | PortMaster (M11) | **not distributed**: `muos-portmaster` downloads PortsMaster/PortMaster-GUI `2026.11.17-0700` `muos.portmaster.zip` (sha256 `e2d3af3a…`) to the user's card on its first start (or takes the user's own copy from `MUOS/update`); its updates, runtimes and ports come from PortMaster's servers | MIT (PortMaster); its bundled tools carry their own licences in `MUOS/PortMaster/licenses` (gptokeyb/gptokeyb2 GPL-3.0, 7zzs LGPL-2.1, …) | no distribution duty (the user's download) |
 | Official PICO-8 (M12) | **not distributed** (Lexaloffle, commercial): the user copies their own Raspberry Pi build to `MUOS/bios/pico8`; `muos-pico8` and the Splore app (MIT) only launch it | Lexaloffle's licence (the user's) | no distribution |
 | GNU wget (M12, HTTPS for Splore and ports) | Buildroot `wget` with OpenSSL | GPL-3.0+ | open (legal-info) |
+| exfatprogs 1.2.5 and dosfstools 4.2 (M13, the first boot formats the games storage as exFAT or FAT32) | Buildroot packages `exfatprogs`, `dosfstools` (mkfs, fsck, label) | GPL-2.0+; GPL-3.0+ | open (legal-info) |
 | PortMaster launcher, installer, muOS shims (`/usr/libexec/muos-portmaster*`, `muos-session`, `/opt/muos/script/var/func.sh`, `/usr/bin/retroarch` shim, the PortMaster app folder) | this repository | MIT | open |
 
 ## Libretro cores

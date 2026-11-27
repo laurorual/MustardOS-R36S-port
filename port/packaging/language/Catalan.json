@@ -78,6 +78,11 @@
     "Later": "Més tard",
     "Download complete": "Baixada completada",
     "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "La vols instal·lar ara? El dispositiu es reinicia dues vegades (uns 10 minuts); els jocs, les partides desades i la configuració es conserven. Cal el carregador o un 30 % de bateria.",
-    "Saved in MUOS/update. To install it later:": "Desada a MUOS/update. Per instal·lar-la més tard:"
+    "Saved in MUOS/update. To install it later:": "Desada a MUOS/update. Per instal·lar-la més tard:",
+    "Installing MustardOS": "S'està instal·lant MustardOS",
+    "Preparing the games storage: do not power off": "S'està preparant l'emmagatzematge de jocs: no l'apaguis",
+    "Less than a minute, then it restarts": "Menys d'un minut, després es reinicia",
+    "The games storage could not be prepared": "No s'ha pogut preparar l'emmagatzematge de jocs",
+    "MustardOS is installed: restarting": "MustardOS instal·lat: s'està reiniciant"
   }
 }

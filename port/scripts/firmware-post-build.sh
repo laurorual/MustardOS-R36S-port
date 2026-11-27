@@ -36,6 +36,9 @@ ln -sfn /run/muos/gamecontrollerdb.txt "$1/usr/lib/gamecontrollerdb.txt"
 # M5: mount point of the slot-2 card (script/device/storage.sh; the root
 # is read-only, so it must exist in the image)
 mkdir -p "$1/mnt/sdcard"
+# M13: mount point of p4, the games storage an exFAT/FAT32 install creates
+# (S89muos-data; S90muos-storage binds it at /mnt/mmc)
+mkdir -p "$1/mnt/content"
 snd=$1/opt/muos/share/theme/MustardOS/sound
 for n in info_open info_close; do
     python3 /port/scripts/wav-highpass.py "$snd/$n.wav" "$snd/$n.wav.tmp" && mv "$snd/$n.wav.tmp" "$snd/$n.wav"

@@ -133,6 +133,18 @@ if [ "$variant" = public ] && [ ${#rel} -le 15 ]; then
 fi
 [ "$(debugfs -R 'cat /etc/muos-port-release' "$work/p2.img" 2>/dev/null)" = "release=$(basename "${out%.img.zst}")" ] ||
     { echo 'release stamp failed' >&2; exit 1; }
+# M13 (decision 50): a public card starts in MustardOS's first boot
+# (muxinstall: date/time, language, profile, input test, shutdown, install
+# with the games storage format). S91 seeds p3's config from this value on
+# a fresh card only; cards updated from an older p2 keep their own 0.
+# MUOS_FIRST_BOOT=1: a developer image that starts there too (T2 with SSH).
+if [ "$variant" = public ] || [ "${MUOS_FIRST_BOOT:-0}" = 1 ]; then
+    printf '1\n' > "$work/factory"
+    printf 'cd /opt/muos/config/boot\nrm factory_reset\nwrite %s factory_reset\nsif factory_reset mode 0100644\nsif factory_reset uid 0\nsif factory_reset gid 0\n' "$work/factory" > "$cmds"
+    debugfs -w -f "$cmds" "$work/p2.img" >/dev/null 2>&1; : > "$cmds"; rm -f "$work/factory"
+    [ "$(debugfs -R 'cat /opt/muos/config/boot/factory_reset' "$work/p2.img" 2>/dev/null)" = 1 ] ||
+        { echo 'factory_reset stamp failed' >&2; exit 1; }
+fi
 # M9: the boot files p1 gets (kernel, stock + undervolt DTBs, dtb-variants.txt,
 # boot logo), made once here and also put in p2 under /usr/share/muos-r35s/boot
 # with boot-files.sha256: after a p2 update, muos-boot-sync installs a changed
@@ -237,7 +249,7 @@ cmp -s <(cat "$work/main.rec" "$work/prev.rec" "$work/trial.rec") <(dd if="$img"
 uboot_sum=$(sha "$bootd/uboot.img")
 echo "main: $kin + $kdn ($klabel); previous: Image + rk3326-muos-r35s-panel0.dtb (m2)"
 
-if [ "$variant" = public ]; then
+if [ "$variant" = public ] || [ "${MUOS_FIRST_BOOT:-0}" = 1 ]; then
     echo "== p3: fresh MUOSDATA (same features as the base p3), data marker only"
     dd if="$img" of="$work/base-p3.img" bs=512 skip=$p3_start count=$p3_sectors conv=sparse status=none
     h=$(dumpe2fs -h "$work/base-p3.img" 2>/dev/null)
@@ -259,6 +271,8 @@ if [ "$variant" = public ]; then
     e2fsck -fn "$work/p3.img" > "$work/fsck3.txt" 2>&1 || { cat "$work/fsck3.txt"; echo 'p3 fsck failed' >&2; exit 1; }
     dd if="$work/p3.img" of="$img" bs=512 seek=$p3_start conv=notrunc,sparse status=none
     rm -f "$work/p3.img" "$work/marker"
+fi
+if [ "$variant" = public ]; then
     echo "== public check"
     bash "$repo/port/scripts/check-public-image.sh" "$img" "$work/base-p2.img" || { echo 'public check failed' >&2; exit 1; }
 fi

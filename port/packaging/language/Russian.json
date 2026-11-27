@@ -78,6 +78,11 @@
     "Later": "Позже",
     "Download complete": "Загрузка завершена",
     "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "Установить сейчас? Устройство перезагрузится дважды (около 10 минут); игры, сохранения и настройки остаются. Нужно зарядное устройство или 30 % заряда.",
-    "Saved in MUOS/update. To install it later:": "Сохранено в MUOS/update. Чтобы установить позже:"
+    "Saved in MUOS/update. To install it later:": "Сохранено в MUOS/update. Чтобы установить позже:",
+    "Installing MustardOS": "Установка MustardOS",
+    "Preparing the games storage: do not power off": "Подготовка хранилища игр: не выключайте",
+    "Less than a minute, then it restarts": "Меньше минуты, затем перезагрузка",
+    "The games storage could not be prepared": "Не удалось подготовить хранилище игр",
+    "MustardOS is installed: restarting": "MustardOS установлена: перезагрузка"
   }
 }

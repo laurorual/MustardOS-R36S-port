@@ -91,7 +91,7 @@ set -- --corelib "$emu/libmupen64plus.so.2.0.0" --configdir "$cfg" --datadir "$e
     --fullscreen --resolution 640x480 --nosaveoptions \
     --set "Core[R4300Emulator]=2" --set "Core[OnScreenDisplay]=False" \
     --set "Core[SaveFilenameFormat]=0" --set "Core[SaveSRAMPath]=$sram/" \
-    --set "Core[SaveStatePath]=$state/" --set "Core[ScreenshotPath]=/userdata/MUOS/screenshot/" \
+    --set "Core[SaveStatePath]=$state/" --set "Core[ScreenshotPath]=/mnt/mmc/MUOS/screenshot/" \
     --set "CoreEvents[Joy Mapping Stop]=" \
     --set "CoreEvents[Joy Mapping Save State]=J0B5/B10" \
     --set "CoreEvents[Joy Mapping Load State]=J0B4/B10" \

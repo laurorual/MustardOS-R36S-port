@@ -167,7 +167,7 @@ case "${1:-}" in
     # picture per rendered game frame: full game speed, a steady 30 shown
     # in Power Stone 2; t2-dc-fps.sh r640n). Keys the user's ini lacks only.
     if ! grep -qx m8d-dc-2022-opts "$mig"; then
-        o=/userdata/MUOS/pickles/coreopt/core/flycast2022.ini
+        o=/mnt/mmc/MUOS/pickles/coreopt/core/flycast2022.ini
         mkdir -p "${o%/*}"; grep -q '^\[options\]' "$o" 2>/dev/null || echo '[options]' >> "$o"
         for kv in reicast_internal_resolution=640x480 reicast_framerate=normal; do
             grep -q "^${kv%%=*}=" "$o" || sed -i "/^\[options\]/a $kv" "$o"
@@ -184,7 +184,7 @@ case "${1:-}" in
     # settings of both Flycasts; a value the user set stays.
     if ! grep -qx m8e-dc-limiter "$mig"; then
         for c in flycast2022 flycast; do
-            o=/userdata/MUOS/pickles/settings/core/$c.ini
+            o=/mnt/mmc/MUOS/pickles/settings/core/$c.ini
             mkdir -p "${o%/*}"; grep -q '^\[settings\]' "$o" 2>/dev/null || echo '[settings]' >> "$o"
             grep -q '^speed_limiter=' "$o" || sed -i '/^\[settings\]/a speed_limiter=1' "$o"
         done
@@ -196,7 +196,7 @@ case "${1:-}" in
     # the GPU is late (Synchronous Rendering off); the user's fix, on +
     # Anisotropic Filtering off, is the default now. A value set stays.
     if ! grep -qx m8f-dc-sync "$mig"; then
-        o=/userdata/MUOS/pickles/coreopt/core/flycast2022.ini
+        o=/mnt/mmc/MUOS/pickles/coreopt/core/flycast2022.ini
         mkdir -p "${o%/*}"; grep -q '^\[options\]' "$o" 2>/dev/null || echo '[options]' >> "$o"
         for kv in reicast_synchronous_rendering=enabled reicast_anisotropic_filtering=disabled; do
             grep -q "^${kv%%=*}=" "$o" || sed -i "/^\[options\]/a $kv" "$o"
@@ -213,7 +213,7 @@ case "${1:-}" in
             external) ;; # M11: ports (PortMaster)
             *) [ -f "/opt/muos/share/core/$core" ] || continue ;;
         esac
-        mkdir -p "/userdata/ROMS/$dir"
+        mkdir -p "/mnt/mmc/ROMS/$dir"
         c=$port/info-content/$dir
         [ -e "$c/core.cfg" ] && continue
         mkdir -p "$c"
@@ -224,17 +224,17 @@ case "${1:-}" in
     # M12: the user's own official PICO-8 (muos-pico8): its Raspberry Pi
     # zip (pico-8_*_raspi.zip) in MUOS/bios/pico8 gives pico8_64 +
     # pico8.dat; the Splore app is in Applications while they are there.
-    p8=/userdata/MUOS/bios/pico8
+    p8=/mnt/mmc/MUOS/bios/pico8
     mkdir -p "$p8"
     for z in "$p8"/*.zip; do
         [ -f "$z" ] || continue
         { [ -f "$p8/pico8_64" ] && [ -f "$p8/pico8.dat" ]; } && break
         unzip -ojq "$z" pico-8/pico8_64 pico-8/pico8.dat -d "$p8" && echo "runtime: PICO-8 unpacked from ${z##*/}"
     done
-    app=/userdata/MUOS/application/Splore src=/usr/share/muos-r35s/pico8/Splore
+    app=/mnt/mmc/MUOS/application/Splore src=/usr/share/muos-r35s/pico8/Splore
     if [ -f "$p8/pico8_64" ] && [ -f "$p8/pico8.dat" ]; then
         if ! cmp -s "$src/mux_launch.sh" "$app/mux_launch.sh" 2>/dev/null; then
-            mkdir -p "$app" && cp -a "$src/." "$app/" && echo "runtime: Splore app"
+            mkdir -p "$app" && cp -R "$src/." "$app/" && echo "runtime: Splore app"
         fi
     elif [ -f "$app/.muos-r35s-port" ]; then
         rm -rf "$app"; echo "runtime: Splore app removed (no PICO-8)"
@@ -247,11 +247,11 @@ case "${1:-}" in
     # moves in (an inner one with an id wins), an empty one is created for a
     # copied-in game; the launchers find the game id. Hidden folders
     # (.NAME, _NAME) keep their outer NAME.scummvm (upstream's other form).
-    for g in /userdata/ROMS/SCUMMVM/*/; do
+    for g in /mnt/mmc/ROMS/SCUMMVM/*/; do
         [ -d "$g" ] || continue
         n=${g%/}; n=${n##*/}
         case $n in .*|_*) continue ;; esac
-        o=/userdata/ROMS/SCUMMVM/$n.scummvm i=$g$n.scummvm
+        o=/mnt/mmc/ROMS/SCUMMVM/$n.scummvm i=$g$n.scummvm
         if [ -f "$o" ]; then
             if [ -s "$i" ] && [ -n "$(tr -d '[:space:]' < "$i")" ]; then rm -f "$o"; else mv -f "$o" "$i"; fi
             echo "runtime: scummvm entry $n moved into its folder"
@@ -274,13 +274,16 @@ case "${1:-}" in
     # M8f T3 4: the ScummVM core looks for its engine data and the virtual
     # keyboard packs in BIOS/scummvm/extra (themes in .../theme): the
     # standalone's data directory serves both.
-    b=/userdata/MUOS/bios/scummvm
-    if [ -d /opt/muos/share/emulator/scummvm ]; then
+    # M13: on an exFAT/FAT32 games storage (no symlinks) an empty folder
+    # gets the data bound instead (unbound at stop with the other binds).
+    b=/mnt/mmc/MUOS/bios/scummvm s=/opt/muos/share/emulator/scummvm
+    if [ -d "$s" ]; then
         mkdir -p "$b"
         for l in extra theme; do
-            [ -L "$b/$l" ] || [ ! -e "$b/$l" ] || continue
-            [ "$(readlink "$b/$l" 2>/dev/null)" = /opt/muos/share/emulator/scummvm ] ||
-                ln -sfn /opt/muos/share/emulator/scummvm "$b/$l"
+            if [ -L "$b/$l" ] || [ ! -e "$b/$l" ]; then
+                [ "$(readlink "$b/$l" 2>/dev/null)" = "$s" ] || ln -sfn "$s" "$b/$l" 2>/dev/null || mkdir -p "$b/$l"
+            fi
+            [ -L "$b/$l" ] || [ -n "$(ls -A "$b/$l" 2>/dev/null)" ] || bind "$s" "$b/$l" || :
         done
     fi
     # game-governor (M3d): M3c seeded schedutil, which idles at the 1008 MHz

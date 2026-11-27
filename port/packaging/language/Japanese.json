@@ -1949,7 +1949,12 @@
     "Later": "あとで",
     "Download complete": "ダウンロード完了",
     "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "今すぐインストールしますか？本体が 2 回再起動します（約 10 分）。ゲーム、セーブ、設定はそのまま残ります。充電器またはバッテリー 30 % が必要です。",
-    "Saved in MUOS/update. To install it later:": "MUOS/update に保存しました。あとでインストールするには:"
+    "Saved in MUOS/update. To install it later:": "MUOS/update に保存しました。あとでインストールするには:",
+    "Installing MustardOS": "MustardOSをインストール中",
+    "Preparing the games storage: do not power off": "ゲームストレージを準備中: 電源を切らないでください",
+    "Less than a minute, then it restarts": "1分以内に再起動します",
+    "The games storage could not be prepared": "ゲームストレージを準備できませんでした",
+    "MustardOS is installed: restarting": "MustardOSをインストールしました: 再起動中"
   },
   "muxterm": {
     "Black": "黒",

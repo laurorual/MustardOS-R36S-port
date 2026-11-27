@@ -23,6 +23,16 @@ put together. Current state and the recovery image are in
   - p3: ext4 `MUOSDATA`, 1152 MiB (640 MiB in the old layout) to the end,
     rw at `/userdata`. 1 GiB in images; `flash-card.sh --grow` or the
     first boot (`muos-grow-p3`, since M3d) extends it.
+  - **Public cards since M13 (decision 50):** the first boot's Install
+    (`muos-install-storage`) sizes the card instead. EXT4: p3 to the end
+    (as above). exFAT/FAT32: p3 (ext4, the port's state: `MUOS/port`,
+    logs, update and trial) 6 GiB (4 GiB under 30 GiB) and **p4** in that
+    format (MBR type 07/0c, label `MustardOS`/`MUSTARDOS`) to the end,
+    mounted at `/mnt/content` by S89 and bound at `/mnt/mmc` by S90: ROMS
+    and the upstream SD1 folders (`MUOS/bios`, `save`, `theme`,
+    `network`, `PortMaster`, ...); updates copied by a PC go to its
+    `MUOS/update`. Developer images keep `boot/factory_reset` 0 (no first
+    boot, p3 grown as before). T1: `port/scripts/t1-install-storage.sh`.
 - **original32 (stock dArkOSen):** the flasher station, in slot 1 with
   the target card in slot 2. Never write original32 itself.
 
@@ -362,8 +372,9 @@ init, which runs `/usr/libexec/muos-rc start`:
 | 1 | stock `seedrng`, syslog, sysctl, `udev`, D-Bus | standard Buildroot services; the TRNG has the RNG ready at 2.6 s |
 | 2 | S41muos-network | Wi-Fi and SSH in the background (waits for p3's profiles); up at about 20 s |
 | 3 | S85 | root ro |
-| 4 | S89 | `e2fsck -p` on p3 (≤ 100 s; log p3 `MUOS/log/fsck-p3.log`), p3 rw at `/userdata`, p1 ro at `/boot` |
-| 5 | S90 | muOS storage binds |
+| 4 | S89 | `e2fsck -p` on p3 (≤ 100 s; log p3 `MUOS/log/fsck-p3.log`), p3 rw at `/userdata`, p1 ro at `/boot`; M13: p4 (games storage, exFAT/FAT32) checked and mounted at `/mnt/content` (log `MUOS/log/fsck-p4.log`) |
+| 4b | (frontend) | M13: with `boot/factory_reset` 1 the menu opens MustardOS's first boot (muxinstall); its Install runs `muos-install-task.sh` on the progress screen, then restarts |
+| 5 | S90 | muOS storage binds (content root: p4 if mounted, else p3) |
 | 6 | S91 | persistent muOS config, core assignments and per-output volume on p3 (`MUOS/port`); tmpfs views for other muOS paths; logs on p3 `MUOS/log/system` (three previous boots in `system.prev*`) |
 | 7 | S95 | audio (retried up to 3× within 25 s) + muinput; audio failure is non-fatal |
 | 8 | S96 | input mapping |

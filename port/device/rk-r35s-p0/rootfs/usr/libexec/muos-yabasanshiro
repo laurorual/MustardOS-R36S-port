@@ -16,7 +16,7 @@
 set -u
 emu=/opt/muos/share/emulator/yabasanshiro
 w=/userdata/MUOS/port/yabasanshiro
-bios=/userdata/MUOS/bios/saturn_bios.bin
+bios=/mnt/mmc/MUOS/bios/saturn_bios.bin
 rom=${1:?rom}
 say() { echo "muos-yabasanshiro: $*"; }
 mkdir -p "$w/save" || exit 1

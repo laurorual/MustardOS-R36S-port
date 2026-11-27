@@ -78,6 +78,11 @@
     "Later": "Později",
     "Download complete": "Stahování dokončeno",
     "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "Nainstalovat nyní? Zařízení se dvakrát restartuje (asi 10 minut); hry, uložené pozice a nastavení zůstanou. Vyžaduje nabíječku nebo 30 % baterie.",
-    "Saved in MUOS/update. To install it later:": "Uloženo v MUOS/update. Pro pozdější instalaci:"
+    "Saved in MUOS/update. To install it later:": "Uloženo v MUOS/update. Pro pozdější instalaci:",
+    "Installing MustardOS": "Instalace MustardOS",
+    "Preparing the games storage: do not power off": "Příprava úložiště her: nevypínejte",
+    "Less than a minute, then it restarts": "Méně než minuta, pak restart",
+    "The games storage could not be prepared": "Úložiště her se nepodařilo připravit",
+    "MustardOS is installed: restarting": "MustardOS je nainstalován: restartování"
   }
 }

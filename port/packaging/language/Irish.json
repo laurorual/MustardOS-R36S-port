@@ -78,6 +78,11 @@
     "Later": "Níos déanaí",
     "Download complete": "Íoslódáil críochnaithe",
     "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "É a shuiteáil anois? Atosaíonn an gléas faoi dhó (timpeall 10 nóiméad); fanann cluichí, sábhálacha agus socruithe. Teastaíonn an luchtaire nó 30 % ceallraí.",
-    "Saved in MUOS/update. To install it later:": "Sábháilte in MUOS/update. Le suiteáil níos déanaí:"
+    "Saved in MUOS/update. To install it later:": "Sábháilte in MUOS/update. Le suiteáil níos déanaí:",
+    "Installing MustardOS": "MustardOS á shuiteáil",
+    "Preparing the games storage: do not power off": "Stóráil na gcluichí á hullmhú: ná múch",
+    "Less than a minute, then it restarts": "Níos lú ná nóiméad, ansin atosaíonn sé",
+    "The games storage could not be prepared": "Níorbh fhéidir stóráil na gcluichí a ullmhú",
+    "MustardOS is installed: restarting": "Tá MustardOS suiteáilte: á atosú"
   }
 }

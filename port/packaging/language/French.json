@@ -78,6 +78,11 @@
     "Later": "Plus tard",
     "Download complete": "Téléchargement terminé",
     "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "L'installer maintenant ? L'appareil redémarre deux fois (environ 10 minutes) ; jeux, sauvegardes et réglages sont conservés. Nécessite le chargeur ou 30 % de batterie.",
-    "Saved in MUOS/update. To install it later:": "Enregistrée dans MUOS/update. Pour l'installer plus tard :"
+    "Saved in MUOS/update. To install it later:": "Enregistrée dans MUOS/update. Pour l'installer plus tard :",
+    "Installing MustardOS": "Installation de MustardOS",
+    "Preparing the games storage: do not power off": "Préparation du stockage des jeux : ne pas éteindre",
+    "Less than a minute, then it restarts": "Moins d'une minute, puis redémarrage",
+    "The games storage could not be prepared": "Le stockage des jeux n’a pas pu être préparé",
+    "MustardOS is installed: restarting": "MustardOS est installé : redémarrage"
   }
 }

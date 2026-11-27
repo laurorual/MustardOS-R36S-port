@@ -78,6 +78,11 @@
     "Later": "Sonra",
     "Download complete": "İndirme tamamlandı",
     "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "Şimdi yüklensin mi? Cihaz iki kez yeniden başlar (yaklaşık 10 dakika); oyunlar, kayıtlar ve ayarlar korunur. Şarj cihazı veya %30 pil gerekir.",
-    "Saved in MUOS/update. To install it later:": "MUOS/update içine kaydedildi. Daha sonra yüklemek için:"
+    "Saved in MUOS/update. To install it later:": "MUOS/update içine kaydedildi. Daha sonra yüklemek için:",
+    "Installing MustardOS": "MustardOS yükleniyor",
+    "Preparing the games storage: do not power off": "Oyun depolaması hazırlanıyor: kapatmayın",
+    "Less than a minute, then it restarts": "Bir dakikadan kısa, sonra yeniden başlar",
+    "The games storage could not be prepared": "Oyun depolaması hazırlanamadı",
+    "MustardOS is installed: restarting": "MustardOS yüklendi: yeniden başlatılıyor"
   }
 }

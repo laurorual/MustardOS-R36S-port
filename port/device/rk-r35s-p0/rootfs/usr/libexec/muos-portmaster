@@ -51,7 +51,8 @@ install)
     # Only mnt/mmc: the zip's roms/ports/PortMaster/control.txt (the path
     # ports fall back to) is the image's /roms/ports/PortMaster link.
     unzip -oq "$zip" 'mnt/mmc/*' -d / || { log "unzip failed"; exit 7; }
-    chmod -R 755 "$pm"
+    # M13: an exFAT/FAT32 games storage has no modes (every file is 0755)
+    chmod -R 755 "$pm" 2> /dev/null || :
     mkdir -p /mnt/mmc/ROMS/Ports /mnt/mmc/ports
     echo "progress 3 4"
     rm -f "$part" "$offline"

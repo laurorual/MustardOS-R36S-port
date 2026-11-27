@@ -77,3 +77,8 @@ Later	Để sau
 Download complete	Đã tải xong
 Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Cài ngay? Thiết bị khởi động lại hai lần (khoảng 10 phút); trò chơi, bản lưu và cài đặt vẫn được giữ. Cần sạc hoặc 30 % pin.
 Saved in MUOS/update. To install it later:	Đã lưu vào MUOS/update. Để cài sau:
+Installing MustardOS	Đang cài đặt MustardOS
+Preparing the games storage: do not power off	Đang chuẩn bị bộ nhớ trò chơi: đừng tắt máy
+Less than a minute, then it restarts	Chưa đến một phút, sau đó khởi động lại
+The games storage could not be prepared	Không thể chuẩn bị bộ nhớ trò chơi
+MustardOS is installed: restarting	Đã cài đặt MustardOS: đang khởi động lại

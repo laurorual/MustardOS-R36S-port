@@ -4,6 +4,10 @@
 # internal/script/device/bind.sh (550cc58f9cd3449a17f53ca55efcdc6c473b5a89).
 # Slot 1 binds only; a card in slot 2 is mounted at /mnt/sdcard by the
 # port's script/device/storage.sh (M5). No filesystem creation.
+# M13: the content root bound at /mnt/mmc is p4 (/mnt/content, the games
+# storage an exFAT/FAT32 first-boot install made, mounted by S89) when it
+# is mounted, else p3 (/userdata) as before. /etc/default/muos-storage's
+# fstype names p3's; p4 may be exfat or vfat.
 set -eu
 state=/run/muos/port-storage
 store=/run/muos/storage
@@ -11,6 +15,10 @@ rom=/mnt/mmc
 data=/userdata
 fstype=ext4
 [ ! -r /etc/default/muos-storage ] || . /etc/default/muos-storage
+if findmnt -rn -M /mnt/content >/dev/null; then
+    data=/mnt/content fstype=$(findmnt -rn -o FSTYPE -M /mnt/content)
+    case "$fstype" in ext4|exfat|vfat) ;; *) echo "storage: p4 is $fstype" >&2; exit 1 ;; esac
+fi
 mkdir -p "$state"
 exec 9>"$state/lock"
 flock -x 9

@@ -18,7 +18,7 @@ say() { echo "muos-flycast: $*"; }
 mkdir -p "$w/config/flycast" "$w/data/flycast" || exit 1
 [ -s "$w/config/flycast/emu.cfg" ] || cp /usr/share/muos-r35s/flycast/emu.cfg "$w/config/flycast/emu.cfg"
 for b in dc_boot.bin dc_flash.bin; do
-    [ -e "$w/data/flycast/$b" ] || [ ! -f "/userdata/MUOS/bios/dc/$b" ] || cp "/userdata/MUOS/bios/dc/$b" "$w/data/flycast/"
+    [ -e "$w/data/flycast/$b" ] || [ ! -f "/mnt/mmc/MUOS/bios/dc/$b" ] || cp "/mnt/mmc/MUOS/bios/dc/$b" "$w/data/flycast/"
 done
 map=/userdata/MUOS/port/gamecontrollerdb/retro.txt
 [ -s "$map" ] || map=/opt/muos/share/info/gamecontrollerdb/retro.txt

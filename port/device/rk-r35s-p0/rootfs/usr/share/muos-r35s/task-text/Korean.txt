@@ -77,3 +77,8 @@ Later	나중에
 Download complete	다운로드 완료
 Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	지금 설치할까요? 기기가 두 번 재시작합니다 (약 10분). 게임, 저장 파일, 설정은 유지됩니다. 충전기 또는 배터리 30 %가 필요합니다.
 Saved in MUOS/update. To install it later:	MUOS/update에 저장했습니다. 나중에 설치하려면:
+Installing MustardOS	MustardOS 설치 중
+Preparing the games storage: do not power off	게임 저장소 준비 중: 전원을 끄지 마세요
+Less than a minute, then it restarts	1분 이내, 그다음 다시 시작합니다
+The games storage could not be prepared	게임 저장소를 준비하지 못했습니다
+MustardOS is installed: restarting	MustardOS 설치 완료: 다시 시작 중

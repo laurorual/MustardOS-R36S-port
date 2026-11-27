@@ -154,18 +154,46 @@ None open.
 
 Empty (v1.1.1 round 4 passed 2026-11-27; results in milestones.md).
 
-## Current milestone: M13 — First Boot and the games card format (not started)
+## Current milestone: M13 — First Boot and the games card format (started 2026-11-27)
 
-Decision 50 (a Windows user could not copy games to the ext4 p3; until
-then: SFTP over Wi-Fi, or ROMs on an exFAT card in slot 2). Known so
-far: the pin has `muxinstall` and `prepare.sh`/`storage.sh` with exFAT
-(`mkfs.exfat`, `EXFAT_NATIVE_READY`); the kernel has `CONFIG_EXFAT_FS=m`
-and slot 2 already mounts exFAT; the port skips the first boot and ships
-p3 as an auto-growing ext4. Items to settle in the plan: the six screens
-in order; Install formats p3 (exFAT default, FAT32, EXT4) after the grow;
-what the port keeps on p3 that needs POSIX (PortMaster exec bits and
-symlinks, the SFTP jail, `MUOS/trial` and update files, Wi-Fi profiles,
-the seed) and where it goes; existing ext4 cards stay ext4 through
-updates; power cut during Install; T2 on a fresh card per format. The
-full plan (goal, items, tests, expected T3) is written here at its
-start. Then M14: the MustardOS next release (decision 45).
+Goal (decision 50): a fresh public card starts in MustardOS's own first
+boot (the pin's `muxinstall` in muxfrontend: Date and Time, Language,
+Profiles, Input Tester, Shutdown, Install); Install asks exFAT
+(recommended) / FAT32 / EXT4 for the games storage, so Windows can copy
+ROMs. Host-only for now (the bench is off for the panel); T2 when it is on.
+
+Design (the port keeps its state on p3, unlike upstream's system
+partition): EXT4 = today's layout (p3 grown to the card). exFAT/FAT32 = p3
+ext4 kept at 4–6 GiB for the port's state (MUOS/port config, logs,
+update and trial root, preferences) and a new **p4** in the chosen format
+for the content (ROMS and the MUOS folders upstream keeps on SD1: bios,
+save, pickles, theme, network, screenshot, PortMaster, ...), mounted at
+/mnt/content and bound at /mnt/mmc. Robust to power loss where the system
+needs it, nothing the trial root or the shim reads moves. Existing cards
+(factory_reset 0 in their p3 config) keep one ext4 p3 through updates.
+
+Items:
+1. Rootfs: exfatprogs, dosfstools (mkfs/fsck/label), so the installer
+   offers all three formats.
+2. Public image: `boot/factory_reset` 1 (developer 0); S89 leaves p3
+   ungrown on a factory rootfs (Install sizes it).
+3. Install (`muos-install-storage`, progress screen via task_autorun):
+   ext4 → grow p3; exFAT/FAT32 → p3 to 4–6 GiB + p4 (type 07/0c) to the
+   end, mkfs, factory_reset 0, restart. Idempotent after a power cut.
+4. S89 mounts p4 (fsck.exfat -p / fsck.fat -a / e2fsck -p, then exfat
+   module + mount); S90 binds the content root (p4 or p3) at /mnt/mmc.
+5. Content paths to /mnt/mmc (S91 ROMS folders, PICO-8, Splore, ScummVM,
+   BIOS paths, screenshots, saves); port state stays on /userdata;
+   muos-update also reads updates dropped in the content's MUOS/update.
+6. Content-fs limits: no symlinks/chmod on exFAT/FAT32 (ScummVM links,
+   PortMaster chmod) handled.
+7. Texts in 33 languages (task-texts), check-public-image checks, docs
+   (README first boot + Windows, procedures card layout, findings,
+   LICENSING for exfatprogs GPL-2.0 / dosfstools GPL-3.0).
+Tests: T0 shellcheck, task-texts check; T1 the install script against
+disk image files under qemu (sfdisk, mkfs.exfat/fat, fsck), public-image
+checks. T2 (bench on): a fresh public-variant p3 in a trial (dev access),
+each format, PortMaster, update from the content MUOS/update. Expected
+T3: the six screens on a blank card, Windows sees the games drive, copy a
+ROM, play it, an online update keeps everything.
+Then M14: the MustardOS next release (decision 45).

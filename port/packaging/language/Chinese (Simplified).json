@@ -673,6 +673,11 @@
     "Later": "稍后",
     "Download complete": "下载完成",
     "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "立即安装？设备会重启两次（约 10 分钟）；游戏、存档和设置都会保留。需要连接充电器或电量 30 %。",
-    "Saved in MUOS/update. To install it later:": "已保存到 MUOS/update。稍后安装请用："
+    "Saved in MUOS/update. To install it later:": "已保存到 MUOS/update。稍后安装请用：",
+    "Installing MustardOS": "正在安装 MustardOS",
+    "Preparing the games storage: do not power off": "正在准备游戏存储：请勿关机",
+    "Less than a minute, then it restarts": "不到一分钟，然后重启",
+    "The games storage could not be prepared": "无法准备游戏存储",
+    "MustardOS is installed: restarting": "MustardOS 已安装：正在重启"
   }
 }

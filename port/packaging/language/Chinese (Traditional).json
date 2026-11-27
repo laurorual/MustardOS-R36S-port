@@ -2027,7 +2027,12 @@
     "Later": "稍後",
     "Download complete": "下載完成",
     "Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.": "立即安裝？裝置會重新啟動兩次（約 10 分鐘）；遊戲、存檔和設定都會保留。需要連接充電器或電量 30 %。",
-    "Saved in MUOS/update. To install it later:": "已儲存到 MUOS/update。稍後安裝請使用："
+    "Saved in MUOS/update. To install it later:": "已儲存到 MUOS/update。稍後安裝請使用：",
+    "Installing MustardOS": "正在安裝 MustardOS",
+    "Preparing the games storage: do not power off": "正在準備遊戲儲存空間：請勿關機",
+    "Less than a minute, then it restarts": "不到一分鐘，然後重新啟動",
+    "The games storage could not be prepared": "無法準備遊戲儲存空間",
+    "MustardOS is installed: restarting": "MustardOS 已安裝：正在重新啟動"
   },
   "muxterm": {
     "Mustard Terminal": "Mustard 終端"

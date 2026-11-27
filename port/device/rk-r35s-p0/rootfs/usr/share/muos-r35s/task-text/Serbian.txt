@@ -77,3 +77,8 @@ Later	Kasnije
 Download complete	Preuzimanje završeno
 Install it now? The device restarts twice (about 10 minutes); games, saves and settings stay. Needs the charger or 30 % battery.	Instalirati sada? Uređaj se dvaput ponovo pokreće (oko 10 minuta); igre, sačuvane pozicije i podešavanja ostaju. Potreban je punjač ili 30 % baterije.
 Saved in MUOS/update. To install it later:	Sačuvano u MUOS/update. Za kasniju instalaciju:
+Installing MustardOS	Instaliranje MustardOS-a
+Preparing the games storage: do not power off	Priprema skladišta igara: ne isključujte
+Less than a minute, then it restarts	Manje od minuta, zatim ponovno pokretanje
+The games storage could not be prepared	Skladište igara nije moguće pripremiti
+MustardOS is installed: restarting	MustardOS je instaliran: ponovno pokretanje

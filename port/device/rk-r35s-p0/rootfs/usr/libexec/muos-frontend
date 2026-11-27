@@ -247,6 +247,11 @@ say "loop start hotkeys=${1:-1} audio=$SDL_AUDIODRIVER"
 # muos-hotkey owns muhotkey and handles the power/idle hotkeys (sleep).
 [ "${1:-1}" != 1 ] || { /usr/libexec/muos-hotkey >> /opt/muos/log/hotkey.log 2>&1 & hotkey=$!; }
 [ -s "$act" ] || echo launcher > "$act"
+# M13 (decision 50): a fresh public card (boot/factory_reset 1) starts in
+# MustardOS's first boot (muxinstall); its Install exits with "install"
+# (handled in the loop below).
+factory() { [ "$(cat /opt/muos/config/boot/factory_reset 2>/dev/null)" = 1 ]; }
+if factory; then echo installer > "$act"; say "first boot: installer"; fi
 # M9 (v1.0.0): an update's trial boot opens the progress screen at once
 # (frontend patch 0013) to write p2 there (muos-update finish).
 if [ -f /userdata/MUOS/update/pending ] && /usr/libexec/muos-root-trial status 2>/dev/null | grep -q '^trial-root yes'; then
@@ -282,6 +287,11 @@ while :; do
     action=$(head -n1 "$act" 2>/dev/null); [ -n "$action" ] || action=launcher
     case "$action" in
         app) launch_app; continue ;;
+        install)
+            # the progress screen prepares the storage (muos-install-task.sh), then restarts
+            say "first boot: install as $(cat /opt/muos/device/config/storage/rom/type 2>/dev/null)"
+            printf '%s\n%s\n' /usr/libexec/muos-install-task.sh 'Installing MustardOS' > "$run/task_autorun"
+            echo task > "$act"; continue ;;
         reboot|shutdown|poweroff)
             say "$action requested"
             [ -z "$hotkey" ] || kill -TERM "$hotkey" 2>/dev/null
