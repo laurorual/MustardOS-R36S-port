@@ -161,6 +161,11 @@ overrides an earlier one where they conflict (noted inline).
     (no U-Boot change for now). The M13 flash tests run on original32
     (wiped, the developer image in slot 1); test128 keeps m12f, so no p3
     backup/restore. The M13 release is v1.1.2 (not v1.2.0).
+53. (2026-11-28) v1.1.2 T3 round 2 ok: publish v1.1.2. pirry's
+    YabaSanshiro (Saturn) goes into v1.1.3, built from its source. Other
+    standalone builds and emulators (also for systems the port lacks)
+    are collected in docs/emulator-survey.md to decide later what to
+    implement.
 
 Standing rules (AGENTS.md): heavy systems = maximum performance first;
 recovery promotion after a clean T3 without asking.

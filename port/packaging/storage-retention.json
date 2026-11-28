@@ -11,16 +11,6 @@
         "dist/recovery/test128-m2-20261111.manifest"
       ]
     },
-    "m12f-v111-20261127": {
-      "reason": "v1.1.1 T3 round 3 item 4: manual online update (Task Toolkit -> Check for Online Update, newer releases only, asks before download and install; no background updater: it installed v1.1.0 over v1.1.1), flock on stage/fetch, texts in 31 languages, the port's glyphs (update, cloud, splore), frontend patch 0013 SORT_AFTER; developer m12f (raw 8b9df957, p2 6a29a226; installed on the bench through the new online task, e2e); public v1.1.1 (raw d5187bd2, p2 4068786a; 41 checks); recovery since 2026-11-27 (v1.1.1 T3 round 4 ok, m12e retired); the public v1.1.1 images, raw p2 and source zips deleted 2026-11-27 after the publish (on GitHub, assets verified)",
-      "files": [
-        "dist/firmware/test128-m12f.img.zst",
-        "dist/firmware/test128-m12f.img.zst.sha256",
-        "dist/firmware/test128-m12f.manifest",
-        "build/m3a/test128-m12f.p2.img",
-        "dist/firmware/MustardOS-R36S-port-v1.1.1.manifest"
-      ]
-    },
     "p4test-20261127": {
       "reason": "Test build for one user's R36S Panel 4 (black screen while changing settings): v1.1.1 + the model r36s-v12-2023-08-18-panel-4-vfp16 (vfront-porch 16, ~77 Hz, as the user's working dArkOSen DTB) + steward-fu's DraStic art credits; public, raw 9805db59, p2 e0a8a357; T2: the DTB (port battery node) boots the bench at 640x480p77, NES 60.16 fps. Retire after that user's test.",
       "files": [
@@ -30,7 +20,7 @@
       ]
     },
     "v1.1.2-public": {
-      "reason": "v1.1.2 candidate 2 (public, 83976bf, same rootfs as m13e): first boot + games storage format + the T3 round 1 fixes (port libraries, SDL2 async flip fallback), raw 166bccec, p2 87992779; 45 public checks; T3 round 1 (candidate 1, b012fcfc) on original32: items 6 and 8 fixed",
+      "reason": "v1.1.2 candidate 2 (public, 83976bf, same rootfs as m13e): first boot + games storage format + the T3 round 1 fixes (port libraries, SDL2 async flip fallback), raw 166bccec, p2 87992779; 45 public checks; T3 round 1 (candidate 1, b012fcfc) on original32: items 6 and 8 fixed; T3 round 2 (2026-11-28) all 9 ok: the v1.1.2 release",
       "files": [
         "dist/firmware/MustardOS-R36S-port-v1.1.2.img.xz",
         "dist/firmware/MustardOS-R36S-port-v1.1.2.img.xz.sha256",
@@ -43,7 +33,7 @@
       ]
     },
     "test128-m13e": {
-      "reason": "v1.1.2 T3 fixes (83976bf): 15 libraries for PortMaster ports + pipewire-pulse, SDL2 0005 async flip fallback, versioned Mali names, Install screen hold; raw 011bcc4f, p2 e80f5be2; T2 on test128 as the trial root (t2-portmaster with nonny and duelingdragons, NES 59.98, PPSSPP)",
+      "reason": "v1.1.2 T3 fixes (83976bf): 15 libraries for PortMaster ports + pipewire-pulse, SDL2 0005 async flip fallback, versioned Mali names, Install screen hold; raw 011bcc4f, p2 e80f5be2; T2 on test128 as the trial root (t2-portmaster with nonny and duelingdragons, NES 59.98, PPSSPP); recovery since 2026-11-28 (v1.1.2 T3 round 2 ok, m12f retired)",
       "files": [
         "dist/firmware/test128-m13e.img.zst",
         "dist/firmware/test128-m13e.img.zst.sha256",

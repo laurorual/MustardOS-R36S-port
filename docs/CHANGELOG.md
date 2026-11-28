@@ -3,7 +3,7 @@
 MustardOS for R36S/R35S (unofficial port). Not supported by the MustardOS
 team: https://github.com/laurorual/MustardOS-R36S-port/issues
 
-## v1.1.2 (unreleased)
+## v1.1.2 (2026-11-28)
 
 - **First boot:** a newly flashed card starts in MustardOS's own
   first-boot setup (Date and Time, Language, Profiles, Input Tester,

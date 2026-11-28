@@ -10,21 +10,22 @@ finished milestones: [milestones.md](milestones.md) (M1–M7 in
 
 ## Current phase
 
-Phase 5 (own-card firmware). M1–M12 done: **v1.1.1 published 2026-11-27**
-(GitHub release, latest; M11 PortMaster + M12 PICO-8, decision 48; v1.1.0
-and v1.0.0 before it). v1.1.1 T3 round 4 passed; m12f is the recovery
-image. **Next: M13**, First Boot and the games card format (decision 50).
+Phase 5 (own-card firmware). M1–M13 done: **v1.1.2 ready to publish
+2026-11-28** (M13 First Boot + games card format, port libraries; T3
+round 2 ok; the user runs `build/release/publish-v1.1.2.sh`); v1.1.1
+(2026-11-27) is GitHub's latest until then. m13e is the recovery image.
+**Next: M14**, heavy-system emulators for v1.1.3 (decision 53).
 
 ## Device and bench
 
 - **Bench (2026-11-28, v1.1.2 T3):** **test128 in slot 1**, p2 = the
   developer `test128-m13e` (trial-root T2 passed, written by write-p2;
-  p2-previous = m12f in `MUOS/trial`), p3 ext4 with all the test content
+  p2-previous = m12f in `MUOS/trial`, the only m12f copy left), p3 ext4 with all the test content
   (PortMaster with the T2 ports incl. Nonny, Dueling Dragons, Rockdodger,
   Cosmosmash, Jump'n'Bump; PICO-8 with the user's private official
   PICO-8, ROMs, T2 states); boot records main = `Image-494d1c3d5ebd` +
   the undervolt DTB, previous = the stock DTB. original32 (out) holds the
-  public v1.1.2 candidate 1 on exFAT from T3 round 1. Wi-Fi dongle
+  public v1.1.2 candidate 2 on exFAT from T3 round 2. Wi-Fi dongle
   0bda:c820.
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), the
   bench card in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
@@ -53,18 +54,18 @@ card, bootloader included (procedures.md).
 
 | Image | Content | State |
 |---|---|---|
-| **`dist/firmware/test128-m12f.img.zst`** (raw `8b9df957…`, p2 `6a29a226…`, `build/m3a/test128-m12f.p2.img`) | M11 + M12 + the v1.1.1 T3 fixes + manual online update | v1.1.1 T3 round 4 ok; **recovery since 2026-11-27** (m12e retired); on the bench p2 |
-| `dist/firmware/MustardOS-R36S-port-v1.1.2.*` (raw `166bccec…`, p2 `87992779…`) | v1.1.2 candidate 2, public (83976bf, the m13e rootfs), 45 checks | **T3 round 2 pending** (original32); candidate 1 (`b012fcfc…`) replaced |
-| `dist/firmware/test128-m13e.img.zst` (raw `011bcc4f…`, p2 `e80f5be2…`) | M13 developer + the T3 round 1 fixes | T2 PASS (trial root); on the test128 p2 |
-| (v1.1.1 public, m12f) | on GitHub (release, latest; raw `d5187bd2…`, p2 `4068786a…`); local images, raw p2 and source zips deleted 2026-11-27 (manifest kept) | T3 ok 2026-11-27 |
+| **`dist/firmware/test128-m13e.img.zst`** (raw `011bcc4f…`, p2 `e80f5be2…`, `build/m3a/test128-m13e.p2.img`) | M13 + the v1.1.2 T3 round 1 fixes | **recovery since 2026-11-28** (m12f retired); on the test128 p2 |
+| `dist/firmware/MustardOS-R36S-port-v1.1.2.*` (raw `166bccec…`, p2 `87992779…`) + `build/release/MustardOS-R36S-port-v1.1.2-source-{1,2}.zip` | v1.1.2 public (83976bf, the m13e rootfs), 45 checks | T3 round 2 ok 2026-11-28; **to publish** (delete the local files after) |
+| (v1.1.1 public, m12f) | on GitHub (release, latest; raw `d5187bd2…`, p2 `4068786a…`); local files and m12f retired | T3 ok 2026-11-27 |
 | (v1.1.0 public, m10a) | on GitHub (release); local files and m10a retired 2026-11-27 | T3 ok 2026-11-26 |
 | (v1.0.0 public, m9k) | on GitHub (release); local files and m9k retired 2026-11-26 (m10a recovery) | T3 ok 2026-11-26 |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-5/5 versions in `storage-retention.json` (M2, m12f, p4test, m13e,
-v1.1.2-public; m13b, m13c, m13d and earlier retired). `build/release`
-keeps only the v1.1.1 publish script and notes (the template).
+4/5 versions in `storage-retention.json` (M2, p4test, m13e,
+v1.1.2-public; m12f, m13b–m13d and earlier retired). `build/release`:
+the v1.1.2 source zips, notes and publish script (v1.1.1's as the
+template).
 
 ## What works (T3-confirmed)
 
@@ -76,7 +77,8 @@ shutdown timer, charging fake sleep; themes, profiles, Task Toolkit,
 search, activity, screenshots (menu); GB, NES, SNES, GBA, MD, PSX, 32X,
 2600, 7800, GG, Lynx, SMS, PCE, Sega CD, PCE CD; N64 (standalone Rice);
 PSP (v1.12.3, frameskip 1), NDS (advanced DraStic), DC (Flycast 2022),
-Saturn (standalone YabaSanshiro, slow); ScummVM core + standalone with
+Saturn (standalone YabaSanshiro, slow); First Boot with Install as
+exFAT/FAT32/EXT4; PortMaster ports needing the added libraries; ScummVM core + standalone with
 the virtual keyboard; pt-BR and CJK menus; the Undervolt rows; the
 firmware update task; flashing with a host card reader; p3 auto-grow;
 power-cut recovery. Full list per milestone in milestones.md.
@@ -147,88 +149,28 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-- **Saturn: pirry's YabaSanshiro** (github.com/pirrypirrypirry/
-  yabasanshiro-pirry, GPL-2.0, source public, tuned for the RK3326,
-  1.6.4 of 2026-11-27). Bench test 2026-11-28 (test128, Sonic R, 90 s,
-  same scene): its ArkOS binary 35.5 presented frames/s vs ours 22.3
-  (its table: Sonic R 50.9 emulated fps; 140 games listed, most at 60).
-  The dArkOS binary needs GCC 14's libstdc++ (CXXABI_1.3.15; ours is
-  GCC 13); both need libGLESv2.so.2 (in m13e). The binary ignored
-  SIGTERM (Fn+Start did not quit; its own quit is Select+Start).
-  Recommendation: build it from its source in v1.1.3 (after v1.1.2)
-  with our patches (input map, SIGTERM quit, fps log, states on exit) as
-  the Saturn default, the current one selectable.
+None (decision 53: pirry's YabaSanshiro in v1.1.3; the rest of
+[emulator-survey.md](emulator-survey.md) to analyse together).
 
 ## T3 queue
 
-**v1.1.2 candidate 2 on original32, blank card (round 2)**; round 1
-(2026-11-28, candidate 1): items 1–5, 7, 9–12 ok; item 6 the Install
-screen flashed by (now held ~8 s); item 8 Nonny did not start (libzstd)
-and Dueling Dragons went black in a match (SDL2 async flip): fixed.
-1. Flash `MustardOS-R36S-port-v1.1.2.img.zst` (no `--grow`), slot 1,
-   power on: the First Boot (English).
-2. Language → Português (BR); Instalar → exFAT: "Preparando o
-   armazenamento de jogos" readable for ~8 s, restart, the menu.
-3. Configuração → Conectividade → Rede Wi-Fi: connects.
-4. Aplicativos → PortMaster: installs; inside it install Nonny, Dueling
-   Dragons and Abbaye des Morts.
-5. Explorar conteúdo → Ports → Nonny: opens, plays, Fn+Start quits.
-6. Ports → Dueling Dragons: start a match: the picture keeps moving;
-   Fn+Start quits.
-7. Ports → Abbaye des Morts (a PulseAudio port): music and effects play;
-   volume keys move the bar and the sound.
-8. Explorar conteúdo → SD1 → a NES game: plays and quits.
-9. Desligar and power on: straight to the menu (no First Boot).
+Empty (v1.1.2 T3 round 2 ok, 2026-11-28). After the publish: none.
 
-## Current milestone: M13 — First Boot and the games card format (started 2026-11-27)
+## Current milestone: M14 — heavy-system emulators, v1.1.3 (decision 53)
 
-Goal (decisions 50, 51): a fresh public card starts in MustardOS's own
-first boot (the pin's `muxinstall` in muxfrontend: Date and Time,
-Language, Profiles, Input Tester, Shutdown, Install); Install asks exFAT
-(recommended) / FAT32 / EXT4 for the card, so Windows can copy ROMs. One
-partition (p3) as upstream's SD1, whatever the format. Host-only for now
-(the bench is off for the panel); T2 when it is on.
-
-Design: the port keeps its state on p3 (not on a system partition as
-upstream), so Install cannot format p3 under the running menu: it notes
-the choice (`muos-install-storage request`) and restarts; S89 applies it
-before anything else uses p3 (`apply`: the first boot's state kept in RAM,
-p3 grown, formatted, state back, factory_reset 0; ext4 is only grown; a
-fresh card only; a failed format falls back to ext4 and the first boot).
-p3 is mounted by type in the shim (trial root), S89 and S90. Links on p3:
-`muos-link-or-bind` (DraStic resources and microphone, PPSSPP 2021's
-shared SAVEDATA, ScummVM's extra/theme: a bind on exFAT/FAT32, undone at
-stop); the time zone is text on p3 with the link in /run/muos/localtime
-(frontend patch 0004, muos-clock zone; older cards' link still read).
-The README warns about exFAT/FAT32 and power loss (decision 51).
-(A first p4 design, 65f7222/2f16e2d, was replaced by this one.)
-
-Done: exfatprogs + dosfstools; public images factory_reset 1
-(`MUOS_FIRST_BOOT=1` for a developer image); install request/apply +
-progress task (texts in 33 languages); content paths through /mnt/mmc;
-PortMaster chmod tolerant; frontend 0004 rebuilt; the early model switch
-in S89 (decision 52); install guides, README, CHANGELOG, known issues;
-LICENSING 65 packages (`make-source-bundle.sh check` ok).
-T0 shellcheck; T1 `t1-install-storage.sh` PASS (now with the S91 pickles
-seed). **T2 on original32 (2026-11-27), m13b → m13d, all PASS:**
-`t2-first-boot.sh pre`, `install exfat` (fixed: S91's Flycast seeds in
-MUOS/pickles were taken for a used card; pickles now kept), NES 59.97 fps,
-DraStic (resources/microphone binds, state on exit), PPSSPP 2021
-(SAVEDATA bind), `t2-portmaster.sh` (fixed: on exFAT/FAT32
-`/userdata/roms/ports` matched ROMS/Ports and harbourmaster took
-Batocera's folders; `muos-portmaster` sets HM_*), the update m13b → m13d
-by `muos-update stage` with the trial image on exFAT (~16 min on this
-slow card), `install vfat` (NES 59.97, PortMaster PASS), `install ext4`,
-`t2-model.sh build/m10/t2/p0copy.dtb` (a Panel 0 copy with one extra
-property; armed in S89, promoted 39 s later; the script now refuses a
-DTB already on p1). Public v1.1.2 built (45 checks).
-**T3 round 1 fixes (2026-11-28, 83976bf, m13e):** 15 libraries for
-PortMaster ports (a scan of 150 ready-to-run ports: 53 lacked one) with
-pipewire-pulse started before a port; versioned Mali names; SDL2 patch
-0005 (async flip refused by the 4.4 VOP: fall back to vblank; Dueling
-Dragons 0 pageflip errors); Install screen held. T2 on test128 (trial
-root): t2-portmaster PASS with nonny and duelingdragons, Rockdodger,
-Cosmosmash, Jump'n'Bump, pactl on PipeWire 1.2.8, NES 59.98, PPSSPP.
-LICENSING 83 packages (`make-source-bundle.sh check` ok).
-Left: T3 round 2 above, then the release (procedures "Release").
-Release: v1.1.2. Then M14: the MustardOS next release (decision 45).
+Goal: pirry's YabaSanshiro as the Saturn default, built from source
+(github.com/pirrypirrypirry/yabasanshiro-pirry, GPL-2.0; ROCKNIX's
+`yabasanshiro-pirry-sa` recipe as a reference), then the survey items
+the user picks (docs/emulator-survey.md).
+Items (plan):
+1. `build-yabasanshiro-pirry.sh` in the container (GLES3, our GCC 13
+   sysroot), the port's patches carried over: muOS-Keys input map,
+   SIGTERM quit (Fn+Start), the fps log for T2, state on exit if the
+   other standalones do it; its per-game menu and settings kept.
+2. `muos-yabasanshiro` picks it (`ext-yabasanshiro-pirry` default, the
+   current one selectable); a migration moves Saturn folders that still
+   carry the old default.
+3. T2: Sonic R and two more games (fps log, presented frames, heat),
+   quit, sleep/resume, BIOS and HLE.
+4. Survey A/Bs the user approves (DSperate, Flycast 2021, ...).
+Expected T3: Saturn games feel, the menu (Select), quit, states.

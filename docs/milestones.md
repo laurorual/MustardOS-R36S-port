@@ -4,6 +4,44 @@ Results and checklists of finished Phase 5 milestones, moved out of
 [STATUS.md](STATUS.md). Newest first. The C1–C122 history is in
 [archive/phase4/](archive/phase4/README.md).
 
+## M13 — First Boot and the games card format (done 2026-11-28, v1.1.2; m13e is recovery)
+
+Decisions 50–53. A fresh public card starts in the pin's muxinstall
+(Date and Time, Language, Profiles, Input Tester, Shutdown, Install);
+Install formats p3 as exFAT (default), FAT32 or EXT4: `muos-install-storage
+request` notes the choice, S89 applies it at the next start before
+anything uses p3 (first-boot state kept in RAM, p3 grown and formatted,
+state back, factory_reset 0; a failed format falls back to ext4).
+`muos-link-or-bind` binds where symlinks fail (DraStic, PPSSPP 2021
+SAVEDATA, ScummVM). The model switch moved to S89 (decision 52).
+
+- T1: `t1-install-storage.sh` PASS (exfat, vfat, ext4, retry, small and
+  foreign cards, the S91 pickles seed).
+- T2 on original32 (m13b → m13d): `t2-first-boot.sh pre`, `install
+  exfat|vfat|ext4`, NES 59.97 fps, DraStic, PPSSPP 2021, PortMaster, the
+  update by `muos-update stage` with the trial image on exFAT (~16 min on
+  that slow card), `t2-model.sh` with a Panel 0 copy. Fixed on the way:
+  S91's Flycast seeds in MUOS/pickles were taken for a used card;
+  harbourmaster took Batocera's folders on exFAT/FAT32
+  (`/userdata/roms/ports` matched ROMS/Ports case-insensitively;
+  `muos-portmaster hm-env` sets HM_*).
+- T3 round 1 (candidate 1, original32): 10 of 12 ok; the Install screen
+  flashed by; Nonny did not start (its libtiff needs libzstd) and
+  Dueling Dragons went black (the 4.4 VOP refuses DRM_MODE_PAGE_FLIP_ASYNC
+  although it reports the cap: SDL2 patch 0005 falls back to vblank). A
+  scan of the 150 smallest ready-to-run ports found 53 lacking a root
+  library: 15 packages added (83 in all), pipewire-pulse started before a
+  port, versioned Mali names. T2 on test128 (m13e trial root, then
+  written): t2-portmaster with nonny and duelingdragons, Rockdodger,
+  Cosmosmash, Jump'n'Bump, Abbaye des Morts through pipewire-pulse, NES
+  59.98, PPSSPP.
+- T3 round 2 (candidate 2, `166bccec…`, original32): all 9 ok (Install
+  screen readable, Wi-Fi, PortMaster, Nonny, Dueling Dragons in a match,
+  Abbaye des Morts sound and volume, NES, no First Boot after Install).
+  m13e promoted to recovery, m12f retired.
+- Bench 2026-11-28: pirry's YabaSanshiro 35.5 vs ours 22.3 presented
+  frames/s in Sonic R (v1.1.3, decision 53; docs/emulator-survey.md).
+
 ## M11 + M12 — PortMaster and PICO-8 (done 2026-11-27, v1.1.1 published; m12f is recovery)
 
 Released together as v1.1.1 (decision 48). v1.1.1 T3 round 4 (2026-11-27,
