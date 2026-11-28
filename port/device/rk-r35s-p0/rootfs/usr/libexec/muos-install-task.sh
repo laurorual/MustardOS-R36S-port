@@ -28,6 +28,9 @@ if ! /usr/libexec/muos-install-storage request "$fs" 2>/run/muos/install-storage
 	exit 1
 fi
 TASK_PROGRESS 1 1
+# the request takes a moment: hold the screen long enough to be read
+# (v1.1.2 T3 item 6: it flashed by before the restart)
+sleep 5
 TASK_COMPLETE "$(T 'The device restarts and prepares the card (about a minute)')"
 sleep 3
 reboot

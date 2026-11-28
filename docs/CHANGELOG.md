@@ -20,6 +20,16 @@ team: https://github.com/laurorual/MustardOS-R36S-port/issues
 - A model chosen on a PC (`select-model` or `model.txt`) switches a few
   seconds after power-on, before the menu starts (it used to wait for
   the menu, about a minute of black screen on another panel).
+- **More PortMaster ports run:** the libraries many ports expect from
+  the system are now included (zstd, Vorbis, OpenAL, ModPlug, libsndfile,
+  SDL2_gfx, SDL2_net, fontconfig, mpg123, Opus, libevdev, Speex and the
+  PulseAudio client, played through PipeWire): 53 of 150 ready-to-run
+  ports checked needed at least one. Nonny starts again.
+- GameMaker ports (gmloadernext, e.g. Dueling Dragons) and other SDL2
+  OpenGL ES games without vsync no longer freeze on a black screen
+  after the first frame.
+- Install's "Preparing the games storage" screen stays up long enough to
+  be read before the restart.
 
 ## v1.1.1 (2026-11-27)
 

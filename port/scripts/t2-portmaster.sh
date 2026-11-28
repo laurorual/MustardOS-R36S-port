@@ -6,7 +6,8 @@
 #      present; status = installed
 #   2. harbourmaster CLI installs the test ports (SDL2: sdlsopwith;
 #      Godot frt runtime squashfs: turbotabletennis; libretro via the
-#      retroarch shim: 2048)
+#      retroarch shim: 2048; v1.1.2 T3: nonny (its libtiff needs the
+#      root's libzstd), duelingdragons (GameMaker, gmloadernext))
 #   3. each port through the frontend's content handoff, 30 s, Fn+Start,
 #      back to the menu (t2-standalone.sh); no leftover processes or
 #      runtime mounts
@@ -27,7 +28,7 @@ if [ "$(r '/usr/libexec/muos-portmaster status')" = missing ]; then
 fi
 st=$(r '/usr/libexec/muos-portmaster status'); case $st in installed*) ;; *) fail "1: $st" ;; esac
 say "ok   1: $st"
-for p in sdlsopwith turbotabletennis 2048; do
+for p in sdlsopwith turbotabletennis 2048 nonny duelingdragons; do
     r "eval \"\$(/usr/libexec/muos-portmaster hm-env)\"; cd $pm && HOME=/root PYSDL2_DLL_PATH=/usr/lib python3 ./harbourmaster --quiet install $p.zip" >> "$log" 2>&1 ||
         fail "2: harbourmaster install $p"
 done
@@ -45,6 +46,8 @@ done <<'EOF'
 sopwith SDL_Sopwith.sh sopwith
 ttt TurboTableTennis.sh frt_3.5.2
 2048 2048.sh muxretro
+nonny Nonny.sh nonny
+dd Dueling_Dragons.sh gmloadernext.aarch64
 EOF
 r 'printf %s /opt/muos/share/application/PortMaster > /run/muos/application; echo app > /run/muos/action
    for q in $(pidof muxfrontend); do kill -TERM "$q"; done'

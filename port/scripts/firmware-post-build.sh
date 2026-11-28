@@ -131,6 +131,11 @@ mali=/work/foundation/provider-source/lib/aarch64-linux-gnu/libmali-bifrost-g31-
 [ "$(sha256sum < "$mali" | cut -d' ' -f1)" = 2a067ea38256c3de139b2a5396d3101f7c7777b1e19d59017b2c02172500d0ea ]
 cp "$mali" "$1/usr/lib/libmali-bifrost-g31-rxp0-gbm.so"
 chmod 755 "$1/usr/lib/libmali-bifrost-g31-rxp0-gbm.so"
+# v1.1.2: the versioned names Mesa systems have (PortMaster ports and the
+# prebuilt standalone emulators link libGLESv2.so.2 / libEGL.so.1)
+for l in libEGL.so.1 libGLESv2.so.2 libGLESv1_CM.so.1 libgbm.so.1; do
+    ln -sfn libmali-bifrost-g31-rxp0-gbm.so "$1/usr/lib/$l"
+done
 # M9 rc1 T3: first-boot defaults of a fresh card (p3 seeds its config from
 # these once). Some pinned config files carried the bench's own values:
 # English (upstream), the saved volume at 50 % and startup volume

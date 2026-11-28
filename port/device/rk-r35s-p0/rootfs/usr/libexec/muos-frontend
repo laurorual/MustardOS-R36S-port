@@ -82,6 +82,17 @@ audio_check() {
     /opt/muos/script/init/S80pipewire.sh restart >/dev/null 2>&1 || say "audio: PipeWire restart failed"
 }
 
+# v1.1.2: ports built for PulseAudio (libpulse, libpulse-simple: SDL 1.2
+# ports and others) play through PipeWire's pulse server (pipewire-pulse,
+# /run/pulse/native). Started before a port, outside its session; it ends
+# with a PipeWire restart and starts again at the next port.
+pulse_server() {
+    [ "$SDL_AUDIODRIVER" = pipewire ] || return 0
+    pidof pipewire > /dev/null || return 0
+    pidof pipewire-pulse > /dev/null && return 0
+    setsid pipewire-pulse >> /opt/muos/log/pipewire-pulse.log 2>&1 < /dev/null &
+}
+
 track=/opt/muos/script/mux/track.sh
 # shellcheck source=/dev/null
 . /usr/share/muos-r35s/sdl-env.sh
@@ -188,6 +199,7 @@ launch_content() {
             run_child env LD_PRELOAD="$levelbar" /usr/libexec/muos-pico8 "$m" "$content" >> /opt/muos/log/frontend.log 2>&1
         elif [ "$ext" = port ]; then
             foreground external
+            pulse_server
             run_session /opt/muos/log/port.log bash "$content"
         elif [ "$ext" = ppsspp ] && case "$core $launch" in *ext-ppsspp-2021*) true ;; *) false ;; esac; then
             run_child /usr/libexec/muos-ppsspp --2021 "$content" >> /opt/muos/log/frontend.log 2>&1

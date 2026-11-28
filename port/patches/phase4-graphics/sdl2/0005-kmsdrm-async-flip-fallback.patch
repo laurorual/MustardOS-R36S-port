@@ -1,0 +1,30 @@
+SDL2: KMSDRM retries a refused async page flip on vblank
+
+SPDX-License-Identifier: Zlib
+Local alteration (v1.1.2 T3): the RK3326 kernel (4.4, Rockchip VOP)
+reports DRM_CAP_ASYNC_PAGE_FLIP, but its atomic page flip helper refuses
+DRM_MODE_PAGE_FLIP_ASYNC with EINVAL. An SDL2 GL app with swap interval 0
+(GameMaker ports through gmloadernext, e.g. Dueling Dragons) then got
+"Could not queue pageflip: -22" on every frame after the first and showed
+a frozen or black screen. On that EINVAL SDL now drops the async flag for
+the rest of the session and flips on vblank, as with vsync on.
+
+--- a/src/video/kmsdrm/SDL_kmsdrmopengles.c	2026-11-28 00:23:33.466136335 -0300
++++ b/src/video/kmsdrm/SDL_kmsdrmopengles.c	2026-11-28 00:23:33.480196732 -0300
+@@ -181,6 +181,16 @@
+         ret = KMSDRM_drmModePageFlip(viddata->drm_fd, dispdata->crtc->crtc_id,
+                                      fb_info->fb_id, flip_flags, &windata->waiting_for_flip);
+ 
++        /* A driver may report DRM_CAP_ASYNC_PAGE_FLIP and still refuse the
++           flag (EINVAL, the atomic page flip helper of older kernels):
++           flip on vblank from then on. */
++        if (ret == -EINVAL && (flip_flags & DRM_MODE_PAGE_FLIP_ASYNC)) {
++            viddata->async_pageflip_support = SDL_FALSE;
++            flip_flags &= ~DRM_MODE_PAGE_FLIP_ASYNC;
++            ret = KMSDRM_drmModePageFlip(viddata->drm_fd, dispdata->crtc->crtc_id,
++                                         fb_info->fb_id, flip_flags, &windata->waiting_for_flip);
++        }
++
+         if (ret == 0) {
+             windata->waiting_for_flip = SDL_TRUE;
+         } else {
