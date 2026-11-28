@@ -29,17 +29,8 @@
         "dist/firmware/MustardOS-R36S-port-v1.1.1-p4test.manifest"
       ]
     },
-    "test128-m13d": {
-      "reason": "M13 T2: pickles + PortMaster exFAT fixes (e6462d9); exFAT update test, T3 base",
-      "files": [
-        "dist/firmware/test128-m13d.img.zst",
-        "dist/firmware/test128-m13d.img.zst.sha256",
-        "dist/firmware/test128-m13d.manifest",
-        "build/m3a/test128-m13d.p2.img"
-      ]
-    },
     "v1.1.2-public": {
-      "reason": "v1.1.2 candidate (public, e6462d9, same rootfs as m13d): first boot + games storage format, raw b012fcfc, p2 49ed4c87; 45 public checks; T3 on original32 pending",
+      "reason": "v1.1.2 candidate 2 (public, 83976bf, same rootfs as m13e): first boot + games storage format + the T3 round 1 fixes (port libraries, SDL2 async flip fallback), raw 166bccec, p2 87992779; 45 public checks; T3 round 1 (candidate 1, b012fcfc) on original32: items 6 and 8 fixed",
       "files": [
         "dist/firmware/MustardOS-R36S-port-v1.1.2.img.xz",
         "dist/firmware/MustardOS-R36S-port-v1.1.2.img.xz.sha256",
@@ -49,6 +40,15 @@
         "dist/firmware/MustardOS-R36S-port-v1.1.2.p2.img.gz",
         "dist/firmware/MustardOS-R36S-port-v1.1.2.p2.img.sha256",
         "build/m3a/MustardOS-R36S-port-v1.1.2.p2.img"
+      ]
+    },
+    "test128-m13e": {
+      "reason": "v1.1.2 T3 fixes (83976bf): 15 libraries for PortMaster ports + pipewire-pulse, SDL2 0005 async flip fallback, versioned Mali names, Install screen hold; raw 011bcc4f, p2 e80f5be2; T2 on test128 as the trial root (t2-portmaster with nonny and duelingdragons, NES 59.98, PPSSPP)",
+      "files": [
+        "dist/firmware/test128-m13e.img.zst",
+        "dist/firmware/test128-m13e.img.zst.sha256",
+        "dist/firmware/test128-m13e.manifest",
+        "build/m3a/test128-m13e.p2.img"
       ]
     }
   },

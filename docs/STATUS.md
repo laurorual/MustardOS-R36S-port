@@ -17,15 +17,15 @@ image. **Next: M13**, First Boot and the games card format (decision 50).
 
 ## Device and bench
 
-- **Bench (2026-11-27, M13 T2, decision 52):** **original32 in slot 1**
-  with the developer `test128-m13d` (flashed as m13b, updated to m13d by
-  `muos-update stage` on exFAT; p3 now ext4 after the last
-  `t2-first-boot.sh install ext4`, factory_reset 0, Portuguese (BR),
-  São Paulo zone; no games). Its old public v1.1.0 is gone. test128
-  (off, in the drawer) keeps m12f with all the test content (PortMaster,
-  PICO-8 with the user's private official PICO-8, ROMs, T2 states);
-  boot records main = `Image-494d1c3d5ebd` + the undervolt DTB, previous =
-  the stock DTB. Wi-Fi dongle on original32 bench runs: 0bda:c820.
+- **Bench (2026-11-28, v1.1.2 T3):** **test128 in slot 1**, p2 = the
+  developer `test128-m13e` (trial-root T2 passed, written by write-p2;
+  p2-previous = m12f in `MUOS/trial`), p3 ext4 with all the test content
+  (PortMaster with the T2 ports incl. Nonny, Dueling Dragons, Rockdodger,
+  Cosmosmash, Jump'n'Bump; PICO-8 with the user's private official
+  PICO-8, ROMs, T2 states); boot records main = `Image-494d1c3d5ebd` +
+  the undervolt DTB, previous = the stock DTB. original32 (out) holds the
+  public v1.1.2 candidate 1 on exFAT from T3 round 1. Wi-Fi dongle
+  0bda:c820.
 - **Device:** R35S Panel 0 (DT model R36S-V12 2023-08-18 Panel 0), the
   bench card in slot 1 (mmcblk0 by DT alias), slot 2 empty. `user_init` = 0, time
   zone −03. Access, identity and card layout: procedures.md.
@@ -54,16 +54,16 @@ card, bootloader included (procedures.md).
 | Image | Content | State |
 |---|---|---|
 | **`dist/firmware/test128-m12f.img.zst`** (raw `8b9df957…`, p2 `6a29a226…`, `build/m3a/test128-m12f.p2.img`) | M11 + M12 + the v1.1.1 T3 fixes + manual online update | v1.1.1 T3 round 4 ok; **recovery since 2026-11-27** (m12e retired); on the bench p2 |
-| `dist/firmware/MustardOS-R36S-port-v1.1.2.*` (raw `b012fcfc…`, p2 `49ed4c87…`) | v1.1.2 candidate, public (e6462d9, the m13d rootfs), 45 checks | **T3 pending** (original32) |
-| `dist/firmware/test128-m13d.img.zst` (raw `2325c3a6…`, p2 `fdae3cbc…`) | M13 developer, MUOS_FIRST_BOOT=1 | M13 T2 PASS; on original32 |
+| `dist/firmware/MustardOS-R36S-port-v1.1.2.*` (raw `166bccec…`, p2 `87992779…`) | v1.1.2 candidate 2, public (83976bf, the m13e rootfs), 45 checks | **T3 round 2 pending** (original32); candidate 1 (`b012fcfc…`) replaced |
+| `dist/firmware/test128-m13e.img.zst` (raw `011bcc4f…`, p2 `e80f5be2…`) | M13 developer + the T3 round 1 fixes | T2 PASS (trial root); on the test128 p2 |
 | (v1.1.1 public, m12f) | on GitHub (release, latest; raw `d5187bd2…`, p2 `4068786a…`); local images, raw p2 and source zips deleted 2026-11-27 (manifest kept) | T3 ok 2026-11-27 |
 | (v1.1.0 public, m10a) | on GitHub (release); local files and m10a retired 2026-11-27 | T3 ok 2026-11-26 |
 | (v1.0.0 public, m9k) | on GitHub (release); local files and m9k retired 2026-11-26 (m10a recovery) | T3 ok 2026-11-26 |
 | (v1.0.0-rc2 public) | on GitHub (pre-release); local files deleted 2026-11-26 | T3 ok 2026-11-25 |
 | `dist/recovery/test128-m2-20261111.img.zst` (raw `34beb417…`) | M2 | **base of every image build**; never retire |
 
-5/5 versions in `storage-retention.json` (M2, m12f, p4test, m13d,
-v1.1.2-public; m13b, m13c and earlier retired). `build/release`
+5/5 versions in `storage-retention.json` (M2, m12f, p4test, m13e,
+v1.1.2-public; m13b, m13c, m13d and earlier retired). `build/release`
 keeps only the v1.1.1 publish script and notes (the template).
 
 ## What works (T3-confirmed)
@@ -147,28 +147,38 @@ power-cut recovery. Full list per milestone in milestones.md.
 
 ## Decisions for the user
 
-None (decision 52: the model switch stays in S89; M13 = v1.1.2;
-flash tests on original32).
+- **Saturn: pirry's YabaSanshiro** (github.com/pirrypirrypirry/
+  yabasanshiro-pirry, GPL-2.0, source public, tuned for the RK3326,
+  1.6.4 of 2026-11-27). Bench test 2026-11-28 (test128, Sonic R, 90 s,
+  same scene): its ArkOS binary 35.5 presented frames/s vs ours 22.3
+  (its table: Sonic R 50.9 emulated fps; 140 games listed, most at 60).
+  The dArkOS binary needs GCC 14's libstdc++ (CXXABI_1.3.15; ours is
+  GCC 13); both need libGLESv2.so.2 (in m13e). The binary ignored
+  SIGTERM (Fn+Start did not quit; its own quit is Select+Start).
+  Recommendation: build it from its source in v1.1.3 (after v1.1.2)
+  with our patches (input map, SIGTERM quit, fps log, states on exit) as
+  the Saturn default, the current one selectable.
 
 ## T3 queue
 
-**v1.1.2 (public candidate) on original32, blank card** (sent 2026-11-27):
-1. Flash `MustardOS-R36S-port-v1.1.2.img.zst` (flash-card.sh, no
-   `--grow`), slot 1, power on: logo, then the First Boot (English).
-2. Language → Português (BR) (the First Boot starts in English): the screens switch.
-3. Data e hora: time and Fuso horário (São Paulo).
-4. Perfis, Teste de botões: open, every button shows, back.
-5. Desligar: off; power on: the First Boot again, language kept.
-6. Instalar → exFAT: progress screen, restart, the main menu in pt-BR
-   with the time set; no First Boot at the next start.
-7. Configuração → Conectividade → Rede Wi-Fi: connects.
-8. Aplicativos → PortMaster: installs, opens; one port installed plays.
-9. Power off; the card on a PC (Windows if possible): the storage drive
-   with `ROMS` and `MUOS`; copy a ROM into `ROMS/<system>`, eject.
-10. Explorar conteúdo → SD1 → the system → the ROM plays and quits.
-11. Restart: clock and zone right (Configuração → Data e hora).
-12. Aplicativos → Ferramentas de sistema → Buscar atualização online:
-    up to date (GitHub's v1.1.1 is older: not offered).
+**v1.1.2 candidate 2 on original32, blank card (round 2)**; round 1
+(2026-11-28, candidate 1): items 1–5, 7, 9–12 ok; item 6 the Install
+screen flashed by (now held ~8 s); item 8 Nonny did not start (libzstd)
+and Dueling Dragons went black in a match (SDL2 async flip): fixed.
+1. Flash `MustardOS-R36S-port-v1.1.2.img.zst` (no `--grow`), slot 1,
+   power on: the First Boot (English).
+2. Language → Português (BR); Instalar → exFAT: "Preparando o
+   armazenamento de jogos" readable for ~8 s, restart, the menu.
+3. Configuração → Conectividade → Rede Wi-Fi: connects.
+4. Aplicativos → PortMaster: installs; inside it install Nonny, Dueling
+   Dragons and Abbaye des Morts.
+5. Explorar conteúdo → Ports → Nonny: opens, plays, Fn+Start quits.
+6. Ports → Dueling Dragons: start a match: the picture keeps moving;
+   Fn+Start quits.
+7. Ports → Abbaye des Morts (a PulseAudio port): music and effects play;
+   volume keys move the bar and the sound.
+8. Explorar conteúdo → SD1 → a NES game: plays and quits.
+9. Desligar and power on: straight to the menu (no First Boot).
 
 ## Current milestone: M13 — First Boot and the games card format (started 2026-11-27)
 
@@ -212,5 +222,13 @@ slow card), `install vfat` (NES 59.97, PortMaster PASS), `install ext4`,
 `t2-model.sh build/m10/t2/p0copy.dtb` (a Panel 0 copy with one extra
 property; armed in S89, promoted 39 s later; the script now refuses a
 DTB already on p1). Public v1.1.2 built (45 checks).
-Left: the T3 above, then the release (procedures "Release").
+**T3 round 1 fixes (2026-11-28, 83976bf, m13e):** 15 libraries for
+PortMaster ports (a scan of 150 ready-to-run ports: 53 lacked one) with
+pipewire-pulse started before a port; versioned Mali names; SDL2 patch
+0005 (async flip refused by the 4.4 VOP: fall back to vblank; Dueling
+Dragons 0 pageflip errors); Install screen held. T2 on test128 (trial
+root): t2-portmaster PASS with nonny and duelingdragons, Rockdodger,
+Cosmosmash, Jump'n'Bump, pactl on PipeWire 1.2.8, NES 59.98, PPSSPP.
+LICENSING 83 packages (`make-source-bundle.sh check` ok).
+Left: T3 round 2 above, then the release (procedures "Release").
 Release: v1.1.2. Then M14: the MustardOS next release (decision 45).
